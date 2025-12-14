@@ -5,6 +5,7 @@ import json
 import constants as ct
 import node
 import edge
+from PIL import ImageGrab
 
 
 class FlowchartTool(tk.Tk):
@@ -62,22 +63,22 @@ class FlowchartTool(tk.Tk):
         add_mode_button("I/O", "add:io")
         add_mode_button("Link", "link")
 
-        ttk.Button(toolbar, text="Delete", command=self.delete_selected).pack(side=tk.LEFT, padx=8)
+        ttk.Button(toolbar, text="Delete", command=self.delete_selected).pack(side=tk.LEFT, padx=1)
 
         # グリッドON/OFF
-        ttk.Checkbutton(toolbar, text="Grid", variable=self.grid_on, command=self.on_grid_toggle).pack(side=tk.LEFT, padx=4)
+        ttk.Checkbutton(toolbar, text="Grid", variable=self.grid_on, command=self.on_grid_toggle).pack(side=tk.LEFT, padx=1)
 
         # Undo/Redo
-        ttk.Button(toolbar, text="Undo", command=self.undo).pack(side=tk.LEFT, padx=4)
-        ttk.Button(toolbar, text="Redo", command=self.redo).pack(side=tk.LEFT, padx=4)
-
+        ttk.Button(toolbar, text="Undo", command=self.undo).pack(side=tk.LEFT, padx=1)
+        ttk.Button(toolbar, text="Redo", command=self.redo).pack(side=tk.LEFT, padx=1)
         # JSON保存/読み込み
-        ttk.Button(toolbar, text="Save JSON", command=self.save_json).pack(side=tk.LEFT, padx=4)
-        ttk.Button(toolbar, text="Load JSON", command=self.load_json).pack(side=tk.LEFT, padx=4)
-
+        ttk.Button(toolbar, text="Save JSON", command=self.save_json).pack(side=tk.LEFT, padx=1)
+        ttk.Button(toolbar, text="Load JSON", command=self.load_json).pack(side=tk.LEFT, padx=1)
+        # 画像保存
+        ttk.Button(toolbar, text="Save Image", command=self.on_save).pack(side=tk.LEFT, padx=1)
         # 状態ラベル
         self.status_label = ttk.Label(toolbar, text="Mode: select")
-        self.status_label.pack(side=tk.RIGHT, padx=8)
+        self.status_label.pack(side=tk.RIGHT, padx=4)
 
         # キャンバス
         self.canvas = tk.Canvas(self, bg=ct.CANVAS_BG_COLOR)
@@ -172,7 +173,6 @@ class FlowchartTool(tk.Tk):
             self.select_nodes([node_id])
 
     def select_nodes(self, node_ids):
-        print(f"select_node: {node_ids}")
 
         if node_ids is not None and len(node_ids) == 1:
             node_id = node_ids[0]
@@ -201,7 +201,6 @@ class FlowchartTool(tk.Tk):
                         self.canvas.itemconfig(shape_id, outline=ct.SELECTED_OUTLINE_COLOR)  # 水色
 
     def select_edge(self, edge_obj):
-        print(f"select_edge: {edge_obj.line_id}")
         if edge_obj is None:
             return
 
@@ -225,7 +224,6 @@ class FlowchartTool(tk.Tk):
             self.canvas.itemconfig(edge_id, fill=ct.SELECTED_EDGE_COLOR)  # 水色
 
     def cancel_selection_node_and_edge(self):
-        print("cancel_selection_node_and_edge")
         # ノードとエッジの選択解除
         # 既存選択のハイライト解除（ノード）
         if self.selected_node_ids is not None and len(self.selected_node_ids) > 0:
@@ -441,8 +439,6 @@ class FlowchartTool(tk.Tk):
             self.history.append(snapshot)
             self.history_index += 1
 
-        print(f"push_history: index={self.history_index}, total={len(self.history)}")
-
     def undo(self):
         if self.history_index <= 0:
             return
@@ -490,7 +486,6 @@ class FlowchartTool(tk.Tk):
     # ------------ テキスト編集（ダブルクリック） ------------
 
     def on_canvas_double_click(self, event):
-        print("on_canvas_double_click")
         if self.mode.get() != "select":
             return
         nid = self.node_at(event.x, event.y)
@@ -609,7 +604,6 @@ class FlowchartTool(tk.Tk):
     # ------------ イベントハンドラ ------------
 
     def on_canvas_click(self, event):
-        print("on_canvas_click")
         mode = self.mode.get()
 
         if self.text_edit is not None and mode == "select":
@@ -653,7 +647,6 @@ class FlowchartTool(tk.Tk):
                 self.delete_edge(edge)
 
     def on_drag_start(self, event):
-        print("on_drag_start")
 
         if self.mode.get() == "link":
             return
@@ -691,7 +684,6 @@ class FlowchartTool(tk.Tk):
             self.drag_data["end_y"] = event.y
 
     def on_drag_move(self, event):
-        print("on_drag_move")
 
         if self.mode.get() == "link":
             return
@@ -721,7 +713,6 @@ class FlowchartTool(tk.Tk):
             self._update_edges_for_node(nid)
 
     def on_drag_end(self, event):
-        print("on_drag_end")
 
         if self.mode.get() == "link":
             return
@@ -830,6 +821,40 @@ class FlowchartTool(tk.Tk):
                     self.canvas.itemconfig(edge_obj.label_id, anchor=anchor, justify=justify)
 
         self.canvas.tag_lower("edge", "node")
+
+    # ------------ Canvasの画像保存(JPEG,PNG) ------------
+
+    def save_canvas_as_image(self, file_path: str):
+        # Canvasの位置（画面座標）を取得して、その範囲だけキャプチャ
+        self.canvas.update()  # 描画を確定
+        x = self.canvas.winfo_rootx()
+        y = self.canvas.winfo_rooty()
+        w = self.canvas.winfo_width()
+        h = self.canvas.winfo_height()
+        bbox = (x, y, x + w, y + h)  # (left, top, right, bottom)
+        img = ImageGrab.grab(bbox=bbox)
+
+        # 拡張子に合わせて保存（JPEGはRGB必須）
+        ext = file_path.lower().split(".")[-1]
+        if ext in ("jpg", "jpeg"):
+            img = img.convert("RGB")
+            img.save(file_path, "JPEG", quality=95)
+        else:
+            img.save(file_path, "PNG")
+
+    def on_save(self):
+        path = filedialog.asksaveasfilename(
+            defaultextension=".png",
+            filetypes=[("PNG", "*.png"), ("JPEG", "*.jpg;*.jpeg")],
+        )
+        if not path:
+            return
+        try:
+            self.save_canvas_as_image(path)
+            messagebox.showinfo("Saved", f"Saved to:\n{path}")
+        except Exception as e:
+            messagebox.showerror("Error", str(e))
+
 
 
 if __name__ == "__main__":

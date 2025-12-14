@@ -3,8 +3,8 @@
     {
       "id": 1,
       "type": "terminator",
-      "x": 420,
-      "y": 70,
+      "x": 260,
+      "y": 110,
       "w": 160,
       "h": 60,
       "text": "Start"
@@ -12,8 +12,8 @@
     {
       "id": 2,
       "type": "process",
-      "x": 420,
-      "y": 170,
+      "x": 260,
+      "y": 210,
       "w": 160,
       "h": 60,
       "text": "変数初期化"
@@ -21,8 +21,8 @@
     {
       "id": 4,
       "type": "decision",
-      "x": 420,
-      "y": 270,
+      "x": 260,
+      "y": 310,
       "w": 160,
       "h": 60,
       "text": "分岐条件"
@@ -30,8 +30,8 @@
     {
       "id": 7,
       "type": "terminator",
-      "x": 420,
-      "y": 570,
+      "x": 780,
+      "y": 490,
       "w": 160,
       "h": 60,
       "text": "End"
@@ -39,17 +39,17 @@
     {
       "id": 9,
       "type": "process",
-      "x": 420,
-      "y": 470,
+      "x": 780,
+      "y": 190,
       "w": 160,
       "h": 60,
-      "text": "修了処理"
+      "text": "Process"
     },
     {
       "id": 10,
       "type": "io",
-      "x": 620,
-      "y": 370,
+      "x": 480,
+      "y": 510,
       "w": 160,
       "h": 60,
       "text": "ファイル出力"
@@ -57,11 +57,47 @@
     {
       "id": 12,
       "type": "process",
-      "x": 420,
-      "y": 370,
+      "x": 260,
+      "y": 410,
       "w": 160,
       "h": 60,
-      "text": "ループ処理"
+      "text": "ループ処理①"
+    },
+    {
+      "id": 13,
+      "type": "process",
+      "x": 260,
+      "y": 510,
+      "w": 160,
+      "h": 60,
+      "text": "ループ処理②"
+    },
+    {
+      "id": 14,
+      "type": "process",
+      "x": 480,
+      "y": 410,
+      "w": 160,
+      "h": 60,
+      "text": "出力データ加工"
+    },
+    {
+      "id": 15,
+      "type": "process",
+      "x": 780,
+      "y": 290,
+      "w": 160,
+      "h": 60,
+      "text": "Process"
+    },
+    {
+      "id": 16,
+      "type": "process",
+      "x": 780,
+      "y": 390,
+      "w": 160,
+      "h": 60,
+      "text": "終了処理"
     }
   ],
   "edges": [
@@ -76,16 +112,6 @@
       "label": null
     },
     {
-      "from_id": 9,
-      "to_id": 7,
-      "label": null
-    },
-    {
-      "from_id": 4,
-      "to_id": 10,
-      "label": "No"
-    },
-    {
       "from_id": 10,
       "to_id": 9,
       "label": null
@@ -97,7 +123,37 @@
     },
     {
       "from_id": 12,
+      "to_id": 13,
+      "label": null
+    },
+    {
+      "from_id": 13,
       "to_id": 4,
+      "label": null
+    },
+    {
+      "from_id": 4,
+      "to_id": 14,
+      "label": "No"
+    },
+    {
+      "from_id": 14,
+      "to_id": 10,
+      "label": null
+    },
+    {
+      "from_id": 9,
+      "to_id": 15,
+      "label": null
+    },
+    {
+      "from_id": 15,
+      "to_id": 16,
+      "label": null
+    },
+    {
+      "from_id": 16,
+      "to_id": 7,
       "label": null
     }
   ]

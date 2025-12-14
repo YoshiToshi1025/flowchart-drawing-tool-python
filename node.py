@@ -5,10 +5,10 @@ import math
 class Node:
     id = None
     type = None
-    x = None
-    y = None
-    w = None
-    h = None
+    x:int = 0
+    y:int = 0
+    w:int = 0
+    h:int = 0
     text = None
     shape_id = None
     text_id = None

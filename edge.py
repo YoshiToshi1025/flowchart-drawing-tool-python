@@ -170,13 +170,19 @@ class Edge:
                     label_x = coords[0] + 6
                     label_y = coords[1] + 8
                 anchor = "nw"
-            elif from_right_x < to_left_x and to_top_y <= from_bottom_y:
+            elif from_right_x < to_left_x and from_top_y <= to_bottom_y and to_top_y <= from_bottom_y:
                 coords = self.rect_anchor_right_to_left(from_node_obj, to_node_obj)
                 if coords is not None and coords != []:
                     label_x = coords[0] + 8
                     label_y = coords[1]
                 anchor = "sw"
-            elif to_right_x < from_left_x and to_top_y <= from_bottom_y:
+            elif from_right_x + from_width/2 < to_left_x and to_bottom_y < from_top_y:
+                coords = self.rect_anchor_right_to_left(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + 8
+                    label_y = coords[1]
+                anchor = "sw"
+            elif to_right_x < from_left_x and from_top_y <= to_bottom_y and to_top_y <= from_bottom_y:
                 coords = self.rect_anchor_left_to_right(from_node_obj, to_node_obj)
                 if coords is not None and coords != []:
                     label_x = coords[0] - 8
@@ -187,14 +193,14 @@ class Edge:
                     coords = self.rect_anchor_right_to_right(from_node_obj, to_node_obj)
                     if coords is not None and coords != []:
                         label_x = coords[0] + 8
-                        label_y = coords[1]
-                    anchor = "sw"
+                        label_y = coords[1] + 4
+                    anchor = "nw"
                 else:
                     coords = self.rect_anchor_left_to_left(from_node_obj, to_node_obj)
                     if coords is not None and coords != []:
                         label_x = coords[0] - 8
-                        label_y = coords[1]
-                    anchor = "se"
+                        label_y = coords[1] + 4
+                    anchor = "ne"
 
         if coords == [] or coords is None:
             coords = self.line_anchor(from_node_obj, to_node_obj)
