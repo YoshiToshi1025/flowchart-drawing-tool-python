@@ -57,9 +57,9 @@ class FlowchartTool(tk.Tk):
             return b
 
         add_mode_button("Select", "select")
+        add_mode_button("Terminator", "add:terminator")
         add_mode_button("Process", "add:process")
         add_mode_button("Decision", "add:decision")
-        add_mode_button("Terminator", "add:terminator")
         add_mode_button("I/O", "add:io")
         add_mode_button("Link", "link")
 
@@ -94,6 +94,31 @@ class FlowchartTool(tk.Tk):
 
         # モード変更でラベル更新
         self.mode.trace_add("write", lambda *args: self.update_status())
+
+        # ポップアップメニュー設定
+        self.popup_menu = tk.Menu(self, tearoff=0)
+        self.popup_menu.add_command(label="Select/Move", command=lambda: self.mode.set("select"))
+        self.popup_menu.add_separator()
+        self.popup_menu.add_command(label="Add Terminator", command=lambda: self.mode.set("add:terminator"))
+        self.popup_menu.add_command(label="Add Process", command=lambda: self.mode.set("add:process"))
+        self.popup_menu.add_command(label="Add Decision", command=lambda: self.mode.set("add:decision"))
+        self.popup_menu.add_command(label="Add I/O", command=lambda: self.mode.set("add:io"))
+        self.popup_menu.add_command(label="Link", command=lambda: self.mode.set("link"))
+        self.popup_menu.add_separator()
+        self.popup_menu.add_command(label="Delete Selected", command=self.delete_selected)
+        self.popup_menu.add_separator()
+        self.popup_menu.add_command(label="Undo", command=self.undo)
+        self.popup_menu.add_command(label="Redo", command=self.redo)
+        self.canvas.bind("<Button-3>", lambda event: self.popup_menu.tk_popup(event.x_root, event.y_root))
+
+        self.protocol("WM_DELETE_WINDOW", self.on_close)
+
+    def on_close(self):
+        if self.nodes is None or len(self.nodes) == 0 or messagebox.askokcancel("終了確認", "本ツールを終了します。編集内容を保存しましたか？"):
+            self.destroy()
+
+    def set_mode_select(self):
+        self.mode.set("select")
 
     def update_status(self):
         mode = self.mode.get()
