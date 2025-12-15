@@ -1,0 +1,175 @@
+{
+  "nodes": [
+    {
+      "id": 1,
+      "type": "terminator",
+      "x": 580,
+      "y": 70,
+      "w": 160,
+      "h": 60,
+      "text": "Canvas選択：Start"
+    },
+    {
+      "id": 2,
+      "type": "process",
+      "x": 320,
+      "y": 450,
+      "w": 160,
+      "h": 60,
+      "text": "選択Nodeを選択状態に"
+    },
+    {
+      "id": 3,
+      "type": "terminator",
+      "x": 580,
+      "y": 650,
+      "w": 160,
+      "h": 60,
+      "text": "Canvas選択：End"
+    },
+    {
+      "id": 5,
+      "type": "decision",
+      "x": 320,
+      "y": 350,
+      "w": 160,
+      "h": 60,
+      "text": "選択の種類"
+    },
+    {
+      "id": 7,
+      "type": "process",
+      "x": 120,
+      "y": 450,
+      "w": 160,
+      "h": 60,
+      "text": "指定範囲内のNodeを選択状態に"
+    },
+    {
+      "id": 8,
+      "type": "process",
+      "x": 520,
+      "y": 450,
+      "w": 160,
+      "h": 60,
+      "text": "選択Linkを選択状態に"
+    },
+    {
+      "id": 9,
+      "type": "decision",
+      "x": 580,
+      "y": 270,
+      "w": 160,
+      "h": 60,
+      "text": "クリックの種類"
+    },
+    {
+      "id": 11,
+      "type": "process",
+      "x": 740,
+      "y": 450,
+      "w": 160,
+      "h": 60,
+      "text": "Nodeテキストの編集モードへ"
+    },
+    {
+      "id": 12,
+      "type": "decision",
+      "x": 840,
+      "y": 350,
+      "w": 160,
+      "h": 60,
+      "text": "選択の種類"
+    },
+    {
+      "id": 13,
+      "type": "process",
+      "x": 940,
+      "y": 450,
+      "w": 160,
+      "h": 60,
+      "text": "Linkテキストの編集モードへ"
+    },
+    {
+      "id": 14,
+      "type": "process",
+      "x": 580,
+      "y": 170,
+      "w": 160,
+      "h": 60,
+      "text": "選択状態のリセット"
+    }
+  ],
+  "edges": [
+    {
+      "from_id": 5,
+      "to_id": 7,
+      "label": "範囲選択"
+    },
+    {
+      "from_id": 5,
+      "to_id": 2,
+      "label": "Node選択"
+    },
+    {
+      "from_id": 5,
+      "to_id": 8,
+      "label": "Link選択"
+    },
+    {
+      "from_id": 7,
+      "to_id": 3,
+      "label": null
+    },
+    {
+      "from_id": 2,
+      "to_id": 3,
+      "label": null
+    },
+    {
+      "from_id": 8,
+      "to_id": 3,
+      "label": null
+    },
+    {
+      "from_id": 9,
+      "to_id": 5,
+      "label": "シングル"
+    },
+    {
+      "from_id": 9,
+      "to_id": 12,
+      "label": "ダブル"
+    },
+    {
+      "from_id": 12,
+      "to_id": 11,
+      "label": "Node選択"
+    },
+    {
+      "from_id": 12,
+      "to_id": 13,
+      "label": "Link選択"
+    },
+    {
+      "from_id": 11,
+      "to_id": 3,
+      "label": null
+    },
+    {
+      "from_id": 13,
+      "to_id": 3,
+      "label": null
+    },
+    {
+      "from_id": 1,
+      "to_id": 14,
+      "label": null
+    },
+    {
+      "from_id": 14,
+      "to_id": 9,
+      "label": null
+    }
+  ]
+}

@@ -742,13 +742,15 @@ class FlowchartTool(tk.Tk):
             self.drag_data["end_y"] = event.y
             move_x = event.x - self.drag_data["node_start_x"]
             move_y = event.y - self.drag_data["node_start_y"]
+            mouse_move_x = abs(self.drag_data["end_x"] - self.drag_data["start_x"])
+            mouse_move_y = abs(self.drag_data["end_y"] - self.drag_data["start_y"])
 
             nid = self.drag_data["node_id"]
 
             for selected_node_id in self.selected_node_ids:
                 if selected_node_id != nid:
                     selected_node_obj = self.nodes[selected_node_id]
-                    if selected_node_obj is not None:
+                    if selected_node_obj is not None and mouse_move_x > 2 and mouse_move_y > 2:  # ダブルクリック時のノードのズレを防止
                         selected_node_obj.x, selected_node_obj.y = self.adjusted_xy(selected_node_obj.x + move_x, selected_node_obj.y + move_y, selected_node_obj.w, selected_node_obj.h)
                         self._move_node_graphics(selected_node_obj)
                         self._update_edges_for_node(selected_node_id)
