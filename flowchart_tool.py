@@ -512,7 +512,8 @@ class FlowchartTool(tk.Tk):
 
     def on_canvas_double_click(self, event):
         if self.mode.get() != "select":
-            return
+            self.mode.set("select")
+            #return
         nid = self.node_at(event.x, event.y)
         if nid:
             self.start_text_edit(nid)
@@ -775,7 +776,7 @@ class FlowchartTool(tk.Tk):
             for selected_node_id in self.selected_node_ids:
                 if selected_node_id != nid:
                     selected_node_obj = self.nodes[selected_node_id]
-                    if selected_node_obj is not None and mouse_move_x > 2 and mouse_move_y > 2:  # ダブルクリック時のノードのズレを防止
+                    if selected_node_obj is not None and (mouse_move_x > 2 or mouse_move_y > 2):  # ダブルクリック時のノードのズレを防止
                         selected_node_obj.x, selected_node_obj.y = self.adjusted_xy(selected_node_obj.x + move_x, selected_node_obj.y + move_y, selected_node_obj.w, selected_node_obj.h)
                         self._move_node_graphics(selected_node_obj)
                         self._update_edges_for_node(selected_node_id)
