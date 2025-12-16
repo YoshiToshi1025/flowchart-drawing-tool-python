@@ -1,0 +1,132 @@
+{
+  "nodes": [
+    {
+      "id": 1,
+      "type": "terminator",
+      "x": 400,
+      "y": 70,
+      "w": 160,
+      "h": 60,
+      "text": "Start:フローチャートの作図"
+    },
+    {
+      "id": 2,
+      "type": "process",
+      "x": 400,
+      "y": 150,
+      "w": 160,
+      "h": 60,
+      "text": "フローチャート作図ツールの起動"
+    },
+    {
+      "id": 3,
+      "type": "decision",
+      "x": 400,
+      "y": 230,
+      "w": 160,
+      "h": 60,
+      "text": "新規作成 or 編集?"
+    },
+    {
+      "id": 4,
+      "type": "process",
+      "x": 400,
+      "y": 350,
+      "w": 160,
+      "h": 60,
+      "text": "フローチャート作図"
+    },
+    {
+      "id": 5,
+      "type": "io",
+      "x": 620,
+      "y": 310,
+      "w": 160,
+      "h": 60,
+      "text": "保存データの 読み込み"
+    },
+    {
+      "id": 6,
+      "type": "process",
+      "x": 620,
+      "y": 390,
+      "w": 160,
+      "h": 60,
+      "text": "フローチャートの 編集"
+    },
+    {
+      "id": 7,
+      "type": "io",
+      "x": 400,
+      "y": 470,
+      "w": 160,
+      "h": 60,
+      "text": "編集データと 画像の保存"
+    },
+    {
+      "id": 8,
+      "type": "terminator",
+      "x": 400,
+      "y": 630,
+      "w": 160,
+      "h": 60,
+      "text": "End"
+    },
+    {
+      "id": 10,
+      "type": "process",
+      "x": 400,
+      "y": 550,
+      "w": 160,
+      "h": 60,
+      "text": "資料に画像を添付"
+    }
+  ],
+  "edges": [
+    {
+      "from_id": 3,
+      "to_id": 4,
+      "label": "新規作成"
+    },
+    {
+      "from_id": 3,
+      "to_id": 5,
+      "label": "編集"
+    },
+    {
+      "from_id": 1,
+      "to_id": 2,
+      "label": null
+    },
+    {
+      "from_id": 2,
+      "to_id": 3,
+      "label": null
+    },
+    {
+      "from_id": 5,
+      "to_id": 6,
+      "label": null
+    },
+    {
+      "from_id": 6,
+      "to_id": 7,
+      "label": null
+    },
+    {
+      "from_id": 7,
+      "to_id": 10,
+      "label": null
+    },
+    {
+      "from_id": 10,
+      "to_id": 8,
+      "label": null
+    },
+    {
+      "from_id": 4,
+      "to_id": 7,
+      "label": null
+    }
+  ]
+}
