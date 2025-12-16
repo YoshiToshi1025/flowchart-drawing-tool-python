@@ -18,7 +18,7 @@
 - なお、本コードのベースはChatGPTで作成しましたが、そこから手を入れたため、コードが整理できていない部分がありますが、徐々に整理
 していく予定です（汗
 
-<img width="50%" src="example/output_sample.png" />
+<img width="100%" src="example/output_sample.png" />
 
 ## インストール
 
@@ -59,7 +59,7 @@
   4. 完成したフローチャートのデータと画像を保存
   5. 資料に画像を張り付け
 
-<img width="30%" src="example/作図想定フロー.png" />
+<img width="50%" src="example/作図想定フロー.png" />
 
 ## 制限事項
 
