@@ -1,9 +1,8 @@
-from tkinter import font
 
-# アプリケーション・タイトル
-APP_TITLE = "簡易フローチャート作図ツール(TKinter Canvas)"
+# App Application Title
+APP_TITLE = "Flowchart Tool (Tkinter Canvas)"
 
-# キャンバス・パラメータ
+# Canvas Parameters
 CANVAS_PARAMS = {
     "size": "1000x700",
     "bg_color": "white",
@@ -11,7 +10,7 @@ CANVAS_PARAMS = {
     "grid_spacing": 20,
 }
 
-# モード辞書
+# Mode Dictionary
 MODE_DICT = {
     "Select" : "select",
     "Terminator" : "add:terminator",
@@ -21,10 +20,10 @@ MODE_DICT = {
     "Link" : "link",
 }
 
-# デフォルトモード設定
+# Default Mode Setting
 DEFAULT_MODE = MODE_DICT["Select"]
 
-# ノード・デフォルト・パラメータ
+# Node Default Parameters
 NODE_DEFAULT_PARAMS = {
     "type": "default",
     "text": "Undefined",
@@ -38,13 +37,12 @@ NODE_DEFAULT_PARAMS = {
     "text_color": "#0f172a",  # Dark Blue
     "font_family": "Arial",
     "font_size": 11,
-    "font_weight": font.NORMAL,
 }
 
-# ノード・処理・パラメータ
+# Node Process Parameters
 NODE_PROCESS_PARAMS = {
     "type": "process",
-    "text": "処理",
+    "text": "Process",
     "width": 160,
     "height": 60,
     "fill_color": "#FFFFFF", # 
@@ -55,13 +53,12 @@ NODE_PROCESS_PARAMS = {
     "text_color": "#0f172a",  # Dark Blue
     "font_family": "Arial",
     "font_size": 11,
-    "font_weight": font.NORMAL,
 }
 
-# ノード・分岐・パラメータ
+# Node Decision Parameters
 NODE_DECISION_PARAMS = {
     "type": "decision",
-    "text": "分岐?",
+    "text": "Decision?",
     "width": 160,
     "height": 60,
     "fill_color": "#FFFFFF", # White
@@ -72,13 +69,12 @@ NODE_DECISION_PARAMS = {
     "text_color": "#0f172a",  # Dark Blue
     "font_family": "Arial",
     "font_size": 11,
-    "font_weight": font.NORMAL,
 }
 
-# ノード・端点・パラメータ
+# Node Terminator Parameters
 NODE_TERMINATOR_PARAMS = {
     "type": "terminator",
-    "text": "端点",
+    "text": "Terminator",
     "width": 160,
     "height": 60,
     "fill_color": "#e0e0e0", # Light Gray 
@@ -89,13 +85,12 @@ NODE_TERMINATOR_PARAMS = {
     "text_color": "#0f172a",  # Dark Blue
     "font_family": "Arial",
     "font_size": 11,
-    "font_weight": font.NORMAL,
 }
 
-# ノード・入出力・パラメータ
+# Node I/O Parameters
 NODE_IO_PARAMS = {
     "type": "io",
-    "text": "入出力",
+    "text": "I/O",
     "width": 160,
     "height": 60,
     "skew": 20,
@@ -107,10 +102,9 @@ NODE_IO_PARAMS = {
     "text_color": "#0f172a",  # Dark Blue
     "font_family": "Arial",
     "font_size": 11,
-    "font_weight": font.NORMAL,
 }
 
-# エッジ・パラメータ
+# Edge Parameters
 EDGE_PARAMS = {
     "color": "#0f172a",
     "width": 2,
@@ -120,20 +114,19 @@ EDGE_PARAMS = {
     "text_color": "#0f172a",  # Dark Blue
     "font_family": "Arial",
     "font_size": 11,
-    "font_weight": font.NORMAL,
 }
 
-# 分岐ラベル定義
+# Decision Label Definitions
 DECISION_YES = "Yes"
 DECISION_NO = "No"
 DECISION_UNKNOWN = "?"
 
-# 端点ラベル定義
-TERMINATOR_DEFAULT_START_TEXT = "開始"
-TERMINATOR_DEFAULT_END_TEXT = "終了"
-TERMINATOR_DEFAULT_UNKNOWN_TEXT = "（未定義）"
+# Terminator Label Definitions
+TERMINATOR_DEFAULT_START_TEXT = "Start"
+TERMINATOR_DEFAULT_END_TEXT = "End"
+TERMINATOR_DEFAULT_UNKNOWN_TEXT = "???"
 
-# エッジラベル位置補正定義
+# Edge Label Position Offset Definitions
 EDGE_LABEL_OFFSET = {
     "center": (0, -8),
     "ne": (-8, 4),
@@ -142,16 +135,16 @@ EDGE_LABEL_OFFSET = {
     "sw": (8, 0),
 }
 
-# 選択範囲パラメータ
+# Selection Area Parameters
 SELECTION_AREA_PARAMS = {
     "outline_color": "#808080",
     "outline_width": 1,
     "outline_dash": (4, 2),
 }
 
-# メッセージ定義一覧
-WINDOW_CLOSE_DIALOG_TITLE = "終了確認"
-WINDOW_CLOSE_DIALOG_MESSAGE = "本ツールを終了します。編集内容を保存しましたか？"
+# Message Definitions
+WINDOW_CLOSE_DIALOG_TITLE = "Close Confirmation"
+WINDOW_CLOSE_DIALOG_MESSAGE = "Are you sure you want to exit? Have you saved your changes?"
 
-SAVE_FAILED_MESSAGE = "保存に失敗しました"
-LOAD_FAILED_MESSAGE = "読み込みに失敗しました"
+SAVE_FAILED_MESSAGE = "Failed to save"
+LOAD_FAILED_MESSAGE = "Failed to load"

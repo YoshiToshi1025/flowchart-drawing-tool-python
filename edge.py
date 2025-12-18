@@ -47,7 +47,7 @@ class Edge:
         """エッジの描画"""
         self.line_id = canvas.create_line(
             *self.points,
-            arrow=tk.LAST, width=ct.EDGE_WIDTH, fill=ct.EDGE_COLOR,
+            arrow=tk.LAST, width=ct.EDGE_PARAMS["width"], fill=ct.EDGE_PARAMS["color"],
             tags=("edge", f"edge-{self.line_id}")
         )
         # エッジはノードの下に
@@ -60,8 +60,8 @@ class Edge:
             self.label_id = canvas.create_text(
                 self.label_x, self.label_y,
                 text=self.label_text,
-                font=(ct.TEXT_FONT_FAMILY, ct.TEXT_FONT_SIZE), width=ct.TEXT_WIDTH,
-                fill=ct.TEXT_COLOR, anchor = self.anchor, justify = self.justify,
+                font=(ct.EDGE_PARAMS["font_family"], ct.EDGE_PARAMS["font_size"], ct.EDGE_PARAMS["font_weight"]), width=ct.EDGE_PARAMS["text_width"],
+                fill=ct.EDGE_PARAMS["text_color"], anchor = self.anchor, justify = self.justify,
                 tags=("edge-label",)
             )
             # ラベルもノードの下でOK（少し上に描かれるので視認性は保てる）
@@ -100,114 +100,114 @@ class Edge:
         anchor = "center"
         justify = "left"
 
-        if from_type == ct.TYPE_DECISION:
+        if from_type == ct.NODE_DECISION_PARAMS["type"]:
             if from_left_x <= to_top_x <= from_right_x and from_bottom_y < to_top_y:
                 coords = self.rect_anchor_bottom_to_top(from_node_obj, to_node_obj)
                 if coords is not None and coords != []:
-                    label_x = coords[0] + 6
-                    label_y = coords[1] + 8
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["nw"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["nw"][1]
                 anchor = "nw"
             elif from_right_x < to_left_x and to_top_y <= from_bottom_y:
                 coords = self.rect_anchor_right_to_left(from_node_obj, to_node_obj)
                 if coords is not None and coords != []:
-                    label_x = coords[0] + 8
-                    label_y = coords[1]
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["sw"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["sw"][1]
                 anchor = "sw"
             elif from_right_x < to_top_x and from_right_y < to_left_y:
                 coords = self.rect_anchor_right_to_top(from_node_obj, to_node_obj)
                 if coords is not None and coords != []:
-                    label_x = coords[0] + 8
-                    label_y = coords[1]
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["sw"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["sw"][1] 
                 anchor= "sw"
             elif to_right_x < from_left_x and to_top_y <= from_bottom_y:
                 coords = self.rect_anchor_left_to_right(from_node_obj, to_node_obj)
                 if coords is not None and coords != []:
-                    label_x = coords[0] - 8
-                    label_y = coords[1]
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["se"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["se"][1]
                 anchor = "se"
             elif to_top_x < from_left_x and from_right_y < to_left_y:
                 coords = self.rect_anchor_left_to_top(from_node_obj, to_node_obj)
                 if coords is not None and coords != []:
-                    label_x = coords[0] - 8
-                    label_y = coords[1]
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["se"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["se"][1]
                 anchor = "se"
             elif to_bottom_y <= from_top_y:
                 if to_bottom_x < from_top_x:
                     coords = self.rect_anchor_right_to_right(from_node_obj, to_node_obj)
                     if coords is not None and coords != []:
-                        label_x = coords[0] + 8
-                        label_y = coords[1]
+                        label_x = coords[0] + ct.EDGE_LABEL_OFFSET["sw"][0]
+                        label_y = coords[1] + ct.EDGE_LABEL_OFFSET["sw"][1]
                     anchor = "sw"
                 else:
                     coords = self.rect_anchor_left_to_left(from_node_obj, to_node_obj)
                     if coords is not None and coords != []:
-                        label_x = coords[0] - 8
-                        label_y = coords[1]
+                        label_x = coords[0] + ct.EDGE_LABEL_OFFSET["se"][0]
+                        label_y = coords[1] + ct.EDGE_LABEL_OFFSET["se"][1]
                     anchor = "se"
         else:
-            if from_bottom_y < to_top_y <= from_bottom_y + ct.GRID_SPACING * 2:
+            if from_bottom_y < to_top_y <= from_bottom_y + ct.CANVAS_PARAMS["grid_spacing"] * 2:
                 if to_right_x < from_left_x:
                     coords = self.rect_anchor_bottom_to_right(from_node_obj, to_node_obj)
                     if coords is not None and coords != []:
-                        label_x = coords[0] + 6
-                        label_y = coords[1] + 8
+                        label_x = coords[0] + ct.EDGE_LABEL_OFFSET["nw"][0]
+                        label_y = coords[1] + ct.EDGE_LABEL_OFFSET["nw"][1]
                     anchor = "nw"
                 elif from_right_x < to_left_x:
                     coords = self.rect_anchor_bottom_to_left(from_node_obj, to_node_obj)
                     if coords is not None and coords != []:
-                        label_x = coords[0] + 6
-                        label_y = coords[1] + 8
+                        label_x = coords[0] + ct.EDGE_LABEL_OFFSET["nw"][0]
+                        label_y = coords[1] + ct.EDGE_LABEL_OFFSET["nw"][1]
                     anchor = "nw"
                 else:
                     coords = self.rect_anchor_bottom_to_top(from_node_obj, to_node_obj)
                     if coords is not None and coords != []:
-                        label_x = coords[0] + 6
-                        label_y = coords[1] + 8
+                        label_x = coords[0] + ct.EDGE_LABEL_OFFSET["nw"][0]
+                        label_y = coords[1] + ct.EDGE_LABEL_OFFSET["nw"][1]
                     anchor = "nw"
             elif from_bottom_y < to_top_y:
                 coords = self.rect_anchor_bottom_to_top(from_node_obj, to_node_obj)
                 if coords is not None and coords != []:
-                    label_x = coords[0] + 6
-                    label_y = coords[1] + 8
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["nw"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["nw"][1] 
                 anchor = "nw"
             elif from_right_x < to_left_x and from_top_y <= to_bottom_y and to_top_y <= from_bottom_y:
                 coords = self.rect_anchor_right_to_left(from_node_obj, to_node_obj)
                 if coords is not None and coords != []:
-                    label_x = coords[0] + 8
-                    label_y = coords[1]
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["sw"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["sw"][1]
                 anchor = "sw"
             elif from_right_x + from_width/2 < to_left_x and to_bottom_y < from_top_y:
                 coords = self.rect_anchor_right_to_left(from_node_obj, to_node_obj)
                 if coords is not None and coords != []:
-                    label_x = coords[0] + 8
-                    label_y = coords[1]
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["sw"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["sw"][1]
                 anchor = "sw"
             elif to_right_x < from_left_x and from_top_y <= to_bottom_y and to_top_y <= from_bottom_y:
                 coords = self.rect_anchor_left_to_right(from_node_obj, to_node_obj)
                 if coords is not None and coords != []:
-                    label_x = coords[0] - 8
-                    label_y = coords[1]
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["se"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["se"][1]
                 anchor = "se"
             elif to_bottom_y <= from_top_y:
                 if to_bottom_x < from_top_x:
                     coords = self.rect_anchor_right_to_right(from_node_obj, to_node_obj)
                     if coords is not None and coords != []:
-                        label_x = coords[0] + 8
-                        label_y = coords[1] + 4
+                        label_x = coords[0] + ct.EDGE_LABEL_OFFSET["nw"][0]
+                        label_y = coords[1] + ct.EDGE_LABEL_OFFSET["nw"][1]
                     anchor = "nw"
                 else:
                     coords = self.rect_anchor_left_to_left(from_node_obj, to_node_obj)
                     if coords is not None and coords != []:
-                        label_x = coords[0] - 8
-                        label_y = coords[1] + 4
+                        label_x = coords[0] + ct.EDGE_LABEL_OFFSET["ne"][0]
+                        label_y = coords[1] + ct.EDGE_LABEL_OFFSET["ne"][1]
                     anchor = "ne"
 
         if coords == [] or coords is None:
             coords = self.line_anchor(from_node_obj, to_node_obj)
 
         if coords is not None and coords != [] and (label_x is None or label_y is None):
-            label_x = (coords[0] + coords[2]) / 2
-            label_y = (coords[1] + coords[3]) / 2 - 8
+            label_x = (coords[0] + coords[2]) / 2 + ct.EDGE_LABEL_OFFSET["center"][0]
+            label_y = (coords[1] + coords[3]) / 2 + ct.EDGE_LABEL_OFFSET["center"][1]
             anchor = "center"
             justify = "center"
 
@@ -225,16 +225,16 @@ class Edge:
             return coords
 
         from_center_x, from_center_y, from_width, from_height = from_node_obj.x, from_node_obj.y, from_node_obj.w, from_node_obj.h
-        from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
+        # from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
         from_bottom_x, from_bottom_y = from_center_x, from_center_y + from_height / 2
-        from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
-        from_right_x, from_right_y = from_center_x + from_width / 2, from_center_y
+        # from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
+        # from_right_x, from_right_y = from_center_x + from_width / 2, from_center_y
 
         to_center_x, to_center_y, to_width, to_height = to_node_obj.x, to_node_obj.y, to_node_obj.w, to_node_obj.h
         to_top_x, to_top_y = to_center_x, to_center_y - to_height / 2
-        to_bottom_x, to_bottom_y = to_center_x, to_center_y + to_height / 2
-        to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
-        to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
+        # to_bottom_x, to_bottom_y = to_center_x, to_center_y + to_height / 2
+        # to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
+        #to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
 
         if to_top_y >= from_bottom_y:
             if from_bottom_x == to_top_x:
@@ -257,15 +257,15 @@ class Edge:
             return coords
 
         from_center_x, from_center_y, from_width, from_height = from_node_obj.x, from_node_obj.y, from_node_obj.w, from_node_obj.h
-        from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
+        # from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
         from_bottom_x, from_bottom_y = from_center_x, from_center_y + from_height / 2
-        from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
-        from_right_x, from_right_y = from_center_x + from_width / 2, from_center_y
+        # from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
+        # from_right_x, from_right_y = from_center_x + from_width / 2, from_center_y
 
         to_center_x, to_center_y, to_width, to_height = to_node_obj.x, to_node_obj.y, to_node_obj.w, to_node_obj.h
-        to_top_x, to_top_y = to_center_x, to_center_y - to_height / 2
-        to_bottom_x, to_bottom_y = to_center_x, to_center_y + to_height / 2
-        to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
+        # to_top_x, to_top_y = to_center_x, to_center_y - to_height / 2
+        # to_bottom_x, to_bottom_y = to_center_x, to_center_y + to_height / 2
+        # to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
         to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
 
         if to_right_x < from_bottom_x and to_right_y > from_bottom_y:
@@ -283,16 +283,16 @@ class Edge:
             return coords
 
         from_center_x, from_center_y, from_width, from_height = from_node_obj.x, from_node_obj.y, from_node_obj.w, from_node_obj.h
-        from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
+        # from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
         from_bottom_x, from_bottom_y = from_center_x, from_center_y + from_height / 2
-        from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
-        from_right_x, from_right_y = from_center_x + from_width / 2, from_center_y
+        # from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
+        # from_right_x, from_right_y = from_center_x + from_width / 2, from_center_y
 
         to_center_x, to_center_y, to_width, to_height = to_node_obj.x, to_node_obj.y, to_node_obj.w, to_node_obj.h
-        to_top_x, to_top_y = to_center_x, to_center_y - to_height / 2
-        to_bottom_x, to_bottom_y = to_center_x, to_center_y + to_height / 2
+        # to_top_x, to_top_y = to_center_x, to_center_y - to_height / 2
+        # to_bottom_x, to_bottom_y = to_center_x, to_center_y + to_height / 2
         to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
-        to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
+        # to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
 
         if to_left_x > from_bottom_x and to_left_y > from_bottom_y:
             coords = [from_bottom_x, from_bottom_y, from_bottom_x, to_left_y, to_left_x, to_left_y]
@@ -308,16 +308,16 @@ class Edge:
             return coords
 
         from_center_x, from_center_y, from_width, from_height = from_node_obj.x, from_node_obj.y, from_node_obj.w, from_node_obj.h
-        from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
+        # from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
         from_bottom_x, from_bottom_y = from_center_x, from_center_y + from_height / 2
-        from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
-        from_right_x, from_right_y = from_center_x + from_width / 2, from_center_y
+        # from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
+        # from_right_x, from_right_y = from_center_x + from_width / 2, from_center_y
 
         to_center_x, to_center_y, to_width, to_height = to_node_obj.x, to_node_obj.y, to_node_obj.w, to_node_obj.h
-        to_top_x, to_top_y = to_center_x, to_center_y - to_height / 2
+        # to_top_x, to_top_y = to_center_x, to_center_y - to_height / 2
         to_bottom_x, to_bottom_y = to_center_x, to_center_y + to_height / 2
-        to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
-        to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
+        # to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
+        # to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
 
         margin_y = max(from_bottom_y, to_bottom_y) + from_node_obj.h * 0.5
         coords = [from_bottom_x, from_bottom_y, from_bottom_x, margin_y, to_bottom_x, margin_y, to_bottom_x, to_bottom_y]
@@ -334,16 +334,16 @@ class Edge:
             return coords
 
         from_center_x, from_center_y, from_width, from_height = from_node_obj.x, from_node_obj.y, from_node_obj.w, from_node_obj.h
-        from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
-        from_bottom_x, from_bottom_y = from_center_x, from_center_y + from_height / 2
-        from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
+        # from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
+        # from_bottom_x, from_bottom_y = from_center_x, from_center_y + from_height / 2
+        # from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
         from_right_x, from_right_y = from_center_x + from_width / 2, from_center_y
 
         to_center_x, to_center_y, to_width, to_height = to_node_obj.x, to_node_obj.y, to_node_obj.w, to_node_obj.h
         to_top_x, to_top_y = to_center_x, to_center_y - to_height / 2
-        to_bottom_x, to_bottom_y = to_center_x, to_center_y + to_height / 2
-        to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
-        to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
+        # to_bottom_x, to_bottom_y = to_center_x, to_center_y + to_height / 2
+        # to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
+        # to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
 
         if to_top_x > from_right_x and to_top_y > from_right_y:
             coords = [from_right_x, from_right_y, to_top_x, from_right_y, to_top_x, to_top_y]
@@ -361,14 +361,14 @@ class Edge:
         
         from_center_x, from_center_y, from_width, from_height = from_node_obj.x, from_node_obj.y, from_node_obj.w, from_node_obj.h
         from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
-        from_bottom_x, from_bottom_y = from_center_x, from_center_y + from_height / 2
-        from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
+        # from_bottom_x, from_bottom_y = from_center_x, from_center_y + from_height / 2
+        # from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
         from_right_x, from_right_y = from_center_x + from_width / 2, from_center_y
 
         to_center_x, to_center_y, to_width, to_height = to_node_obj.x, to_node_obj.y, to_node_obj.w, to_node_obj.h
-        to_top_x, to_top_y = to_center_x, to_center_y - to_height / 2
+        # to_top_x, to_top_y = to_center_x, to_center_y - to_height / 2
         to_bottom_x, to_bottom_y = to_center_x, to_center_y + to_height / 2
-        to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
+        # to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
         to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
 
         if to_bottom_y <= from_top_y:
@@ -389,16 +389,16 @@ class Edge:
             return coords
         
         from_center_x, from_center_y, from_width, from_height = from_node_obj.x, from_node_obj.y, from_node_obj.w, from_node_obj.h
-        from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
-        from_bottom_x, from_bottom_y = from_center_x, from_center_y + from_height / 2
-        from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
+        # from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
+        # from_bottom_x, from_bottom_y = from_center_x, from_center_y + from_height / 2
+        # from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
         from_right_x, from_right_y = from_center_x + from_width / 2, from_center_y
 
         to_center_x, to_center_y, to_width, to_height = to_node_obj.x, to_node_obj.y, to_node_obj.w, to_node_obj.h
-        to_top_x, to_top_y = to_center_x, to_center_y - to_height / 2
-        to_bottom_x, to_bottom_y = to_center_x, to_center_y + to_height / 2
+        # to_top_x, to_top_y = to_center_x, to_center_y - to_height / 2
+        # to_bottom_x, to_bottom_y = to_center_x, to_center_y + to_height / 2
         to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
-        to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
+        # to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
 
         if from_right_x < to_left_x:
             if from_right_y == to_left_y:
@@ -421,16 +421,16 @@ class Edge:
             return coords
 
         from_center_x, from_center_y, from_width, from_height = from_node_obj.x, from_node_obj.y, from_node_obj.w, from_node_obj.h
-        from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
-        from_bottom_x, from_bottom_y = from_center_x, from_center_y + from_height / 2
-        from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
+        # from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
+        # from_bottom_x, from_bottom_y = from_center_x, from_center_y + from_height / 2
+        # from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
         from_right_x, from_right_y = from_center_x + from_width / 2, from_center_y
 
         to_center_x, to_center_y, to_width, to_height = to_node_obj.x, to_node_obj.y, to_node_obj.w, to_node_obj.h
-        to_top_x, to_top_y = to_center_x, to_center_y - to_height / 2
+        # to_top_x, to_top_y = to_center_x, to_center_y - to_height / 2
         to_bottom_x, to_bottom_y = to_center_x, to_center_y + to_height / 2
-        to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
-        to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
+        # to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
+        # to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
 
         if to_bottom_y < from_right_y and to_bottom_x > from_right_x:
             coords = [from_right_x, from_right_y, to_bottom_x, from_right_y, to_bottom_x, to_bottom_y]
@@ -446,16 +446,16 @@ class Edge:
             return coords
 
         from_center_x, from_center_y, from_width, from_height = from_node_obj.x, from_node_obj.y, from_node_obj.w, from_node_obj.h
-        from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
-        from_bottom_x, from_bottom_y = from_center_x, from_center_y + from_height / 2
+        # from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
+        # from_bottom_x, from_bottom_y = from_center_x, from_center_y + from_height / 2
         from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
-        from_right_x, from_right_y = from_center_x + from_width / 2, from_center_y
+        # from_right_x, from_right_y = from_center_x + from_width / 2, from_center_y
 
         to_center_x, to_center_y, to_width, to_height = to_node_obj.x, to_node_obj.y, to_node_obj.w, to_node_obj.h
         to_top_x, to_top_y = to_center_x, to_center_y - to_height / 2
-        to_bottom_x, to_bottom_y = to_center_x, to_center_y + to_height / 2
-        to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
-        to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
+        # to_bottom_x, to_bottom_y = to_center_x, to_center_y + to_height / 2
+        # to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
+        # to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
 
         if to_top_x < from_left_x and to_top_y > from_left_y:
             coords = [from_left_x, from_left_y, to_top_x, from_left_y, to_top_x, to_top_y]
@@ -473,15 +473,15 @@ class Edge:
             return coords
 
         from_center_x, from_center_y, from_width, from_height = from_node_obj.x, from_node_obj.y, from_node_obj.w, from_node_obj.h
-        from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
-        from_bottom_x, from_bottom_y = from_center_x, from_center_y + from_height / 2
+        # from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
+        # from_bottom_x, from_bottom_y = from_center_x, from_center_y + from_height / 2
         from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
-        from_right_x, from_right_y = from_center_x + from_width / 2, from_center_y
+        # from_right_x, from_right_y = from_center_x + from_width / 2, from_center_y
 
         to_center_x, to_center_y, to_width, to_height = to_node_obj.x, to_node_obj.y, to_node_obj.w, to_node_obj.h
-        to_top_x, to_top_y = to_center_x, to_center_y - to_height / 2
-        to_bottom_x, to_bottom_y = to_center_x, to_center_y + to_height / 2
-        to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
+        # to_top_x, to_top_y = to_center_x, to_center_y - to_height / 2
+        # to_bottom_x, to_bottom_y = to_center_x, to_center_y + to_height / 2
+        # to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
         to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
 
         if to_right_x < from_left_x:
@@ -507,15 +507,15 @@ class Edge:
 
         from_center_x, from_center_y, from_width, from_height = from_node_obj.x, from_node_obj.y, from_node_obj.w, from_node_obj.h
         from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
-        from_bottom_x, from_bottom_y = from_center_x, from_center_y + from_height / 2
+        # from_bottom_x, from_bottom_y = from_center_x, from_center_y + from_height / 2
         from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
-        from_right_x, from_right_y = from_center_x + from_width / 2, from_center_y
+        # from_right_x, from_right_y = from_center_x + from_width / 2, from_center_y
 
         to_center_x, to_center_y, to_width, to_height = to_node_obj.x, to_node_obj.y, to_node_obj.w, to_node_obj.h
-        to_top_x, to_top_y = to_center_x, to_center_y - to_height / 2
+        # to_top_x, to_top_y = to_center_x, to_center_y - to_height / 2
         to_bottom_x, to_bottom_y = to_center_x, to_center_y + to_height / 2
         to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
-        to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
+        # to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
 
         if to_bottom_y <= from_top_y:
             mid_x = min(from_left_x, to_left_x) - from_node_obj.w * 0.3
@@ -532,16 +532,16 @@ class Edge:
             return coords
 
         from_center_x, from_center_y, from_width, from_height = from_node_obj.x, from_node_obj.y, from_node_obj.w, from_node_obj.h
-        from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
-        from_bottom_x, from_bottom_y = from_center_x, from_center_y + from_height / 2
-        from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
+        # from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
+        # from_bottom_x, from_bottom_y = from_center_x, from_center_y + from_height / 2
+        # from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
         from_right_x, from_right_y = from_center_x + from_width / 2, from_center_y
 
         to_center_x, to_center_y, to_width, to_height = to_node_obj.x, to_node_obj.y, to_node_obj.w, to_node_obj.h
-        to_top_x, to_top_y = to_center_x, to_center_y - to_height / 2
+        # to_top_x, to_top_y = to_center_x, to_center_y - to_height / 2
         to_bottom_x, to_bottom_y = to_center_x, to_center_y + to_height / 2
-        to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
-        to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
+        # to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
+        # to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
 
         if to_bottom_y < from_right_y and to_bottom_x > from_right_x:
             coords = [from_right_x, from_right_y, to_bottom_x, from_right_y, to_bottom_x, to_bottom_y]
@@ -557,16 +557,16 @@ class Edge:
             return coords
 
         from_center_x, from_center_y, from_width, from_height = from_node_obj.x, from_node_obj.y, from_node_obj.w, from_node_obj.h
-        from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
-        from_bottom_x, from_bottom_y = from_center_x, from_center_y + from_height / 2
-        from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
-        from_right_x, from_right_y = from_center_x + from_width / 2, from_center_y
+        # from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
+        # from_bottom_x, from_bottom_y = from_center_x, from_center_y + from_height / 2
+        # from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
+        # from_right_x, from_right_y = from_center_x + from_width / 2, from_center_y
 
         to_center_x, to_center_y, to_width, to_height = to_node_obj.x, to_node_obj.y, to_node_obj.w, to_node_obj.h
-        to_top_x, to_top_y = to_center_x, to_center_y - to_height / 2
-        to_bottom_x, to_bottom_y = to_center_x, to_center_y + to_height / 2
-        to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
-        to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
+        # to_top_x, to_top_y = to_center_x, to_center_y - to_height / 2
+        # to_bottom_x, to_bottom_y = to_center_x, to_center_y + to_height / 2
+        # to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
+        # to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
 
         return coords
 
@@ -579,16 +579,16 @@ class Edge:
             return coords
 
         from_center_x, from_center_y, from_width, from_height = from_node_obj.x, from_node_obj.y, from_node_obj.w, from_node_obj.h
-        from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
-        from_bottom_x, from_bottom_y = from_center_x, from_center_y + from_height / 2
-        from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
-        from_right_x, from_right_y = from_center_x + from_width / 2, from_center_y
+        # from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
+        # from_bottom_x, from_bottom_y = from_center_x, from_center_y + from_height / 2
+        # from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
+        # from_right_x, from_right_y = from_center_x + from_width / 2, from_center_y
 
         to_center_x, to_center_y, to_width, to_height = to_node_obj.x, to_node_obj.y, to_node_obj.w, to_node_obj.h
-        to_top_x, to_top_y = to_center_x, to_center_y - to_height / 2
-        to_bottom_x, to_bottom_y = to_center_x, to_center_y + to_height / 2
-        to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
-        to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
+        # to_top_x, to_top_y = to_center_x, to_center_y - to_height / 2
+        # to_bottom_x, to_bottom_y = to_center_x, to_center_y + to_height / 2
+        # to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
+        # to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
 
         return coords
 
@@ -601,16 +601,16 @@ class Edge:
             return coords
 
         from_center_x, from_center_y, from_width, from_height = from_node_obj.x, from_node_obj.y, from_node_obj.w, from_node_obj.h
-        from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
-        from_bottom_x, from_bottom_y = from_center_x, from_center_y + from_height / 2
-        from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
-        from_right_x, from_right_y = from_center_x + from_width / 2, from_center_y
+        # from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
+        # from_bottom_x, from_bottom_y = from_center_x, from_center_y + from_height / 2
+        # from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
+        # from_right_x, from_right_y = from_center_x + from_width / 2, from_center_y
 
         to_center_x, to_center_y, to_width, to_height = to_node_obj.x, to_node_obj.y, to_node_obj.w, to_node_obj.h
-        to_top_x, to_top_y = to_center_x, to_center_y - to_height / 2
-        to_bottom_x, to_bottom_y = to_center_x, to_center_y + to_height / 2
-        to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
-        to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
+        # to_top_x, to_top_y = to_center_x, to_center_y - to_height / 2
+        # to_bottom_x, to_bottom_y = to_center_x, to_center_y + to_height / 2
+        # to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
+        # to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
 
         return coords
 
@@ -623,16 +623,16 @@ class Edge:
             return coords
 
         from_center_x, from_center_y, from_width, from_height = from_node_obj.x, from_node_obj.y, from_node_obj.w, from_node_obj.h
-        from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
-        from_bottom_x, from_bottom_y = from_center_x, from_center_y + from_height / 2
-        from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
-        from_right_x, from_right_y = from_center_x + from_width / 2, from_center_y
+        # from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
+        # from_bottom_x, from_bottom_y = from_center_x, from_center_y + from_height / 2
+        # from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
+        # from_right_x, from_right_y = from_center_x + from_width / 2, from_center_y
 
         to_center_x, to_center_y, to_width, to_height = to_node_obj.x, to_node_obj.y, to_node_obj.w, to_node_obj.h
-        to_top_x, to_top_y = to_center_x, to_center_y - to_height / 2
-        to_bottom_x, to_bottom_y = to_center_x, to_center_y + to_height / 2
-        to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
-        to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
+        # to_top_x, to_top_y = to_center_x, to_center_y - to_height / 2
+        # to_bottom_x, to_bottom_y = to_center_x, to_center_y + to_height / 2
+        # to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
+        # to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
 
         return coords
 
