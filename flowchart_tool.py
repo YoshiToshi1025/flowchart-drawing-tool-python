@@ -82,6 +82,10 @@ class FlowchartTool(tk.Tk):
         self.canvas.bind("<Configure>", self.on_canvas_resize)
         self.canvas.bind("<Double-1>", self.on_canvas_double_click)
         self.canvas.bind("<Button-3>", lambda event: self.popup_menu.tk_popup(event.x_root, event.y_root))  # 右クリックメニュー表示
+        self.canvas.bind("<MouseWheel>", self.on_mouse_wheel)  # マウスホイールイベント
+        self.canvas.bind("<Shift-MouseWheel>", self.on_mouse_wheel_shift)  # Shift+マウスホイールイベント
+        self.canvas.bind("<Control-MouseWheel>", self.on_mouse_wheel_ctrl)  # Ctrl+マウスホイールイベント
+        self.canvas.bind("<Control-Shift-MouseWheel>", self.on_mouse_wheel_ctrl_shift)  # Ctrl+Shift+マウスホイールイベント
 
         # Undo/Redo ショートカット
         self.bind_all("<Control-z>", lambda e: self.undo())
@@ -315,6 +319,47 @@ class FlowchartTool(tk.Tk):
     def on_close(self):
         if self.nodes is None or len(self.nodes) == 0 or messagebox.askokcancel(ct.WINDOW_CLOSE_DIALOG_TITLE, ct.WINDOW_CLOSE_DIALOG_MESSAGE):
             self.destroy()
+
+    def on_mouse_wheel(self, event):
+        print("Mouse Wheel detected")
+
+    def on_mouse_wheel_shift(self, event):
+        print("Shift + Mouse Wheel detected")
+
+        delta = event.delta
+        if delta > 0:
+            self.change_edge_wrap_offset(increase=True)
+        else:
+            self.change_edge_wrap_offset(increase=False)
+
+    def change_edge_wrap_offset(self, increase=True):
+        # エッジ選択中の場合、エッジの回り込み距離を調整
+        if self.selected_edge_id is not None:
+            edge_obj = self.edges.get(self.selected_edge_id)
+            if edge_obj is None:
+                return
+            edge_obj.change_edge_wrap_offset(increase=increase, canvas=self.canvas)
+
+    def on_mouse_wheel_ctrl(self, event):
+        print("Ctrl + Mouse Wheel detected")
+    
+        delta = event.delta
+        if delta > 0:
+            self.change_edge_connection_points_in_sequence(increase=True)
+        else:
+            self.change_edge_connection_points_in_sequence(increase=False)
+
+    def on_mouse_wheel_ctrl_shift(self, event):
+        print("Ctrl + Shift + Mouse Wheel detected")
+
+    def change_edge_connection_points_in_sequence(self, increase=True):
+        # エッジ選択中の場合、FromノードとToノードの接続位置を調整
+        if self.selected_edge_id is not None:
+            edge_obj = self.edges.get(self.selected_edge_id)
+            if edge_obj is None:
+                return
+            edge_obj.rotate_connection_points(increase=increase, canvas=self.canvas)
+
 
     # ------------ ノード・エッジ管理 ------------
 
@@ -580,11 +625,22 @@ class FlowchartTool(tk.Tk):
                 "h": node_obj.h,
                 "text": node_obj.text,
             })
-        edges_data = [{
-            "from_id": edge_obj.from_node_obj.id if edge_obj.from_node_obj else None,
-            "to_id": edge_obj.to_node_obj.id if edge_obj.to_node_obj else None,
-            "label": edge_obj.label_text
-        } for edge_line_id, edge_obj in self.edges.items()]
+        edges_data = []
+        for edge_line_id, edge_obj in self.edges.items():
+            edge_data = {
+                "from_id": edge_obj.from_node_obj.id if edge_obj.from_node_obj else None,
+                "to_id": edge_obj.to_node_obj.id if edge_obj.to_node_obj else None,
+            }
+            if edge_obj.from_node_connection_point is not None:
+                edge_data["from_connection_point"] = edge_obj.from_node_connection_point
+            if edge_obj.to_node_connection_point is not None:
+                edge_data["to_connection_point"] = edge_obj.to_node_connection_point
+            if edge_obj.edge_wrap_offset is not None:
+                edge_data["edge_wrap_offset"] = edge_obj.edge_wrap_offset
+            if edge_obj.label_text is not None:
+                edge_data["label"] = edge_obj.label_text
+            edges_data.append(edge_data)
+
         return {"nodes": nodes_data, "edges": edges_data}
 
     def import_model(self, data, push_to_history=False):
@@ -622,11 +678,18 @@ class FlowchartTool(tk.Tk):
         for ed in edges_data:
             fid = ed.get("from_id")
             tid = ed.get("to_id")
+            from_connection_point = ed.get("from_connection_point", None)
+            to_connection_point = ed.get("to_connection_point", None)
+            edge_wrap_offset = ed.get("edge_wrap_offset", None)
             label = ed.get("label")
             if fid in self.nodes and tid in self.nodes:
                 from_node_obj = self.nodes[fid]
                 to_node_obj = self.nodes[tid]
-                edge_obj = edge.Edge(from_node_obj, to_node_obj, text=label, canvas=self.canvas)
+                edge_obj = edge.Edge(from_node_obj, to_node_obj, text=label, \
+                                        from_node_connection_point=from_connection_point, \
+                                        to_node_connection_point=to_connection_point, \
+                                        edge_wrap_offset=edge_wrap_offset, \
+                                        canvas=self.canvas)
                 if edge_obj is not None and edge_obj.line_id is not None:
                     self.edges[edge_obj.line_id] = edge_obj
 
@@ -861,18 +924,23 @@ class FlowchartTool(tk.Tk):
     def _update_edges_for_node(self, nid):
         """ノード移動時に関連エッジとラベルを再レイアウト"""
         for edge_line_id, edge_obj in self.edges.items():
-            from_node_obj = edge_obj.from_node_obj
-            to_node_obj = edge_obj.to_node_obj
-            if edge_line_id and from_node_obj and to_node_obj:
-                coords, label_x, label_y, anchor, justify = edge.Edge._compute_edge_geometry(edge_obj, from_node_obj, to_node_obj)
-                edge_obj.update_points(self.canvas, coords, label_x, label_y)
-
-                self.canvas.coords(edge_line_id, *coords)
-                if edge_obj.label_text is not None and edge_obj.label_id is not None:
-                    self.canvas.coords(edge_obj.label_id, label_x, label_y)
-                    self.canvas.itemconfig(edge_obj.label_id, anchor=anchor, justify=justify)
+            if (edge_obj.from_node_obj and edge_obj.from_node_obj.id == nid) or (edge_obj.to_node_obj and edge_obj.to_node_obj.id == nid):
+                self._update_edge(edge_obj)
 
         self.canvas.tag_lower("edge", "node")
+    
+    def _update_edge(self, edge_obj):
+        """エッジとラベルを再レイアウト"""
+        from_node_obj = edge_obj.from_node_obj
+        to_node_obj = edge_obj.to_node_obj
+        if edge_obj.line_id and from_node_obj and to_node_obj:
+            coords, label_x, label_y, anchor, justify = edge.Edge._compute_edge_geometry(edge_obj, from_node_obj, to_node_obj)
+            edge_obj.update_points(self.canvas, coords, label_x, label_y)
+
+            self.canvas.coords(edge_obj.line_id, *coords)
+            if edge_obj.label_text is not None and edge_obj.label_id is not None:
+                self.canvas.coords(edge_obj.label_id, label_x, label_y)
+                self.canvas.itemconfig(edge_obj.label_id, anchor=anchor, justify=justify)
 
     # ------------ Canvasの画像保存(JPEG,PNG) ------------
 
