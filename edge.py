@@ -109,13 +109,15 @@ class Edge:
         label_anchor = "center"
         label_justify = "left"
 
-        if self.from_node_connection_point is None or self.from_node_connection_point == "auto" or self.to_node_connection_point is None or self.to_node_connection_point == "auto":
+        if self.from_node_connection_point is None or self.from_node_connection_point == "auto" \
+                    or self.to_node_connection_point is None or self.to_node_connection_point == "auto":
             if from_type == ct.NODE_DECISION_PARAMS["type"]:
+                # Decisionノードの場合
                 if from_left_x <= to_top_x <= from_right_x and from_bottom_y < to_top_y:
                     coords = self.rect_anchor_bottom_to_top(from_node_obj, to_node_obj)
                     if coords is not None and coords != []:
-                        label_x = coords[0] + ct.EDGE_LABEL_OFFSET["nw"][0]
-                        label_y = coords[1] + ct.EDGE_LABEL_OFFSET["nw"][1]
+                        label_x = coords[0] + ct.EDGE_LABEL_OFFSET["nw_from_decision"][0]
+                        label_y = coords[1] + ct.EDGE_LABEL_OFFSET["nw_from_decision"][1]
                     label_anchor = "nw"
                 elif from_right_x < to_left_x and to_top_y <= from_bottom_y:
                     coords = self.rect_anchor_right_to_left(from_node_obj, to_node_obj)
@@ -155,6 +157,7 @@ class Edge:
                             label_y = coords[1] + ct.EDGE_LABEL_OFFSET["se"][1]
                         label_anchor = "se"
             else:
+                # その他のノードの場合
                 if from_bottom_y < to_top_y <= from_bottom_y + ct.CANVAS_PARAMS["grid_spacing"] * 2:
                     if to_right_x < from_left_x:
                         coords = self.rect_anchor_bottom_to_right(from_node_obj, to_node_obj)

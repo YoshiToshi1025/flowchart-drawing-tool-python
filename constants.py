@@ -137,9 +137,10 @@ TERMINATOR_DEFAULT_UNKNOWN_TEXT = "（未定義）"
 EDGE_LABEL_OFFSET = {
     "center": (0, -8),
     "ne": (-8, 4),
-    "nw": (8, 0),
+    "nw": (8, 6),
     "se": (-8, 0),
     "sw": (8, 0),
+    "nw_from_decision": (8, 0),
 }
 
 # 選択範囲パラメータ

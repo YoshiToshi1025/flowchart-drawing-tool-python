@@ -151,14 +151,14 @@ class FlowchartTool(tk.Tk):
         if self.edge_label_edit is not None and mode == "select":
             self.finish_edge_label_edit(commit=True)
 
-        if mode.startswith("add:"):
-            node_type = mode.split(":", 1)[1]
-            self.create_node(node_type, event.x, event.y)
-            return
-
         nid = self.node_at(event.x, event.y)
         if nid is None:
             selected_edge = self.edge_at(event.x, event.y)
+            if selected_edge is None:
+                if mode.startswith("add:"):
+                    node_type = mode.split(":", 1)[1]
+                    self.create_node(node_type, event.x, event.y)
+                    return
         else:
             selected_edge = None
 
@@ -166,7 +166,6 @@ class FlowchartTool(tk.Tk):
             self.select_node(nid)
             if nid is None and selected_edge is not None:
                 self.select_edge(selected_edge)
-
         elif mode == "link":
             if nid is None:
                 return
@@ -176,7 +175,6 @@ class FlowchartTool(tk.Tk):
             else:
                 self.create_edge(self.link_start_node_id, nid)
                 self.cancel_selection_node_and_edge()
-
         elif mode == "delete":
             if nid is not None:
                 self.select_node(nid)
@@ -298,9 +296,9 @@ class FlowchartTool(tk.Tk):
             self.drag_data["node_id"] = None
 
     def on_canvas_double_click(self, event):
-        if self.mode.get() != "select":
-            self.mode.set("select")
-            #return
+        # if self.mode.get() != "select":
+        #    self.mode.set("select")
+        #    #return
         nid = self.node_at(event.x, event.y)
         if nid:
             self.start_text_edit(nid)
