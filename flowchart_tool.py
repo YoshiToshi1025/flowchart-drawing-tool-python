@@ -7,7 +7,7 @@ import node
 from node import Node
 import edge
 from PIL import ImageGrab
-
+import mermaid_flowdata_loader as mfloader
 
 class FlowchartTool(tk.Tk):
     def __init__(self):
@@ -69,6 +69,9 @@ class FlowchartTool(tk.Tk):
         # 状態ラベル表示
         self.status_label = ttk.Label(toolbar, text="Mode: select")
         self.status_label.pack(side=tk.RIGHT, padx=4)
+
+        ttk.Button(toolbar, text="Load Mermaid", command=self.load_mermaid_flowdata).pack(side=tk.LEFT, padx=1)
+
 
         # キャンバス
         self.canvas = tk.Canvas(self, bg=ct.CANVAS_PARAMS["bg_color"])
@@ -375,7 +378,7 @@ class FlowchartTool(tk.Tk):
 
         auto_text = self.auto_node_text(node_type, text)
 
-        node_obj = node.Node(node_id, node_type, adjusted_x, adjusted_y, text=auto_text, canvas=self.canvas)
+        node_obj = node.Node(node_id, node_type, adjusted_x, adjusted_y, w=w, h=h, text=auto_text, canvas=self.canvas)
 
         self.nodes[node_id] = node_obj
         # ノードは常に最前面に
@@ -972,6 +975,74 @@ class FlowchartTool(tk.Tk):
             messagebox.showinfo("Saved", f"Saved to:\n{path}")
         except Exception as e:
             messagebox.showerror("Error", str(e))
+
+    def load_mermaid_flowdata(self):
+        path = filedialog.askopenfilename(
+            filetypes=[("Mermaid Flowchart", "*.mmd;*.txt"), ("All files", "*.*")]
+        )
+        if not path:
+            return
+        # try:
+        with open(path, "r", encoding="utf-8") as f:
+            text = f.read()
+        mmd_nodes, mmd_links = mfloader.parse_mermaid_flowdata(text)
+        self.create_mermaid_flowdata(mmd_nodes, mmd_links)
+        messagebox.showinfo("Loaded", f"Loaded Mermaid flowchart from:\n{path}")
+        # except Exception as e:
+        #     messagebox.showerror("Error", str(e))
+
+    def create_mermaid_flowdata(self, mmd_nodes, mmd_links):
+        """モデルを読み込み、Canvasを再構築"""
+        self.canvas.delete("all")
+        self.nodes.clear()
+        self.edges.clear()
+        self.selected_node_ids = []
+        self.link_start_node_id = None
+        self._id_counter = itertools.count(1)
+
+        # グリッド
+        self._draw_grid()
+
+        interval_margin_x = ct.CANVAS_PARAMS["grid_spacing"] * 10 + ct.NODE_DEFAULT_PARAMS["width"] / 2
+        interval_margin_y = ct.CANVAS_PARAMS["grid_spacing"] * 2 + ct.NODE_DEFAULT_PARAMS["height"] / 2
+        interval_x = ct.NODE_DEFAULT_PARAMS["width"] + ct.CANVAS_PARAMS["grid_spacing"] * 4
+        interval_y = ct.NODE_DEFAULT_PARAMS["height"] + ct.CANVAS_PARAMS["grid_spacing"]
+        vertical_count = 10
+
+        id_map = {}
+        for node_strid in mmd_nodes:
+            nd = mmd_nodes[node_strid]
+            node_id = next(self._id_counter)
+            node_strid = nd.node_id if hasattr(nd, "node_id") else None
+            if node_strid is None:
+                continue
+            node_type = nd.kind if hasattr(nd, "kind") else ct.NODE_PROCESS_PARAMS["type"]
+            x = (node_id-1) // vertical_count * interval_x + interval_margin_x  # 自動配置
+            y = (node_id-1) % vertical_count * interval_y + interval_margin_y   # 自動配置
+            w = Node.get_width_of_type(node_type)
+            h = Node.get_height_of_type(node_type)
+            text = nd.title if hasattr(nd, "title") else ""
+            self._create_node_with_id(node_id, node_type, x, y, w=w, h=h, text=text)
+            id_map[node_strid] = node_id
+
+        for ed in mmd_links:
+            src_id = ed.src if hasattr(ed, "src") else None
+            dst_id = ed.dst if hasattr(ed, "dst") else None
+            label = ed.label if hasattr(ed, "label") else None
+            fid = id_map[src_id]
+            tid = id_map[dst_id]
+            if fid in self.nodes and tid in self.nodes:
+                from_node_obj = self.nodes[fid]
+                to_node_obj = self.nodes[tid]
+                edge_obj = edge.Edge(from_node_obj, to_node_obj, text=label, \
+                                        canvas=self.canvas)
+                if edge_obj is not None and edge_obj.line_id is not None:
+                    self.edges[edge_obj.line_id] = edge_obj
+
+        # ノード最前面
+        self.canvas.tag_raise("node")
+
+        self.push_history()
 
 if __name__ == "__main__":
     app = FlowchartTool()

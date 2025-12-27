@@ -5,7 +5,7 @@ APP_TITLE = "簡易フローチャート作図ツール(TKinter Canvas)"
 
 # キャンバス・パラメータ
 CANVAS_PARAMS = {
-    "size": "1000x700",
+    "size": "1200x800",
     "bg_color": "white",
     "grid_color": "#eeeeee",
     "grid_spacing": 20,
@@ -116,7 +116,7 @@ EDGE_PARAMS = {
     "width": 2,
     "selected_color": "#0ea5e9",
     "outline_width": 2,
-    "text_width": 150,
+    "text_width": 200,
     "text_color": "#0f172a",  # Dark Blue
     "font_family": "Arial",
     "font_size": 11,

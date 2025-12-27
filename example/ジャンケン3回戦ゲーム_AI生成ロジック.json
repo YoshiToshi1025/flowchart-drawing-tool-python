@@ -1,0 +1,296 @@
+{
+  "nodes": [
+    {
+      "id": 1,
+      "type": "terminator",
+      "x": 375,
+      "y": 52,
+      "w": 120,
+      "h": 45,
+      "text": "開始"
+    },
+    {
+      "id": 2,
+      "type": "process",
+      "x": 375,
+      "y": 112,
+      "w": 120,
+      "h": 45,
+      "text": "初期化（回数=0、勝敗カウント=0）"
+    },
+    {
+      "id": 3,
+      "type": "process",
+      "x": 375,
+      "y": 172,
+      "w": 120,
+      "h": 45,
+      "text": "ラウンド開始（回数+1）"
+    },
+    {
+      "id": 4,
+      "type": "io",
+      "x": 375,
+      "y": 232,
+      "w": 120,
+      "h": 45,
+      "text": "ユーザーに手を入力させる（グー・チョキ・パー）"
+    },
+    {
+      "id": 5,
+      "type": "decision",
+      "x": 375,
+      "y": 292,
+      "w": 120,
+      "h": 45,
+      "text": "入力は有効?"
+    },
+    {
+      "id": 6,
+      "type": "io",
+      "x": 525,
+      "y": 292,
+      "w": 120,
+      "h": 45,
+      "text": "エラーメッセージ表示（再入力促し）"
+    },
+    {
+      "id": 7,
+      "type": "process",
+      "x": 375,
+      "y": 352,
+      "w": 120,
+      "h": 45,
+      "text": "コンピュータの手を決定（乱数）"
+    },
+    {
+      "id": 8,
+      "type": "process",
+      "x": 375,
+      "y": 412,
+      "w": 120,
+      "h": 45,
+      "text": "勝敗判定（ユーザー手 vs コンピュータ手）"
+    },
+    {
+      "id": 9,
+      "type": "decision",
+      "x": 375,
+      "y": 472,
+      "w": 120,
+      "h": 45,
+      "text": "結果は?"
+    },
+    {
+      "id": 10,
+      "type": "process",
+      "x": 240,
+      "y": 532,
+      "w": 120,
+      "h": 45,
+      "text": "ユーザー勝ち数+1"
+    },
+    {
+      "id": 11,
+      "type": "process",
+      "x": 510,
+      "y": 532,
+      "w": 120,
+      "h": 45,
+      "text": "コンピュータ勝ち数+1"
+    },
+    {
+      "id": 12,
+      "type": "process",
+      "x": 375,
+      "y": 532,
+      "w": 120,
+      "h": 45,
+      "text": "あいこ（カウントなし）"
+    },
+    {
+      "id": 13,
+      "type": "io",
+      "x": 375,
+      "y": 592,
+      "w": 120,
+      "h": 45,
+      "text": "ラウンド結果表示（両者の手・勝敗）"
+    },
+    {
+      "id": 14,
+      "type": "decision",
+      "x": 375,
+      "y": 652,
+      "w": 120,
+      "h": 45,
+      "text": "3回終了?"
+    },
+    {
+      "id": 15,
+      "type": "process",
+      "x": 375,
+      "y": 712,
+      "w": 120,
+      "h": 45,
+      "text": "最終結果集計（勝ち数比較）"
+    },
+    {
+      "id": 16,
+      "type": "decision",
+      "x": 375,
+      "y": 772,
+      "w": 120,
+      "h": 45,
+      "text": "最終勝者は?"
+    },
+    {
+      "id": 17,
+      "type": "io",
+      "x": 375,
+      "y": 832,
+      "w": 120,
+      "h": 45,
+      "text": "最終結果表示（ユーザー勝ち・負け・引き分け）"
+    },
+    {
+      "id": 18,
+      "type": "terminator",
+      "x": 375,
+      "y": 892,
+      "w": 120,
+      "h": 45,
+      "text": "終了"
+    }
+  ],
+  "edges": [
+    {
+      "from_id": 1,
+      "to_id": 2
+    },
+    {
+      "from_id": 2,
+      "to_id": 3
+    },
+    {
+      "from_id": 3,
+      "to_id": 4
+    },
+    {
+      "from_id": 4,
+      "to_id": 5
+    },
+    {
+      "from_id": 5,
+      "to_id": 6,
+      "label": "No"
+    },
+    {
+      "from_id": 6,
+      "to_id": 4,
+      "edge_wrap_offset": 21.0
+    },
+    {
+      "from_id": 5,
+      "to_id": 7,
+      "label": "Yes"
+    },
+    {
+      "from_id": 7,
+      "to_id": 8
+    },
+    {
+      "from_id": 8,
+      "to_id": 9
+    },
+    {
+      "from_id": 9,
+      "to_id": 10,
+      "label": "ユーザー勝ち"
+    },
+    {
+      "from_id": 10,
+      "to_id": 13
+    },
+    {
+      "from_id": 13,
+      "to_id": 14
+    },
+    {
+      "from_id": 9,
+      "to_id": 11,
+      "label": "コンピュータ勝ち"
+    },
+    {
+      "from_id": 11,
+      "to_id": 13
+    },
+    {
+      "from_id": 13,
+      "to_id": 14
+    },
+    {
+      "from_id": 9,
+      "to_id": 12,
+      "label": "あいこ"
+    },
+    {
+      "from_id": 12,
+      "to_id": 13
+    },
+    {
+      "from_id": 13,
+      "to_id": 14
+    },
+    {
+      "from_id": 14,
+      "to_id": 3,
+      "from_connection_point": "right",
+      "to_connection_point": "right",
+      "edge_wrap_offset": 201.0,
+      "label": "No"
+    },
+    {
+      "from_id": 14,
+      "to_id": 15,
+      "label": "Yes"
+    },
+    {
+      "from_id": 15,
+      "to_id": 16
+    },
+    {
+      "from_id": 16,
+      "to_id": 17,
+      "from_connection_point": "left",
+      "to_connection_point": "left",
+      "label": "ユーザー勝ち"
+    },
+    {
+      "from_id": 17,
+      "to_id": 18
+    },
+    {
+      "from_id": 16,
+      "to_id": 17,
+      "from_connection_point": "right",
+      "to_connection_point": "right",
+      "label": "コンピュータ勝ち"
+    },
+    {
+      "from_id": 17,
+      "to_id": 18
+    },
+    {
+      "from_id": 16,
+      "to_id": 17,
+      "from_connection_point": "auto",
+      "to_connection_point": "auto",
+      "label": "引き分け"
+    },
+    {
+      "from_id": 17,
+      "to_id": 18
+    }
+  ]
+}

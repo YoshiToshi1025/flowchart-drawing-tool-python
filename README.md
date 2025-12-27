@@ -91,3 +91,4 @@ This project provides a “Simple Flowchart Drawing Tool (Python Version)” tha
 * 2025/12/19 : Added adjustable elements to definition files, added separate Japanese/English configuration example files, partially cleaned up source code
 * 2025/12/24 : Added manual link adjustment support (CTRL+MouseWheel: change connection points, SHIFT+MouseWheel: adjust routing distance)
 * 2025/12/25 : Improve usability and create example videos demonstrating tool usage
+* 2025/12/27 : Supports loading Mermaid-formatted data and adjusting label positions when links are manually routed

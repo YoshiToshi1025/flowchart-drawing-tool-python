@@ -218,36 +218,110 @@ class Edge:
             # 明示的なアンカー指定あり
             if self.from_node_connection_point == "top" and self.to_node_connection_point == "top":
                 coords = self.rect_anchor_top_to_top(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["sw"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                    label_anchor = "sw"
             elif self.from_node_connection_point == "top" and self.to_node_connection_point == "right":
                 coords = self.rect_anchor_top_to_right(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["sw"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                    label_anchor = "sw"
             elif self.from_node_connection_point == "top" and self.to_node_connection_point == "bottom":
                 coords = self.rect_anchor_top_to_bottom(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["sw"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                    label_anchor = "sw"
             elif self.from_node_connection_point == "top" and self.to_node_connection_point == "left":
                 coords = self.rect_anchor_top_to_left(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["sw"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                    label_anchor = "sw"
             elif self.from_node_connection_point == "right" and self.to_node_connection_point == "top":
                 coords = self.rect_anchor_right_to_top(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["sw"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                    label_anchor = "sw"
             elif self.from_node_connection_point == "right" and self.to_node_connection_point == "right":
                 coords = self.rect_anchor_right_to_right(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    if from_right_y < to_right_y:
+                        label_x = coords[0] + ct.EDGE_LABEL_OFFSET["sw"][0]
+                        label_y = coords[1] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                        label_anchor = "sw"
+                    else:
+                        label_x = coords[0] + ct.EDGE_LABEL_OFFSET["nw"][0]
+                        label_y = coords[1] + ct.EDGE_LABEL_OFFSET["nw"][1]
+                        label_anchor = "nw"
             elif self.from_node_connection_point == "right" and self.to_node_connection_point == "bottom":
                 coords = self.rect_anchor_right_to_bottom(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["sw"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                    label_anchor = "sw"
             elif self.from_node_connection_point == "right" and self.to_node_connection_point == "left":
                 coords = self.rect_anchor_right_to_left(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["sw"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                    label_anchor = "sw"
             elif self.from_node_connection_point == "bottom" and self.to_node_connection_point == "top":
                 coords = self.rect_anchor_bottom_to_top(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["nw"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["nw"][1]
+                    label_anchor = "nw"
             elif self.from_node_connection_point == "bottom" and self.to_node_connection_point == "right":
                 coords = self.rect_anchor_bottom_to_right(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["nw"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["nw"][1]
+                    label_anchor = "nw"
             elif self.from_node_connection_point == "bottom" and self.to_node_connection_point == "bottom":
                 coords = self.rect_anchor_bottom_to_bottom(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["nw"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["nw"][1]
+                    label_anchor = "nw"
             elif self.from_node_connection_point == "bottom" and self.to_node_connection_point == "left":
                 coords = self.rect_anchor_bottom_to_left(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["nw"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["nw"][1]
+                    label_anchor = "nw"
             elif self.from_node_connection_point == "left" and self.to_node_connection_point == "top":
                 coords = self.rect_anchor_left_to_top(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["se"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["se"][1]
+                    label_anchor = "se"
             elif self.from_node_connection_point == "left" and self.to_node_connection_point == "right":
                 coords = self.rect_anchor_left_to_right(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["se"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["se"][1]
+                    label_anchor = "se"
             elif self.from_node_connection_point == "left" and self.to_node_connection_point == "bottom":
                 coords = self.rect_anchor_left_to_bottom(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["se"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["se"][1]
+                    label_anchor = "se"
             elif self.from_node_connection_point == "left" and self.to_node_connection_point == "left":
                 coords = self.rect_anchor_left_to_left(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    if from_left_y < to_left_y:
+                        label_x = coords[0] + ct.EDGE_LABEL_OFFSET["se"][0]
+                        label_y = coords[1] + ct.EDGE_LABEL_OFFSET["se"][1]
+                        label_anchor = "se"
+                    else:
+                        label_x = coords[0] + ct.EDGE_LABEL_OFFSET["ne"][0]
+                        label_y = coords[1] + ct.EDGE_LABEL_OFFSET["ne"][1]
+                        label_anchor = "ne"
             else:
                 coords = []
                 print("Error: Invalid connection_point values")
@@ -466,13 +540,13 @@ class Edge:
                 if self.edge_wrap_offset is None:
                     mid_x = (from_right_x + to_left_x) / 2
                 else:
-                    mid_x = from_right_x - self.edge_wrap_offset
+                    mid_x = from_right_x + self.edge_wrap_offset
                 coords = [from_right_x, from_right_y, mid_x, from_right_y, mid_x, to_left_y, to_left_x, to_left_y]
             elif from_right_y < to_left_y:
                 if self.edge_wrap_offset is None:
                     mid_x = (from_right_x + to_left_x) / 2
                 else:
-                    mid_x = from_right_x - self.edge_wrap_offset
+                    mid_x = from_right_x + self.edge_wrap_offset
                 coords = [from_right_x, from_right_y, mid_x, from_right_y, mid_x, to_left_y, to_left_x, to_left_y]
 
         return coords
@@ -890,6 +964,7 @@ class Edge:
 
         self.from_node_connection_point = from_node_connection_point
         self.to_node_connection_point = to_node_connection_point
+        self.edge_wrap_offset = None
 
         if canvas is not None:
             self._update_edge(canvas)
@@ -956,8 +1031,8 @@ class Edge:
                 distance_to_node = min(from_y - vertex1_y, to_y - vertex2_y)
                 if increase:
                     distance_to_node += step_size
-                    if distance_to_node > step_size * 20:
-                        distance_to_node = step_size * 20
+                    if distance_to_node > step_size * 50:
+                        distance_to_node = step_size * 50
                     self.edge_wrap_offset = distance_to_node
                     vertex_y = min(from_y, to_y) - self.edge_wrap_offset
                     self.points = [from_x, from_y, from_x, vertex_y, to_x, vertex_y, to_x, to_y]
@@ -973,8 +1048,8 @@ class Edge:
                 distance_to_node = min(vertex1_y - from_y, vertex2_y - to_y)
                 if increase:
                     distance_to_node += step_size
-                    if distance_to_node > step_size * 20:
-                        distance_to_node = step_size * 20
+                    if distance_to_node > step_size * 50:
+                        distance_to_node = step_size * 50
                     self.edge_wrap_offset = distance_to_node
                     vertex_y = max(from_y, to_y) + self.edge_wrap_offset
                     self.points = [from_x, from_y, from_x, vertex_y, to_x, vertex_y, to_x, to_y]
@@ -1026,8 +1101,8 @@ class Edge:
                 distance_to_node = min(from_x - vertex1_x, to_x - vertex2_x)
                 if increase:
                     distance_to_node += step_size
-                    if distance_to_node > step_size * 20:
-                        distance_to_node = step_size * 20
+                    if distance_to_node > step_size * 50:
+                        distance_to_node = step_size * 50
                     self.edge_wrap_offset = distance_to_node
                     vertex_x = min(from_x, to_x) - self.edge_wrap_offset
                     self.points = [from_x, from_y, vertex_x, from_y, vertex_x, to_y, to_x, to_y]
@@ -1043,8 +1118,8 @@ class Edge:
                 distance_to_node = min(vertex1_x - from_x, vertex2_x - to_x)
                 if increase:
                     distance_to_node += step_size
-                    if distance_to_node > step_size * 20:
-                        distance_to_node = step_size * 20
+                    if distance_to_node > step_size * 50:
+                        distance_to_node = step_size * 50
                     self.edge_wrap_offset = distance_to_node
                     vertex_x = max(from_x, to_x) + self.edge_wrap_offset
                     self.points = [from_x, from_y, vertex_x, from_y, vertex_x, to_y, to_x, to_y]

@@ -5,10 +5,10 @@ APP_TITLE = "簡易フローチャート作図ツール(TKinter Canvas)"
 
 # キャンバス・パラメータ
 CANVAS_PARAMS = {
-    "size": "1000x700",
+    "size": "1200x800",
     "bg_color": "white",
     "grid_color": "#eeeeee",
-    "grid_spacing": 20,
+    "grid_spacing": 15,
 }
 
 # モード辞書
@@ -28,16 +28,16 @@ DEFAULT_MODE = MODE_DICT["Select"]
 NODE_DEFAULT_PARAMS = {
     "type": "default",
     "text": "Undefined",
-    "width": 160,
-    "height": 60,
+    "width": 120,
+    "height": 45,
     "fill_color": "#FFFFFF", # White
     "outline_color": "#334155",
     "selected_outline_color": "#0ea5e9",  # Light Blue
     "outline_width": 2,
-    "text_width": 150,
+    "text_width": 110,
     "text_color": "#0f172a",  # Dark Blue
     "font_family": "Arial",
-    "font_size": 11,
+    "font_size": 9,
     "font_weight": font.NORMAL,
 }
 
@@ -45,16 +45,16 @@ NODE_DEFAULT_PARAMS = {
 NODE_PROCESS_PARAMS = {
     "type": "process",
     "text": "処理",
-    "width": 160,
-    "height": 60,
+    "width": 120,
+    "height": 45,
     "fill_color": "#FFFFFF", # 
     "outline_color": "#334155",
     "selected_outline_color": "#0ea5e9",  # Light Blue
     "outline_width": 2,
-    "text_width": 150,
+    "text_width": 110,
     "text_color": "#0f172a",  # Dark Blue
     "font_family": "Arial",
-    "font_size": 11,
+    "font_size": 9,
     "font_weight": font.NORMAL,
 }
 
@@ -62,16 +62,16 @@ NODE_PROCESS_PARAMS = {
 NODE_DECISION_PARAMS = {
     "type": "decision",
     "text": "分岐?",
-    "width": 160,
-    "height": 60,
+    "width": 120,
+    "height": 45,
     "fill_color": "#FFFFFF", # White
     "outline_color": "#334155",
     "selected_outline_color": "#0ea5e9",  # Light Blue
     "outline_width": 2,
-    "text_width": 150,
+    "text_width": 110,
     "text_color": "#0f172a",  # Dark Blue
     "font_family": "Arial",
-    "font_size": 11,
+    "font_size": 9,
     "font_weight": font.NORMAL,
 }
 
@@ -79,16 +79,16 @@ NODE_DECISION_PARAMS = {
 NODE_TERMINATOR_PARAMS = {
     "type": "terminator",
     "text": "端点",
-    "width": 160,
-    "height": 60,
+    "width": 120,
+    "height": 45,
     "fill_color": "#e0e0e0", # Light Gray 
     "outline_color": "#334155",
     "selected_outline_color": "#0ea5e9",  # Light Blue
     "outline_width": 2,
-    "text_width": 150,
+    "text_width": 110,
     "text_color": "#0f172a",  # Dark Blue
     "font_family": "Arial",
-    "font_size": 11,
+    "font_size": 9,
     "font_weight": font.NORMAL,
 }
 
@@ -96,17 +96,17 @@ NODE_TERMINATOR_PARAMS = {
 NODE_IO_PARAMS = {
     "type": "io",
     "text": "入出力",
-    "width": 160,
-    "height": 60,
-    "skew": 20,
+    "width": 120,
+    "height": 45,
+    "skew": 15,
     "fill_color": "#FFFFFF", # White
     "outline_color": "#334155",
     "selected_outline_color": "#0ea5e9",  # Light Blue
     "outline_width": 2,
-    "text_width": 150,
+    "text_width": 110,
     "text_color": "#0f172a",  # Dark Blue
     "font_family": "Arial",
-    "font_size": 11,
+    "font_size": 9,
     "font_weight": font.NORMAL,
 }
 
@@ -116,10 +116,10 @@ EDGE_PARAMS = {
     "width": 2,
     "selected_color": "#0ea5e9",
     "outline_width": 2,
-    "text_width": 150,
+    "text_width": 200,
     "text_color": "#0f172a",  # Dark Blue
     "font_family": "Arial",
-    "font_size": 11,
+    "font_size": 9,
     "font_weight": font.NORMAL,
 }
 
