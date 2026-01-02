@@ -8,7 +8,7 @@ CANVAS_PARAMS = {
     "size": "1200x800",
     "bg_color": "white",
     "grid_color": "#eeeeee",
-    "grid_spacing": 20,
+    "grid_spacing": 15,
 }
 
 # モード辞書
@@ -28,16 +28,16 @@ DEFAULT_MODE = MODE_DICT["Select"]
 NODE_DEFAULT_PARAMS = {
     "type": "default",
     "text": "Undefined",
-    "width": 160,
-    "height": 60,
+    "width": 120,
+    "height": 45,
     "fill_color": "#FFFFFF", # White
     "outline_color": "#334155",
     "selected_outline_color": "#0ea5e9",  # Light Blue
     "outline_width": 2,
-    "text_width": 150,
+    "text_width": 110,
     "text_color": "#0f172a",  # Dark Blue
     "font_family": "Arial",
-    "font_size": 11,
+    "font_size": 9,
     "font_weight": font.NORMAL,
 }
 
@@ -45,16 +45,16 @@ NODE_DEFAULT_PARAMS = {
 NODE_PROCESS_PARAMS = {
     "type": "process",
     "text": "処理",
-    "width": 160,
-    "height": 60,
+    "width": 120,
+    "height": 45,
     "fill_color": "#FFFFFF", # 
     "outline_color": "#334155",
     "selected_outline_color": "#0ea5e9",  # Light Blue
     "outline_width": 2,
-    "text_width": 150,
+    "text_width": 110,
     "text_color": "#0f172a",  # Dark Blue
     "font_family": "Arial",
-    "font_size": 11,
+    "font_size": 9,
     "font_weight": font.NORMAL,
 }
 
@@ -62,16 +62,16 @@ NODE_PROCESS_PARAMS = {
 NODE_DECISION_PARAMS = {
     "type": "decision",
     "text": "分岐?",
-    "width": 160,
-    "height": 60,
+    "width": 120,
+    "height": 45,
     "fill_color": "#FFFFFF", # White
     "outline_color": "#334155",
     "selected_outline_color": "#0ea5e9",  # Light Blue
     "outline_width": 2,
-    "text_width": 150,
+    "text_width": 110,
     "text_color": "#0f172a",  # Dark Blue
     "font_family": "Arial",
-    "font_size": 11,
+    "font_size": 9,
     "font_weight": font.NORMAL,
 }
 
@@ -79,16 +79,16 @@ NODE_DECISION_PARAMS = {
 NODE_TERMINATOR_PARAMS = {
     "type": "terminator",
     "text": "端点",
-    "width": 160,
-    "height": 60,
+    "width": 120,
+    "height": 45,
     "fill_color": "#e0e0e0", # Light Gray 
     "outline_color": "#334155",
     "selected_outline_color": "#0ea5e9",  # Light Blue
     "outline_width": 2,
-    "text_width": 150,
+    "text_width": 110,
     "text_color": "#0f172a",  # Dark Blue
     "font_family": "Arial",
-    "font_size": 11,
+    "font_size": 9,
     "font_weight": font.NORMAL,
 }
 
@@ -96,17 +96,17 @@ NODE_TERMINATOR_PARAMS = {
 NODE_IO_PARAMS = {
     "type": "io",
     "text": "入出力",
-    "width": 160,
-    "height": 60,
-    "skew": 20,
+    "width": 120,
+    "height": 45,
+    "skew": 15,
     "fill_color": "#FFFFFF", # White
     "outline_color": "#334155",
     "selected_outline_color": "#0ea5e9",  # Light Blue
     "outline_width": 2,
-    "text_width": 150,
+    "text_width": 110,
     "text_color": "#0f172a",  # Dark Blue
     "font_family": "Arial",
-    "font_size": 11,
+    "font_size": 9,
     "font_weight": font.NORMAL,
 }
 
@@ -119,7 +119,7 @@ EDGE_PARAMS = {
     "text_width": 200,
     "text_color": "#0f172a",  # Dark Blue
     "font_family": "Arial",
-    "font_size": 11,
+    "font_size": 9,
     "font_weight": font.NORMAL,
 }
 
@@ -156,3 +156,64 @@ WINDOW_CLOSE_DIALOG_MESSAGE = "本ツールを終了します。編集内容を�
 
 SAVE_FAILED_MESSAGE = "保存に失敗しました"
 LOAD_FAILED_MESSAGE = "読み込みに失敗しました"
+
+AI_GENERATED_MESSAGE1 = "AI生成された処理フローデータを保存しました。今すぐ読み込みますか？"
+AI_GENERATED_MESSAGE2 = "今すぐ読み込みますか？"
+
+
+# AI関連定数
+CHAT_WIDTH = 500
+CHAT_WINDOW_SLIDE_STEP = 20
+CHAT_WINDOW_SLIDE_INTERVAL = 15  # ms
+
+AI_MODEL = "gpt-5.2"  # 必要に応じて変更
+AI_INPUT_TEMPLATE = "「 $order 」の処理フローをまとめて、以下の形式で定義してください。"
+AI_SYSTEM_INSTRUCTIONS = '''# 役割
+あなたは、業務フローや処理概要を整理するシステム構築の専門家です。
+指定された条件にしたがって効率の良い明快なフローを組み立て、フローチャートで定義できるようフローを適度な要素（端点、処理、分岐、入出力）に分類して、
+以下に規定された出力形式で出力してください。
+
+# 出力形式
+以下のルールにのっとったMermaid記法で出力する。
+- 先にノード情報のリストを出力し、あとからリンク情報を出力する。
+- ノード情報は、1行に、「ノード識別子」と「ノードの種類(開く)」と「タイトル」と「ノードの種類(閉じる)」を区切り文字や空白文字を含めずに接続した文字列の形式で出力する。 
+  - ノード識別子：各ノードが重複しないようユニークな記号(A,B,C,...,Z,AA,BB,CC,...,ZZ)を付与する。
+  - タイトル：処理名、なおノードが入出力の場合、タイトル文字にスラッシュ（/）を含めないこと。
+  - ノードの種類：
+    - 始点・終点・サブルーチンの場合、タイトルの前後に()を付ける。  出力例: A(開始)
+    - 処理の場合、タイトルの前後に[]を付ける。  出力例: B[初期化処理]
+    - 分岐の場合、タイトルの前後に{}を付ける。  出力例: C{リトライ?}
+    - 入出力の場合、タイトルの前後に//を付ける。  出力例: D/データの保存/
+- リンク情報は、接続する2つのノードを、接続元ノード識別子,リンク識別子,接続先ノード識別子の形式で出力する
+  - 接続元ノード識別子：接続先ノード識別子はノード情報で定義したノード識別子を用いる。
+  - リンク識別子：リンクにラベルが無い場合は"-->"とし、ラベルがある場合は"--ラベル値-->"で表現する。  例: A --> B,   A --Yes--> B
+  - なお、リンクが連続して接続されている場合は、複数のリンクを1行に記載できる。  例: A --> B --> C
+
+## 出力例
+-----
+mermaid
+
+flowchart TD
+  A(開始)
+  B[ツールの起動]
+  C{新規作成or編集?}
+  D[作図]
+  E/データ読込/
+  F[編集]
+  G/画像出力/
+  H[資料に画像を添付]
+  I(終了)
+
+  A --> B --> C --新規作成--> D --> G --> H --> I
+  C --編集--> E --> F --> G
+-----
+
+# 出力フォーマット
+テキスト形式
+
+# 出力言語
+日本語
+'''
+
+# 保存先（実行フォルダ直下の work/test.txt）
+WORK_DIR_NAME = "work"

@@ -1,0 +1,350 @@
+{
+  "nodes": [
+    {
+      "id": 1,
+      "type": "terminator",
+      "x": 285,
+      "y": 37,
+      "w": 120,
+      "h": 45,
+      "text": "ログイン認証：開始"
+    },
+    {
+      "id": 2,
+      "type": "io",
+      "x": 285,
+      "y": 97,
+      "w": 120,
+      "h": 45,
+      "text": "ログイン情報入力"
+    },
+    {
+      "id": 3,
+      "type": "process",
+      "x": 285,
+      "y": 157,
+      "w": 120,
+      "h": 45,
+      "text": "入力値検証"
+    },
+    {
+      "id": 4,
+      "type": "decision",
+      "x": 285,
+      "y": 217,
+      "w": 120,
+      "h": 45,
+      "text": "必須項目不足 または形式不正?"
+    },
+    {
+      "id": 5,
+      "type": "io",
+      "x": 450,
+      "y": 217,
+      "w": 120,
+      "h": 45,
+      "text": "エラーメッセージ 表示"
+    },
+    {
+      "id": 6,
+      "type": "process",
+      "x": 285,
+      "y": 277,
+      "w": 120,
+      "h": 45,
+      "text": "認証要求送信"
+    },
+    {
+      "id": 7,
+      "type": "process",
+      "x": 285,
+      "y": 337,
+      "w": 120,
+      "h": 45,
+      "text": "ユーザー情報取得"
+    },
+    {
+      "id": 8,
+      "type": "decision",
+      "x": 285,
+      "y": 397,
+      "w": 120,
+      "h": 45,
+      "text": "ユーザー存在?"
+    },
+    {
+      "id": 9,
+      "type": "io",
+      "x": 645,
+      "y": 877,
+      "w": 120,
+      "h": 45,
+      "text": "認証失敗表示"
+    },
+    {
+      "id": 10,
+      "type": "decision",
+      "x": 285,
+      "y": 457,
+      "w": 120,
+      "h": 45,
+      "text": "アカウント 状態正常?"
+    },
+    {
+      "id": 11,
+      "type": "io",
+      "x": 465,
+      "y": 877,
+      "w": 120,
+      "h": 45,
+      "text": "アカウントロック または無効表示"
+    },
+    {
+      "id": 12,
+      "type": "process",
+      "x": 285,
+      "y": 517,
+      "w": 120,
+      "h": 45,
+      "text": "パスワード照合"
+    },
+    {
+      "id": 13,
+      "type": "decision",
+      "x": 285,
+      "y": 577,
+      "w": 120,
+      "h": 45,
+      "text": "パスワード一致?"
+    },
+    {
+      "id": 14,
+      "type": "process",
+      "x": 465,
+      "y": 577,
+      "w": 120,
+      "h": 45,
+      "text": "失敗回数加算"
+    },
+    {
+      "id": 15,
+      "type": "decision",
+      "x": 465,
+      "y": 637,
+      "w": 120,
+      "h": 45,
+      "text": "ロック閾値到達?"
+    },
+    {
+      "id": 16,
+      "type": "process",
+      "x": 465,
+      "y": 697,
+      "w": 120,
+      "h": 45,
+      "text": "アカウントロック"
+    },
+    {
+      "id": 17,
+      "type": "io",
+      "x": 285,
+      "y": 637,
+      "w": 120,
+      "h": 45,
+      "text": "認証成功表示"
+    },
+    {
+      "id": 18,
+      "type": "process",
+      "x": 285,
+      "y": 697,
+      "w": 120,
+      "h": 45,
+      "text": "セッション発行"
+    },
+    {
+      "id": 19,
+      "type": "process",
+      "x": 285,
+      "y": 757,
+      "w": 120,
+      "h": 45,
+      "text": "最終ログイン更新"
+    },
+    {
+      "id": 21,
+      "type": "io",
+      "x": 285,
+      "y": 877,
+      "w": 120,
+      "h": 45,
+      "text": "トップページ表示"
+    },
+    {
+      "id": 22,
+      "type": "terminator",
+      "x": 285,
+      "y": 952,
+      "w": 120,
+      "h": 45,
+      "text": "ログイン認証：終了"
+    },
+    {
+      "id": 23,
+      "type": "process",
+      "x": 285,
+      "y": 817,
+      "w": 120,
+      "h": 45,
+      "text": "監視ログ記録"
+    },
+    {
+      "id": 24,
+      "type": "process",
+      "x": 465,
+      "y": 817,
+      "w": 120,
+      "h": 45,
+      "text": "監視ログ記録"
+    },
+    {
+      "id": 25,
+      "type": "process",
+      "x": 645,
+      "y": 817,
+      "w": 120,
+      "h": 45,
+      "text": "監視ログ記録"
+    }
+  ],
+  "edges": [
+    {
+      "from_id": 1,
+      "to_id": 2
+    },
+    {
+      "from_id": 2,
+      "to_id": 3
+    },
+    {
+      "from_id": 3,
+      "to_id": 4
+    },
+    {
+      "from_id": 4,
+      "to_id": 5,
+      "label": "Yes"
+    },
+    {
+      "from_id": 5,
+      "to_id": 2
+    },
+    {
+      "from_id": 4,
+      "to_id": 6,
+      "label": "No"
+    },
+    {
+      "from_id": 6,
+      "to_id": 7
+    },
+    {
+      "from_id": 7,
+      "to_id": 8
+    },
+    {
+      "from_id": 8,
+      "to_id": 10,
+      "label": "Yes"
+    },
+    {
+      "from_id": 10,
+      "to_id": 12,
+      "label": "Yes"
+    },
+    {
+      "from_id": 12,
+      "to_id": 13
+    },
+    {
+      "from_id": 13,
+      "to_id": 14,
+      "label": "No"
+    },
+    {
+      "from_id": 14,
+      "to_id": 15
+    },
+    {
+      "from_id": 15,
+      "to_id": 16,
+      "label": "Yes"
+    },
+    {
+      "from_id": 13,
+      "to_id": 17,
+      "label": "Yes"
+    },
+    {
+      "from_id": 17,
+      "to_id": 18
+    },
+    {
+      "from_id": 18,
+      "to_id": 19
+    },
+    {
+      "from_id": 19,
+      "to_id": 23
+    },
+    {
+      "from_id": 23,
+      "to_id": 21
+    },
+    {
+      "from_id": 8,
+      "to_id": 25,
+      "label": "No"
+    },
+    {
+      "from_id": 15,
+      "to_id": 25,
+      "label": "No"
+    },
+    {
+      "from_id": 25,
+      "to_id": 9
+    },
+    {
+      "from_id": 9,
+      "to_id": 22,
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
+    },
+    {
+      "from_id": 21,
+      "to_id": 22
+    },
+    {
+      "from_id": 11,
+      "to_id": 22,
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
+    },
+    {
+      "from_id": 24,
+      "to_id": 11
+    },
+    {
+      "from_id": 10,
+      "to_id": 24,
+      "from_connection_point": "right",
+      "to_connection_point": "right",
+      "label": "No"
+    },
+    {
+      "from_id": 16,
+      "to_id": 24
+    }
+  ]
+}

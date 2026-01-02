@@ -1,94 +1,110 @@
-# flowchart-drawing-tool-python Simple Flowchart Drawing Tool (Python Version)
+# flowchart-drawing-tool-python 簡易フローチャート描画ツール（Python版)
 
-## Overview
+## 概要
 
-This project provides a “Simple Flowchart Drawing Tool (Python Version)” that allows you to easily draw flowcharts.
+このプロジェクトは、簡単にフローチャートを描画できるようにするために、「簡易フローチャート描画ツール(Python版)」を提供します。
 
-## Project Purpose
+## プロジェクトの目的
 
-- Have you ever felt the following frustrations or stress when creating flowcharts?
-  - During requirement definition to detailed design, you want to use simple flowcharts to examine business flows or processing logic,
-    but you cannot easily find a tool that is simple to draw with and practical for business use, leading to frustration every time you need to draw a flowchart.
-  - You create flowcharts in Excel or PowerPoint, but it takes time to adjust them into a satisfactory form, and you get tired of repeatedly re‑adjusting them during edits.
-  - In the era of generative AI, are you concerned about specification documents filled only with text? Even if you ask generative AI to create flowcharts, the results are not very good and editing them is difficult.
+- フローチャートを書くときに以下のような悩みやストレスはありませんか？
+  - 要件定義～詳細設計において、業務フローや処理ロジックを検討する際に、簡易的にフローチャートを使いたいけど、
+安易に描画できて業務的にも使えそうなツールがなかなか見つからず、フローチャート作図のたびにイライラ
+  - フローチャートをExcelやPowerPointで作図しているけど、満足した形に整えるのに時間がかかり、さらにフローチャートの編集で整えなおしにうんざり
+  - 生成AIの時代になって、文章だらけの仕様書が気になっていませんか？生成AIにフローチャートを書かせてもイマイチで編集も大変
 
-- Therefore, aiming to create a “casually usable flowchart drawing tool,” this tool was developed in Python.
-- The basic functions that were envisioned for drawing simple flowcharts have mostly been implemented, so a provisional version is now released.
-- Note: Although the base code was created with ChatGPT, it has been modified afterwards, so some parts of the code are not yet well organized. These will be gradually cleaned up (sorry!).
+- そこで、「気軽に使えるフローチャート作図ツール」を目指して、Pythonで作成してみました。
+- 簡易的なフローチャートを描く上で、想定していた基本機能が揃ってきたので、暫定版を公開することにしました。
+- なお、本ソースコードはChatGPTで作成して手を入れたため、コードが整理できていない部分があります。徐々に整理していく予定です（汗
+
+- 新機能：生成AI(GPT5.2)と連携して、フローチャートの自動作成に対応しました。（フローチャートの各要素や配線の調整は手動です）
 
 <img width="100%" src="example/output_example.png" />
 
-## Installation
+## インストール
 
-- Prerequisites
-  - An environment where Python code can be executed and where the Tkinter library’s Canvas is available.
-    (It does not work in web environments such as Google Colaboratory. On macOS, Tkinter must be properly enabled.)
+- 前提条件
+  - Pythonコードが実行可能な環境で、さらに、TKinterライブラリのCanvasが利用可能な環境が必要です。
+(Google ColaboratoryなどのWeb環境では動作不可、MacOSではTKInterが利用できる設定が必要です)
 
-- Installation Steps
-  1. Check out the project code in an environment where Python can be executed.
-  2. In the checkout folder, run `pip install -r requirements.txt` to install the required packages.
-  3. Run `flowchart_tool.py` to display the flowchart drawing tool window.
+- インストール手順
+  1. Python実行可能環境にて、当該プロジェクトのコードをチェックアウトします。
+  2. チェックアウトフォルダにて、"pip install -r requirements.txt"を実行して、必要なパッケージをインストールします。
+  3. 生成AIで処理フローを自動生成したい場合は、チェックアウトフォルダに".env"ファイルを作成し、OpenAI API Keyを以下の形式で
+  記述します。（OpenAI API Keyの取得方法は、"Docs/OpenAI_API_Keyの取得方法(ChatGPT生成).md"を参照ください）
+  
+      「.envファイル内容(１行)」    OPENAI_API_KEY=(OpenAIから取得したAPI Key)
+  
+  4. flowchart_tool.pyを実行すると、フローチャート作図ツール画面が表示されます。
 
-## Usage
+## 使い方
 
-- Placement: Select Process, Decision, Terminator, or I/O from the menu and click inside the canvas to place an element.
-  - [Drawable Elements]
-    - Terminator: Start, End, Subroutine
-    - Process: Processing
-    - Decision: Branching
-    - I/O: Input/Output
-- Connection: Select Link from the menu, then click the source element and destination element in order to draw a connection line between elements.
-- Text: Double‑click an element or link on the canvas to enter text edit mode.
-- Move: Select Select from the menu and drag and drop an element on the canvas to move it.
-- Element Selection: Select Select from the menu and click an element to select it.
-- Multiple Selection: Select Select from the menu and drag a rectangular area from an empty space to select multiple elements within the rectangle.
-- Delete: Select the Delete button from the menu to delete the selected element(s) and their associated links.
-- UNDO/REDO: Select the UNDO or REDO buttons from the menu to undo or redo the most recent edit operation.
-- Import/Export: Export the canvas content to image files (JPEG/PNG) or JSON format, or import a saved JSON file to redraw it.
-- Grid: Turn on the Grid checkbox in the menu to display a grid and restrict element placement to the grid.
-- Manual Link Adjustment: When a link is selected, use CTRL + Mouse Wheel to cycle through connection points, and SHIFT + Mouse Wheel to adjust the routing distance.
+- 配置：メニュー欄で Process,Decision,Terminator,I/O を選択し、キャンバス内を選択することで要素を配置できます。
+  -  [描画可能な要素]
+     - Terminator：始端、終端、サブルーチン
+     - Process：処理
+     - Decision：分岐
+     - I/O：入出力
+- 接続：メニュー欄の Link を選択し、接続元要素と接続先要素を順に選択することで、要素間の接続線を描画できます。
+- テキスト：キャンバス内の要素またはリンクをダブルクリックすることで、テキスト編集モードになります。
+- 移動：メニュー欄の Select を選択し、キャンバス内の要素をドラッグアンドドロップすることで、要素を移動できます。
+- 要素選択：メニュー欄の Select を選択し、要素をクリックすることで、当該要素を選択状態にできます。
+- 複数選択：メニュー欄の Select を選択し、要素のない位置から矩形範囲を指定することで、矩形範囲内の複数要素が選択状態になります。
+- 削除：メニュー欄の Delete ボタンを選択すると、選択状態の（複数）要素と、その要素のリンクが削除されます。
+- UNDO/REDO：メニュー欄の UNDO, REDO ボタンを選択すると、直前の編集操作の取り消し,やり直しが可能です。
+- インポート/エクスポート：キャンバス描画内容を画像(JPEG/PNG)またはJSON形式でファイルに出力したり、保存JSONファイルをインポートして再描画できます。
+- Grid：メニュー欄のGridチェックボックスをONにすると、格子が表示され、要素の配置をグリッドで制限されるようになります。
+- フローの自動生成：メニュー欄のAI-generationチェックボックスをONにして、表示される右サイドパネルにて自動生成したい処理フローを指定し、Generateボタンを押下することで、処理フローを自動生成できます。（フローの配置は手動で整えてください）
+- リンク配線の手動調整：リンク選択状態で、CTRL+MouseWheelで接続点を巡回変更、SHIFT+MouseWheelで回り込みの距離を調整できます。
 
-* Sample JSON files are placed in the example folder. These files can be loaded using [Load JSON].
+* exampleフォルダに、サンプルJSONファイルを配置しています。このファイルは[Load JSON]で読み込み可能です。
 
-## Operation
+## 運用
 
-- In the current provisional version, the following usage is assumed:
-  1. Launch the flowchart drawing tool
-  2. Draw a new flowchart for new creation
-  3. For editing, load saved data first and then edit
-  4. Save the completed flowchart data and image
-  5. Paste the image into documents
+- 現状の暫定版では、以下の利用を想定しています。
+  1. フローチャート作図ツールを起動
+  2. 手動作成の場合、
+      1. 新規作成の場合は、フローチャートを作図
+      2. 編集の場合は、保存データを読み込んでから編集
+  3. 自動生成の場合、
+      1. 自動作成したい処理フローを指定し、生成AIに自動作成を依頼
+      2. 自動生成されたフローチャートの各要素や配線を手動調整
+      3. フローチャートを確認し、必要に応じてフローを編集
+  4. 完成したフローチャートのデータと画像を保存
+  5. 資料に画像を張り付け
 
 <img width="80%" src="example/作図想定フロー.png" />
 
-## Limitations
+## 制限事項
 
-- Link routing is automatically determined based on the positional relationship between elements. Manual placement adjustment is not yet supported (planned for future support).
-- Canvas zoom in/out is not supported yet (planned for future support).
+- キャンバスのスクロールや拡大・縮小表示には未対応です（将来対応予定）
 
-## Planned Features
+## 注意事項
 
-- Optimization of menu structure
-- Automatic flowchart generation by reading Mermaid notation text
-- Export of drawn flowcharts to Excel
-- Addition of other elements and swimlane drawing
-- Integration with generative AI (output flows from generative AI and create flowcharts)
-- And more
+- フローチャートの自動作成にはOpenAIのAPI(GPT5.2)を利用するため、自動生成を行うごとに GPT API の利用料が発生します。
 
-## License
+## 対応予定内容
 
-- This project is licensed under the MIT License.
+- メニュー構成の最適化
+- キャンバスのスクロールや拡大・縮小表示
+- 描画フローチャートのExcel出力対応
+- 他要素の追加、スイムレーン描画
+- など
 
-## Update History
+## ライセンス
 
-* 2025/12/12 : Basic functions (provisional version) released
-* 2025/12/15 : Minor adjustments to link routing logic, image export support (JPEG/PNG)
-* 2025/12/15b: README update, addition of requirements.txt
-* 2025/12/16 : Fix for node position shifting when double‑clicked
-* 2025/12/16b: Popup menu support, confirmation dialog displayed on tool exit
-* 2025/12/16c: README updated and images added
-* 2025/12/17 : Fixed an issue where some elements were not moved when moving multiple elements
-* 2025/12/19 : Added adjustable elements to definition files, added separate Japanese/English configuration example files, partially cleaned up source code
-* 2025/12/24 : Added manual link adjustment support (CTRL+MouseWheel: change connection points, SHIFT+MouseWheel: adjust routing distance)
-* 2025/12/25 : Improve usability and create example videos demonstrating tool usage
-* 2025/12/27 : Supports loading Mermaid-formatted data and adjusting label positions when links are manually routed
+- このプロジェクトは、MIT Licence の下でライセンスされています。
+
+## 更新履歴
+
+* 2025/12/12 : 基本機能（暫定版）を公開
+* 2025/12/15 : リンク配線ロジックの微調整、画像出力対応(JPEG/PNG)
+* 2025/12/15b: REAMDEの更新、requirements.txtの追加
+* 2025/12/16 : ノードをダブルクリックした際にノード位置がずれることへの対策
+* 2025/12/16b: ポップアップメニューに対応、ツール終了時に確認ダイアログを表示
+* 2025/12/16c: README内容を更新し、画像を追加
+* 2025/12/17 : 複数要素の移動時に一部の要素が移動されない不具合を修正
+* 2025/12/19 : 調整要素を定義ファイルに追加、日本語/英語別の設定例ファイルを追加、ソースコードを部分的に整理
+* 2025/12/24 : リンク配線の手動調整に対応(CTRL+MouseWheel:接続点の変更、SHIFT+MouseWheel:回り込みの距離を調整)
+* 2025/12/25 : 操作性の改善、ツール利用動画例を作成
+* 2025/12/27 : Mermaid形式データの読み込みに対応、リンク配線の手動調整時のラベル位置の調整
+* 2026/01/02 : 生成AI(GPT5.2)と連携して、フローチャートの自動作成に対応

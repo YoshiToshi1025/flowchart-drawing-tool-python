@@ -2,30 +2,44 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import itertools
 import json
+from PIL import ImageGrab
+import os
+import threading
+from tkinter import messagebox
+from openai import OpenAI
+from dotenv import load_dotenv
+from pathlib import Path
+import re
+
+import mermaid_flowdata_loader as mfloader
 import constants as ct
 import node
 from node import Node
 import edge
-from PIL import ImageGrab
-import mermaid_flowdata_loader as mfloader
+from edge import Edge
 
 class FlowchartTool(tk.Tk):
     def __init__(self):
         super().__init__()
+
+        # 環境変数読み込み
+        load_dotenv()   # .envファイルの読み込み
+
         self.title(ct.APP_TITLE)
         self.geometry(ct.CANVAS_PARAMS["size"])
 
         # 状態
         self.mode = tk.StringVar(value=ct.DEFAULT_MODE)  # 動作モード： select / add:process / add:decision / add:terminator / add:io / link
         self.grid_on = tk.BooleanVar(value=True)  # グリッド表示ON/OFF
+        self.chat_window_on = tk.BooleanVar(value=False)  # チャットウィンドウ表示ON/OFF
 
         # 登録済みノード情報
-        self.nodes: dict[int, node.Node] = {}   # node_id -> dict
+        self.nodes: dict[int, Node] = {}   # node_id -> dict
         self._id_counter = itertools.count(1)   # 新規登録用ノードIDカウンタ
         self.selected_node_ids = []    # 選択中のノードIDリスト
 
         # 登録済みエッジ情報
-        self.edges: dict[int, edge.Edge] = {}   # line_id -> list of edge dict
+        self.edges: dict[int, Edge] = {}   # line_id -> list of edge dict
         self.selected_edge_id = None    # 選択中のエッジLine_ID
         self.link_start_node_id = None  # リンク始点ノードID
 
@@ -47,14 +61,24 @@ class FlowchartTool(tk.Tk):
 
     def _build_ui(self):
         # UI画面構築
-        toolbar = ttk.Frame(self)
+
+        # -------------------------
+        # 重要：コンテナを作って、全部 place で重ねる（安定）
+        # -------------------------
+        self.container = tk.Frame(self)
+        self.container.pack(fill=tk.BOTH, expand=True)
+
+        toolbar = ttk.Frame(self.container)
         toolbar.pack(side=tk.TOP, fill=tk.X, pady=4)
+
+        self.main_panel = tk.Frame(self.container)
+        self.main_panel.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         for mode_key, mode_value in ct.MODE_DICT.items():
             self.add_mode_button(toolbar, mode_key, mode_value)
 
         ttk.Button(toolbar, text="Delete", command=self.delete_selected).pack(side=tk.LEFT, padx=1)
-
+    
         # グリッドON/OFFボタン定義
         ttk.Checkbutton(toolbar, text="Grid", variable=self.grid_on, command=self.on_grid_toggle).pack(side=tk.LEFT, padx=1)
 
@@ -72,10 +96,27 @@ class FlowchartTool(tk.Tk):
 
         ttk.Button(toolbar, text="Load Mermaid", command=self.load_mermaid_flowdata).pack(side=tk.LEFT, padx=1)
 
-
         # キャンバス
-        self.canvas = tk.Canvas(self, bg=ct.CANVAS_PARAMS["bg_color"])
-        self.canvas.pack(fill=tk.BOTH, expand=True)
+        self.canvas = tk.Canvas(self.main_panel, bg=ct.CANVAS_PARAMS["bg_color"])
+        # self.canvas.pack(side=tk.TOP, fill=tk.X)
+        self.canvas.grid(row=0, column=0, sticky="nsew")
+
+        # 縦スクロールバー
+        # v_scroll = tk.Scrollbar(self.main_panel, orient=tk.VERTICAL, command=self.canvas.yview)
+        # v_scroll.grid(row=0, column=1, sticky="ns")
+        # 横スクロールバー
+        # h_scroll = tk.Scrollbar(self.main_panel, orient=tk.HORIZONTAL, command=self.canvas.xview)
+        # h_scroll.grid(row=1, column=0, sticky="ew")
+
+        # Canvas と Scrollbar を接続
+        # self.canvas.configure(
+        #     yscrollcommand=v_scroll.set,
+        #     ##xscrollcommand=h_scroll.set
+        # )
+
+        # グリッド拡張設定
+        # self.main_panel.rowconfigure(0, weight=1)
+        # self.main_panel.columnconfigure(0, weight=1)
 
         # イベントバインド
         self.canvas.bind("<Button-1>", self.on_canvas_click)
@@ -116,6 +157,51 @@ class FlowchartTool(tk.Tk):
 
         # ウィンドウ終了時の確認
         self.protocol("WM_DELETE_WINDOW", self.on_close)
+
+        # ---- OpenAI client ----
+        api_key = os.getenv("OPENAI_API_KEY")
+        if not api_key:
+            messagebox.showerror("Missing API Key", "環境変数 OPENAI_API_KEY が未設定です。")
+            self.destroy()
+            return
+        self.openai_client = OpenAI()
+        self.previous_response_id = None
+
+        # -------------------------
+        # チャットパネル（Frame）
+        # -------------------------
+        # ---- state ----
+        self.chat_visible = False
+        self.chat_animating = False
+        self.chat_x = 0
+
+        self.chat_frame = tk.Frame(self.main_panel, bg="#eeeeee")
+        self.chat_frame.pack_propagate(False)  # サイズ固定
+
+        top = tk.Frame(self.chat_frame, bg="#eeeeee")
+        top.pack(fill="x", padx=6, pady=(0, 6))
+
+        tk.Label(top, text="Process flow:", bg="#eeeeee").pack(side="left")
+
+        self.entry = tk.Entry(top)
+        self.entry.pack(side="left", fill="x", expand=True)
+        self.entry.bind("<Return>", lambda e: self.on_send_to_ai())
+
+        self.send_btn = tk.Button(top, text="Generate", command=self.on_send_to_ai)
+        self.send_btn.pack(side="left", padx=(6, 0))
+
+        self.chat_text = tk.Text(self.chat_frame, wrap="word")
+        self.chat_text.pack(fill="both", expand=True, padx=6, pady=6)
+        self.chat_text.configure(state="disabled")
+
+        # ChatWindow表示On/OFFボタン
+        ttk.Checkbutton(toolbar, text="AI-generation", variable=self.chat_window_on, command=self.on_chat_window_toggle).pack(side=tk.LEFT, padx=1)
+
+        # リサイズ追従
+        self.bind("<Configure>", self.on_resize)
+
+        # 起動直後に配置確定
+        self.after(0, self.on_resize_simple)
 
     def add_mode_button(self, toolbar, text, value):
         b = ttk.Radiobutton(toolbar, text=text, value=value, variable=self.mode)
@@ -361,6 +447,31 @@ class FlowchartTool(tk.Tk):
                 return
             edge_obj.rotate_connection_points(increase=increase, canvas=self.canvas)
 
+    # -----------------------------
+    # リサイズ時：チャット位置を必ず補正（非表示なら必ず右外）
+    # -----------------------------
+    def on_resize(self, event):
+        # ここは event.width/height を使わず、winfo_* を使う方が安定する環境があります
+        self.on_resize_simple()
+
+    def on_resize_simple(self):
+        w = max(1, self.main_panel.winfo_width())
+        h = max(1, self.main_panel.winfo_height())
+
+        # canvasも念のため全面維持（containerは rel で追従してるので通常不要だが安全）
+        self.canvas.place_configure(x=0, y=0, width=w, height=h)
+
+        # アニメ中は高さだけ追従（位置はアニメ側に任せる）
+        if self.chat_animating:
+            self.chat_frame.place_configure(y=0, height=h, width=ct.CHAT_WIDTH)
+            return
+
+        if self.chat_visible:
+            self.chat_x = max(0, w - ct.CHAT_WIDTH)
+        else:
+            self.chat_x = w  # ★常に右外へ退避
+
+        self.chat_frame.place_configure(x=self.chat_x, y=0, height=h, width=ct.CHAT_WIDTH)
 
     # ------------ ノード・エッジ管理 ------------
 
@@ -378,7 +489,7 @@ class FlowchartTool(tk.Tk):
 
         auto_text = self.auto_node_text(node_type, text)
 
-        node_obj = node.Node(node_id, node_type, adjusted_x, adjusted_y, w=w, h=h, text=auto_text, canvas=self.canvas)
+        node_obj = Node(node_id, node_type, adjusted_x, adjusted_y, w=w, h=h, text=auto_text, canvas=self.canvas)
 
         self.nodes[node_id] = node_obj
         # ノードは常に最前面に
@@ -577,7 +688,7 @@ class FlowchartTool(tk.Tk):
         to_node_obj = self.nodes[to_id]
 
         auto_text = self.auto_edge_label(None, from_node_obj)
-        edge_obj = edge.Edge(from_node_obj, to_node_obj, text=auto_text, canvas=self.canvas)
+        edge_obj = Edge(from_node_obj, to_node_obj, text=auto_text, canvas=self.canvas)
 
         if edge_obj is not None and edge_obj.line_id is not None:
             self.edges[edge_obj.line_id] = edge_obj
@@ -686,7 +797,7 @@ class FlowchartTool(tk.Tk):
             if fid in self.nodes and tid in self.nodes:
                 from_node_obj = self.nodes[fid]
                 to_node_obj = self.nodes[tid]
-                edge_obj = edge.Edge(from_node_obj, to_node_obj, text=label, \
+                edge_obj = Edge(from_node_obj, to_node_obj, text=label, \
                                         from_node_connection_point=from_connection_point, \
                                         to_node_connection_point=to_connection_point, \
                                         edge_wrap_offset=edge_wrap_offset, \
@@ -935,7 +1046,7 @@ class FlowchartTool(tk.Tk):
         from_node_obj = edge_obj.from_node_obj
         to_node_obj = edge_obj.to_node_obj
         if edge_obj.line_id and from_node_obj and to_node_obj:
-            coords, label_x, label_y, anchor, justify = edge.Edge._compute_edge_geometry(edge_obj, from_node_obj, to_node_obj)
+            coords, label_x, label_y, anchor, justify = Edge._compute_edge_geometry(edge_obj, from_node_obj, to_node_obj)
             edge_obj.update_points(self.canvas, coords, label_x, label_y)
 
             self.canvas.coords(edge_obj.line_id, *coords)
@@ -976,12 +1087,17 @@ class FlowchartTool(tk.Tk):
         except Exception as e:
             messagebox.showerror("Error", str(e))
 
-    def load_mermaid_flowdata(self):
-        path = filedialog.askopenfilename(
-            filetypes=[("Mermaid Flowchart", "*.mmd;*.txt"), ("All files", "*.*")]
-        )
+    def load_mermaid_flowdata(self, mmd_filepath=None):
+        if mmd_filepath is None:
+            path = filedialog.askopenfilename(
+                filetypes=[("Mermaid Flowchart", "*.mmd;*.txt"), ("All files", "*.*")]
+            )
+        else:
+            path = mmd_filepath
+
         if not path:
             return
+
         # try:
         with open(path, "r", encoding="utf-8") as f:
             text = f.read()
@@ -1034,7 +1150,7 @@ class FlowchartTool(tk.Tk):
             if fid in self.nodes and tid in self.nodes:
                 from_node_obj = self.nodes[fid]
                 to_node_obj = self.nodes[tid]
-                edge_obj = edge.Edge(from_node_obj, to_node_obj, text=label, \
+                edge_obj = Edge(from_node_obj, to_node_obj, text=label, \
                                         canvas=self.canvas)
                 if edge_obj is not None and edge_obj.line_id is not None:
                     self.edges[edge_obj.line_id] = edge_obj
@@ -1043,6 +1159,152 @@ class FlowchartTool(tk.Tk):
         self.canvas.tag_raise("node")
 
         self.push_history()
+
+    # -----------------------------
+    # UI: チャット表示切替
+    # -----------------------------
+    def on_chat_window_toggle(self):
+        if self.chat_animating:
+            return
+        if self.chat_window_on.get():
+            self.slide_in_chat_window()
+        else:
+            self.slide_out_chat_window()
+
+    def slide_in_chat_window(self):
+        self.chat_animating = True
+
+        # ★必ず前面へ（ちらついて消える対策の本命）
+        self.chat_frame.lift()
+
+        def animate():
+            w = max(1, self.main_panel.winfo_width())
+            h = max(1, self.main_panel.winfo_height())
+            target_x = max(0, w - ct.CHAT_WIDTH)  # 常に現在幅基準
+
+            if self.chat_x > target_x:
+                self.chat_x = max(target_x, self.chat_x - ct.CHAT_WINDOW_SLIDE_STEP)
+                self.chat_frame.place_configure(x=self.chat_x, y=0, height=h, width=ct.CHAT_WIDTH)
+                self.after(ct.CHAT_WINDOW_SLIDE_INTERVAL, animate)
+            else:
+                self.chat_x = target_x
+                self.chat_frame.place_configure(x=self.chat_x, y=0, height=h, width=ct.CHAT_WIDTH)
+                self.chat_visible = True
+                self.chat_animating = False
+
+        # スタート地点を「現在の右外」に強制（リサイズ後でも確実）
+        w0 = max(1, self.main_panel.winfo_width())
+        h0 = max(1, self.main_panel.winfo_height())
+        self.chat_x = w0
+        self.chat_frame.place_configure(x=self.chat_x, y=0, height=h0, width=ct.CHAT_WIDTH)
+
+        animate()
+
+    def slide_out_chat_window(self):
+        self.chat_animating = True
+
+        # 前面は維持（アニメ中に裏回りしない）
+        self.chat_frame.lift()
+
+        def animate():
+            w = max(1, self.main_panel.winfo_width())
+            h = max(1, self.main_panel.winfo_height())
+            target_x = w  # 現在幅の右外
+
+            if self.chat_x < target_x:
+                self.chat_x = min(target_x, self.chat_x + ct.CHAT_WINDOW_SLIDE_STEP)
+                self.chat_frame.place_configure(x=self.chat_x, y=0, height=h-40, width=ct.CHAT_WIDTH)
+                self.after(ct.CHAT_WINDOW_SLIDE_INTERVAL, animate)
+            else:
+                self.chat_x = target_x
+                self.chat_frame.place_configure(x=self.chat_x, y=0, height=h-40, width=ct.CHAT_WIDTH)
+                self.chat_visible = False
+                self.chat_animating = False
+
+        animate()
+
+    # -----------------------------
+    # UI: チャット表示補助
+    # -----------------------------
+    def append_chat(self, speaker: str, text: str):
+        self.chat_text.configure(state="normal")
+        self.chat_text.insert("end", f"{speaker}: {text}\n")
+        self.chat_text.see("end")
+        self.chat_text.configure(state="disabled")
+
+    def set_sending(self, sending: bool):
+        state = "disabled" if sending else "normal"
+        self.send_btn.configure(state=state)
+        self.entry.configure(state=state)
+
+    # -----------------------------
+    # 生成AIに送信 → API呼び出し（別スレッド）
+    # -----------------------------
+    def on_send_to_ai(self):
+        user_msg = self.entry.get().strip()
+        if not user_msg:
+            return
+
+        self.entry.delete(0, "end")
+        self.append_chat("You", user_msg)
+
+        self.set_sending(True)
+        input_msg = ct.AI_INPUT_TEMPLATE.replace("$order", user_msg)
+        threading.Thread(target=self.call_gpt, args=(user_msg,), daemon=True).start()
+
+    def call_gpt(self, user_msg: str):
+        try:
+            resp = self.openai_client.responses.create(
+                model=ct.AI_MODEL,
+                instructions=ct.AI_SYSTEM_INSTRUCTIONS,
+                input=user_msg,
+                previous_response_id=self.previous_response_id,
+            )
+            assistant_text = resp.output_text or ""
+            self.previous_response_id = resp.id
+            self.after(0, lambda: self.append_chat("GPT", assistant_text))
+            success_flag, mmd_filepath = self.save_mmd_to_file(user_msg, assistant_text)
+            if success_flag:
+                self.after(0, lambda: messagebox.askokcancel("Saved", f"{ct.AI_GENERATED_MESSAGE1}\n{mmd_filepath}\n\n{ct.AI_GENERATED_MESSAGE2}") and self.load_mermaid_flowdata(mmd_filepath))
+        except Exception as e:
+            self.after(0, lambda: messagebox.showerror("OpenAI API Error", str(e)))
+        finally:
+            self.after(0, lambda: self.set_sending(False))
+
+    # -----------------------------
+    # ファイル保存（work/[roder].mmd に追記）
+    # -----------------------------
+    def save_mmd_to_file(self, order: str, answer: str):
+        # 保存先（実行フォルダ直下の work/test.txt）
+        success_flag = False
+        SAVE_DIR = Path(ct.WORK_DIR_NAME)
+        filename = self.sanitize_filename(order)
+        OUT_FILE = SAVE_DIR / f"{filename}.mmd"
+ 
+        answer = self.strip_triple_quotes(answer)
+
+        try:
+            SAVE_DIR.mkdir(parents=True, exist_ok=True)  # work が無ければ作る
+            with OUT_FILE.open("w", encoding="utf-8") as f:
+                f.write(f"{answer}\n")
+            success_flag = True
+        except Exception as e:
+            # 保存失敗は致命的ではないので、UIにだけ通知
+            self.after(0, lambda: messagebox.showwarning("Save Warning", f"{ct.SAVE_FAILED_MESSAGE}: {e}"))
+
+        return success_flag, OUT_FILE
+
+    def sanitize_filename(self, filename: str) -> str:
+        # Windowsで使用禁止の文字
+        forbidden = r'[\\/:*?"<>|]'
+        return re.sub(forbidden, '_', filename)
+
+    def strip_triple_quotes(self, text: str) -> str:
+        if text.startswith("```"):
+            return text[3:]
+        if text.endswith("```"):
+            return text[:-3]
+        return text
 
 if __name__ == "__main__":
     app = FlowchartTool()

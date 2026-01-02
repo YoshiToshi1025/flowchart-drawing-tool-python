@@ -14,7 +14,7 @@ class Node:
     text_id = None
 
     def __init__(self, node_id, node_type, x:int, y:int, w=None, h=None, text=None, canvas=None):
-        print(f"Creating Node: id={node_id}, type={node_type}, x={x}, y={y}, w={w}, h={h}, text={text}")
+        # print(f"Creating Node: id={node_id}, type={node_type}, x={x}, y={y}, w={w}, h={h}, text={text}")
         self.id = node_id
         self.type = node_type
         self.x = x
