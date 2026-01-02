@@ -18,7 +18,7 @@
 
 - 新機能：生成AI(GPT5.2)と連携して、フローチャートの自動作成に対応しました。（フローチャートの各要素や配線の調整は手動です）
 
-<img width="100%" src="example/output_example.png" />
+<img width="100%" src="example/フローチャート自動生成＆手動調整後_jp.png" />
 
 ## インストール
 

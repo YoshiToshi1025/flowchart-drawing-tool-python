@@ -27,7 +27,7 @@ This project provides a **Simple Flowchart Drawing Tool (Python version)** that 
 * **New Feature**: Integration with generative AI (GPT-5.2) to support automatic flowchart generation.
   (Each flowchart element and its connections still need to be adjusted manually.)
 
-<img width="100%" src="example/output_example.png" />
+<img width="100%" src="example/flowchart_auto_generated_and_manual_edited.png" />
 
 ## Installation
 

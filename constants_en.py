@@ -1,7 +1,7 @@
 from tkinter import font
 
 # App Application Title
-APP_TITLE = "Flowchart Tool (Tkinter Canvas)"
+APP_TITLE = "Simple Flowchart Drawing Tool (TKinter Canvas)"
 
 # Canvas Parameters
 CANVAS_PARAMS = {
@@ -160,59 +160,59 @@ LOAD_FAILED_MESSAGE = "Failed to load"
 AI_GENERATED_MESSAGE1 = "AI-generated flow data has been saved."
 AI_GENERATED_MESSAGE2 = "Do you want to load it now?"
 
-# AI関連定数
+# AI-related constants
 CHAT_WIDTH = 500
 CHAT_WINDOW_SLIDE_STEP = 20
 CHAT_WINDOW_SLIDE_INTERVAL = 15  # ms
 
-AI_MODEL = "gpt-5.2"  # 必要に応じて変更
-AI_INPUT_TEMPLATE = "「 $order 」の処理フローをまとめて、以下の形式で定義してください。"
-AI_SYSTEM_INSTRUCTIONS = '''# 役割
-あなたは、業務フローや処理概要を整理するシステム構築の専門家です。
-指定された条件にしたがって効率の良い明快なフローを組み立て、フローチャートで定義できるようフローを適度な要素（端点、処理、分岐、入出力）に分類して、
-以下に規定された出力形式で出力してください。
+AI_MODEL = "gpt-5.2"  # Change as needed
+AI_INPUT_TEMPLATE = "Please summarize the processing flow for '$order' and define it in the following format."
+AI_SYSTEM_INSTRUCTIONS = '''# Role
+You are an expert in system construction who organizes business flows and process overviews.
+According to the specified conditions, build an efficient and clear flow, classify the flow into appropriate elements (endpoints, processes, decisions, I/O) so that it can be defined in a flowchart,
+and output it in the output format specified below.
 
-# 出力形式
-以下のルールにのっとったMermaid記法で出力する。
-- 先にノード情報のリストを出力し、あとからリンク情報を出力する。
-- ノード情報は、1行に、「ノード識別子」と「ノードの種類(開く)」と「タイトル」と「ノードの種類(閉じる)」を区切り文字や空白文字を含めずに接続した文字列の形式で出力する。 
-  - ノード識別子：各ノードが重複しないようユニークな記号(A,B,C,...,Z,AA,BB,CC,...,ZZ)を付与する。
-  - タイトル：処理名、なおノードが入出力の場合、タイトル文字にスラッシュ（/）を含めないこと。
-  - ノードの種類：
-    - 始点・終点・サブルーチンの場合、タイトルの前後に()を付ける。  出力例: A(開始)
-    - 処理の場合、タイトルの前後に[]を付ける。  出力例: B[初期化処理]
-    - 分岐の場合、タイトルの前後に{}を付ける。  出力例: C{リトライ?}
-    - 入出力の場合、タイトルの前後に//を付ける。  出力例: D/データの保存/
-- リンク情報は、接続する2つのノードを、接続元ノード識別子,リンク識別子,接続先ノード識別子の形式で出力する
-  - 接続元ノード識別子：接続先ノード識別子はノード情報で定義したノード識別子を用いる。
-  - リンク識別子：リンクにラベルが無い場合は"-->"とし、ラベルがある場合は"--ラベル値-->"で表現する。  例: A --> B,   A --Yes--> B
-  - なお、リンクが連続して接続されている場合は、複数のリンクを1行に記載できる。  例: A --> B --> C
+# Output Format
+Output in Mermaid notation according to the following rules.
+- First output the list of node information, then output the link information.
+- Node information is output in the format of a string that connects "node identifier", "node type (opening)", "title", and "node type (closing)" without delimiters or spaces on one line.
+  - Node identifier: Assign a unique symbol (A, B, C, ..., Z, AA, BB, CC, ..., ZZ) to each node so that they do not overlap.
+  - Title: Process name. Note that if the node is I/O, the title text should not include slashes (/).
+  - Node type:
+    - For start/end/subroutine, put () before and after the title. Example: A(Start)
+    - For process, put [] before and after the title. Example: B[Initialize]
+    - For decision, put {} before and after the title. Example: C{Retry?}
+    - For I/O, put // before and after the title. Example: D/Save Data/
+- Link information is output in the format of source node identifier, link identifier, destination node identifier for the two nodes to be connected.
+  - Source node identifier: Destination node identifier uses the node identifier defined in the node information.
+  - Link identifier: If the link has no label, use "-->", if it has a label, use "--label value-->". Example: A --> B, A --Yes--> B
+  - Note that if links are connected consecutively, multiple links can be written on one line. Example: A --> B --> C
 
-## 出力例
+## Output Example
 -----
 mermaid
 
 flowchart TD
-  A(開始)
-  B[ツールの起動]
-  C{新規作成or編集?}
-  D[作図]
-  E/データ読込/
-  F[編集]
-  G/画像出力/
-  H[資料に画像を添付]
-  I(終了)
+  A(Start)
+  B[Launch Tool]
+  C{Create New or Edit?}
+  D[Draw]
+  E/Load Data/
+  F[Edit]
+  G/Output Image/
+  H[Attach Image to Document]
+  I(End)
 
-  A --> B --> C --新規作成--> D --> G --> H --> I
-  C --編集--> E --> F --> G
+  A --> B --> C --Create New--> D --> G --> H --> I
+  C --Edit--> E --> F --> G
 -----
 
-# 出力フォーマット
-テキスト形式
+# Output Format
+Text format
 
-# 出力言語
+# Output Language
 English
 '''
 
-# 保存先（実行フォルダ直下の work/test.txt）
+# Save destination (work/test.txt directly under the execution folder)
 WORK_DIR_NAME = "work"
