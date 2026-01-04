@@ -1,0 +1,266 @@
+{
+  "nodes": [
+    {
+      "id": 1,
+      "type": "terminator",
+      "x": 165,
+      "y": 37,
+      "w": 120,
+      "h": 45,
+      "text": "Start"
+    },
+    {
+      "id": 2,
+      "type": "io",
+      "x": 165,
+      "y": 97,
+      "w": 120,
+      "h": 45,
+      "text": "User Inputs Username and Password"
+    },
+    {
+      "id": 3,
+      "type": "process",
+      "x": 165,
+      "y": 157,
+      "w": 120,
+      "h": 45,
+      "text": "Validate Input Format"
+    },
+    {
+      "id": 4,
+      "type": "decision",
+      "x": 165,
+      "y": 217,
+      "w": 120,
+      "h": 45,
+      "text": "Input Valid?"
+    },
+    {
+      "id": 5,
+      "type": "io",
+      "x": 690,
+      "y": 712,
+      "w": 120,
+      "h": 45,
+      "text": "Show Input Error Message"
+    },
+    {
+      "id": 6,
+      "type": "process",
+      "x": 165,
+      "y": 277,
+      "w": 120,
+      "h": 45,
+      "text": "Lookup User Account"
+    },
+    {
+      "id": 7,
+      "type": "decision",
+      "x": 165,
+      "y": 337,
+      "w": 120,
+      "h": 45,
+      "text": "Account Found?"
+    },
+    {
+      "id": 8,
+      "type": "io",
+      "x": 570,
+      "y": 712,
+      "w": 120,
+      "h": 45,
+      "text": "Show Invalid Credentials Message"
+    },
+    {
+      "id": 9,
+      "type": "decision",
+      "x": 165,
+      "y": 397,
+      "w": 120,
+      "h": 45,
+      "text": "Account Locked?"
+    },
+    {
+      "id": 10,
+      "type": "io",
+      "x": 315,
+      "y": 712,
+      "w": 120,
+      "h": 45,
+      "text": "Show Account Locked Message"
+    },
+    {
+      "id": 11,
+      "type": "process",
+      "x": 165,
+      "y": 457,
+      "w": 120,
+      "h": 45,
+      "text": "Verify Password Hash"
+    },
+    {
+      "id": 12,
+      "type": "decision",
+      "x": 165,
+      "y": 517,
+      "w": 120,
+      "h": 45,
+      "text": "Password Correct?"
+    },
+    {
+      "id": 13,
+      "type": "process",
+      "x": 480,
+      "y": 517,
+      "w": 120,
+      "h": 45,
+      "text": "Increment Failed Attempts"
+    },
+    {
+      "id": 14,
+      "type": "decision",
+      "x": 480,
+      "y": 577,
+      "w": 120,
+      "h": 45,
+      "text": "Failed Attempts Exceed Limit?"
+    },
+    {
+      "id": 15,
+      "type": "process",
+      "x": 405,
+      "y": 637,
+      "w": 120,
+      "h": 45,
+      "text": "Lock Account"
+    },
+    {
+      "id": 16,
+      "type": "io",
+      "x": 165,
+      "y": 577,
+      "w": 120,
+      "h": 45,
+      "text": "Issue Session Token or Set Auth Cookie"
+    },
+    {
+      "id": 17,
+      "type": "process",
+      "x": 165,
+      "y": 637,
+      "w": 120,
+      "h": 45,
+      "text": "Log Successful Login"
+    },
+    {
+      "id": 18,
+      "type": "terminator",
+      "x": 165,
+      "y": 802,
+      "w": 120,
+      "h": 45,
+      "text": "End"
+    }
+  ],
+  "edges": [
+    {
+      "from_id": 1,
+      "to_id": 2
+    },
+    {
+      "from_id": 2,
+      "to_id": 3
+    },
+    {
+      "from_id": 3,
+      "to_id": 4
+    },
+    {
+      "from_id": 4,
+      "to_id": 5,
+      "label": "No"
+    },
+    {
+      "from_id": 5,
+      "to_id": 18
+    },
+    {
+      "from_id": 4,
+      "to_id": 6,
+      "label": "Yes"
+    },
+    {
+      "from_id": 6,
+      "to_id": 7
+    },
+    {
+      "from_id": 7,
+      "to_id": 8,
+      "label": "No"
+    },
+    {
+      "from_id": 8,
+      "to_id": 18
+    },
+    {
+      "from_id": 7,
+      "to_id": 9,
+      "label": "Yes"
+    },
+    {
+      "from_id": 9,
+      "to_id": 10,
+      "label": "Yes"
+    },
+    {
+      "from_id": 10,
+      "to_id": 18
+    },
+    {
+      "from_id": 9,
+      "to_id": 11,
+      "label": "No"
+    },
+    {
+      "from_id": 11,
+      "to_id": 12
+    },
+    {
+      "from_id": 12,
+      "to_id": 13,
+      "label": "No"
+    },
+    {
+      "from_id": 13,
+      "to_id": 14
+    },
+    {
+      "from_id": 14,
+      "to_id": 15,
+      "label": "Yes"
+    },
+    {
+      "from_id": 15,
+      "to_id": 10
+    },
+    {
+      "from_id": 14,
+      "to_id": 8,
+      "label": "No"
+    },
+    {
+      "from_id": 12,
+      "to_id": 16,
+      "label": "Yes"
+    },
+    {
+      "from_id": 16,
+      "to_id": 17
+    },
+    {
+      "from_id": 17,
+      "to_id": 18
+    }
+  ]
+}

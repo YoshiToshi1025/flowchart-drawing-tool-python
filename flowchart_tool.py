@@ -408,10 +408,10 @@ class FlowchartTool(tk.Tk):
             self.destroy()
 
     def on_mouse_wheel(self, event):
-        print("Mouse Wheel detected")
+        print("Mouse Wheel detected : No action assigned")
 
     def on_mouse_wheel_shift(self, event):
-        print("Shift + Mouse Wheel detected")
+        # print("Shift + Mouse Wheel detected")
 
         delta = event.delta
         if delta > 0:
@@ -428,7 +428,7 @@ class FlowchartTool(tk.Tk):
             edge_obj.change_edge_wrap_offset(increase=increase, canvas=self.canvas)
 
     def on_mouse_wheel_ctrl(self, event):
-        print("Ctrl + Mouse Wheel detected")
+        # print("Ctrl + Mouse Wheel detected")
     
         delta = event.delta
         if delta > 0:
@@ -437,7 +437,7 @@ class FlowchartTool(tk.Tk):
             self.change_edge_connection_points_in_sequence(increase=False)
 
     def on_mouse_wheel_ctrl_shift(self, event):
-        print("Ctrl + Shift + Mouse Wheel detected")
+        print("Ctrl + Shift + Mouse Wheel detected : No action assigned")
 
     def change_edge_connection_points_in_sequence(self, increase=True):
         # エッジ選択中の場合、FromノードとToノードの接続位置を調整
@@ -1119,8 +1119,21 @@ class FlowchartTool(tk.Tk):
         # グリッド
         self._draw_grid()
 
-        interval_margin_x = ct.CANVAS_PARAMS["grid_spacing"] * 10 + ct.NODE_DEFAULT_PARAMS["width"] / 2
-        interval_margin_y = ct.CANVAS_PARAMS["grid_spacing"] * 2 + ct.NODE_DEFAULT_PARAMS["height"] / 2
+        if mmd_nodes is None or len(mmd_nodes) == 0:
+            return
+
+        nd =next(iter(mmd_nodes.values()))
+        if nd.pos_tb is None or nd.pos_lr is None:
+            # 自動配置
+            auto_position_flag = True
+            start_x = int(ct.CANVAS_PARAMS["grid_spacing"] * 10 + ct.NODE_DEFAULT_PARAMS["width"] / 2)
+            start_y = int(ct.CANVAS_PARAMS["grid_spacing"] * 2 + ct.NODE_DEFAULT_PARAMS["height"] / 2)
+        else:
+            # mmdの位置情報を使う
+            auto_position_flag = False
+            start_x = int(self.canvas.winfo_width() / 2)
+            start_y = int(ct.CANVAS_PARAMS["grid_spacing"] * 2 + ct.NODE_DEFAULT_PARAMS["height"] / 2)
+
         interval_x = ct.NODE_DEFAULT_PARAMS["width"] + ct.CANVAS_PARAMS["grid_spacing"] * 4
         interval_y = ct.NODE_DEFAULT_PARAMS["height"] + ct.CANVAS_PARAMS["grid_spacing"]
         vertical_count = 10
@@ -1133,8 +1146,11 @@ class FlowchartTool(tk.Tk):
             if node_strid is None:
                 continue
             node_type = nd.kind if hasattr(nd, "kind") else ct.NODE_PROCESS_PARAMS["type"]
-            x = (node_id-1) // vertical_count * interval_x + interval_margin_x  # 自動配置
-            y = (node_id-1) % vertical_count * interval_y + interval_margin_y   # 自動配置
+            if auto_position_flag:
+                x = start_x + (node_id-1) // vertical_count * interval_x  # 自動配置
+                y = start_y + (node_id-1) % vertical_count * interval_y   # 自動配置
+            else:
+                x, y = mfloader.convert_pos_to_xy(pos_tb=nd.pos_tb, pos_lr=nd.pos_lr, start_x=start_x, start_y=start_y)
             w = Node.get_width_of_type(node_type)
             h = Node.get_height_of_type(node_type)
             text = nd.title if hasattr(nd, "title") else ""

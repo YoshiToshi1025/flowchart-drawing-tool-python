@@ -1,6 +1,7 @@
 import re
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple
+import constants as ct
 
 @dataclass(frozen=True)
 class Node:
@@ -8,6 +9,8 @@ class Node:
     kind: str           # terminator / process / decision / io / unknown
     title: str
     raw: str            # e.g. "A(開始)"
+    pos_tb: int|None = None
+    pos_lr: int|None = None
 
 @dataclass(frozen=True)
 class Link:
@@ -25,6 +28,10 @@ NODE_RE = re.compile(
       | \[(?P<title_bracket>[^\]]*)\]  # [title]
       | \{(?P<title_brace>[^}]*)\}     # {title}
       | /(?P<title_slash>[^/]*)/      # /title/
+      | \((?P<title_paren2>[^)]*)\),\s*(?P<paren_pos_tb>[-+]?[0-9]+),\s*(?P<paren_pos_lr>[-+]?[0-9]+)     # (title), y, x
+      | \[(?P<title_bracket2>[^\]]*)\],\s*(?P<bracket_pos_tb>[-+]?[0-9]+),\s*(?P<bracket_pos_lr>[-+]?[0-9]+)  # [title], y, x
+      | \{(?P<title_brace2>[^}]*)\},\s*(?P<brace_pos_tb>[-+]?[0-9]+),\s*(?P<brace_pos_lr>[-+]?[0-9]+)     # {title}, y, x
+      | /(?P<title_slash2>[^/]*)/,\s*(?P<slash_pos_tb>[-+]?[0-9]+),\s*(?P<slash_pos_lr>[-+]?[0-9]+)      # /title/, y, x
     )
     \s*$
     """,
@@ -49,7 +56,37 @@ def _node_kind_and_title(m: re.Match) -> Tuple[str, str]:
         return "decision", m.group("title_brace").strip()
     if m.group("title_slash") is not None:
         return "io", m.group("title_slash").strip()
+    if m.group("title_paren2") is not None:
+        return "terminator", m.group("title_paren2").strip()
+    if m.group("title_bracket2") is not None:
+        return "process", m.group("title_bracket2").strip()
+    if m.group("title_brace2") is not None:
+        return "decision", m.group("title_brace2").strip()
+    if m.group("title_slash2") is not None:
+        return "io", m.group("title_slash2").strip()
     return "unknown", ""
+
+def _node_kind_and_position(m: re.Match) -> Tuple[int|None, int|None]:
+    if m.group("title_paren2") is not None:
+        return int(m.group("paren_pos_tb")), int(m.group("paren_pos_lr"))
+    if m.group("title_bracket2") is not None:
+        return int(m.group("bracket_pos_tb")), int(m.group("bracket_pos_lr"))
+    if m.group("title_brace2") is not None:
+        return int(m.group("brace_pos_tb")), int(m.group("brace_pos_lr"))
+    if m.group("title_slash2") is not None:
+        return int(m.group("slash_pos_tb")), int(m.group("slash_pos_lr"))
+    return None, None
+
+def convert_pos_to_xy(pos_tb: int, pos_lr: int, start_x: int, start_y: int) -> Tuple[int|None, int|None]:
+    if pos_tb is None or pos_lr is None:
+        x, y = None, None
+    else:
+        block_width = int(ct.NODE_DEFAULT_PARAMS["width"] + ct.CANVAS_PARAMS["grid_spacing"] * 4)
+        block_height = int(ct.NODE_DEFAULT_PARAMS["height"] + ct.CANVAS_PARAMS["grid_spacing"])
+        x = start_x + pos_lr * block_width
+        y = start_y + pos_tb * block_height
+
+    return x, y
 
 def parse_mermaid_flowdata(text: str) -> Tuple[Dict[str, Node], List[Link]]:
     """
@@ -87,7 +124,8 @@ def parse_mermaid_flowdata(text: str) -> Tuple[Dict[str, Node], List[Link]]:
         if nm:
             node_id = nm.group("id")
             kind, title = _node_kind_and_title(nm)
-            nodes[node_id] = Node(node_id=node_id, kind=kind, title=title, raw=line)
+            pos_tb, pos_lr = _node_kind_and_position(nm)
+            nodes[node_id] = Node(node_id=node_id, kind=kind, title=title, raw=line, pos_tb=pos_tb, pos_lr=pos_lr)
             continue
 
         # 2) Link line? (contains -->)
