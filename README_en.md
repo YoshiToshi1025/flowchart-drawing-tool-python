@@ -112,7 +112,8 @@ This project provides a **Simple Flowchart Drawing Tool (Python version)** that 
 
 ## Limitations
 
-* Canvas scrolling and zoom in/out are not supported yet (planned for future implementation).
+* Canvas scrolling and zoom in/out are not supported yet (under consideration).
+* On Windows, if multiple displays use different scaling settings, the “Save Image” function may not work correctly. In such cases, please use a screen capture tool instead.
 
 ## Notes
 
@@ -147,3 +148,4 @@ This project provides a **Simple Flowchart Drawing Tool (Python version)** that 
 * 2025/12/27: Added support for importing Mermaid-format data, adjusted label positions during manual link routing
 * 2026/01/02: Added automatic flowchart generation via generative AI (GPT-5.2)
 * 2026/01/05: Added rough automatic layout for AI-generated flows (manual adjustment still required)
+* 2026/01/08: Support for image export when Windows display scaling is not set to 100%, and definition of shortcut keys

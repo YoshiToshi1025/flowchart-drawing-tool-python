@@ -162,7 +162,7 @@
       "to_id": 7,
       "from_connection_point": "bottom",
       "to_connection_point": "top",
-      "edge_wrap_offset": 105.0
+      "edge_wrap_margin": 105.0
     },
     {
       "from_id": 7,
@@ -177,7 +177,7 @@
       "to_id": 7,
       "from_connection_point": "bottom",
       "to_connection_point": "top",
-      "edge_wrap_offset": 180.0
+      "edge_wrap_margin": 180.0
     },
     {
       "from_id": 17,
@@ -221,7 +221,7 @@
       "to_id": 7,
       "from_connection_point": "bottom",
       "to_connection_point": "top",
-      "edge_wrap_offset": 60.0,
+      "edge_wrap_margin": 60.0,
       "label": "No"
     },
     {

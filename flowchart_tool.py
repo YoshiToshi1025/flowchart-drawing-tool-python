@@ -17,6 +17,7 @@ import node
 from node import Node
 import edge
 from edge import Edge
+import windows_monitor_info as wmi
 
 class FlowchartTool(tk.Tk):
     def __init__(self):
@@ -90,35 +91,19 @@ class FlowchartTool(tk.Tk):
         ttk.Button(toolbar, text="Save JSON", command=self.save_json).pack(side=tk.LEFT, padx=1)
         # 画像保存ボタン定義
         ttk.Button(toolbar, text="Save Image", command=self.on_save).pack(side=tk.LEFT, padx=1)
+        # Mermaid形式ファイル読み込みボタン定義
+        ttk.Button(toolbar, text="Load Mermaid", command=self.load_mermaid_flowdata).pack(side=tk.LEFT, padx=1)
+
         # 状態ラベル表示
         self.status_label = ttk.Label(toolbar, text="Mode: select")
         self.status_label.pack(side=tk.RIGHT, padx=4)
-
-        ttk.Button(toolbar, text="Load Mermaid", command=self.load_mermaid_flowdata).pack(side=tk.LEFT, padx=1)
 
         # キャンバス
         self.canvas = tk.Canvas(self.main_panel, bg=ct.CANVAS_PARAMS["bg_color"])
         # self.canvas.pack(side=tk.TOP, fill=tk.X)
         self.canvas.grid(row=0, column=0, sticky="nsew")
 
-        # 縦スクロールバー
-        # v_scroll = tk.Scrollbar(self.main_panel, orient=tk.VERTICAL, command=self.canvas.yview)
-        # v_scroll.grid(row=0, column=1, sticky="ns")
-        # 横スクロールバー
-        # h_scroll = tk.Scrollbar(self.main_panel, orient=tk.HORIZONTAL, command=self.canvas.xview)
-        # h_scroll.grid(row=1, column=0, sticky="ew")
-
-        # Canvas と Scrollbar を接続
-        # self.canvas.configure(
-        #     yscrollcommand=v_scroll.set,
-        #     ##xscrollcommand=h_scroll.set
-        # )
-
-        # グリッド拡張設定
-        # self.main_panel.rowconfigure(0, weight=1)
-        # self.main_panel.columnconfigure(0, weight=1)
-
-        # イベントバインド
+        # マウス操作定義
         self.canvas.bind("<Button-1>", self.on_canvas_click)
         self.canvas.bind("<ButtonPress-1>", self.on_drag_start, add="+")
         self.canvas.bind("<B1-Motion>", self.on_drag_move)
@@ -131,7 +116,10 @@ class FlowchartTool(tk.Tk):
         self.canvas.bind("<Control-MouseWheel>", self.on_mouse_wheel_ctrl)  # Ctrl+マウスホイールイベント
         self.canvas.bind("<Control-Shift-MouseWheel>", self.on_mouse_wheel_ctrl_shift)  # Ctrl+Shift+マウスホイールイベント
 
-        # Undo/Redo ショートカット
+        # キー操作定義
+        self.bind_all("<Delete>", lambda e: self.delete_selected())
+        self.bind_all("<Escape>", lambda e: self.cancel_selection_node_and_edge())
+        self.bind_all("<Control-a>", lambda e: self.select_all())
         self.bind_all("<Control-z>", lambda e: self.undo())
         self.bind_all("<Control-y>", lambda e: self.redo())
 
@@ -141,6 +129,7 @@ class FlowchartTool(tk.Tk):
         # ポップアップメニュー設定
         self.popup_menu = tk.Menu(self, tearoff=0)
         self.popup_menu.add_command(label="Select/Move", command=lambda: self.mode.set("select"))
+        self.popup_menu.add_command(label="Select all nodes", command=self.select_all)
         self.popup_menu.add_separator()
         self.popup_menu.add_command(label="Add Terminator", command=lambda: self.mode.set("add:terminator"))
         self.popup_menu.add_command(label="Add Process", command=lambda: self.mode.set("add:process"))
@@ -152,8 +141,13 @@ class FlowchartTool(tk.Tk):
         self.popup_menu.add_separator()
         self.popup_menu.add_command(label="Undo", command=self.undo)
         self.popup_menu.add_command(label="Redo", command=self.redo)
+        self.popup_menu.add_separator()
+        self.popup_menu.add_command(label="Save JSON", command=self.save_json)
+        self.popup_menu.add_command(label="Save Image", command=self.on_save)
 
         self._draw_grid()   # 初期グリッド描画
+
+        self.display_operation_info()  # 操作情報表示制御
 
         # ウィンドウ終了時の確認
         self.protocol("WM_DELETE_WINDOW", self.on_close)
@@ -415,17 +409,17 @@ class FlowchartTool(tk.Tk):
 
         delta = event.delta
         if delta > 0:
-            self.change_edge_wrap_offset(increase=True)
+            self.change_edge_wrap_margin(increase=True)
         else:
-            self.change_edge_wrap_offset(increase=False)
+            self.change_edge_wrap_margin(increase=False)
 
-    def change_edge_wrap_offset(self, increase=True):
+    def change_edge_wrap_margin(self, increase=True):
         # エッジ選択中の場合、エッジの回り込み距離を調整
         if self.selected_edge_id is not None:
             edge_obj = self.edges.get(self.selected_edge_id)
             if edge_obj is None:
                 return
-            edge_obj.change_edge_wrap_offset(increase=increase, canvas=self.canvas)
+            edge_obj.change_edge_wrap_margin(increase=increase, canvas=self.canvas)
 
     def on_mouse_wheel_ctrl(self, event):
         # print("Ctrl + Mouse Wheel detected")
@@ -483,6 +477,8 @@ class FlowchartTool(tk.Tk):
         self._create_node_with_id(node_id, node_type, x, y)
         self.select_node(node_id)
         self.push_history()
+        
+        self.display_operation_info()  # 操作情報表示制御
 
     def _create_node_with_id(self, node_id, node_type, x, y, w=None, h=None, text=None):
         adjusted_x, adjusted_y = self.adjusted_xy(node_id, x, y, node_type)
@@ -510,6 +506,10 @@ class FlowchartTool(tk.Tk):
             else:
                 text = ct.TERMINATOR_DEFAULT_UNKNOWN_TEXT
         return text
+
+    def select_all(self):
+        all_node_ids = list(self.nodes.keys())
+        self.select_nodes(all_node_ids)
 
     def select_node(self, node_id):
         if node_id is not None:
@@ -616,6 +616,9 @@ class FlowchartTool(tk.Tk):
                     self.delete_selected_node(nid)
         elif line_id:
             self.delete_selected_edge(line_id)
+                
+        self.display_operation_info()  # 操作情報表示制御
+
 
     def delete_selected_node(self, nid):
         node_obj = self.nodes[nid]
@@ -747,8 +750,8 @@ class FlowchartTool(tk.Tk):
                 edge_data["from_connection_point"] = edge_obj.from_node_connection_point
             if edge_obj.to_node_connection_point is not None:
                 edge_data["to_connection_point"] = edge_obj.to_node_connection_point
-            if edge_obj.edge_wrap_offset is not None:
-                edge_data["edge_wrap_offset"] = edge_obj.edge_wrap_offset
+            if edge_obj.edge_wrap_margin is not None:
+                edge_data["edge_wrap_margin"] = edge_obj.edge_wrap_margin
             if edge_obj.label_text is not None:
                 edge_data["label"] = edge_obj.label_text
             edges_data.append(edge_data)
@@ -792,7 +795,7 @@ class FlowchartTool(tk.Tk):
             tid = ed.get("to_id")
             from_connection_point = ed.get("from_connection_point", None)
             to_connection_point = ed.get("to_connection_point", None)
-            edge_wrap_offset = ed.get("edge_wrap_offset", None)
+            edge_wrap_margin = ed.get("edge_wrap_margin", None)
             label = ed.get("label")
             if fid in self.nodes and tid in self.nodes:
                 from_node_obj = self.nodes[fid]
@@ -800,7 +803,7 @@ class FlowchartTool(tk.Tk):
                 edge_obj = Edge(from_node_obj, to_node_obj, text=label, \
                                         from_node_connection_point=from_connection_point, \
                                         to_node_connection_point=to_connection_point, \
-                                        edge_wrap_offset=edge_wrap_offset, \
+                                        edge_wrap_margin=edge_wrap_margin, \
                                         canvas=self.canvas)
                 if edge_obj is not None and edge_obj.line_id is not None:
                     self.edges[edge_obj.line_id] = edge_obj
@@ -810,6 +813,9 @@ class FlowchartTool(tk.Tk):
 
         if push_to_history:
             self.push_history()
+        
+        self.display_operation_info()  # 操作情報表示制御
+
 
     def undo(self):
         if self.history_index <= 0:
@@ -841,6 +847,8 @@ class FlowchartTool(tk.Tk):
     # ------------ JSON保存/読み込み ------------
 
     def save_json(self):
+        self.cancel_selection_node_and_edge()
+
         filename = filedialog.asksaveasfilename(
             defaultextension=".json",
             filetypes=[("JSON Files", "*.json"), ("All Files", "*.*")]
@@ -1059,12 +1067,15 @@ class FlowchartTool(tk.Tk):
     def save_canvas_as_image(self, file_path: str):
         # Canvasの位置（画面座標）を取得して、その範囲だけキャプチャ
         self.canvas.update()  # 描画を確定
-        x = self.canvas.winfo_rootx()
-        y = self.canvas.winfo_rooty()
-        w = self.canvas.winfo_width()
-        h = self.canvas.winfo_height()
+        # scaling = wmi.get_system_scale_percent(self.canvas) / 100.0  # Windowsのディスプレイ拡大率を取得
+        scaling = 1.0
+        x = int(self.canvas.winfo_rootx() * scaling)
+        y = int(self.canvas.winfo_rooty() * scaling)
+        w = int(self.canvas.winfo_width() * scaling)
+        h = int(self.canvas.winfo_height() * scaling)
         bbox = (x, y, x + w, y + h)  # (left, top, right, bottom)
-        img = ImageGrab.grab(bbox=bbox)
+        print(f"scaling:{scaling}, Canvas bbox for image capture: {bbox}")
+        img = ImageGrab.grab(bbox=bbox, all_screens=True)
 
         # 拡張子に合わせて保存（JPEGはRGB必須）
         ext = file_path.lower().split(".")[-1]
@@ -1075,6 +1086,8 @@ class FlowchartTool(tk.Tk):
             img.save(file_path, "PNG")
 
     def on_save(self):
+        self.cancel_selection_node_and_edge()
+
         path = filedialog.asksaveasfilename(
             defaultextension=".png",
             filetypes=[("PNG", "*.png"), ("JPEG", "*.jpg;*.jpeg")],
@@ -1106,6 +1119,8 @@ class FlowchartTool(tk.Tk):
         messagebox.showinfo("Loaded", f"Loaded Mermaid flowchart from:\n{path}")
         # except Exception as e:
         #     messagebox.showerror("Error", str(e))
+        
+        self.display_operation_info()  # 操作情報表示制御
 
     def create_mermaid_flowdata(self, mmd_nodes, mmd_links):
         """モデルを読み込み、Canvasを再構築"""
@@ -1321,6 +1336,39 @@ class FlowchartTool(tk.Tk):
         if text.endswith("```"):
             return text[:-3]
         return text
+
+    def display_operation_info(self):
+        if self.nodes is not None and len(self.nodes) > 0:
+            self._hide_operation_info()
+        else:
+            self._show_operation_info()
+
+    def _show_operation_info(self):
+        if hasattr(self, "ope_info") and self.ope_info:
+            return
+        self.ope_info = tk.Label(self.canvas, justify="left", font=("Consolas", 9), text=
+            "[Key Operations]\n"
+            " DEL: Delete selected node/edge\n"
+            " ESC: Cancel selection\n"
+            " Ctrl-a: Select all nodes\n"
+            " Ctrl-z: Undo\n"
+            " Ctrl-y: Redo\n"
+            "\n"
+            "[Mouse Operations]\n"
+            " Right Button: Show context menu\n"
+            " Click Node/Edge: Select node/edge\n"
+            " Double-Click Node/Edge: Edit text\n"
+            " Drag Area: Select nodes in area\n"
+            " Drag Node: Move selected node(s)\n"
+            " Ctrl+MouseWheel: Change connection point\n"
+            " Shift+MouseWheel: Change edge wrap margin"
+            )
+        self.ope_info.pack(padx=8, pady=8, anchor="ne")
+    
+    def _hide_operation_info(self):
+        if hasattr(self, "ope_info") and self.ope_info:
+            self.ope_info.destroy()
+            self.ope_info = None
 
 if __name__ == "__main__":
     app = FlowchartTool()

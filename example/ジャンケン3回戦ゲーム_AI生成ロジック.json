@@ -188,7 +188,7 @@
     {
       "from_id": 6,
       "to_id": 4,
-      "edge_wrap_offset": 21.0
+      "edge_wrap_margin": 21.0
     },
     {
       "from_id": 5,
@@ -247,7 +247,7 @@
       "to_id": 3,
       "from_connection_point": "right",
       "to_connection_point": "right",
-      "edge_wrap_offset": 201.0,
+      "edge_wrap_margin": 201.0,
       "label": "No"
     },
     {

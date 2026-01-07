@@ -16,10 +16,10 @@ class Edge:
     label_justify:Literal["left", "center", "right"] = "left"
     from_node_connection_point:Literal["top", "bottom", "left", "right", "auto", None] = None
     to_node_connection_point:Literal["top", "bottom", "left", "right", "auto", None] = None
-    edge_wrap_offset = None
+    edge_wrap_margin = None
 
     def __init__(self, from_node_obj, to_node_obj, points=None, text=None, \
-                    from_node_connection_point=None, to_node_connection_point=None, edge_wrap_offset=None, \
+                    from_node_connection_point=None, to_node_connection_point=None, edge_wrap_margin=None, \
                     label_x=None, label_y=None, canvas=None,\
                     label_anchor:Literal["center", "n", "ne", "e", "se", "s", "sw", "w", "nw"]="center", \
                     label_justify:Literal["left", "center", "right"]="left"):
@@ -31,7 +31,7 @@ class Edge:
 
         self.from_node_connection_point = from_node_connection_point if from_node_connection_point in ["top", "bottom", "left", "right", "auto"] else None
         self.to_node_connection_point = to_node_connection_point if to_node_connection_point in ["top", "bottom", "left", "right", "auto"] else None
-        self.edge_wrap_offset = edge_wrap_offset
+        self.edge_wrap_margin = edge_wrap_margin
 
         if points is None:
             # かぎ線の座標とラベル位置を計算
@@ -366,10 +366,10 @@ class Edge:
                 coords = [from_bottom_x, from_bottom_y, to_top_x, to_top_y]
             else:
                 # 3line
-                if self.edge_wrap_offset is None:
+                if self.edge_wrap_margin is None:
                     mid_y = (from_bottom_y + to_top_y) / 2
                 else:
-                    mid_y = from_bottom_y + self.edge_wrap_offset
+                    mid_y = from_bottom_y + self.edge_wrap_margin
                 coords = [from_bottom_x, from_bottom_y, from_bottom_x, mid_y, to_top_x, mid_y, to_top_x, to_top_y]
 
         return coords
@@ -446,10 +446,10 @@ class Edge:
         # to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
         # to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
 
-        if self.edge_wrap_offset is None:
+        if self.edge_wrap_margin is None:
             margin_y = max(from_bottom_y, to_bottom_y) + from_node_obj.h * 0.5
         else:
-            margin_y = max(from_bottom_y, to_bottom_y) + self.edge_wrap_offset
+            margin_y = max(from_bottom_y, to_bottom_y) + self.edge_wrap_margin
         coords = [from_bottom_x, from_bottom_y, from_bottom_x, margin_y, to_bottom_x, margin_y, to_bottom_x, to_bottom_y]
 
         return coords
@@ -502,10 +502,10 @@ class Edge:
         to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
 
         # if to_bottom_y <= from_top_y:
-        if self.edge_wrap_offset is None:
+        if self.edge_wrap_margin is None:
             mid_x = max(from_right_x, to_right_x) + from_node_obj.w * 0.3
         else:
-            mid_x = max(from_right_x, to_right_x) + self.edge_wrap_offset
+            mid_x = max(from_right_x, to_right_x) + self.edge_wrap_margin
         coords = [from_right_x, from_right_y, mid_x, from_right_y, mid_x, to_right_y, to_right_x, to_right_y]
 
         return coords
@@ -537,16 +537,16 @@ class Edge:
             if from_right_y == to_left_y:
                 coords = [from_right_x, from_right_y, to_left_x, to_left_y]
             elif to_left_y < from_right_y:
-                if self.edge_wrap_offset is None:
+                if self.edge_wrap_margin is None:
                     mid_x = (from_right_x + to_left_x) / 2
                 else:
-                    mid_x = from_right_x + self.edge_wrap_offset
+                    mid_x = from_right_x + self.edge_wrap_margin
                 coords = [from_right_x, from_right_y, mid_x, from_right_y, mid_x, to_left_y, to_left_x, to_left_y]
             elif from_right_y < to_left_y:
-                if self.edge_wrap_offset is None:
+                if self.edge_wrap_margin is None:
                     mid_x = (from_right_x + to_left_x) / 2
                 else:
-                    mid_x = from_right_x + self.edge_wrap_offset
+                    mid_x = from_right_x + self.edge_wrap_margin
                 coords = [from_right_x, from_right_y, mid_x, from_right_y, mid_x, to_left_y, to_left_x, to_left_y]
 
         return coords
@@ -627,16 +627,16 @@ class Edge:
             if from_left_y == to_right_y:
                 coords = [from_left_x, from_left_y, to_right_x, to_right_y]
             elif to_right_y < from_left_y:
-                if self.edge_wrap_offset is None:
+                if self.edge_wrap_margin is None:
                     mid_x = (from_left_x + to_right_x) / 2
                 else:
-                    mid_x = from_left_x + self.edge_wrap_offset
+                    mid_x = from_left_x + self.edge_wrap_margin
                 coords = [from_left_x, from_left_y, mid_x, from_left_y, mid_x, to_right_y, to_right_x, to_right_y]
             elif from_left_y < to_right_y:
-                if self.edge_wrap_offset is None:
+                if self.edge_wrap_margin is None:
                     mid_x = (from_left_x + to_right_x) / 2
                 else:
-                    mid_x = from_left_x + self.edge_wrap_offset
+                    mid_x = from_left_x + self.edge_wrap_margin
                 coords = [from_left_x, from_left_y, mid_x, from_left_y, mid_x, to_right_y, to_right_x, to_right_y]
 
         return coords
@@ -663,10 +663,10 @@ class Edge:
         # to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
 
         # if to_bottom_y <= from_top_y:
-        if self.edge_wrap_offset is None:
+        if self.edge_wrap_margin is None:
             mid_x = min(from_left_x, to_left_x) - from_node_obj.w * 0.3
         else:
-            mid_x = min(from_left_x, to_left_x) - self.edge_wrap_offset
+            mid_x = min(from_left_x, to_left_x) - self.edge_wrap_margin
         coords = [from_left_x, from_left_y, mid_x, from_left_y, mid_x, to_left_y, to_left_x, to_left_y]
 
         return coords
@@ -716,10 +716,10 @@ class Edge:
         # to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
         # to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
 
-        if self.edge_wrap_offset is None:
+        if self.edge_wrap_margin is None:
             margin_y = min(from_top_y, to_top_y) - from_node_obj.h * 0.5
         else:
-            margin_y = min(from_top_y, to_top_y) - self.edge_wrap_offset
+            margin_y = min(from_top_y, to_top_y) - self.edge_wrap_margin
         coords = [from_top_x, from_top_y, from_top_x, margin_y, to_top_x, margin_y, to_top_x, to_top_y]
 
         return coords
@@ -798,10 +798,10 @@ class Edge:
             if from_top_x == to_top_x:
                 coords = [from_top_x, from_top_y, to_bottom_x, to_bottom_y]
             else:
-                if self.edge_wrap_offset is None:
+                if self.edge_wrap_margin is None:
                     middle_y = (from_top_y + to_bottom_y) / 2
                 else:
-                    middle_y = from_top_y - self.edge_wrap_offset
+                    middle_y = from_top_y - self.edge_wrap_margin
                 coords = [from_top_x, from_top_y, from_top_x, middle_y, to_bottom_x, middle_y, to_bottom_x, to_bottom_y]
 
         return coords
@@ -964,7 +964,7 @@ class Edge:
 
         self.from_node_connection_point = from_node_connection_point
         self.to_node_connection_point = to_node_connection_point
-        self.edge_wrap_offset = None
+        self.edge_wrap_margin = None
 
         if canvas is not None:
             self._update_edge(canvas)
@@ -982,7 +982,7 @@ class Edge:
                 canvas.coords(self.label_id, label_x, label_y)
                 canvas.itemconfig(self.label_id, anchor=label_anchor, justify=labe_justify)
 
-    def change_edge_wrap_offset(self, increase=True, canvas=None):
+    def change_edge_wrap_margin(self, increase=True, canvas=None):
         """エッジの折り返しオフセットを変更して再描画"""
         if len(self.points) != 8:
             return
@@ -999,15 +999,15 @@ class Edge:
                     distance_to_from_node += step_size
                     if from_y + distance_to_from_node > to_y - step_size:
                         distance_to_from_node = to_y - from_y - step_size
-                    self.edge_wrap_offset = distance_to_from_node
-                    vertex_y = from_y + self.edge_wrap_offset
+                    self.edge_wrap_margin = distance_to_from_node
+                    vertex_y = from_y + self.edge_wrap_margin
                     self.points = [from_x, from_y, from_x, vertex_y, to_x, vertex_y, to_x, to_y]
                 else:
                     distance_to_from_node -= step_size
                     if distance_to_from_node < step_size:
                         distance_to_from_node = step_size
-                    self.edge_wrap_offset = distance_to_from_node
-                    vertex_y = from_y + self.edge_wrap_offset
+                    self.edge_wrap_margin = distance_to_from_node
+                    vertex_y = from_y + self.edge_wrap_margin
                     self.points = [from_x, from_y, from_x, vertex_y, to_x, vertex_y, to_x, to_y]
             elif to_y < vertex1_y < from_y:
                 # vertical middle edge
@@ -1016,15 +1016,15 @@ class Edge:
                     distance_to_from_node += step_size
                     if from_y - distance_to_from_node < to_y + step_size:
                         distance_to_from_node = from_y - to_y - step_size
-                    self.edge_wrap_offset = distance_to_from_node
-                    vertex_y = from_y - self.edge_wrap_offset
+                    self.edge_wrap_margin = distance_to_from_node
+                    vertex_y = from_y - self.edge_wrap_margin
                     self.points = [from_x, from_y, from_x, vertex_y, to_x, vertex_y, to_x, to_y]
                 else:
                     distance_to_from_node -= step_size
                     if distance_to_from_node < step_size:
                         distance_to_from_node = step_size
-                    self.edge_wrap_offset = distance_to_from_node
-                    vertex_y = from_y - self.edge_wrap_offset
+                    self.edge_wrap_margin = distance_to_from_node
+                    vertex_y = from_y - self.edge_wrap_margin
                     self.points = [from_x, from_y, from_x, vertex_y, to_x, vertex_y, to_x, to_y]
             elif vertex1_y < from_y and vertex2_y < to_y:
                 # vertical upper edge
@@ -1033,15 +1033,15 @@ class Edge:
                     distance_to_node += step_size
                     if distance_to_node > step_size * 50:
                         distance_to_node = step_size * 50
-                    self.edge_wrap_offset = distance_to_node
-                    vertex_y = min(from_y, to_y) - self.edge_wrap_offset
+                    self.edge_wrap_margin = distance_to_node
+                    vertex_y = min(from_y, to_y) - self.edge_wrap_margin
                     self.points = [from_x, from_y, from_x, vertex_y, to_x, vertex_y, to_x, to_y]
                 else:
                     distance_to_node -= step_size
                     if distance_to_node < step_size:
                         distance_to_node = step_size
-                    self.edge_wrap_offset = distance_to_node
-                    vertex_y = min(from_y, to_y) - self.edge_wrap_offset
+                    self.edge_wrap_margin = distance_to_node
+                    vertex_y = min(from_y, to_y) - self.edge_wrap_margin
                     self.points = [from_x, from_y, from_x, vertex_y, to_x, vertex_y, to_x, to_y]
             elif from_y < vertex1_y and to_y < vertex2_y:
                 # vertical lower edge
@@ -1050,15 +1050,15 @@ class Edge:
                     distance_to_node += step_size
                     if distance_to_node > step_size * 50:
                         distance_to_node = step_size * 50
-                    self.edge_wrap_offset = distance_to_node
-                    vertex_y = max(from_y, to_y) + self.edge_wrap_offset
+                    self.edge_wrap_margin = distance_to_node
+                    vertex_y = max(from_y, to_y) + self.edge_wrap_margin
                     self.points = [from_x, from_y, from_x, vertex_y, to_x, vertex_y, to_x, to_y]
                 else:
                     distance_to_node -= step_size
                     if distance_to_node < step_size:
                         distance_to_node = step_size
-                    self.edge_wrap_offset = distance_to_node
-                    vertex_y = max(from_y, to_y) + self.edge_wrap_offset
+                    self.edge_wrap_margin = distance_to_node
+                    vertex_y = max(from_y, to_y) + self.edge_wrap_margin
                     self.points = [from_x, from_y, from_x, vertex_y, to_x, vertex_y, to_x, to_y]
         else:
             # horizontal line
@@ -1069,15 +1069,15 @@ class Edge:
                     distance_to_from_node += step_size
                     if from_x + distance_to_from_node > to_x - step_size:
                         distance_to_from_node = to_x - from_x - step_size
-                    self.edge_wrap_offset = distance_to_from_node
-                    vertex_x = from_x + self.edge_wrap_offset
+                    self.edge_wrap_margin = distance_to_from_node
+                    vertex_x = from_x + self.edge_wrap_margin
                     self.points = [from_x, from_y, vertex_x, from_y, vertex_x, to_y, to_x, to_y]
                 else:
                     distance_to_from_node -= step_size
                     if distance_to_from_node < step_size:
                         distance_to_from_node = step_size
-                    self.edge_wrap_offset = distance_to_from_node
-                    vertex_x = from_x + self.edge_wrap_offset
+                    self.edge_wrap_margin = distance_to_from_node
+                    vertex_x = from_x + self.edge_wrap_margin
                     self.points = [from_x, from_y, vertex_x, from_y, vertex_x, to_y, to_x, to_y]
             elif to_x < vertex1_x < from_x:
                 # horizontal middle edge
@@ -1086,15 +1086,15 @@ class Edge:
                     distance_to_from_node += step_size
                     if from_x - distance_to_from_node < to_x + step_size:
                         distance_to_from_node = from_x - to_x - step_size
-                    self.edge_wrap_offset = distance_to_from_node
-                    vertex_x = from_x - self.edge_wrap_offset
+                    self.edge_wrap_margin = distance_to_from_node
+                    vertex_x = from_x - self.edge_wrap_margin
                     self.points = [from_x, from_y, vertex_x, from_y, vertex_x, to_y, to_x, to_y]
                 else:
                     distance_to_from_node -= step_size
                     if distance_to_from_node < step_size:
                         distance_to_from_node = step_size
-                    self.edge_wrap_offset = distance_to_from_node
-                    vertex_x = from_x - self.edge_wrap_offset
+                    self.edge_wrap_margin = distance_to_from_node
+                    vertex_x = from_x - self.edge_wrap_margin
                     self.points = [from_x, from_y, vertex_x, from_y, vertex_x, to_y, to_x, to_y]
             elif vertex1_x < from_x and vertex2_x < to_x:
                 # horizontal left edge
@@ -1103,15 +1103,15 @@ class Edge:
                     distance_to_node += step_size
                     if distance_to_node > step_size * 50:
                         distance_to_node = step_size * 50
-                    self.edge_wrap_offset = distance_to_node
-                    vertex_x = min(from_x, to_x) - self.edge_wrap_offset
+                    self.edge_wrap_margin = distance_to_node
+                    vertex_x = min(from_x, to_x) - self.edge_wrap_margin
                     self.points = [from_x, from_y, vertex_x, from_y, vertex_x, to_y, to_x, to_y]
                 else:
                     distance_to_node -= step_size
                     if distance_to_node < step_size:
                         distance_to_node = step_size
-                    self.edge_wrap_offset = distance_to_node
-                    vertex_x = min(from_x, to_x) - self.edge_wrap_offset
+                    self.edge_wrap_margin = distance_to_node
+                    vertex_x = min(from_x, to_x) - self.edge_wrap_margin
                     self.points = [from_x, from_y, vertex_x, from_y, vertex_x, to_y, to_x, to_y]
             elif from_x < vertex1_x and to_x < vertex2_x:
                 # horizontal right edge
@@ -1120,15 +1120,15 @@ class Edge:
                     distance_to_node += step_size
                     if distance_to_node > step_size * 50:
                         distance_to_node = step_size * 50
-                    self.edge_wrap_offset = distance_to_node
-                    vertex_x = max(from_x, to_x) + self.edge_wrap_offset
+                    self.edge_wrap_margin = distance_to_node
+                    vertex_x = max(from_x, to_x) + self.edge_wrap_margin
                     self.points = [from_x, from_y, vertex_x, from_y, vertex_x, to_y, to_x, to_y]
                 else:
                     distance_to_node -= step_size
                     if distance_to_node < step_size:
                         distance_to_node = step_size
-                    self.edge_wrap_offset = distance_to_node
-                    vertex_x = max(from_x, to_x) + self.edge_wrap_offset
+                    self.edge_wrap_margin = distance_to_node
+                    vertex_x = max(from_x, to_x) + self.edge_wrap_margin
                     self.points = [from_x, from_y, vertex_x, from_y, vertex_x, to_y, to_x, to_y]
         
 
