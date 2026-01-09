@@ -17,7 +17,9 @@ import node
 from node import Node
 import edge
 from edge import Edge
-import windows_monitor_info as wmi
+import platform
+if platform.system() == "Windows":
+    import windows_monitor_info as wmi
 
 class FlowchartTool(tk.Tk):
     def __init__(self):
@@ -154,12 +156,12 @@ class FlowchartTool(tk.Tk):
 
         # ---- OpenAI client ----
         api_key = os.getenv("OPENAI_API_KEY")
-        if not api_key:
-            messagebox.showerror("Missing API Key", "環境変数 OPENAI_API_KEY が未設定です。")
-            self.destroy()
-            return
-        self.openai_client = OpenAI()
-        self.previous_response_id = None
+        if api_key is not None and api_key != "":
+            self.openai_client = OpenAI()
+        else:
+            self.openai_client = None
+            self.previous_response_id = None
+            messagebox.showerror("Missing API Key", ct.OPENAI_API_KEY_NOT_SET_MESSAGE)
 
         # -------------------------
         # チャットパネル（Frame）
@@ -189,7 +191,8 @@ class FlowchartTool(tk.Tk):
         self.chat_text.configure(state="disabled")
 
         # ChatWindow表示On/OFFボタン
-        ttk.Checkbutton(toolbar, text="AI-generation", variable=self.chat_window_on, command=self.on_chat_window_toggle).pack(side=tk.LEFT, padx=1)
+        if self.openai_client is not None:
+            ttk.Checkbutton(toolbar, text="AI-generation", variable=self.chat_window_on, command=self.on_chat_window_toggle).pack(side=tk.LEFT, padx=1)
 
         # リサイズ追従
         self.bind("<Configure>", self.on_resize)
@@ -1067,8 +1070,10 @@ class FlowchartTool(tk.Tk):
     def save_canvas_as_image(self, file_path: str):
         # Canvasの位置（画面座標）を取得して、その範囲だけキャプチャ
         self.canvas.update()  # 描画を確定
-        # scaling = wmi.get_system_scale_percent(self.canvas) / 100.0  # Windowsのディスプレイ拡大率を取得
-        scaling = 1.0
+        if platform.system() != "Windows":
+            scaling = wmi.get_system_scale_percent(self.canvas) / 100.0  # Windowsのディスプレイ拡大率を取得
+        else:
+            scaling = 1.0
         x = int(self.canvas.winfo_rootx() * scaling)
         y = int(self.canvas.winfo_rooty() * scaling)
         w = int(self.canvas.winfo_width() * scaling)
@@ -1346,7 +1351,7 @@ class FlowchartTool(tk.Tk):
     def _show_operation_info(self):
         if hasattr(self, "ope_info") and self.ope_info:
             return
-        self.ope_info = tk.Label(self.canvas, justify="left", font=("Consolas", 9), text=
+        self.ope_info = tk.Label(self.canvas, justify="left", font=("Consolas", 9), fg="#0f172a", text=
             "[Key Operations]\n"
             " DEL: Delete selected node/edge\n"
             " ESC: Cancel selection\n"

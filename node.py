@@ -140,25 +140,25 @@ class Node:
     def draw_text(self, canvas: tk.Canvas):
         # テキストの描画（nodeタグを付与）
         if self.x and self.y and self.text:
-            font_family, font_size, font_weight, text_width = self._get_text_params()
+            font_family, font_size, font_weight, text_width, text_color = self._get_text_params()
             self.text_id = canvas.create_text(
                 self.x, self.y, text=self.text, font=(font_family, font_size, font_weight), width=text_width,
+                fill=text_color,
                 tags=("node", f"node-{self.id}", "node-text")
             )
     
     def _get_text_params(self):
         if self.type == ct.NODE_PROCESS_PARAMS["type"]:        # 処理
-            font_family, font_size, font_weight, text_width = ct.NODE_PROCESS_PARAMS["font_family"], ct.NODE_PROCESS_PARAMS["font_size"], ct.NODE_PROCESS_PARAMS["font_weight"], ct.NODE_PROCESS_PARAMS["text_width"]
+            font_family, font_size, font_weight, text_width, text_color = ct.NODE_PROCESS_PARAMS["font_family"], ct.NODE_PROCESS_PARAMS["font_size"], ct.NODE_PROCESS_PARAMS["font_weight"], ct.NODE_PROCESS_PARAMS["text_width"], ct.NODE_PROCESS_PARAMS["text_color"]
         elif self.type == ct.NODE_DECISION_PARAMS["type"]:     # 分岐
-            font_family, font_size, font_weight, text_width = ct.NODE_DECISION_PARAMS["font_family"], ct.NODE_DECISION_PARAMS["font_size"], ct.NODE_DECISION_PARAMS["font_weight"], ct.NODE_DECISION_PARAMS["text_width"]
+            font_family, font_size, font_weight, text_width, text_color = ct.NODE_DECISION_PARAMS["font_family"], ct.NODE_DECISION_PARAMS["font_size"], ct.NODE_DECISION_PARAMS["font_weight"], ct.NODE_DECISION_PARAMS["text_width"], ct.NODE_DECISION_PARAMS["text_color"]
         elif self.type == ct.NODE_TERMINATOR_PARAMS["type"]:   # 端点
-            font_family, font_size, font_weight, text_width = ct.NODE_TERMINATOR_PARAMS["font_family"], ct.NODE_TERMINATOR_PARAMS["font_size"], ct.NODE_TERMINATOR_PARAMS["font_weight"], ct.NODE_TERMINATOR_PARAMS["text_width"]
+            font_family, font_size, font_weight, text_width, text_color = ct.NODE_TERMINATOR_PARAMS["font_family"], ct.NODE_TERMINATOR_PARAMS["font_size"], ct.NODE_TERMINATOR_PARAMS["font_weight"], ct.NODE_TERMINATOR_PARAMS["text_width"], ct.NODE_TERMINATOR_PARAMS["text_color"]
         elif self.type == ct.NODE_IO_PARAMS["type"]:           # 入出力
-            font_family, font_size, font_weight, text_width = ct.NODE_IO_PARAMS["font_family"], ct.NODE_IO_PARAMS["font_size"], ct.NODE_IO_PARAMS["font_weight"], ct.NODE_IO_PARAMS["text_width"]
+            font_family, font_size, font_weight, text_width, text_color = ct.NODE_IO_PARAMS["font_family"], ct.NODE_IO_PARAMS["font_size"], ct.NODE_IO_PARAMS["font_weight"], ct.NODE_IO_PARAMS["text_width"], ct.NODE_IO_PARAMS["text_color"]
         else:                                   # その他（未定義）
-            font_family, font_size, font_weight, text_width = ct.NODE_DEFAULT_PARAMS["font_family"], ct.NODE_DEFAULT_PARAMS["font_size"], ct.NODE_DEFAULT_PARAMS["font_weight"], ct.NODE_DEFAULT_PARAMS["text_width"]
-
-        return font_family, font_size, font_weight, text_width
+            font_family, font_size, font_weight, text_width, text_color = ct.NODE_DEFAULT_PARAMS["font_family"], ct.NODE_DEFAULT_PARAMS["font_size"], ct.NODE_DEFAULT_PARAMS["font_weight"], ct.NODE_DEFAULT_PARAMS["text_width"], ct.NODE_DEFAULT_PARAMS["text_color"]
+        return font_family, font_size, font_weight, text_width, text_color
 
     def get_rounded_rectangle_coords(self, left, top, right, bottom, r):
         left_center_x = left + r

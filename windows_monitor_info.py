@@ -1,6 +1,7 @@
 import ctypes
 from ctypes import wintypes
 import tkinter as tk
+import platform
 
 user32 = ctypes.windll.user32
 shcore = ctypes.windll.shcore
@@ -10,7 +11,7 @@ MDT_EFFECTIVE_DPI = 0
 
 # DPI aware（拡大率や座標が正しく取れるように）
 try:
-    shcore.SetProcessDpiAwareness(1)  # Per-monitor DPI aware
+    shcore.SetProcessDpiAwareness(1) if shcore is not None else None  # Per-monitor DPI aware
 except Exception:
     pass
 
@@ -24,9 +25,6 @@ class MONITOR_INFO_EX(ctypes.Structure):
     ]
 
 def get_monitor_from_tk_window(canvas):
-    # Tkの情報を確定させる
-    #root.update_idletasks()
-
     hwnd = wintypes.HWND(canvas.winfo_id())  # tkのウィンドウハンドル
     hmon = user32.MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST)
     if not hmon:
@@ -71,8 +69,11 @@ def get_system_dpi_x(canvas):
     return dpi_x
 
 def get_system_scale_percent(canvas):
-    m = get_monitor_from_tk_window(canvas)
-    scale_percent = m["scale_percent"]
+    if platform.system() == "Windows":
+        m = get_monitor_from_tk_window(canvas)
+        scale_percent = m["scale_percent"]
+    else:
+        scale_percent = 100.0
     return scale_percent
 
 def _draw_grid(canvas):

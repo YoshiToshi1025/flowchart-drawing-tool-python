@@ -1,5 +1,9 @@
 from tkinter import font
 
+OS_WINDOWS = "Windows"
+OS_MAC = "Darwin"
+OS_LINUX = "Linux"
+
 # アプリケーション・タイトル
 APP_TITLE = "簡易フローチャート作図ツール(TKinter Canvas)"
 
@@ -160,6 +164,7 @@ LOAD_FAILED_MESSAGE = "読み込みに失敗しました"
 AI_GENERATED_MESSAGE1 = "AI生成された処理フローデータを保存しました。今すぐ読み込みますか？"
 AI_GENERATED_MESSAGE2 = "今すぐ読み込みますか？"
 
+OPENAI_API_KEY_NOT_SET_MESSAGE = "環境変数 OPENAI_API_KEY が未設定です。"
 
 # AI関連定数
 CHAT_WIDTH = 500

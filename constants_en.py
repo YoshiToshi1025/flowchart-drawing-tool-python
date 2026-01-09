@@ -160,6 +160,8 @@ LOAD_FAILED_MESSAGE = "Failed to load"
 AI_GENERATED_MESSAGE1 = "AI-generated flow data has been saved."
 AI_GENERATED_MESSAGE2 = "Do you want to load it now?"
 
+OPENAI_API_KEY_NOT_SET_MESSAGE = "Environment variable OPENAI_API_KEY is not set."
+
 # AI-related constants
 CHAT_WIDTH = 500
 CHAT_WINDOW_SLIDE_STEP = 20

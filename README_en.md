@@ -149,3 +149,4 @@ This project provides a **Simple Flowchart Drawing Tool (Python version)** that 
 * 2026/01/02: Added automatic flowchart generation via generative AI (GPT-5.2)
 * 2026/01/05: Added rough automatic layout for AI-generated flows (manual adjustment still required)
 * 2026/01/08: Support for image export when Windows display scaling is not set to 100%, and definition of shortcut keys
+* 2026/01/09 : Display adjustment on MacOS
