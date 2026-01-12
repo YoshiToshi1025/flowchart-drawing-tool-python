@@ -158,6 +158,7 @@ class FlowchartTool(tk.Tk):
         api_key = os.getenv("OPENAI_API_KEY")
         if api_key is not None and api_key != "":
             self.openai_client = OpenAI()
+            self.previous_response_id = None
         else:
             self.openai_client = None
             self.previous_response_id = None
@@ -1303,7 +1304,8 @@ class FlowchartTool(tk.Tk):
             if success_flag:
                 self.after(0, lambda: messagebox.askokcancel("Saved", f"{ct.AI_GENERATED_MESSAGE1}\n{mmd_filepath}\n\n{ct.AI_GENERATED_MESSAGE2}") and self.load_mermaid_flowdata(mmd_filepath))
         except Exception as e:
-            self.after(0, lambda: messagebox.showerror("OpenAI API Error", str(e)))
+            print(e)
+            # self.after(0, lambda: messagebox.showerror("OpenAI API Error", str(e)))
         finally:
             self.after(0, lambda: self.set_sending(False))
 
