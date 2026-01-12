@@ -1109,7 +1109,7 @@ class FlowchartTool(tk.Tk):
     def load_mermaid_flowdata(self, mmd_filepath=None):
         if mmd_filepath is None:
             path = filedialog.askopenfilename(
-                filetypes=[("Mermaid Flowchart", "*.mmd;*.txt"), ("All files", "*.*")]
+                filetypes=[("Mermaid Flowchart", "*.mmd"), ("All files", "*.*")]
             )
         else:
             path = mmd_filepath
