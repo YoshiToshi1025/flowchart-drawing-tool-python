@@ -423,7 +423,11 @@ class FlowchartTool(tk.Tk):
             edge_obj = self.edges.get(self.selected_edge_id)
             if edge_obj is None:
                 return
-            edge_obj.change_edge_wrap_margin(increase=increase, canvas=self.canvas)
+            elif edge_obj.points is not None:
+                if len(edge_obj.points) == 8:
+                    edge_obj.change_edge_wrap_margin_3line(increase=increase, canvas=self.canvas)
+                elif len(edge_obj.points) == 10:
+                    edge_obj.change_edge_wrap_margin_4line(increase=increase, canvas=self.canvas)
 
     def on_mouse_wheel_ctrl(self, event):
         # print("Ctrl + Mouse Wheel detected")
@@ -435,7 +439,13 @@ class FlowchartTool(tk.Tk):
             self.change_edge_connection_points_in_sequence(increase=False)
 
     def on_mouse_wheel_ctrl_shift(self, event):
-        print("Ctrl + Shift + Mouse Wheel detected : No action assigned")
+        print("Ctrl + Shift + Mouse Wheel detected")
+
+        delta = event.delta
+        if delta > 0:
+            self.rotate_edge_label_position(increase=True)
+        else:
+            self.rotate_edge_label_position(increase=False) 
 
     def change_edge_connection_points_in_sequence(self, increase=True):
         # エッジ選択中の場合、FromノードとToノードの接続位置を調整
@@ -444,6 +454,15 @@ class FlowchartTool(tk.Tk):
             if edge_obj is None:
                 return
             edge_obj.rotate_connection_points(increase=increase, canvas=self.canvas)
+
+    def rotate_edge_label_position(self, increase=True):
+        print("Rotate edge label position")
+        # エッジ選択中の場合、エッジラベルの位置を調整
+        if self.selected_edge_id is not None:
+            edge_obj = self.edges.get(self.selected_edge_id)
+            if edge_obj is None:
+                return
+            edge_obj.rotate_label_position(increase=increase, canvas=self.canvas)
 
     # -----------------------------
     # リサイズ時：チャット位置を必ず補正（非表示なら必ず右外）
@@ -758,6 +777,8 @@ class FlowchartTool(tk.Tk):
                 edge_data["edge_wrap_margin"] = edge_obj.edge_wrap_margin
             if edge_obj.label_text is not None:
                 edge_data["label"] = edge_obj.label_text
+            if edge_obj.label_position is not None:
+                edge_data["label_position"] = edge_obj.label_position
             edges_data.append(edge_data)
 
         return {"nodes": nodes_data, "edges": edges_data}
@@ -801,6 +822,7 @@ class FlowchartTool(tk.Tk):
             to_connection_point = ed.get("to_connection_point", None)
             edge_wrap_margin = ed.get("edge_wrap_margin", None)
             label = ed.get("label")
+            label_position = ed.get("label_position", None)
             if fid in self.nodes and tid in self.nodes:
                 from_node_obj = self.nodes[fid]
                 to_node_obj = self.nodes[tid]
@@ -808,7 +830,8 @@ class FlowchartTool(tk.Tk):
                                         from_node_connection_point=from_connection_point, \
                                         to_node_connection_point=to_connection_point, \
                                         edge_wrap_margin=edge_wrap_margin, \
-                                        canvas=self.canvas)
+                                        canvas=self.canvas, \
+                                        label_position=label_position)
                 if edge_obj is not None and edge_obj.line_id is not None:
                     self.edges[edge_obj.line_id] = edge_obj
 
@@ -1063,8 +1086,9 @@ class FlowchartTool(tk.Tk):
 
             self.canvas.coords(edge_obj.line_id, *coords)
             if edge_obj.label_text is not None and edge_obj.label_id is not None:
-                self.canvas.coords(edge_obj.label_id, label_x, label_y)
-                self.canvas.itemconfig(edge_obj.label_id, anchor=anchor, justify=justify)
+                ad_label_x, ad_label_y, ad_label_anchor, ad_label_justify = edge_obj.get_label_position()
+                self.canvas.coords(edge_obj.label_id, ad_label_x, ad_label_y)
+                self.canvas.itemconfig(edge_obj.label_id, anchor=ad_label_anchor, justify=ad_label_justify)
 
     # ------------ Canvasの画像保存(JPEG,PNG) ------------
 
@@ -1143,7 +1167,7 @@ class FlowchartTool(tk.Tk):
         if mmd_nodes is None or len(mmd_nodes) == 0:
             return
 
-        nd =next(iter(mmd_nodes.values()))
+        nd = next(iter(mmd_nodes.values()))
         if nd.pos_tb is None or nd.pos_lr is None:
             # 自動配置
             auto_position_flag = True
@@ -1368,7 +1392,8 @@ class FlowchartTool(tk.Tk):
             " Drag Area: Select nodes in area\n"
             " Drag Node: Move selected node(s)\n"
             " Ctrl+MouseWheel: Change connection point\n"
-            " Shift+MouseWheel: Change edge wrap margin"
+            " Shift+MouseWheel: Change edge wrap margin\n"
+            " Ctrl+Shift+MouseWheel: Change edge label position"
             )
         self.ope_info.pack(padx=8, pady=8, anchor="ne")
     

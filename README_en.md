@@ -90,6 +90,7 @@ This project provides a **Simple Flowchart Drawing Tool (Python version)** that 
 
   * `CTRL + Mouse Wheel`: Cycle through connection points
   * `SHIFT + Mouse Wheel`: Adjust detour distance
+  * `CTRL + SHIFT + Mouse Wheel`: Cycle through label position
 
 * Sample JSON files are provided in the `example` folder. These can be loaded using **[Load JSON]**.
 
@@ -151,3 +152,4 @@ This project provides a **Simple Flowchart Drawing Tool (Python version)** that 
 * 2026/01/08: Support for image export when Windows display scaling is not set to 100%, and definition of shortcut keys
 * 2026/01/09 : Display adjustment on MacOS
 * 2026/01/13 : Bug fixes (generative AI integration, file dialog configuration)
+* 2026/01/19 : Supports manual adjustment of link label positions

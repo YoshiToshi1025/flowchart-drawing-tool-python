@@ -1,7 +1,9 @@
 import tkinter as tk
 import constants as ct
 import node
-from typing import Literal
+from typing import Literal, Tuple
+
+LABEL_POSITION_LIST = ["auto", "p0se", "p0sw", "p0nw", "p0ne", "p1se", "p1sw", "p1nw", "p1ne", "p2se", "p2sw", "p2nw", "p2ne", "p3se", "p3sw", "p3nw", "p3ne", "p4se", "p4sw", "p4nw", "p4ne"]
 
 class Edge:
     line_id = None
@@ -14,6 +16,7 @@ class Edge:
     label_text = None
     label_anchor:Literal["center", "n", "ne", "e", "se", "s", "sw", "w", "nw"] = "center"
     label_justify:Literal["left", "center", "right"] = "left"
+    label_position:Literal["auto", "p0se", "p0sw", "p0nw", "p0ne", "p1se", "p1sw", "p1nw", "p1ne", "p2se", "p2sw", "p2nw", "p2ne", "p3se", "p3sw", "p3nw", "p3ne", "p4se", "p4sw", "p4nw", "p4ne"] = "auto"
     from_node_connection_point:Literal["top", "bottom", "left", "right", "auto", None] = None
     to_node_connection_point:Literal["top", "bottom", "left", "right", "auto", None] = None
     edge_wrap_margin = None
@@ -22,12 +25,14 @@ class Edge:
                     from_node_connection_point=None, to_node_connection_point=None, edge_wrap_margin=None, \
                     label_x=None, label_y=None, canvas=None,\
                     label_anchor:Literal["center", "n", "ne", "e", "se", "s", "sw", "w", "nw"]="center", \
-                    label_justify:Literal["left", "center", "right"]="left"):
+                    label_justify:Literal["left", "center", "right"]="left", \
+                    label_position:Literal["auto", "p0se", "p0sw", "p0nw", "p0ne", "p1se", "p1sw", "p1nw", "p1ne", "p2se", "p2sw", "p2nw", "p2ne", "p3se", "p3sw", "p3nw", "p3ne", "p4se", "p4sw", "p4nw", "p4ne"]="auto"):
         self.from_node_obj = from_node_obj
         self.to_node_obj = to_node_obj
         self.label_text = text
-        self.label_anchor = label_anchor
         self.label_justify = label_justify
+        self.label_anchor = label_anchor
+        self.label_position = label_position
 
         self.from_node_connection_point = from_node_connection_point if from_node_connection_point in ["top", "bottom", "left", "right", "auto"] else None
         self.to_node_connection_point = to_node_connection_point if to_node_connection_point in ["top", "bottom", "left", "right", "auto"] else None
@@ -66,11 +71,12 @@ class Edge:
         """エッジラベルの描画"""
 
         if self.label_x is not None and self.label_y is not None and self.label_text is not None:
+            ad_label_x, ad_label_y, ad_label_anchor, ad_label_justify = self.get_label_position()
             self.label_id = canvas.create_text(
-                self.label_x, self.label_y,
+                ad_label_x, ad_label_y,
                 text=self.label_text,
                 font=(ct.EDGE_PARAMS["font_family"], ct.EDGE_PARAMS["font_size"], ct.EDGE_PARAMS["font_weight"]), width=ct.EDGE_PARAMS["text_width"],
-                fill=ct.EDGE_PARAMS["text_color"], anchor = self.label_anchor, justify = self.label_justify,
+                fill=ct.EDGE_PARAMS["text_color"], anchor = ad_label_anchor, justify = ad_label_justify,
                 tags=("edge-label",)
             )
             # ラベルもノードの下でOK（少し上に描かれるので視認性は保てる）
@@ -112,7 +118,7 @@ class Edge:
         if self.from_node_connection_point is None or self.from_node_connection_point == "auto" \
                     or self.to_node_connection_point is None or self.to_node_connection_point == "auto":
             if from_type == ct.NODE_DECISION_PARAMS["type"]:
-                # Decisionノードの場合
+                # from側がDecisionノードの場合
                 if from_left_x <= to_top_x <= from_right_x and from_bottom_y < to_top_y:
                     coords = self.rect_anchor_bottom_to_top(from_node_obj, to_node_obj)
                     if coords is not None and coords != []:
@@ -157,7 +163,7 @@ class Edge:
                             label_y = coords[1] + ct.EDGE_LABEL_OFFSET["se"][1]
                         label_anchor = "se"
             else:
-                # その他のノードの場合
+                # from側がDecision以外のノードの場合
                 if from_bottom_y < to_top_y <= from_bottom_y + ct.CANVAS_PARAMS["grid_spacing"] * 2:
                     if to_right_x < from_left_x:
                         coords = self.rect_anchor_bottom_to_right(from_node_obj, to_node_obj)
@@ -375,8 +381,9 @@ class Edge:
         return coords
 
     def rect_anchor_bottom_to_right(self, from_node_obj, to_node_obj):
-        # bottom_to_right   2line
+        # bottom_to_right   2line or 4line
         # 条件： toオブジェクトの右点がfromオブジェクトの下点より左下にある場合、2line
+        #     ： toオブジェクトの右点がfromオブジェクトの下点より左上にある場合、4line
         coords = []
         if from_node_obj.x is None or from_node_obj.y is None or from_node_obj.h is None or from_node_obj.w is None:
             return coords
@@ -386,7 +393,7 @@ class Edge:
         from_center_x, from_center_y, from_width, from_height = from_node_obj.x, from_node_obj.y, from_node_obj.w, from_node_obj.h
         # from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
         from_bottom_x, from_bottom_y = from_center_x, from_center_y + from_height / 2
-        # from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
+        from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
         # from_right_x, from_right_y = from_center_x + from_width / 2, from_center_y
 
         to_center_x, to_center_y, to_width, to_height = to_node_obj.x, to_node_obj.y, to_node_obj.w, to_node_obj.h
@@ -395,14 +402,23 @@ class Edge:
         # to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
         to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
 
-        if to_right_x < from_bottom_x and to_right_y > from_bottom_y:
+        if to_right_x < from_bottom_x and from_bottom_y < to_right_y:
             coords = [from_bottom_x, from_bottom_y, from_bottom_x, to_right_y, to_right_x, to_right_y]
+        elif to_right_x < from_bottom_x and to_right_y <= from_bottom_y:
+            if self.edge_wrap_margin is None:
+                margin_y = from_bottom_y + from_node_obj.h * 0.5
+                margin_x = (from_left_x + to_right_x) / 2
+            else:
+                margin_y = from_bottom_y + from_node_obj.h * 0.5
+                margin_x = to_right_x + self.edge_wrap_margin
+            coords = [from_bottom_x, from_bottom_y, from_bottom_x, margin_y, margin_x, margin_y, margin_x, to_right_y, to_right_x, to_right_y]
 
         return coords
 
     def rect_anchor_bottom_to_left(self, from_node_obj, to_node_obj):
-        # bottom_to_left    2line
-        # 条件： toオブジェクトの左点がfromオブジェクトの下点より左下にある場合、2line
+        # bottom_to_left    2line or 4line
+        # 条件： toオブジェクトの左点がfromオブジェクトの下点より右下にある場合、2line
+        #     ： toオブジェクトの左点がfromオブジェクトの下点より右上にある場合、4line
         coords = []
         if from_node_obj.x is None or from_node_obj.y is None or from_node_obj.h is None or from_node_obj.w is None:
             return coords
@@ -413,7 +429,7 @@ class Edge:
         # from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
         from_bottom_x, from_bottom_y = from_center_x, from_center_y + from_height / 2
         # from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
-        # from_right_x, from_right_y = from_center_x + from_width / 2, from_center_y
+        from_right_x, from_right_y = from_center_x + from_width / 2, from_center_y
 
         to_center_x, to_center_y, to_width, to_height = to_node_obj.x, to_node_obj.y, to_node_obj.w, to_node_obj.h
         # to_top_x, to_top_y = to_center_x, to_center_y - to_height / 2
@@ -421,8 +437,16 @@ class Edge:
         to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
         # to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
 
-        if to_left_x > from_bottom_x and to_left_y > from_bottom_y:
+        if from_bottom_x < to_left_x and from_bottom_y < to_left_y:
             coords = [from_bottom_x, from_bottom_y, from_bottom_x, to_left_y, to_left_x, to_left_y]
+        elif from_bottom_x < to_left_x and to_left_y <= from_bottom_y:
+            if self.edge_wrap_margin is None:
+                margin_y = from_bottom_y + from_node_obj.h * 0.5
+                margin_x = (from_right_x + to_left_x) / 2
+            else:
+                margin_y = from_bottom_y + from_node_obj.h * 0.5
+                margin_x = to_left_x + self.edge_wrap_margin
+            coords = [from_bottom_x, from_bottom_y, from_bottom_x, margin_y, margin_x, margin_y, margin_x, to_left_y, to_left_x, to_left_y]
 
         return coords
 
@@ -455,8 +479,9 @@ class Edge:
         return coords
 
     def rect_anchor_right_to_top(self, from_node_obj, to_node_obj):
-        # right_to_top    2line
-        # 条件： fromオブジェクトが分岐で、bottom点からのリンクが既にあり右点からのリンクが無い、toオブジェクトの上点がfromオブジェクトの右点より右下にある場合、2line
+        # right_to_top    2line or 4line
+        # 条件： toオブジェクトの上点がfromオブジェクトの右点より右下にある場合、2line
+        #    ： toオブジェクトの上点がfromオブジェクトの右点より右上にある場合、4line
         coords = []
         if from_node_obj.x is None or from_node_obj.y is None or from_node_obj.h is None or from_node_obj.w is None:
             return coords
@@ -472,11 +497,19 @@ class Edge:
         to_center_x, to_center_y, to_width, to_height = to_node_obj.x, to_node_obj.y, to_node_obj.w, to_node_obj.h
         to_top_x, to_top_y = to_center_x, to_center_y - to_height / 2
         # to_bottom_x, to_bottom_y = to_center_x, to_center_y + to_height / 2
-        # to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
+        to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
         # to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
 
-        if to_top_x > from_right_x and to_top_y > from_right_y:
+        if from_right_x < to_top_x and from_right_y < to_top_y:
             coords = [from_right_x, from_right_y, to_top_x, from_right_y, to_top_x, to_top_y]
+        elif from_right_x < to_top_x and to_top_y <= from_right_y:
+            if self.edge_wrap_margin is None:
+                margin_x = (from_right_x + to_left_x ) / 2
+                margin_y = to_top_y - from_node_obj.h * 0.5
+            else:
+                margin_x = from_right_x + self.edge_wrap_margin
+                margin_y = to_top_y - from_node_obj.h * 0.5
+            coords = [from_right_x, from_right_y, margin_x, from_right_y, margin_x, margin_y, to_top_x, margin_y, to_top_x, to_top_y]
 
         return coords
 
@@ -552,7 +585,10 @@ class Edge:
         return coords
 
     def rect_anchor_right_to_bottom(self, from_node_obj, to_node_obj):
-        # right_to_bottom 非対応 fromオブジェクトが分岐で、fromオブジェクトよりtoオブジェクトが上にある場合、2line
+        # right_to_top    2line or 4line
+        # 条件： toオブジェクトの下点がfromオブジェクトの右点より右下にある場合、2line
+        #    ： toオブジェクトの下点がfromオブジェクトの右点より右上にある場合、4line
+
         coords = []
         if from_node_obj.x is None or from_node_obj.y is None or from_node_obj.h is None or from_node_obj.w is None:
             return coords
@@ -561,23 +597,32 @@ class Edge:
 
         from_center_x, from_center_y, from_width, from_height = from_node_obj.x, from_node_obj.y, from_node_obj.w, from_node_obj.h
         # from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
-        # from_bottom_x, from_bottom_y = from_center_x, from_center_y + from_height / 2
+        from_bottom_x, from_bottom_y = from_center_x, from_center_y + from_height / 2
         # from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
         from_right_x, from_right_y = from_center_x + from_width / 2, from_center_y
 
         to_center_x, to_center_y, to_width, to_height = to_node_obj.x, to_node_obj.y, to_node_obj.w, to_node_obj.h
         # to_top_x, to_top_y = to_center_x, to_center_y - to_height / 2
         to_bottom_x, to_bottom_y = to_center_x, to_center_y + to_height / 2
-        # to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
-        # to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
+        to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
+        to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
 
-        if to_bottom_y < from_right_y and to_bottom_x > from_right_x:
+        if from_right_x < to_bottom_x and to_bottom_y < from_right_y:
             coords = [from_right_x, from_right_y, to_bottom_x, from_right_y, to_bottom_x, to_bottom_y]
+        elif from_right_x < to_bottom_x and from_right_y <= to_bottom_y:
+            if self.edge_wrap_margin is None:
+                margin_x = (from_right_x + to_left_x) / 2
+                margin_y = to_bottom_y + from_node_obj.h * 0.5
+            else:
+                margin_x = to_right_x + self.edge_wrap_margin
+                margin_y = to_bottom_y + from_node_obj.h * 0.5
+            coords = [from_right_x, from_right_y, margin_x, from_right_y, margin_x, margin_y, to_bottom_x, margin_y, to_bottom_x, to_bottom_y]
 
         return coords
 
     def rect_anchor_left_to_top(self, from_node_obj, to_node_obj):
-        # 条件： fromオブジェクトが分岐で、bottom点からのリンクが既にあり右点からのリンクが無い、toオブジェクトの上点がfromオブジェクトの右点より右下にある場合、2line
+        # left_to_top     2line
+        # 条件： bottom点からのリンクが既にあり右点からのリンクが無い、toオブジェクトの上点がfromオブジェクトの右点より右下にある場合、2line
         coords = []
         if from_node_obj.x is None or from_node_obj.y is None or from_node_obj.h is None or from_node_obj.w is None:
             return coords
@@ -602,6 +647,7 @@ class Edge:
         return coords
 
     def rect_anchor_left_to_right(self, from_node_obj, to_node_obj):
+        # left_to_right   1line or 3line
         # 条件: fromオブジェクトが分岐で、fromオブジェクトとtoオブジェクトが重なっていない
         #           toオブジェクトがfromオブジェクトと同じ高さで左側にある場合、1line
         #           toオブジェクトがfromオブジェクトより上にある場合、3line
@@ -672,7 +718,9 @@ class Edge:
         return coords
 
     def rect_anchor_left_to_bottom(self, from_node_obj, to_node_obj):
-        # left_to_bottom  非対応 fromオブジェクトが分岐で、fromオブジェクトよりtoオブジェクトが上にある場合、2line
+        # left_to_bottom　 2line
+        # 条件： toオブジェクトの下点がfromオブジェクトの左点より左上にある場合、2line
+        #     ： toオブジェクトの下点がfromオブジェクトの左点より左下にある場合、4line
         coords = []
         if from_node_obj.x is None or from_node_obj.y is None or from_node_obj.h is None or from_node_obj.w is None:
             return coords
@@ -682,17 +730,25 @@ class Edge:
         from_center_x, from_center_y, from_width, from_height = from_node_obj.x, from_node_obj.y, from_node_obj.w, from_node_obj.h
         # from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
         # from_bottom_x, from_bottom_y = from_center_x, from_center_y + from_height / 2
-        # from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
+        from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
         from_right_x, from_right_y = from_center_x + from_width / 2, from_center_y
 
         to_center_x, to_center_y, to_width, to_height = to_node_obj.x, to_node_obj.y, to_node_obj.w, to_node_obj.h
         # to_top_x, to_top_y = to_center_x, to_center_y - to_height / 2
         to_bottom_x, to_bottom_y = to_center_x, to_center_y + to_height / 2
         # to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
-        # to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
+        to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
 
-        if to_bottom_y < from_right_y and to_bottom_x > from_right_x:
-            coords = [from_right_x, from_right_y, to_bottom_x, from_right_y, to_bottom_x, to_bottom_y]
+        if to_bottom_x < from_left_x and to_bottom_y < from_left_y:
+            coords = [from_left_x, from_left_y, to_bottom_x, from_left_y, to_bottom_x, to_bottom_y]
+        elif to_bottom_x < from_left_x and from_left_y <= to_bottom_y:
+            if self.edge_wrap_margin is None:
+                margin_x = (from_left_x + to_right_x) / 2
+                margin_y = to_bottom_y + from_node_obj.h * 0.5
+            else:
+                margin_x = from_left_x - self.edge_wrap_margin
+                margin_y = to_bottom_y + from_node_obj.h * 0.5
+            coords = [from_left_x, from_left_y, margin_x, from_left_y, margin_x, margin_y, to_bottom_x, margin_y, to_bottom_x, to_bottom_y]
 
         return coords
 
@@ -725,7 +781,9 @@ class Edge:
         return coords
 
     def rect_anchor_top_to_right(self, from_node_obj, to_node_obj):
-        # top_to_right     2line
+        # top_to_right     2line or 4line
+        # 条件： toオブジェクトの右点がfromオブジェクトの上点より左上にある場合、2line
+        #    ： toオブジェクトの右点がfromオブジェクトの上点より左下にある場合、4line
         coords = []
         if from_node_obj.x is None or from_node_obj.y is None or from_node_obj.h is None or from_node_obj.w is None:
             return coords
@@ -735,7 +793,7 @@ class Edge:
         from_center_x, from_center_y, from_width, from_height = from_node_obj.x, from_node_obj.y, from_node_obj.w, from_node_obj.h
         from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
         # from_bottom_x, from_bottom_y = from_center_x, from_center_y + from_height / 2
-        # from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
+        from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
         # from_right_x, from_right_y = from_center_x + from_width / 2, from_center_y
 
         to_center_x, to_center_y, to_width, to_height = to_node_obj.x, to_node_obj.y, to_node_obj.w, to_node_obj.h
@@ -744,13 +802,23 @@ class Edge:
         # to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
         to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
 
-        if to_right_y < from_top_y and to_right_x < from_top_x:
+        if to_right_x < from_top_x and to_right_y < from_top_y:
             coords = [from_top_x, from_top_y, from_top_x, to_right_y, to_right_x, to_right_y]
+        elif to_right_x < from_top_x and from_top_y <= to_right_y:
+            if self.edge_wrap_margin is None:
+                margin_y = from_top_y - from_node_obj.h * 0.5
+                margin_x = (from_left_x + to_right_x) / 2
+            else:
+                margin_y = from_top_y - from_node_obj.h * 0.5
+                margin_x = from_left_x - self.edge_wrap_margin
+            coords = [from_top_x, from_top_y, from_top_x, margin_y, margin_x, margin_y, margin_x, to_right_y, to_right_x, to_right_y]
 
         return coords
 
     def rect_anchor_top_to_left(self, from_node_obj, to_node_obj):
-        # top_to_left      2line
+        # top_to_left      2line or 4line
+        # 条件： toオブジェクトの左点がfromオブジェクトの上点より右上にある場合、2line
+        #    ： toオブジェクトの左点がfromオブジェクトの上点より右下にある場合、4line
         coords = []
         if from_node_obj.x is None or from_node_obj.y is None or from_node_obj.h is None or from_node_obj.w is None:
             return coords
@@ -761,7 +829,7 @@ class Edge:
         from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
         # from_bottom_x, from_bottom_y = from_center_x, from_center_y + from_height / 2
         # from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
-        # from_right_x, from_right_y = from_center_x + from_width / 2, from_center_y
+        from_right_x, from_right_y = from_center_x + from_width / 2, from_center_y
 
         to_center_x, to_center_y, to_width, to_height = to_node_obj.x, to_node_obj.y, to_node_obj.w, to_node_obj.h
         # to_top_x, to_top_y = to_center_x, to_center_y - to_height / 2
@@ -769,8 +837,16 @@ class Edge:
         to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
         # to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
 
-        if to_left_y < from_top_y and from_top_x < to_left_x:
+        if from_top_x < to_left_x and to_left_y < from_top_y:
             coords = [from_top_x, from_top_y, from_top_x, to_left_y, to_left_x, to_left_y]
+        elif from_top_x < to_left_x and from_top_y <= to_left_y:
+            if self.edge_wrap_margin is None:
+                margin_y = from_top_y - from_node_obj.h * 0.5
+                margin_x = (from_right_x + to_left_x) / 2
+            else:
+                margin_y = from_top_y - from_node_obj.h * 0.5
+                margin_x = from_right_x + self.edge_wrap_margin
+            coords = [from_top_x, from_top_y, from_top_x, margin_y, margin_x, margin_y, margin_x, to_left_y, to_left_x, to_left_y]
 
         return coords
 
@@ -840,7 +916,7 @@ class Edge:
                 canvas.coords(self.label_id, self.label_x, self.label_y)
 
     def rotate_connection_points(self, increase=True, canvas=None):
-        """エッジの接続ポイントをローテーションして再描画"""
+        """エッジの接続ポイントをローテーションして再描画(配線できないパターンを避けて最大18回スキャン)"""
         loop = 0
         while loop <= 17:
             self._rotate_connection_points(increase=increase, canvas=canvas)
@@ -969,6 +1045,39 @@ class Edge:
         if canvas is not None:
             self._update_edge(canvas)
 
+    def rotate_label_position(self, increase, canvas):
+        print("rotate_label_position", self.label_position, increase)
+        """エッジラベルの位置をローテーションして再描画"""
+        if self.label_position is None:
+            label_position_index = 0
+        else:
+            if self.label_position in LABEL_POSITION_LIST:
+                label_position_index = LABEL_POSITION_LIST.index(self.label_position)
+            else:
+                label_position_index = 0
+
+        points_len = len(self.points)
+        if points_len == 4:
+            label_position_rotation_len = 9
+        elif points_len == 6:
+            label_position_rotation_len = 13
+        elif points_len == 8:
+            label_position_rotation_len = 17
+        elif points_len == 10:
+            label_position_rotation_len = 21
+        else:
+            label_position_rotation_len = 1
+
+        if increase:
+            next_label_position_index = (label_position_index - 1) % label_position_rotation_len
+        else:
+            next_label_position_index = (label_position_index + 1) % label_position_rotation_len
+        print(f"label_position pre:{label_position_index}, next:{next_label_position_index}")
+        self.label_position = LABEL_POSITION_LIST[next_label_position_index] 
+        
+        if canvas is not None:
+            self._update_edge(canvas)
+
     def _update_edge(self, canvas):
         """エッジとラベルを再レイアウト"""
         from_node_obj = self.from_node_obj
@@ -979,10 +1088,11 @@ class Edge:
 
             canvas.coords(self.line_id, *coords)
             if self.label_text is not None and self.label_id is not None:
-                canvas.coords(self.label_id, label_x, label_y)
-                canvas.itemconfig(self.label_id, anchor=label_anchor, justify=labe_justify)
+                ad_label_x, ad_label_y, ad_label_anchor, ad_label_justify = self.get_label_position()
+                canvas.coords(self.label_id, ad_label_x, ad_label_y)
+                canvas.itemconfig(self.label_id, anchor=ad_label_anchor, justify=ad_label_justify)
 
-    def change_edge_wrap_margin(self, increase=True, canvas=None):
+    def change_edge_wrap_margin_3line(self, increase=True, canvas=None):
         """エッジの折り返しオフセットを変更して再描画"""
         if len(self.points) != 8:
             return
@@ -1134,3 +1244,221 @@ class Edge:
 
         if canvas is not None:
             self.refresh_edge(canvas)
+
+    def change_edge_wrap_margin_4line(self, increase=True, canvas=None):
+        """エッジの折り返しオフセットを変更して再描画"""
+        if len(self.points) != 10:
+            return
+
+        step_size = ct.CANVAS_PARAMS["grid_spacing"] / 2
+        from_node_half_w = self.from_node_obj.w / 2 if self.from_node_obj and self.from_node_obj.w else 0
+        to_node_half_w = self.to_node_obj.w / 2 if self.to_node_obj and self.to_node_obj.w else 0
+
+        from_x, from_y, vertex1_x, vertex1_y, vertex2_x, vertex2_y, vertex3_x, vertex3_y, to_x, to_y = self.points
+        if from_x == vertex1_x:
+            # vertical - horizontal - vertical line
+            if from_x < vertex2_x < to_x:
+                # vertical middle edge
+                distance_to_from_node = vertex2_x - (from_x + from_node_half_w)
+                if increase:
+                    distance_to_from_node += step_size
+                    if from_x + from_node_half_w + distance_to_from_node > to_x - step_size:
+                        distance_to_from_node = to_x - from_x - from_node_half_w - step_size
+                    self.edge_wrap_margin = distance_to_from_node
+                    vertex2_x = from_x + from_node_half_w + self.edge_wrap_margin
+                    self.points = [from_x, from_y, from_x, vertex1_y, vertex2_x, vertex1_y, vertex2_x, to_y, to_x, to_y]
+                else:
+                    distance_to_from_node -= step_size
+                    if distance_to_from_node < step_size:
+                        distance_to_from_node = step_size
+                    self.edge_wrap_margin = distance_to_from_node
+                    vertex2_x = from_x + from_node_half_w + self.edge_wrap_margin
+                    self.points = [from_x, from_y, from_x, vertex1_y, vertex2_x, vertex1_y, vertex2_x, to_y, to_x, to_y]
+            elif to_x < vertex2_x < from_x:
+                # vertical middle edge
+                distance_to_from_node = (from_x - from_node_half_w) - vertex2_x
+                if increase:
+                    distance_to_from_node += step_size
+                    if from_x - from_node_half_w - distance_to_from_node < to_x + step_size:
+                        distance_to_from_node = from_x - from_node_half_w - to_x - step_size
+                    self.edge_wrap_margin = distance_to_from_node
+                    vertex2_x = from_x - from_node_half_w - self.edge_wrap_margin
+                    self.points = [from_x, from_y, from_x, vertex1_y, vertex2_x, vertex1_y, vertex2_x, to_y, to_x, to_y]
+                else:
+                    distance_to_from_node -= step_size
+                    if distance_to_from_node < step_size:
+                        distance_to_from_node = step_size
+                    self.edge_wrap_margin = distance_to_from_node
+                    vertex2_x = from_x - from_node_half_w - self.edge_wrap_margin
+                    self.points = [from_x, from_y, from_x, vertex1_y, vertex2_x, vertex1_y, vertex2_x, to_y, to_x, to_y]
+        elif from_y == vertex1_y:
+            # horizontal - vertical - horizontal line
+            if from_x < vertex1_x < to_x:
+                # horizontal middle edge
+                distance_to_from_node = vertex1_x - from_x
+                if increase:
+                    distance_to_from_node += step_size
+                    if from_x + distance_to_from_node > to_x - to_node_half_w - step_size:
+                        distance_to_from_node = to_x - to_node_half_w - from_x - step_size
+                    self.edge_wrap_margin = distance_to_from_node
+                    vertex_x = from_x + self.edge_wrap_margin
+                    self.points = [from_x, from_y, vertex_x, from_y, vertex_x, vertex3_y, to_x, vertex3_y, to_x, to_y]
+                else:
+                    distance_to_from_node -= step_size
+                    if distance_to_from_node < step_size:
+                        distance_to_from_node = step_size
+                    self.edge_wrap_margin = distance_to_from_node
+                    vertex_x = from_x + self.edge_wrap_margin
+                    self.points = [from_x, from_y, vertex_x, from_y, vertex_x, vertex3_y, to_x, vertex3_y, to_x, to_y]
+            elif to_x < vertex1_x < from_x:
+                # horizontal middle edge
+                distance_to_from_node = from_x - vertex1_x
+                if increase:
+                    distance_to_from_node += step_size
+                    if from_x - distance_to_from_node < to_x + to_node_half_w + step_size:
+                        distance_to_from_node = from_x - to_x - to_node_half_w - step_size
+                    self.edge_wrap_margin = distance_to_from_node
+                    vertex_x = from_x - self.edge_wrap_margin
+                    self.points = [from_x, from_y, vertex_x, from_y, vertex_x, vertex3_y, to_x, vertex3_y, to_x, to_y]
+                else:
+                    distance_to_from_node -= step_size
+                    if distance_to_from_node < step_size:
+                        distance_to_from_node = step_size
+                    self.edge_wrap_margin = distance_to_from_node
+                    vertex_x = from_x - self.edge_wrap_margin
+                    self.points = [from_x, from_y, vertex_x, from_y, vertex_x, vertex3_y, to_x, vertex3_y, to_x, to_y]
+
+        if canvas is not None:
+            self.refresh_edge(canvas)
+
+    def get_label_position(self) -> Tuple[int, int, Literal["center", "n", "ne", "e", "se", "s", "sw", "w", "nw"], Literal["left", "center", "right"]]:
+        """エッジラベル位置計算"""
+        points = self.points
+        label_x:int = self.label_x if self.label_x is not None else 0
+        label_y:int = self.label_y if self.label_y is not None else 0
+        label_anchor:Literal["center", "n", "ne", "e", "se", "s", "sw", "w", "nw"] = self.label_anchor
+        labe_justify:Literal["left", "center", "right"] = self.label_justify
+
+        if self.label_position == "p0se":
+            if len(points) >= 4:
+                label_x = points[0] + ct.EDGE_LABEL_OFFSET["se"][0]
+                label_y = points[1] + ct.EDGE_LABEL_OFFSET["se"][1]
+                label_anchor = "se"
+                labe_justify = "right"
+        elif self.label_position == "p0sw":
+            if len(points) >= 4:
+                label_x = points[0] + ct.EDGE_LABEL_OFFSET["sw"][0]
+                label_y = points[1] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                label_anchor = "sw"
+                labe_justify = "left"
+        elif self.label_position == "p0nw":
+            if len(points) >= 4:
+                label_x = points[0] + ct.EDGE_LABEL_OFFSET["nw"][0]
+                label_y = points[1] + ct.EDGE_LABEL_OFFSET["nw"][1]
+                label_anchor = "nw"
+                labe_justify = "left"
+        elif self.label_position == "p0ne":
+            if len(points) >= 4:
+                label_x = points[0] + ct.EDGE_LABEL_OFFSET["ne"][0]
+                label_y = points[1] + ct.EDGE_LABEL_OFFSET["ne"][1]
+                label_anchor = "ne"
+                labe_justify = "right"
+        elif self.label_position == "p1se":
+            if len(points) >= 4:
+                label_x = points[2] + ct.EDGE_LABEL_OFFSET["se"][0]
+                label_y = points[3] + ct.EDGE_LABEL_OFFSET["se"][1]
+                label_anchor = "se"
+                labe_justify = "right"
+        elif self.label_position == "p1sw":
+            if len(points) >= 4:
+                label_x = points[2] + ct.EDGE_LABEL_OFFSET["sw"][0]
+                label_y = points[3] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                label_anchor = "sw"
+                labe_justify = "left"
+        elif self.label_position == "p1nw":
+            if len(points) >= 4:
+                label_x = points[2] + ct.EDGE_LABEL_OFFSET["nw"][0]
+                label_y = points[3] + ct.EDGE_LABEL_OFFSET["nw"][1]
+                label_anchor = "nw"
+                labe_justify = "left"
+        elif self.label_position == "p1ne":
+            if len(points) >= 4:
+                label_x = points[2] + ct.EDGE_LABEL_OFFSET["ne"][0]
+                label_y = points[3] + ct.EDGE_LABEL_OFFSET["ne"][1]
+                label_anchor = "ne"
+                labe_justify = "right"
+        elif self.label_position == "p2se":
+            if len(points) >= 6:
+                label_x = points[4] + ct.EDGE_LABEL_OFFSET["se"][0]
+                label_y = points[5] + ct.EDGE_LABEL_OFFSET["se"][1]
+                label_anchor = "se"
+                labe_justify = "right"
+        elif self.label_position == "p2sw":
+            if len(points) >= 6:
+                label_x = points[4] + ct.EDGE_LABEL_OFFSET["sw"][0]
+                label_y = points[5] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                label_anchor = "sw"
+                labe_justify = "left"
+        elif self.label_position == "p2nw":
+            if len(points) >= 6:
+                label_x = points[4] + ct.EDGE_LABEL_OFFSET["nw"][0]
+                label_y = points[5] + ct.EDGE_LABEL_OFFSET["nw"][1]
+                label_anchor = "nw"
+                labe_justify = "left"
+        elif self.label_position == "p2ne":
+            if len(points) >= 6:
+                label_x = points[4] + ct.EDGE_LABEL_OFFSET["ne"][0]
+                label_y = points[5] + ct.EDGE_LABEL_OFFSET["ne"][1]
+                label_anchor = "ne"
+                labe_justify = "right"
+        elif self.label_position == "p3se":
+            if len(points) >= 8:
+                label_x = points[6] + ct.EDGE_LABEL_OFFSET["se"][0]
+                label_y = points[7] + ct.EDGE_LABEL_OFFSET["se"][1]
+                label_anchor = "se"
+                labe_justify = "right"
+        elif self.label_position == "p3sw":
+            if len(points) >= 8:
+                label_x = points[6] + ct.EDGE_LABEL_OFFSET["sw"][0]
+                label_y = points[7] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                label_anchor = "sw"
+                labe_justify = "left"
+        elif self.label_position == "p3nw":
+            if len(points) >= 8:
+                label_x = points[6] + ct.EDGE_LABEL_OFFSET["nw"][0]
+                label_y = points[7] + ct.EDGE_LABEL_OFFSET["nw"][1]
+                label_anchor = "nw"
+                labe_justify = "left"
+        elif self.label_position == "p3ne":
+            if len(points) >= 8:
+                label_x = points[6] + ct.EDGE_LABEL_OFFSET["ne"][0]
+                label_y = points[7] + ct.EDGE_LABEL_OFFSET["ne"][1]
+                label_anchor = "ne"
+                labe_justify = "right"
+        elif self.label_position == "p4se":
+            if len(points) >= 10:
+                label_x = points[8] + ct.EDGE_LABEL_OFFSET["se"][0]
+                label_y = points[9] + ct.EDGE_LABEL_OFFSET["se"][1]
+                label_anchor = "se"
+                labe_justify = "right"
+        elif self.label_position == "p4sw":
+            if len(points) >= 10:
+                label_x = points[8] + ct.EDGE_LABEL_OFFSET["sw"][0]
+                label_y = points[9] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                label_anchor = "sw"
+                labe_justify = "left"
+        elif self.label_position == "p4nw":
+            if len(points) >= 10:
+                label_x = points[8] + ct.EDGE_LABEL_OFFSET["nw"][0]
+                label_y = points[9] + ct.EDGE_LABEL_OFFSET["nw"][1]
+                label_anchor = "nw"
+                labe_justify = "left"
+        elif self.label_position == "p4ne":
+            if len(points) >= 10:
+                label_x = points[8] + ct.EDGE_LABEL_OFFSET["ne"][0]
+                label_y = points[9] + ct.EDGE_LABEL_OFFSET["ne"][1]
+                label_anchor = "ne"
+                labe_justify = "right"
+
+        return label_x, label_y, label_anchor, labe_justify
+
