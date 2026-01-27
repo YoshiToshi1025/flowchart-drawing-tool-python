@@ -16,7 +16,7 @@ class Edge:
     label_text = None
     label_anchor:Literal["center", "n", "ne", "e", "se", "s", "sw", "w", "nw"] = "center"
     label_justify:Literal["left", "center", "right"] = "left"
-    label_position:Literal["auto", "p0se", "p0sw", "p0nw", "p0ne", "p1se", "p1sw", "p1nw", "p1ne", "p2se", "p2sw", "p2nw", "p2ne", "p3se", "p3sw", "p3nw", "p3ne", "p4se", "p4sw", "p4nw", "p4ne"] = "auto"
+    label_position:Literal["auto", "p0se", "p0sw", "p0nw", "p0ne", "p1se", "p1sw", "p1nw", "p1ne", "p2se", "p2sw", "p2nw", "p2ne", "p3se", "p3sw", "p3nw", "p3ne", "p4se", "p4sw", "p4nw", "p4ne", "p5se", "p5sw", "p5nw", "p5ne"] = "auto"
     from_node_connection_point:Literal["top", "bottom", "left", "right", "auto", None] = None
     to_node_connection_point:Literal["top", "bottom", "left", "right", "auto", None] = None
     edge_wrap_margin = None
@@ -26,7 +26,7 @@ class Edge:
                     label_x=None, label_y=None, canvas=None,\
                     label_anchor:Literal["center", "n", "ne", "e", "se", "s", "sw", "w", "nw"]="center", \
                     label_justify:Literal["left", "center", "right"]="left", \
-                    label_position:Literal["auto", "p0se", "p0sw", "p0nw", "p0ne", "p1se", "p1sw", "p1nw", "p1ne", "p2se", "p2sw", "p2nw", "p2ne", "p3se", "p3sw", "p3nw", "p3ne", "p4se", "p4sw", "p4nw", "p4ne"]="auto"):
+                    label_position:Literal["auto", "p0se", "p0sw", "p0nw", "p0ne", "p1se", "p1sw", "p1nw", "p1ne", "p2se", "p2sw", "p2nw", "p2ne", "p3se", "p3sw", "p3nw", "p3ne", "p4se", "p4sw", "p4nw", "p4ne", "p5se", "p5sw", "p5nw", "p5ne"]="auto"):
         self.from_node_obj = from_node_obj
         self.to_node_obj = to_node_obj
         self.label_text = text
@@ -377,6 +377,15 @@ class Edge:
                 else:
                     mid_y = from_bottom_y + self.edge_wrap_margin
                 coords = [from_bottom_x, from_bottom_y, from_bottom_x, mid_y, to_top_x, mid_y, to_top_x, to_top_y]
+        else:
+            # 5line
+            margin_ya = from_bottom_y + from_node_obj.h * 0.5
+            margin_yb = to_top_y - to_node_obj.h * 0.5
+            if self.edge_wrap_margin is None:
+                mid_x = (from_bottom_x + to_top_x) / 2
+            else:
+                mid_x = from_bottom_x + self.edge_wrap_margin
+            coords = [from_bottom_x, from_bottom_y, from_bottom_x, margin_ya, mid_x, margin_ya, mid_x, margin_yb, to_top_x, margin_yb, to_top_x, to_top_y]
 
         return coords
 
@@ -410,7 +419,7 @@ class Edge:
                 margin_x = (from_left_x + to_right_x) / 2
             else:
                 margin_y = from_bottom_y + from_node_obj.h * 0.5
-                margin_x = to_right_x + self.edge_wrap_margin
+                margin_x = from_left_x - self.edge_wrap_margin
             coords = [from_bottom_x, from_bottom_y, from_bottom_x, margin_y, margin_x, margin_y, margin_x, to_right_y, to_right_x, to_right_y]
 
         return coords
@@ -445,7 +454,7 @@ class Edge:
                 margin_x = (from_right_x + to_left_x) / 2
             else:
                 margin_y = from_bottom_y + from_node_obj.h * 0.5
-                margin_x = to_left_x + self.edge_wrap_margin
+                margin_x = from_right_x + self.edge_wrap_margin
             coords = [from_bottom_x, from_bottom_y, from_bottom_x, margin_y, margin_x, margin_y, margin_x, to_left_y, to_left_x, to_left_y]
 
         return coords
@@ -1065,6 +1074,8 @@ class Edge:
             label_position_rotation_len = 17
         elif points_len == 10:
             label_position_rotation_len = 21
+        elif points_len == 12:
+            label_position_rotation_len = 25
         else:
             label_position_rotation_len = 1
 
@@ -1256,8 +1267,8 @@ class Edge:
 
         from_x, from_y, vertex1_x, vertex1_y, vertex2_x, vertex2_y, vertex3_x, vertex3_y, to_x, to_y = self.points
         if from_x == vertex1_x:
-            # vertical - horizontal - vertical line
-            if from_x < vertex2_x < to_x:
+            # vertical - horizontal - vertical - horizontal line
+            if from_x < to_x:
                 # vertical middle edge
                 distance_to_from_node = vertex2_x - (from_x + from_node_half_w)
                 if increase:
@@ -1269,12 +1280,12 @@ class Edge:
                     self.points = [from_x, from_y, from_x, vertex1_y, vertex2_x, vertex1_y, vertex2_x, to_y, to_x, to_y]
                 else:
                     distance_to_from_node -= step_size
-                    if distance_to_from_node < step_size:
-                        distance_to_from_node = step_size
+                    if distance_to_from_node < -from_node_half_w * 5:
+                        distance_to_from_node = -from_node_half_w * 5
                     self.edge_wrap_margin = distance_to_from_node
                     vertex2_x = from_x + from_node_half_w + self.edge_wrap_margin
                     self.points = [from_x, from_y, from_x, vertex1_y, vertex2_x, vertex1_y, vertex2_x, to_y, to_x, to_y]
-            elif to_x < vertex2_x < from_x:
+            elif to_x < from_x:
                 # vertical middle edge
                 distance_to_from_node = (from_x - from_node_half_w) - vertex2_x
                 if increase:
@@ -1286,13 +1297,13 @@ class Edge:
                     self.points = [from_x, from_y, from_x, vertex1_y, vertex2_x, vertex1_y, vertex2_x, to_y, to_x, to_y]
                 else:
                     distance_to_from_node -= step_size
-                    if distance_to_from_node < step_size:
-                        distance_to_from_node = step_size
+                    if distance_to_from_node < -from_node_half_w * 5:
+                        distance_to_from_node = -from_node_half_w * 5
                     self.edge_wrap_margin = distance_to_from_node
                     vertex2_x = from_x - from_node_half_w - self.edge_wrap_margin
                     self.points = [from_x, from_y, from_x, vertex1_y, vertex2_x, vertex1_y, vertex2_x, to_y, to_x, to_y]
         elif from_y == vertex1_y:
-            # horizontal - vertical - horizontal line
+            # horizontal - vertical - horizontal - vertical line
             if from_x < vertex1_x < to_x:
                 # horizontal middle edge
                 distance_to_from_node = vertex1_x - from_x
@@ -1327,6 +1338,39 @@ class Edge:
                     self.edge_wrap_margin = distance_to_from_node
                     vertex_x = from_x - self.edge_wrap_margin
                     self.points = [from_x, from_y, vertex_x, from_y, vertex_x, vertex3_y, to_x, vertex3_y, to_x, to_y]
+
+        if canvas is not None:
+            self.refresh_edge(canvas)
+
+    def change_edge_wrap_margin_5line(self, increase=True, canvas=None):
+        """エッジの折り返しオフセットを変更して再描画"""
+        if len(self.points) != 12:
+            return
+
+        step_size = ct.CANVAS_PARAMS["grid_spacing"] / 2
+        from_node_half_w = self.from_node_obj.w / 2 if self.from_node_obj and self.from_node_obj.w else 0
+        to_node_half_w = self.to_node_obj.w / 2 if self.to_node_obj and self.to_node_obj.w else 0
+
+        from_x, from_y, vertex1_x, vertex1_y, vertex2_x, vertex2_y, vertex3_x, vertex3_y, vertex4_x, vertex4_y, to_x, to_y = self.points
+        if from_x == vertex1_x:
+            # vertical - horizontal - vertical - horizontal - vertical line
+            distance_to_from_node = vertex2_x - from_x
+            if increase:
+                distance_to_from_node += step_size
+                max_x = max(from_x, to_x) + to_node_half_w * 5
+                if from_x + distance_to_from_node > max_x:
+                    distance_to_from_node = max_x - from_x
+                self.edge_wrap_margin = distance_to_from_node
+                vertex2_x = from_x + self.edge_wrap_margin
+                self.points = [from_x, from_y, from_x, vertex1_y, vertex2_x, vertex1_y, vertex2_x, vertex3_y, to_x, vertex3_y, to_x, to_y]
+            else:
+                distance_to_from_node -= step_size
+                min_x = min(from_x, to_x) - to_node_half_w * 5
+                if from_x + distance_to_from_node < min_x:
+                    distance_to_from_node = min_x - from_x
+                self.edge_wrap_margin = distance_to_from_node
+                vertex2_x = from_x + self.edge_wrap_margin
+                self.points = [from_x, from_y, from_x, vertex1_y, vertex2_x, vertex1_y, vertex2_x, vertex3_y, to_x, vertex3_y, to_x, to_y]
 
         if canvas is not None:
             self.refresh_edge(canvas)
@@ -1459,6 +1503,29 @@ class Edge:
                 label_y = points[9] + ct.EDGE_LABEL_OFFSET["ne"][1]
                 label_anchor = "ne"
                 labe_justify = "right"
-
+        elif self.label_position == "p5se":
+            if len(points) >= 12:
+                label_x = points[10] + ct.EDGE_LABEL_OFFSET["se"][0]
+                label_y = points[11] + ct.EDGE_LABEL_OFFSET["se"][1]
+                label_anchor = "se"
+                labe_justify = "right"
+        elif self.label_position == "p5sw":
+            if len(points) >= 12:
+                label_x = points[10] + ct.EDGE_LABEL_OFFSET["sw"][0]
+                label_y = points[11] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                label_anchor = "sw"
+                labe_justify = "left"
+        elif self.label_position == "p5nw":
+            if len(points) >= 12:
+                label_x = points[10] + ct.EDGE_LABEL_OFFSET["nw"][0]
+                label_y = points[11] + ct.EDGE_LABEL_OFFSET["nw"][1]
+                label_anchor = "nw"
+                labe_justify = "left"
+        elif self.label_position == "p5ne":
+            if len(points) >= 12:
+                label_x = points[10] + ct.EDGE_LABEL_OFFSET["ne"][0]
+                label_y = points[11] + ct.EDGE_LABEL_OFFSET["ne"][1]
+                label_anchor = "ne"
+                labe_justify = "right"
         return label_x, label_y, label_anchor, labe_justify
 

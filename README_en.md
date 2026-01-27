@@ -153,3 +153,4 @@ This project provides a **Simple Flowchart Drawing Tool (Python version)** that 
 * 2026/01/09 : Display adjustment on MacOS
 * 2026/01/13 : Bug fixes (generative AI integration, file dialog configuration)
 * 2026/01/19 : Supports manual adjustment of link label positions
+* 2026/01/27 : Supports link routing pattern (Bottom to Top, 5 lines)

@@ -428,6 +428,8 @@ class FlowchartTool(tk.Tk):
                     edge_obj.change_edge_wrap_margin_3line(increase=increase, canvas=self.canvas)
                 elif len(edge_obj.points) == 10:
                     edge_obj.change_edge_wrap_margin_4line(increase=increase, canvas=self.canvas)
+                elif len(edge_obj.points) == 12:
+                    edge_obj.change_edge_wrap_margin_5line(increase=increase, canvas=self.canvas)
 
     def on_mouse_wheel_ctrl(self, event):
         # print("Ctrl + Mouse Wheel detected")
@@ -552,6 +554,7 @@ class FlowchartTool(tk.Tk):
                     self._reset_node_to_original_outline_color(self.nodes[selected_node_id])
         # 既存選択のハイライト解除（エッジ）
         if self.selected_edge_id:
+            print(f"Reset edge color for edge id:{self.selected_edge_id}")    # for DEBUG
             self._reset_edge_to_original_color(self.edges[self.selected_edge_id])
 
         self.selected_node_ids = node_ids if isinstance(node_ids, list) else [node_ids] 
