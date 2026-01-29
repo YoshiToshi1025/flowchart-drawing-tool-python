@@ -441,7 +441,7 @@ class FlowchartTool(tk.Tk):
             self.change_edge_connection_points_in_sequence(increase=False)
 
     def on_mouse_wheel_ctrl_shift(self, event):
-        print("Ctrl + Shift + Mouse Wheel detected")
+        # print("Ctrl + Shift + Mouse Wheel detected")
 
         delta = event.delta
         if delta > 0:
@@ -458,7 +458,7 @@ class FlowchartTool(tk.Tk):
             edge_obj.rotate_connection_points(increase=increase, canvas=self.canvas)
 
     def rotate_edge_label_position(self, increase=True):
-        print("Rotate edge label position")
+        # print("Rotate edge label position")
         # エッジ選択中の場合、エッジラベルの位置を調整
         if self.selected_edge_id is not None:
             edge_obj = self.edges.get(self.selected_edge_id)
@@ -554,7 +554,7 @@ class FlowchartTool(tk.Tk):
                     self._reset_node_to_original_outline_color(self.nodes[selected_node_id])
         # 既存選択のハイライト解除（エッジ）
         if self.selected_edge_id:
-            print(f"Reset edge color for edge id:{self.selected_edge_id}")    # for DEBUG
+            # print(f"Reset edge color for edge id:{self.selected_edge_id}")    # for DEBUG
             self._reset_edge_to_original_color(self.edges[self.selected_edge_id])
 
         self.selected_node_ids = node_ids if isinstance(node_ids, list) else [node_ids] 
@@ -947,7 +947,7 @@ class FlowchartTool(tk.Tk):
         nid = self.text_edit["node_id"]
         window_id = self.text_edit["window_id"]
 
-        new_text = entry.get()
+        new_text = entry.get().replace("\\n", "\n")
         self.canvas.delete(window_id)
         entry.destroy()
 
@@ -997,7 +997,7 @@ class FlowchartTool(tk.Tk):
         edge_obj = self.edge_label_edit["edge_obj"]
         window_id = self.edge_label_edit["window_id"]
 
-        new_text = entry.get()
+        new_text = entry.get().replace("\\n", "\n")
         self.canvas.delete(window_id)
         entry.destroy()
 
@@ -1098,7 +1098,7 @@ class FlowchartTool(tk.Tk):
     def save_canvas_as_image(self, file_path: str):
         # Canvasの位置（画面座標）を取得して、その範囲だけキャプチャ
         self.canvas.update()  # 描画を確定
-        if platform.system() != "Windows":
+        if platform.system() == "Windows":
             scaling = wmi.get_system_scale_percent(self.canvas) / 100.0  # Windowsのディスプレイ拡大率を取得
         else:
             scaling = 1.0

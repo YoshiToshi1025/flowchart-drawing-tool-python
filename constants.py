@@ -120,11 +120,14 @@ EDGE_PARAMS = {
     "width": 2,
     "selected_color": "#0ea5e9",
     "outline_width": 2,
+    "arrow_kind": "last",       # option: "last"(default), "first", "both", "none", None
+    "arrow_shape": (8, 10, 3),  # default: (8, 10, 3)
     "text_width": 200,
     "text_color": "#0f172a",  # Dark Blue
     "font_family": "Arial",
     "font_size": 9,
     "font_weight": font.NORMAL,
+    "tree_mode": False,
 }
 
 # 分岐ラベル定義

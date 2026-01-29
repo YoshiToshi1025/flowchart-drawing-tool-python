@@ -3,7 +3,7 @@ import constants as ct
 import node
 from typing import Literal, Tuple
 
-LABEL_POSITION_LIST = ["auto", "p0se", "p0sw", "p0nw", "p0ne", "p1se", "p1sw", "p1nw", "p1ne", "p2se", "p2sw", "p2nw", "p2ne", "p3se", "p3sw", "p3nw", "p3ne", "p4se", "p4sw", "p4nw", "p4ne"]
+LABEL_POSITION_LIST = ["auto", "p0se", "p0sw", "p0nw", "p0ne", "p1se", "p1sw", "p1nw", "p1ne", "p2se", "p2sw", "p2nw", "p2ne", "p3se", "p3sw", "p3nw", "p3ne", "p4se", "p4sw", "p4nw", "p4ne", "p5se", "p5sw", "p5nw", "p5ne"]
 
 class Edge:
     line_id = None
@@ -16,7 +16,7 @@ class Edge:
     label_text = None
     label_anchor:Literal["center", "n", "ne", "e", "se", "s", "sw", "w", "nw"] = "center"
     label_justify:Literal["left", "center", "right"] = "left"
-    label_position:Literal["auto", "p0se", "p0sw", "p0nw", "p0ne", "p1se", "p1sw", "p1nw", "p1ne", "p2se", "p2sw", "p2nw", "p2ne", "p3se", "p3sw", "p3nw", "p3ne", "p4se", "p4sw", "p4nw", "p4ne", "p5se", "p5sw", "p5nw", "p5ne"] = "auto"
+    label_position = "auto"
     from_node_connection_point:Literal["top", "bottom", "left", "right", "auto", None] = None
     to_node_connection_point:Literal["top", "bottom", "left", "right", "auto", None] = None
     edge_wrap_margin = None
@@ -59,11 +59,21 @@ class Edge:
 
     def draw_edge(self, canvas:tk.Canvas, from_node_obj, to_node_obj):
         """エッジの描画"""
-        self.line_id = canvas.create_line(
-            *self.points,
-            arrow=tk.LAST, width=ct.EDGE_PARAMS["width"], fill=ct.EDGE_PARAMS["color"],
-            tags=("edge", f"edge-{self.line_id}")
-        )
+        arrow_kind = ct.EDGE_PARAMS.get("arrow_kind", tk.LAST)
+        arrow_shape = ct.EDGE_PARAMS.get("arrow_shape", (8, 10, 3))
+        if arrow_kind is None:
+            self.line_id = canvas.create_line(
+                *self.points,
+                width=ct.EDGE_PARAMS["width"], fill=ct.EDGE_PARAMS["color"],
+                tags=("edge", f"edge-{self.line_id}")
+            )
+        else:
+            self.line_id = canvas.create_line(
+                *self.points,
+                arrow=arrow_kind, arrowshape=arrow_shape,
+                width=ct.EDGE_PARAMS["width"], fill=ct.EDGE_PARAMS["color"],
+                tags=("edge", f"edge-{self.line_id}")
+            )
         # エッジはノードの下に
         canvas.tag_lower(self.line_id, "node")
 
@@ -164,7 +174,27 @@ class Edge:
                         label_anchor = "se"
             else:
                 # from側がDecision以外のノードの場合
-                if from_bottom_y < to_top_y <= from_bottom_y + ct.CANVAS_PARAMS["grid_spacing"] * 2:
+                tree_mode = ct.EDGE_PARAMS.get("tree_mode", False)
+                if tree_mode and from_bottom_y < to_top_y:
+                    if to_bottom_x < from_bottom_x:
+                        coords = self.rect_anchor_bottom_to_right(from_node_obj, to_node_obj)
+                        if coords is not None and coords != []:
+                            label_x = coords[0] + ct.EDGE_LABEL_OFFSET["nw"][0]
+                            label_y = coords[1] + ct.EDGE_LABEL_OFFSET["nw"][1]
+                        label_anchor = "nw"
+                    elif from_bottom_x < to_bottom_x:
+                        coords = self.rect_anchor_bottom_to_left(from_node_obj, to_node_obj)
+                        if coords is not None and coords != []:
+                            label_x = coords[0] + ct.EDGE_LABEL_OFFSET["nw"][0]
+                            label_y = coords[1] + ct.EDGE_LABEL_OFFSET["nw"][1]
+                        label_anchor = "nw"
+                    else:
+                        coords = self.rect_anchor_bottom_to_top(from_node_obj, to_node_obj)
+                        if coords is not None and coords != []:
+                            label_x = coords[0] + ct.EDGE_LABEL_OFFSET["nw"][0]
+                            label_y = coords[1] + ct.EDGE_LABEL_OFFSET["nw"][1]
+                        label_anchor = "nw"
+                elif from_bottom_y < to_top_y <= from_bottom_y + ct.CANVAS_PARAMS["grid_spacing"] * 2:
                     if to_right_x < from_left_x:
                         coords = self.rect_anchor_bottom_to_right(from_node_obj, to_node_obj)
                         if coords is not None and coords != []:
@@ -1055,7 +1085,7 @@ class Edge:
             self._update_edge(canvas)
 
     def rotate_label_position(self, increase, canvas):
-        print("rotate_label_position", self.label_position, increase)
+        # print("rotate_label_position", self.label_position, increase)
         """エッジラベルの位置をローテーションして再描画"""
         if self.label_position is None:
             label_position_index = 0
@@ -1083,7 +1113,7 @@ class Edge:
             next_label_position_index = (label_position_index - 1) % label_position_rotation_len
         else:
             next_label_position_index = (label_position_index + 1) % label_position_rotation_len
-        print(f"label_position pre:{label_position_index}, next:{next_label_position_index}")
+        # print(f"label_position pre:{label_position_index}, next:{next_label_position_index}")
         self.label_position = LABEL_POSITION_LIST[next_label_position_index] 
         
         if canvas is not None:
