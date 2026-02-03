@@ -233,9 +233,9 @@ class FlowchartTool(tk.Tk):
     def on_canvas_click(self, event):
         mode = self.mode.get()
 
-        if self.text_edit is not None and mode == "select":
+        if self.text_edit is not None:
             self.finish_text_edit(commit=True)
-        if self.edge_label_edit is not None and mode == "select":
+        if self.edge_label_edit is not None:
             self.finish_edge_label_edit(commit=True)
 
         nid = self.node_at(event.x, event.y)
@@ -255,6 +255,8 @@ class FlowchartTool(tk.Tk):
                 self.select_edge(selected_edge)
         elif mode == "link":
             if nid is None:
+                if selected_edge is not None:
+                    self.select_edge(selected_edge)
                 return
             if self.link_start_node_id is None:
                 self.link_start_node_id = nid
@@ -294,7 +296,6 @@ class FlowchartTool(tk.Tk):
                 tags=("selection")
             )
             self.drag_data["selection_frame_shape_id"] = selection_frame_shape_id
-
         elif selected_node_id is not None:
             self.select_node(selected_node_id)
             node_obj = self.nodes[selected_node_id]
@@ -306,6 +307,8 @@ class FlowchartTool(tk.Tk):
             self.drag_data["start_y"] = event.y
             self.drag_data["end_x"] = event.x
             self.drag_data["end_y"] = event.y
+        elif selected_edge_id is not None:
+            self.select_edge(selected_edge_id)
 
     def on_drag_move(self, event):
         if self.mode.get() == "link":
@@ -406,7 +409,23 @@ class FlowchartTool(tk.Tk):
             self.destroy()
 
     def on_mouse_wheel(self, event):
-        print("Mouse Wheel detected : No action assigned")
+        # print("Mouse Wheel detected : No action assigned")
+        # マウスホイール操作でローテーションでモードを変更する
+        mode = self.mode.get()
+        delta = event.delta
+        mode_values = list(ct.MODE_DICT.values())
+        if mode in mode_values:
+            current_index = mode_values.index(mode)
+            if delta > 0:
+                # 上スクロール：前のモードへ
+                new_index = (current_index - 1) % len(mode_values)
+            else:
+                # 下スクロール：次のモードへ
+                new_index = (current_index + 1) % len(mode_values)
+        else:
+            new_index = 0
+        new_mode = mode_values[new_index]
+        self.mode.set(new_mode)
 
     def on_mouse_wheel_shift(self, event):
         # print("Shift + Mouse Wheel detected")
@@ -1043,30 +1062,20 @@ class FlowchartTool(tk.Tk):
         node_type = node_obj.type
 
         if node_type == ct.NODE_PROCESS_PARAMS["type"]:    # 処理
-            self.canvas.coords(shape_id, left, top, right, bottom)
+            points = node_obj.get_process_points()
+            self.canvas.coords(shape_id, *points)
         elif node_type == ct.NODE_DECISION_PARAMS["type"]:    # 分岐
-            points = [
-                x, top,
-                right, y,
-                x, bottom,
-                left, y,
-            ]
+            points = node_obj.get_decision_points()
             self.canvas.coords(shape_id, *points)
         elif node_type == ct.NODE_TERMINATOR_PARAMS["type"]:   # 端点
-            r = node_obj.h / 2
-            points = node_obj.get_rounded_rectangle_coords(left, top, right, bottom, r)
+            points = node_obj.get_terminator_points()
             self.canvas.coords(shape_id, *points)
-        elif node_type == ct.NODE_IO_PARAMS["type"]:     
-            skew = ct.NODE_IO_PARAMS["skew"]
-            points = [
-                left + skew, top,
-                right, top,
-                right - skew, bottom,
-                left, bottom,
-            ]
+        elif node_type == ct.NODE_IO_PARAMS["type"]:  
+            points = node_obj.get_io_points()
             self.canvas.coords(shape_id, *points)
         else:
-            self.canvas.coords(shape_id, left, top, right, bottom)
+            points = node_obj.get_default_points()
+            self.canvas.coords(shape_id, *points)
 
         self.canvas.coords(node_obj.text_id, x, y)
         self.canvas.tag_raise("node")
@@ -1394,6 +1403,7 @@ class FlowchartTool(tk.Tk):
             " Double-Click Node/Edge: Edit text\n"
             " Drag Area: Select nodes in area\n"
             " Drag Node: Move selected node(s)\n"
+            " MouseWheel: Rotate menu selection\n"
             " Ctrl+MouseWheel: Change connection point\n"
             " Shift+MouseWheel: Change edge wrap margin\n"
             " Ctrl+Shift+MouseWheel: Change edge label position"

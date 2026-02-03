@@ -56,6 +56,7 @@ NODE_PROCESS_PARAMS = {
     "font_family": "Arial",
     "font_size": 9,
     "font_weight": font.NORMAL,
+    "shape_type": "rectangle",   # option: "rectangle"(default), "corner_rounded_rectangle", "rounded_rectangle",
 }
 
 # Node Decision Parameters

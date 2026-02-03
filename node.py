@@ -70,9 +70,9 @@ class Node:
 
     def draw_process(self, canvas: tk.Canvas):
         if self.x and self.y and self.w and self.h:
-            left, top, right, bottom = self.x - self.w/2, self.y - self.h/2, self.x + self.w/2, self.y + self.h/2
-            self.shape_id = canvas.create_rectangle(
-                left, top, right, bottom,
+            points = self.get_process_points()
+            self.shape_id = canvas.create_polygon(
+                points,
                 fill=ct.NODE_PROCESS_PARAMS["fill_color"],
                 outline=ct.NODE_PROCESS_PARAMS["outline_color"],
                 width=ct.NODE_PROCESS_PARAMS["outline_width"],
@@ -81,13 +81,7 @@ class Node:
 
     def draw_decision(self, canvas: tk.Canvas):
         if self.x and self.y and self.w and self.h:
-            left, top, right, bottom = self.x - self.w/2, self.y - self.h/2, self.x + self.w/2, self.y + self.h/2
-            points = [
-                self.x, top,
-                right, self.y,
-                self.x, bottom,
-                left, self.y,
-            ]
+            points = self.get_decision_points()
             self.shape_id = canvas.create_polygon(
                 points, fill=ct.NODE_DECISION_PARAMS["fill_color"],
                 outline=ct.NODE_DECISION_PARAMS["outline_color"],
@@ -97,9 +91,7 @@ class Node:
 
     def draw_terminator(self, canvas: tk.Canvas):
         if self.x and self.y and self.w and self.h:
-            left, top, right, bottom = self.x - self.w/2, self.y - self.h/2, self.x + self.w/2, self.y + self.h/2
-            r = self.h / 2
-            points = self.get_rounded_rectangle_coords(left, top, right, bottom, r)
+            points = self.get_terminator_points()
             self.shape_id = canvas.create_polygon(
                 points,
                 fill=ct.NODE_TERMINATOR_PARAMS["fill_color"],
@@ -110,14 +102,7 @@ class Node:
 
     def draw_io(self, canvas: tk.Canvas):
         if self.x and self.y and self.w and self.h:
-            left, top, right, bottom = self.x - self.w/2, self.y - self.h/2, self.x + self.w/2, self.y + self.h/2
-            skew = ct.NODE_IO_PARAMS["skew"]
-            points = [
-                left + skew, top,
-                right, top,
-                right - skew, bottom,
-                left, bottom,
-            ]
+            points = self.get_io_points()
             self.shape_id = canvas.create_polygon(
                 points,
                 fill=ct.NODE_IO_PARAMS["fill_color"],
@@ -128,14 +113,57 @@ class Node:
 
     def draw_undefined(self, canvas: tk.Canvas):
         if self.x and self.y and self.w and self.h:
-            left, top, right, bottom = self.x - self.w/2, self.y - self.h/2, self.x + self.w/2, self.y + self.h/2
-            self.shape_id = canvas.create_rectangle(
-                left, top, right, bottom,
+            points = self.get_undefined_points()
+            self.shape_id = canvas.create_polygon(
+                points,
                 fill=ct.NODE_DEFAULT_PARAMS["fill_color"],
                 outline=ct.NODE_DEFAULT_PARAMS["outline_color"],
                 width=ct.NODE_DEFAULT_PARAMS["outline_width"],
             tags=("node", f"node-{self.id}", "node-shape")
         )
+
+    def get_process_points(self):
+        left, top, right, bottom = self.x - self.w/2, self.y - self.h/2, self.x + self.w/2, self.y + self.h/2
+        shape_type = ct.NODE_PROCESS_PARAMS.get("shape_type", "rectangle")
+        if shape_type == "rounded_rectangle":
+            points = self.get_rounded_rectangle_coords(left, top, right, bottom)
+        elif shape_type == "corner_rounded_rectangle":
+            points = self.get_corner_rounded_rectangle_coords(left, top, right, bottom)
+        else:
+            points = self.get_rectangle_coords(left, top, right, bottom)
+        return points
+
+    def get_decision_points(self):
+        left, top, right, bottom = self.x - self.w/2, self.y - self.h/2, self.x + self.w/2, self.y + self.h/2
+        return [
+            self.x, top,
+            right, self.y,
+            self.x, bottom,
+            left, self.y,
+        ]
+
+    def get_terminator_points(self):
+        left, top, right, bottom = self.x - self.w/2, self.y - self.h/2, self.x + self.w/2, self.y + self.h/2
+        return self.get_rounded_rectangle_coords(left, top, right, bottom)
+
+    def get_io_points(self):
+        left, top, right, bottom = self.x - self.w/2, self.y - self.h/2, self.x + self.w/2, self.y + self.h/2
+        skew = ct.NODE_IO_PARAMS["skew"]
+        return [
+            left + skew, top,
+            right, top,
+            right - skew, bottom,
+            left, bottom,
+        ]
+
+    def get_undefined_points(self):
+        left, top, right, bottom = self.x - self.w/2, self.y - self.h/2, self.x + self.w/2, self.y + self.h/2
+        return [
+            left, top,
+            right, top,
+            right, bottom,
+            left, bottom,
+        ]
 
     def draw_text(self, canvas: tk.Canvas):
         # テキストの描画（nodeタグを付与）
@@ -160,7 +188,11 @@ class Node:
             font_family, font_size, font_weight, text_width, text_color = ct.NODE_DEFAULT_PARAMS["font_family"], ct.NODE_DEFAULT_PARAMS["font_size"], ct.NODE_DEFAULT_PARAMS["font_weight"], ct.NODE_DEFAULT_PARAMS["text_width"], ct.NODE_DEFAULT_PARAMS["text_color"]
         return font_family, font_size, font_weight, text_width, text_color
 
-    def get_rounded_rectangle_coords(self, left, top, right, bottom, r):
+    def get_rectangle_coords(self, left, top, right, bottom):
+        return [left, top, right, top, right, bottom, left, bottom]
+
+    def get_rounded_rectangle_coords(self, left, top, right, bottom):
+        r = self.h / 2
         left_center_x = left + r
         left_center_y = (top + bottom) / 2
         right_center_x = right - r
@@ -178,6 +210,36 @@ class Node:
         for angle in range(0 + angle_step, 181 - angle_step, angle_step):
             radius = math.radians(angle)
             coords += [left_center_x - r * math.sin(radius), left_center_y + r * math.cos(radius)]
+
+        return coords
+
+    def get_corner_rounded_rectangle_coords(self, left, top, right, bottom):
+        r = self.h / 6
+        if r < 0 or r > min((right - left)/2, (bottom - top)/2):
+            return [left, top, right, top, right, bottom, left, bottom]
+
+        coords = []
+        angle_step = 15
+        coords += [left + r, top]
+        coords += [right - r, top]
+        for angle in range(0 + angle_step, 91 - angle_step, angle_step):
+            radius = math.radians(angle)
+            coords += [right - r + r * math.sin(radius), top + r - r * math.cos(radius)]
+        coords += [right, top + r]
+        coords += [right, bottom - r]
+        for angle in range(90 + angle_step, 181 - angle_step, angle_step):
+            radius = math.radians(angle)
+            coords += [right - r + r * math.sin(radius), bottom - r - r * math.cos(radius)]
+        coords += [right - r, bottom]
+        coords += [left + r, bottom]
+        for angle in range(180 + angle_step, 271 - angle_step, angle_step):
+            radius = math.radians(angle)
+            coords += [left + r + r * math.sin(radius), bottom - r - r * math.cos(radius)]
+        coords += [left, bottom - r]
+        coords += [left, top + r]
+        for angle in range(270 + angle_step, 361 - angle_step, angle_step):
+            radius = math.radians(angle)
+            coords += [left + r + r * math.sin(radius), top + r - r * math.cos(radius)]
 
         return coords
 
