@@ -13,8 +13,8 @@ class Node:
     shape_id = None
     text_id = None
 
-    def __init__(self, node_id, node_type, x:int, y:int, w=None, h=None, text=None, canvas=None):
-        # print(f"Creating Node: id={node_id}, type={node_type}, x={x}, y={y}, w={w}, h={h}, text={text}")
+    def __init__(self, node_id, node_type, x:int, y:int, w=None, h=None, fill_color=None, text=None, canvas=None):
+        # print(f"Creating Node: id={node_id}, type={node_type}, x={x}, y={y}, w={w}, h={h}, fill_color={fill_color}, text={text}")
         self.id = node_id
         self.type = node_type
         self.x = x
@@ -50,6 +50,17 @@ class Node:
         else:
             self.text = text
 
+        if fill_color is None:
+            self.fill_color = {
+                ct.NODE_PROCESS_PARAMS["type"] : ct.NODE_PROCESS_PARAMS["fill_color"],
+                ct.NODE_DECISION_PARAMS["type"] : ct.NODE_DECISION_PARAMS["fill_color"],
+                ct.NODE_TERMINATOR_PARAMS["type"] : ct.NODE_TERMINATOR_PARAMS["fill_color"],
+                ct.NODE_IO_PARAMS["type"] : ct.NODE_IO_PARAMS["fill_color"],
+            }.get(self.type, ct.NODE_DEFAULT_PARAMS["fill_color"])
+        else:
+            self.fill_color = fill_color
+        # print(f"Node fill_color set to {self.fill_color}")
+
         if canvas is not None:
             self.draw(canvas)
 
@@ -72,8 +83,7 @@ class Node:
         if self.x and self.y and self.w and self.h:
             points = self.get_process_points()
             self.shape_id = canvas.create_polygon(
-                points,
-                fill=ct.NODE_PROCESS_PARAMS["fill_color"],
+                points, fill=self.fill_color,
                 outline=ct.NODE_PROCESS_PARAMS["outline_color"],
                 width=ct.NODE_PROCESS_PARAMS["outline_width"],
                 tags=("node", f"node-{self.id}", "node-shape")
@@ -83,7 +93,7 @@ class Node:
         if self.x and self.y and self.w and self.h:
             points = self.get_decision_points()
             self.shape_id = canvas.create_polygon(
-                points, fill=ct.NODE_DECISION_PARAMS["fill_color"],
+                points, fill=self.fill_color,
                 outline=ct.NODE_DECISION_PARAMS["outline_color"],
                 width=ct.NODE_DECISION_PARAMS["outline_width"],
                 tags=("node", f"node-{self.id}", "node-shape")
@@ -93,8 +103,7 @@ class Node:
         if self.x and self.y and self.w and self.h:
             points = self.get_terminator_points()
             self.shape_id = canvas.create_polygon(
-                points,
-                fill=ct.NODE_TERMINATOR_PARAMS["fill_color"],
+                points, fill=self.fill_color,
                 outline=ct.NODE_TERMINATOR_PARAMS["outline_color"],
                 width=ct.NODE_TERMINATOR_PARAMS["outline_width"],
                 tags=("node", f"node-{self.id}", "node-shape")
@@ -104,8 +113,7 @@ class Node:
         if self.x and self.y and self.w and self.h:
             points = self.get_io_points()
             self.shape_id = canvas.create_polygon(
-                points,
-                fill=ct.NODE_IO_PARAMS["fill_color"],
+                points, fill=self.fill_color,
                 outline=ct.NODE_IO_PARAMS["outline_color"],
                 width=ct.NODE_IO_PARAMS["outline_width"],
                 tags=("node", f"node-{self.id}", "node-shape")
@@ -115,8 +123,7 @@ class Node:
         if self.x and self.y and self.w and self.h:
             points = self.get_undefined_points()
             self.shape_id = canvas.create_polygon(
-                points,
-                fill=ct.NODE_DEFAULT_PARAMS["fill_color"],
+                points, fill=self.fill_color,
                 outline=ct.NODE_DEFAULT_PARAMS["outline_color"],
                 width=ct.NODE_DEFAULT_PARAMS["outline_width"],
             tags=("node", f"node-{self.id}", "node-shape")
@@ -242,6 +249,8 @@ class Node:
             coords += [left + r + r * math.sin(radius), top + r - r * math.cos(radius)]
 
         return coords
+
+
 
     @classmethod
     def get_width_of_type(cls, node_type):

@@ -156,3 +156,4 @@ This project provides a **Simple Flowchart Drawing Tool (Python version)** that 
 * 2026/01/27 : Supports link routing pattern (Bottom to Top, 5 lines)
 * 2026/01/30 : Support for link arrow definitions (shape and direction), support for line breaks(\n) in label text, and bug fixes (manual adjustment of link label positions).
 * 2026/02/03 : Definition of mouse wheel operations, ability to select rounded rectangles for Process shapes, and improved link selection operations
+* 2026/02/09 : Added support for manually changing node fill colors.

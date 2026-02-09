@@ -1,5 +1,9 @@
 from tkinter import font
 
+OS_WINDOWS = "Windows"
+OS_MAC = "Darwin"
+OS_LINUX = "Linux"
+
 # App Application Title
 APP_TITLE = "Simple Flowchart Drawing Tool (TKinter Canvas)"
 
@@ -23,6 +27,20 @@ MODE_DICT = {
 
 # Default Mode Setting
 DEFAULT_MODE = MODE_DICT["Select"]
+
+# Node Fill Colors
+NODE_FILL_COLORS = [
+    "#FADADD",  # Light Pink
+    "#FFE5B4",  # Light Orange
+    "#FFF9C4",  # Light Yellow
+    "#E6F4D7",  # Light Green
+    "#D7FBE8",  # Light Teal
+    "#D6F0FF",  # Light Blue
+    "#DCE7FF",  # Light Indigo
+    "#E9D7FF",  # Light Purple
+    "#F2F2F2",  # Light Gray
+    "#F5EBDD",  # Light Brown
+]
 
 # Node Default Parameters
 NODE_DEFAULT_PARAMS = {
@@ -56,7 +74,7 @@ NODE_PROCESS_PARAMS = {
     "font_family": "Arial",
     "font_size": 9,
     "font_weight": font.NORMAL,
-    "shape_type": "rectangle",   # option: "rectangle"(default), "corner_rounded_rectangle", "rounded_rectangle",
+    "shape_type": "corner_rounded_rectangle",   # option: "rectangle", "corner_rounded_rectangle", "rounded_rectangle",
 }
 
 # Node Decision Parameters

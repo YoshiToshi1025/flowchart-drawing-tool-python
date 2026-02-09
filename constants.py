@@ -28,6 +28,20 @@ MODE_DICT = {
 # デフォルトモード設定
 DEFAULT_MODE = MODE_DICT["Select"]
 
+# ノード・背景色リスト
+NODE_FILL_COLORS = [
+    "#FDECEF",  # Light Pink
+    "#FFEFF2",  # Light Orange
+    "#FFF1E3",  # Light Yellow
+    "#FFFDE6",  # Light Yellow
+    "#F1FAEE",  # Light Green
+    "#EFFFF7",  # Light Teal
+    "#EAFBFF",  # Light Blue
+    "#EEF4FF",  # Light Indigo
+    "#F3EEFF",  # Light Purple
+    "#F7F5F2",  # Light Gray
+]
+
 # ノード・デフォルト・パラメータ
 NODE_DEFAULT_PARAMS = {
     "type": "default",
@@ -60,7 +74,7 @@ NODE_PROCESS_PARAMS = {
     "font_family": "Arial",
     "font_size": 9,
     "font_weight": font.NORMAL,
-    "shape_type": "rectangle",   # option: "rectangle"(default), "corner_rounded_rectangle", "rounded_rectangle",
+    "shape_type": "corner_rounded_rectangle",   # option: "rectangle", "corner_rounded_rectangle", "rounded_rectangle",
 }
 
 # ノード・分岐・パラメータ

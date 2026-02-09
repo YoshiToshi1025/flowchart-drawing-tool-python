@@ -1,5 +1,9 @@
 from tkinter import font
 
+OS_WINDOWS = "Windows"
+OS_MAC = "Darwin"
+OS_LINUX = "Linux"
+
 # アプリケーション・タイトル
 APP_TITLE = "簡易フローチャート作図ツール(TKinter Canvas)"
 
@@ -23,6 +27,20 @@ MODE_DICT = {
 
 # デフォルトモード設定
 DEFAULT_MODE = MODE_DICT["Select"]
+
+# ノード・背景色リスト
+NODE_FILL_COLORS = [
+    "#FDECEF",  # Light Pink
+    "#FFEFF2",  # Light Orange
+    "#FFF1E3",  # Light Yellow
+    "#FFFDE6",  # Light Yellow
+    "#F1FAEE",  # Light Green
+    "#EFFFF7",  # Light Teal
+    "#EAFBFF",  # Light Blue
+    "#EEF4FF",  # Light Indigo
+    "#F3EEFF",  # Light Purple
+    "#F7F5F2",  # Light Gray
+]
 
 # ノード・デフォルト・パラメータ
 NODE_DEFAULT_PARAMS = {
@@ -56,7 +74,7 @@ NODE_PROCESS_PARAMS = {
     "font_family": "Arial",
     "font_size": 9,
     "font_weight": font.NORMAL,
-    "shape_type": "rectangle",   # option: "rectangle"(default), "corner_rounded_rectangle", "rounded_rectangle",
+    "shape_type": "corner_rounded_rectangle",   # option: "rectangle", "corner_rounded_rectangle", "rounded_rectangle",
 }
 
 # ノード・分岐・パラメータ
@@ -165,7 +183,6 @@ AI_GENERATED_MESSAGE1 = "AI生成された処理フローデータを保存し�
 AI_GENERATED_MESSAGE2 = "今すぐ読み込みますか？"
 
 OPENAI_API_KEY_NOT_SET_MESSAGE = "環境変数 OPENAI_API_KEY が未設定です。"
-
 
 # AI関連定数
 CHAT_WIDTH = 500

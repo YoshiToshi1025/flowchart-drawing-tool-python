@@ -121,9 +121,21 @@ class FlowchartTool(tk.Tk):
         # キー操作定義
         self.bind_all("<Delete>", lambda e: self.delete_selected())
         self.bind_all("<Escape>", lambda e: self.cancel_selection_node_and_edge())
-        self.bind_all("<Control-a>", lambda e: self.select_all())
-        self.bind_all("<Control-z>", lambda e: self.undo())
-        self.bind_all("<Control-y>", lambda e: self.redo())
+        self.bind_all("<Control-Key-a>", lambda e: self.select_all())
+        self.bind_all("<Control-Key-z>", lambda e: self.undo())
+        self.bind_all("<Control-Key-y>", lambda e: self.redo())
+
+        self.bind_all("<Control-Key-1>", lambda e: self.change_node_fill_color(0))
+        self.bind_all("<Control-Key-2>", lambda e: self.change_node_fill_color(1))
+        self.bind_all("<Control-Key-3>", lambda e: self.change_node_fill_color(2))
+        self.bind_all("<Control-Key-4>", lambda e: self.change_node_fill_color(3))
+        self.bind_all("<Control-Key-5>", lambda e: self.change_node_fill_color(4))
+        self.bind_all("<Control-Key-6>", lambda e: self.change_node_fill_color(5))
+        self.bind_all("<Control-Key-7>", lambda e: self.change_node_fill_color(6))
+        self.bind_all("<Control-Key-8>", lambda e: self.change_node_fill_color(7))
+        self.bind_all("<Control-Key-9>", lambda e: self.change_node_fill_color(8))
+        self.bind_all("<Control-Key-0>", lambda e: self.change_node_fill_color(9))
+        self.bind_all("<Control-Key-->", lambda e: self.reset_node_fill_color())
 
         # モード変更でラベル更新
         self.mode.trace_add("write", lambda *args: self.update_status())
@@ -524,12 +536,12 @@ class FlowchartTool(tk.Tk):
         
         self.display_operation_info()  # 操作情報表示制御
 
-    def _create_node_with_id(self, node_id, node_type, x, y, w=None, h=None, text=None):
+    def _create_node_with_id(self, node_id, node_type, x, y, w=None, h=None, fill_color=None, text=None):
         adjusted_x, adjusted_y = self.adjusted_xy(node_id, x, y, node_type)
 
         auto_text = self.auto_node_text(node_type, text)
 
-        node_obj = Node(node_id, node_type, adjusted_x, adjusted_y, w=w, h=h, text=auto_text, canvas=self.canvas)
+        node_obj = Node(node_id, node_type, adjusted_x, adjusted_y, w=w, h=h, fill_color=fill_color, text=auto_text, canvas=self.canvas)
 
         self.nodes[node_id] = node_obj
         # ノードは常に最前面に
@@ -776,7 +788,7 @@ class FlowchartTool(tk.Tk):
         """現在のモデル（ノード・エッジ）をJSON化しやすい形で返す"""
         nodes_data = []
         for node_obj in self.nodes.values():
-            nodes_data.append({
+            node_data = {
                 "id": node_obj.id,
                 "type": node_obj.type,
                 "x": node_obj.x,
@@ -784,7 +796,10 @@ class FlowchartTool(tk.Tk):
                 "w": node_obj.w,
                 "h": node_obj.h,
                 "text": node_obj.text,
-            })
+            }
+            if node_obj.fill_color is not None:
+                node_data["fill_color"] = node_obj.fill_color
+            nodes_data.append(node_data)
         edges_data = []
         for edge_line_id, edge_obj in self.edges.items():
             edge_data = {
@@ -829,8 +844,9 @@ class FlowchartTool(tk.Tk):
             y = nd.get("y", 0)
             w = nd.get("w", Node.get_width_of_type(node_type))
             h = nd.get("h", Node.get_height_of_type(node_type))
+            fill_color = nd.get("fill_color", None)
             text = nd.get("text", "")
-            self._create_node_with_id(nid, node_type, x, y, w=w, h=h, text=text)
+            self._create_node_with_id(nid, node_type, x, y, w=w, h=h, fill_color=fill_color, text=text)
             if nid > max_id:
                 max_id = nid
 
@@ -1111,10 +1127,10 @@ class FlowchartTool(tk.Tk):
             scaling = wmi.get_system_scale_percent(self.canvas) / 100.0  # Windowsのディスプレイ拡大率を取得
         else:
             scaling = 1.0
-        x = int(self.canvas.winfo_rootx() * scaling)
-        y = int(self.canvas.winfo_rooty() * scaling)
-        w = int(self.canvas.winfo_width() * scaling)
-        h = int(self.canvas.winfo_height() * scaling)
+        x = int(self.canvas.winfo_rootx() * scaling) + 2
+        y = int(self.canvas.winfo_rooty() * scaling) + 2
+        w = int(self.canvas.winfo_width() * scaling) - 4
+        h = int(self.canvas.winfo_height() * scaling) - 4
         bbox = (x, y, x + w, y + h)  # (left, top, right, bottom)
         print(f"scaling:{scaling}, Canvas bbox for image capture: {bbox}")
         img = ImageGrab.grab(bbox=bbox, all_screens=True)
@@ -1396,6 +1412,8 @@ class FlowchartTool(tk.Tk):
             " Ctrl-a: Select all nodes\n"
             " Ctrl-z: Undo\n"
             " Ctrl-y: Redo\n"
+            " Ctrl-0~9: Change selected node fill color\n"
+            " Ctrl-'-': Reset selected node fill color\n"
             "\n"
             "[Mouse Operations]\n"
             " Right Button: Show context menu\n"
@@ -1414,6 +1432,44 @@ class FlowchartTool(tk.Tk):
         if hasattr(self, "ope_info") and self.ope_info:
             self.ope_info.destroy()
             self.ope_info = None
+
+    def change_node_fill_color(self, color_no):
+        # print(f"Change node fill color to {color_no}")
+        if self.selected_node_ids is None or len(self.selected_node_ids) == 0:
+            return
+        for selected_node_id in self.selected_node_ids:
+            if selected_node_id in self.nodes:
+                node_obj = self.nodes[selected_node_id]
+                if 0 <= color_no < 10:
+                    node_obj.fill_color = ct.NODE_FILL_COLORS[color_no]
+                else:
+                    node_obj.fill_color = {
+                        ct.NODE_PROCESS_PARAMS["type"] : ct.NODE_PROCESS_PARAMS["fill_color"],
+                        ct.NODE_DECISION_PARAMS["type"] : ct.NODE_DECISION_PARAMS["fill_color"],
+                        ct.NODE_TERMINATOR_PARAMS["type"] : ct.NODE_TERMINATOR_PARAMS["fill_color"],
+                        ct.NODE_IO_PARAMS["type"] : ct.NODE_IO_PARAMS["fill_color"],
+                    }.get(node_obj.type, ct.NODE_DEFAULT_PARAMS["fill_color"])
+                self.canvas.itemconfig(node_obj.shape_id, fill=node_obj.fill_color)
+
+        self.push_history()
+
+    def reset_node_fill_color(self):
+        # print("Reset node fill color")
+        if self.selected_node_ids is None or len(self.selected_node_ids) == 0:
+            return
+        for selected_node_id in self.selected_node_ids:
+            if selected_node_id in self.nodes:
+                node_obj = self.nodes[selected_node_id]
+                node_obj.fill_color = None
+                fill_color = {
+                    ct.NODE_PROCESS_PARAMS["type"] : ct.NODE_PROCESS_PARAMS["fill_color"],
+                    ct.NODE_DECISION_PARAMS["type"] : ct.NODE_DECISION_PARAMS["fill_color"],
+                    ct.NODE_TERMINATOR_PARAMS["type"] : ct.NODE_TERMINATOR_PARAMS["fill_color"],
+                    ct.NODE_IO_PARAMS["type"] : ct.NODE_IO_PARAMS["fill_color"],
+                }.get(node_obj.type, ct.NODE_DEFAULT_PARAMS["fill_color"])
+                self.canvas.itemconfig(node_obj.shape_id, fill=fill_color)
+
+        self.push_history()
 
 if __name__ == "__main__":
     app = FlowchartTool()
