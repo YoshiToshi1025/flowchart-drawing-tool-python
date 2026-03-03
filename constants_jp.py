@@ -18,6 +18,7 @@ CANVAS_PARAMS = {
 # モード辞書
 MODE_DICT = {
     "Select" : "select",
+    "Swimlane" : "add:swimlane",
     "Terminator" : "add:terminator",
     "Process" : "add:process",
     "Decision" : "add:decision",
@@ -42,6 +43,10 @@ NODE_FILL_COLORS = [
     "#F7F5F2",  # Light Gray
 ]
 
+NODE_STATUS_NORMAL = "normal"
+NODE_STATUS_ACTIVE = "active"
+NODE_STATUS_INACTIVE = "inactive"
+
 # ノード・デフォルト・パラメータ
 NODE_DEFAULT_PARAMS = {
     "type": "default",
@@ -57,6 +62,16 @@ NODE_DEFAULT_PARAMS = {
     "font_family": "Arial",
     "font_size": 9,
     "font_weight": font.NORMAL,
+    "active_fill_color": "#FFFACD", # Lemon Chiffon
+    "active_outline_color": "#DAA520", # Goldenrod
+    "active_outline_width": 3,
+    "active_font_weight": font.NORMAL,
+    "active_text_color": "#DAA520", # Goldenrod
+    "inactive_fill_color": "#f0f0f0", # Light Gray
+    "inactive_outline_color": "#a9a9a9", # Dark Gray
+    "inactive_outline_width": 2,
+    "inactive_text_color": "#a9a9a9", # Dark Gray
+    "inactive_font_weight": font.NORMAL,
 }
 
 # ノード・処理・パラメータ
@@ -163,6 +178,37 @@ EDGE_LABEL_OFFSET = {
     "se": (-8, 0),
     "sw": (8, 0),
     "nw_from_decision": (8, 0),
+}
+
+SWIMLANE_KIND_HORIZONTAL = "horizontal"
+SWIMLANE_KIND_VERTICAL = "vertical"
+
+# スイムレーン・パラメータ
+SWIMLANE_PARAMS = {
+    "kind": SWIMLANE_KIND_HORIZONTAL,  # SWIMLANE_KIND_HORIZONTAL(横型レーン) or SWIMLANE_KIND_VERTICAL(縦型レーン)
+    "title": "Swimlane",
+    "horizontal_width": 210,
+    "horizontal_height": 720,
+    "horizontal_header_height": 30,
+    "horizontal_minimum_width": 180,
+    "horizontal_max_width": 800,
+    "horizontal_minimum_height": 300,
+    "horizontal_max_height": 3000,
+    "vertical_width": 800,
+    "vertical_height": 180,
+    "vertical_header_width": 30,
+    "vertical_minimum_width": 300,
+    "vertical_max_width": 3000,
+    "vertical_minimum_height": 180,
+    "vertical_max_height": 800,
+    "fill_color": "#e0e0e0", # Light Gray
+    "outline_color": "#808080", # Gray
+    "selected_outline_color": "#0ea5e9",  # Light Blue
+    "outline_width": 1,
+    "text_color": "#0f172a",  # Dark Blue
+    "font_family": "Arial",
+    "font_size": 11,
+    "font_weight": font.NORMAL,
 }
 
 # 選択範囲パラメータ

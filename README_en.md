@@ -126,7 +126,7 @@ This project provides a **Simple Flowchart Drawing Tool (Python version)** that 
 * Optimization of menu structure
 * Canvas scrolling and zoom in/out
 * Export of drawn flowcharts to Excel
-* Additional elements and swimlane drawing
+* Additional elements
 * And more
 
 ## License
@@ -157,3 +157,4 @@ This project provides a **Simple Flowchart Drawing Tool (Python version)** that 
 * 2026/01/30 : Support for link arrow definitions (shape and direction), support for line breaks(\n) in label text, and bug fixes (manual adjustment of link label positions).
 * 2026/02/03 : Definition of mouse wheel operations, ability to select rounded rectangles for Process shapes, and improved link selection operations
 * 2026/02/09 : Added support for manually changing node fill colors.
+* 2026/03/03 : Supports swimlane display and node highlight/non-highlight display.

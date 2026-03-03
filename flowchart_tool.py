@@ -17,6 +17,9 @@ import node
 from node import Node
 import edge
 from edge import Edge
+import swimlane
+from swimlane import Swimlane
+
 import platform
 if platform.system() == "Windows":
     import windows_monitor_info as wmi
@@ -46,7 +49,16 @@ class FlowchartTool(tk.Tk):
         self.selected_edge_id = None    # 選択中のエッジLine_ID
         self.link_start_node_id = None  # リンク始点ノードID
 
-        self.drag_data = {"mode": None, "node_id": None, "start_x": 0, "start_y": 0, "end_x": 0, "end_y": 0}
+        # 登録済みスイムレーン情報
+        self.swimlanes = [] # 登録済みスイムレーンオブジェクトリスト
+        self.selected_swimlanes = [] # 選択中のスイムレーンオブジェクトリスト
+
+
+        # ドラッグ操作用の一時データ
+        self.drag_data = {"mode": None, "node_id": None, "shape_id": None, "drag_start_x": 0, "drag_start_y": 0, "drag_pre_x": 0, "drag_pre_y": 0, "drag_end_x": 0, "drag_end_y": 0}
+
+        # self.drag_node_data = {"mode": None, "node_id": None, "start_x": 0, "start_y": 0, "end_x": 0, "end_y": 0}
+        # self.drag_swimlane_data = {"kind": ct.SWIMLANE_PARAMS["kind"], "frame_id": None, "top_id": None, "bottom_id": None, "drag_start_x": 0, "drag_start_y": 0, "drag_pre_x": 0, "drag_pre_y": 0}
 
         # 履歴（Undo/Redo）
         self.history = []
@@ -55,6 +67,7 @@ class FlowchartTool(tk.Tk):
         # テキスト編集用
         self.text_edit = None  # {"entry":..., "node_id":..., "window_id":...}
         self.edge_label_edit = None  # {"entry":..., "edge_obj":..., "window_id":...}
+        self.swimlane_label_edit = None  # {"entry":..., "swimlane_obj":..., "window_id":...}
 
         self._build_ui()    # UI構築
 
@@ -120,7 +133,7 @@ class FlowchartTool(tk.Tk):
 
         # キー操作定義
         self.bind_all("<Delete>", lambda e: self.delete_selected())
-        self.bind_all("<Escape>", lambda e: self.cancel_selection_node_and_edge())
+        self.bind_all("<Escape>", lambda e: self.cancel_selection_node_and_edge_and_swimlane())
         self.bind_all("<Control-Key-a>", lambda e: self.select_all())
         self.bind_all("<Control-Key-z>", lambda e: self.undo())
         self.bind_all("<Control-Key-y>", lambda e: self.redo())
@@ -145,6 +158,8 @@ class FlowchartTool(tk.Tk):
         self.popup_menu.add_command(label="Select/Move", command=lambda: self.mode.set("select"))
         self.popup_menu.add_command(label="Select all nodes", command=self.select_all)
         self.popup_menu.add_separator()
+        self.popup_menu.add_command(label="Add Swimlane", command=lambda: self.mode.set("add:swimlane"))
+        self.popup_menu.add_separator()
         self.popup_menu.add_command(label="Add Terminator", command=lambda: self.mode.set("add:terminator"))
         self.popup_menu.add_command(label="Add Process", command=lambda: self.mode.set("add:process"))
         self.popup_menu.add_command(label="Add Decision", command=lambda: self.mode.set("add:decision"))
@@ -152,6 +167,10 @@ class FlowchartTool(tk.Tk):
         self.popup_menu.add_command(label="Link", command=lambda: self.mode.set("link"))
         self.popup_menu.add_separator()
         self.popup_menu.add_command(label="Delete Selected", command=self.delete_selected)
+        self.popup_menu.add_separator()
+        self.popup_menu.add_command(label="Selected Nodes Status > Normal", command=lambda: self.change_selected_nodes_status(ct.NODE_STATUS_NORMAL))
+        self.popup_menu.add_command(label="Selected Nodes Status > Active", command=lambda: self.change_selected_nodes_status(ct.NODE_STATUS_ACTIVE))
+        self.popup_menu.add_command(label="Selected Nodes Status > Inactive", command=lambda: self.change_selected_nodes_status(ct.NODE_STATUS_INACTIVE))
         self.popup_menu.add_separator()
         self.popup_menu.add_command(label="Undo", command=self.undo)
         self.popup_menu.add_command(label="Redo", command=self.redo)
@@ -221,7 +240,7 @@ class FlowchartTool(tk.Tk):
     def update_status(self):
         mode = self.mode.get()
         self.status_label.config(text=f"Mode: {mode}")
-        self.cancel_selection_node_and_edge()
+        self.cancel_selection_node_and_edge_and_swimlane()
 
     def _draw_grid(self):
         """グリッドを再描画"""
@@ -245,45 +264,67 @@ class FlowchartTool(tk.Tk):
     def on_canvas_click(self, event):
         mode = self.mode.get()
 
+        # テキスト編集中なら、編集中のテキストを確定させる
         if self.text_edit is not None:
             self.finish_text_edit(commit=True)
         if self.edge_label_edit is not None:
             self.finish_edge_label_edit(commit=True)
+        if self.swimlane_label_edit is not None:
+            self.finish_swimlane_label_edit(commit=True)
 
-        nid = self.node_at(event.x, event.y)
-        if nid is None:
-            selected_edge = self.edge_at(event.x, event.y)
-            if selected_edge is None:
-                if mode.startswith("add:"):
-                    node_type = mode.split(":", 1)[1]
-                    self.create_node(node_type, event.x, event.y)
-                    return
+        # クリック位置のオブジェクトを取得
+        selecting_node_id = self.node_at(event.x, event.y)
+        if selecting_node_id is None:
+            selecting_edge = self.edge_at(event.x, event.y)
+            if selecting_edge is None:
+                selecting_swimlane = self.swimlane_at(event.x, event.y)
+            else:
+                selecting_swimlane = None
         else:
-            selected_edge = None
+            selecting_edge = None
+            selecting_swimlane = None
 
+        # オブジェクトを選択していなくて、新規登録モードであれば、指定オブジェクトの新規作成を行う
+        if selecting_node_id is None and selecting_edge is None and selecting_swimlane is None:
+            if mode.startswith("add:"):
+                node_type = mode.split(":", 1)[1]
+                if node_type == "swimlane":
+                    self.create_swimlane(event.x, event.y)
+                else:
+                    self.create_node(node_type, event.x, event.y)
+                return
+
+        # オブジェクトを選択している場合は、指定オブジェクトの選択処理を行う
         if mode == "select":
-            self.select_node(nid)
-            if nid is None and selected_edge is not None:
-                self.select_edge(selected_edge)
+            # 選択オブジェクトが選択中の場合は、現状の選択状態を維持する
+            if self.isSelectedObject(selecting_node_id, selecting_swimlane):
+                pass
+            else:
+                if selecting_node_id is not None:
+                    self.select_node(selecting_node_id)
+                if selecting_edge is not None:
+                    self.select_edge(selecting_edge)
+                self.select_swimlane(selecting_swimlane)
+        # リンクモードの場合は、ノードを選択していればリンクの開始点として記憶し、次にノードを選択したらリンクを作成する
         elif mode == "link":
-            if nid is None:
-                if selected_edge is not None:
-                    self.select_edge(selected_edge)
+            if selecting_node_id is None:
+                if selecting_edge is not None:
+                    self.select_edge(selecting_edge)
                 return
             if self.link_start_node_id is None:
-                self.link_start_node_id = nid
-                self.select_node(nid)
+                self.link_start_node_id = selecting_node_id
+                self.select_node(selecting_node_id)
             else:
-                self.create_edge(self.link_start_node_id, nid)
-                self.cancel_selection_node_and_edge()
-        elif mode == "delete":
-            if nid is not None:
-                self.select_node(nid)
-                self.delete_selected()
-                return
-            edge = self.edge_at(event.x, event.y)
-            if edge is not None:
-                self.delete_edge(edge)
+                self.create_edge(self.link_start_node_id, selecting_node_id)
+                self.cancel_selection_node_and_edge_and_swimlane()
+        # 削除モードの場合は、選択しているオブジェクトを削除する
+        #elif mode == "delete":
+        #    if selecting_node_id is not None:
+        #        self.select_node(selecting_node_id)
+        #        self.delete_selected()
+        #    selecting_edge = self.edge_at(event.x, event.y)
+        #    if selecting_edge is not None:
+        #        self.delete_edge(selecting_edge)
 
     def on_drag_start(self, event):
         if self.mode.get() == "link":
@@ -291,111 +332,184 @@ class FlowchartTool(tk.Tk):
 
         selected_node_id = self.node_at(event.x, event.y)
         selected_edge_id = self.edge_at(event.x, event.y)
+        selected_swimlane = self.swimlane_at(event.x, event.y)
 
-        if selected_node_id is None and selected_edge_id is None:
-            self.drag_data["mode"] = "select_nodes"
+        if selected_node_id is None and selected_edge_id is None and selected_swimlane is None:
+            self.drag_data["mode"] = "select_area"
             self.drag_data["node_id"] = None
-            self.drag_data["node_start_x"] = None
-            self.drag_data["node_start_y"] = None
-            self.drag_data["start_x"] = event.x
-            self.drag_data["start_y"] = event.y
-            self.drag_data["end_x"] = event.x
-            self.drag_data["end_y"] = event.y
+            self.drag_data["drag_start_x"] = event.x
+            self.drag_data["drag_start_y"] = event.y
+            self.drag_data["drag_pre_x"] = event.x
+            self.drag_data["drag_pre_y"] = event.y
+            self.drag_data["drag_end_x"] = event.x
+            self.drag_data["drag_end_y"] = event.y
             # 選択範囲枠を描画
             selection_frame_shape_id = self.canvas.create_rectangle(
-                self.drag_data["start_x"], self.drag_data["start_y"], self.drag_data["end_x"], self.drag_data["end_y"],
+                self.drag_data["drag_start_x"], self.drag_data["drag_start_y"], self.drag_data["drag_end_x"], self.drag_data["drag_end_y"],
                 outline=ct.SELECTION_AREA_PARAMS["outline_color"], width=ct.SELECTION_AREA_PARAMS["outline_width"], dash=ct.SELECTION_AREA_PARAMS["outline_dash"],
                 tags=("selection")
             )
-            self.drag_data["selection_frame_shape_id"] = selection_frame_shape_id
+            self.drag_data["shape_id"] = selection_frame_shape_id
         elif selected_node_id is not None:
             self.select_node(selected_node_id)
             node_obj = self.nodes[selected_node_id]
             self.drag_data["mode"] = "move_node"
             self.drag_data["node_id"] = selected_node_id
-            self.drag_data["node_start_x"] = node_obj.x
-            self.drag_data["node_start_y"] = node_obj.y
-            self.drag_data["start_x"] = event.x
-            self.drag_data["start_y"] = event.y
-            self.drag_data["end_x"] = event.x
-            self.drag_data["end_y"] = event.y
+            self.drag_data["shape_id"] = node_obj.shape_id
+            self.drag_data["original_x"] = node_obj.x
+            self.drag_data["original_y"] = node_obj.y
+            self.drag_data["drag_start_x"] = node_obj.x
+            self.drag_data["drag_start_y"] = node_obj.y
+            self.drag_data["drag_end_x"] = event.x
+            self.drag_data["drag_end_y"] = event.y
         elif selected_edge_id is not None:
             self.select_edge(selected_edge_id)
+        elif selected_swimlane is not None:
+            self.select_swimlane(selected_swimlane)
+            self.drag_data["mode"] = "move_swimlane"
+            self.drag_data["node_id"] = None
+            self.drag_data["shape_id"] = selected_swimlane.frame_id
+            self.drag_data["original_x"] = selected_swimlane.header_center_x
+            self.drag_data["original_y"] = selected_swimlane.header_center_y
+            self.drag_data["drag_start_x"] = event.x
+            self.drag_data["drag_start_y"] = event.y
+            self.drag_data["drag_end_x"] = event.x
+            self.drag_data["drag_end_y"] = event.y
+
+        self.display_operation_info()  # 操作情報表示制御
 
     def on_drag_move(self, event):
         if self.mode.get() == "link":
             return
 
         mode = self.drag_data["mode"]
-        if mode == "select_nodes":
-            self.drag_data["end_x"] = event.x
-            self.drag_data["end_y"] = event.y
+        self.drag_data["drag_end_x"] = event.x
+        self.drag_data["drag_end_y"] = event.y
+
+        if mode == "select_area":
             # 選択範囲枠を更新
             self.canvas.coords(
-                self.drag_data["selection_frame_shape_id"], 
-                self.drag_data["start_x"], self.drag_data["start_y"], self.drag_data["end_x"], self.drag_data["end_y"]
+                self.drag_data["shape_id"], 
+                self.drag_data["drag_start_x"], self.drag_data["drag_start_y"], self.drag_data["drag_end_x"], self.drag_data["drag_end_y"]
             )
         elif mode == "move_node":
-            self.drag_data["end_x"] = event.x
-            self.drag_data["end_y"] = event.y
             nid = self.drag_data["node_id"]
+            shape_id = self.drag_data["shape_id"]
             if nid is None:
                 return
             node_obj = self.nodes[nid]
-            node_width = node_obj.w
-            node_height = node_obj.h
-            if node_width is None or node_height is None:
-                return
-            node_obj.x, node_obj.y = self.adjusted_xy(nid, event.x, event.y)
+            drag_move_x = self.drag_data["drag_end_x"] - self.drag_data["drag_start_x"]
+            drag_move_y = self.drag_data["drag_end_y"] - self.drag_data["drag_start_y"]
+            move_to_x = self.drag_data["original_x"] + drag_move_x
+            move_to_y = self.drag_data["original_y"] + drag_move_y
+            node_obj.x, node_obj.y = self.adjusted_xy(nid, move_to_x, move_to_y)
             self._move_node_graphics(node_obj)
             self._update_edges_for_node(nid)
+        elif mode == "move_swimlane":
+            shape_id = self.drag_data["shape_id"]
+            for selected_swimlane in self.selected_swimlanes:
+                if selected_swimlane.frame_id is not None and selected_swimlane.frame_id == shape_id:
+                    drag_move_x = self.drag_data["drag_end_x"] - self.drag_data["drag_start_x"]
+                    drag_move_y = self.drag_data["drag_end_y"] - self.drag_data["drag_start_y"]
+                    move_to_x = self.drag_data["original_x"] + drag_move_x
+                    move_to_y = self.drag_data["original_y"] + drag_move_y
+                    adjusted_x, adjusted_y = self.adjusted_swimlane_xy(selected_swimlane, move_to_x, move_to_y)
+                    selected_swimlane.move_to(adjusted_x, adjusted_y)
 
     def on_drag_end(self, event):
         if self.mode.get() == "link":
             return
 
         mode = self.drag_data["mode"]
-        if mode == "select_nodes":
-            self.drag_data["end_x"] = event.x
-            self.drag_data["end_y"] = event.y
+        self.drag_data["drag_end_x"] = event.x
+        self.drag_data["drag_end_y"] = event.y
+
+        if mode == "select_area":
             # 選択範囲内のノードを選択状態に
-            left = min(self.drag_data["start_x"], self.drag_data["end_x"])
-            right = max(self.drag_data["start_x"], self.drag_data["end_x"])
-            top = min(self.drag_data["start_y"], self.drag_data["end_y"])
-            bottom = max(self.drag_data["start_y"], self.drag_data["end_y"])
+            left = min(self.drag_data["drag_start_x"], self.drag_data["drag_end_x"])
+            bottom = max(self.drag_data["drag_start_y"], self.drag_data["drag_end_y"])
+            right = max(self.drag_data["drag_start_x"], self.drag_data["drag_end_x"])
+            top = min(self.drag_data["drag_start_y"], self.drag_data["drag_end_y"])
             selected_shape_ids = self.canvas.find_enclosed(left, top, right, bottom)
             nodes_in_selection_frame = []
+            swimlanes_in_selection_frame = []
             for item_shape_id in selected_shape_ids:
                 for nid, node_obj in self.nodes.items():
                     if item_shape_id == node_obj.shape_id:
                         nodes_in_selection_frame.append(nid)
+                for swimlane_obj in self.swimlanes:
+                    if item_shape_id == swimlane_obj.frame_id:
+                        swimlanes_in_selection_frame.append(swimlane_obj)
             self.select_nodes(nodes_in_selection_frame)
+            self.select_swimlanes(swimlanes_in_selection_frame)
             # 選択範囲枠を削除
-            self.canvas.delete(self.drag_data["selection_frame_shape_id"])
+            self.canvas.delete(self.drag_data["shape_id"])
             self.drag_data["mode"] = None
-            self.drag_data["selection_shape_id"] = None 
+            self.drag_data["shape_id"] = None 
         elif mode == "move_node":
-            self.drag_data["end_x"] = event.x
-            self.drag_data["end_y"] = event.y
-            move_x = event.x - self.drag_data["node_start_x"]
-            move_y = event.y - self.drag_data["node_start_y"]
-            mouse_move_x = abs(self.drag_data["end_x"] - self.drag_data["start_x"])
-            mouse_move_y = abs(self.drag_data["end_y"] - self.drag_data["start_y"])
+            drag_move_x = self.drag_data["drag_end_x"] - self.drag_data["drag_start_x"]
+            drag_move_y = self.drag_data["drag_end_y"] - self.drag_data["drag_start_y"]
 
             nid = self.drag_data["node_id"]
+            shape_id = self.drag_data["shape_id"]
 
             for selected_node_id in self.selected_node_ids:
                 if selected_node_id != nid:
                     selected_node_obj = self.nodes[selected_node_id]
-                    if selected_node_obj is not None and (mouse_move_x > 2 or mouse_move_y > 2):  # ダブルクリック時のノードのズレを防止
-                        selected_node_obj.x, selected_node_obj.y = \
-                                self.adjusted_xy(selected_node_id, selected_node_obj.x + move_x, selected_node_obj.y + move_y)
+                    if selected_node_obj is not None and (abs(drag_move_x) > 2 or abs(drag_move_y) > 2):  # ダブルクリック時のノードのズレを防止
+                        if shape_id == selected_node_obj.shape_id:
+                            move_to_x = self.drag_data["original_x"] + drag_move_x
+                            move_to_y = self.drag_data["original_y"] + drag_move_y
+                            selected_node_obj.x, selected_node_obj.y = self.adjusted_xy(selected_node_id, move_to_x, move_to_y)
+                        else:
+                            move_to_x = selected_node_obj.x + drag_move_x
+                            move_to_y = selected_node_obj.y + drag_move_y
+                            selected_node_obj.x, selected_node_obj.y = self.adjusted_xy(selected_node_id, move_to_x, move_to_y)
                         self._move_node_graphics(selected_node_obj)
                         self._update_edges_for_node(selected_node_id)
+
+            for selected_swimlane in self.selected_swimlanes:
+                if selected_swimlane.frame_id is not None:
+                    move_to_x = selected_swimlane.header_center_x + drag_move_x
+                    move_to_y = selected_swimlane.header_center_y + drag_move_y
+                    if abs(drag_move_x) > 2 or abs(drag_move_y) > 2:  # ダブルクリック時のノードのズレを防止
+                        adjusted_x, adjusted_y = self.adjusted_swimlane_xy(selected_swimlane, move_to_x, move_to_y)
+                        selected_swimlane.move_to(adjusted_x, adjusted_y)
 
             if nid is not None:
                 self.push_history()
             self.drag_data["node_id"] = None
+            self.drag_data["shape_id"] = None
+        elif mode == "move_swimlane":
+            drag_move_x = self.drag_data["drag_end_x"] - self.drag_data["drag_start_x"]
+            drag_move_y = self.drag_data["drag_end_y"] - self.drag_data["drag_start_y"]
+
+            shape_id = self.drag_data["shape_id"]
+
+            for selected_swimlane in self.selected_swimlanes:
+                if selected_swimlane.frame_id is not None:
+                    if shape_id == selected_swimlane.frame_id:
+                        move_to_x = self.drag_data["original_x"] + drag_move_x
+                        move_to_y = self.drag_data["original_y"] + drag_move_y
+                    else:
+                        move_to_x = selected_swimlane.header_center_x + drag_move_x
+                        move_to_y = selected_swimlane.header_center_y + drag_move_y
+                    if abs(drag_move_x) > 2 or abs(drag_move_y) > 2:  # ダブルクリック時のノードのズレを防止
+                        adjusted_x, adjusted_y = self.adjusted_swimlane_xy(selected_swimlane, move_to_x, move_to_y)
+                        selected_swimlane.move_to(adjusted_x, adjusted_y)
+
+            for selected_node_id in self.selected_node_ids:
+                selected_node_obj = self.nodes[selected_node_id]
+                if selected_node_obj is not None and (abs(drag_move_x) > 2 or abs(drag_move_y) > 2):  # ダブルクリック時のノードのズレを防止
+                    print(f">  Move node in swimlane: id={selected_node_id}, to=({selected_node_obj.x}, {selected_node_obj.y})")  # for DEBUG
+                    move_to_x = selected_node_obj.x + drag_move_x
+                    move_to_y = selected_node_obj.y + drag_move_y
+                    selected_node_obj.x, selected_node_obj.y = self.adjusted_xy(selected_node_id, move_to_x, move_to_y)
+                    self._move_node_graphics(selected_node_obj)
+                    self._update_edges_for_node(selected_node_id)
+
+            if shape_id is not None:
+                self.push_history()
 
     def on_canvas_double_click(self, event):
         # if self.mode.get() != "select":
@@ -409,6 +523,10 @@ class FlowchartTool(tk.Tk):
             if selected_edge is not None:
                 # エッジラベル編集
                 self.start_edge_label_edit(selected_edge)
+            else:
+                selected_swimlane = self.swimlane_at(event.x, event.y)
+                if selected_swimlane is not None:
+                    self.start_swimlane_label_edit(selected_swimlane)
 
     def on_canvas_resize(self, event):
         self._draw_grid()
@@ -442,11 +560,24 @@ class FlowchartTool(tk.Tk):
     def on_mouse_wheel_shift(self, event):
         # print("Shift + Mouse Wheel detected")
 
+        modify_flag = False
         delta = event.delta
-        if delta > 0:
-            self.change_edge_wrap_margin(increase=True)
-        else:
-            self.change_edge_wrap_margin(increase=False)
+        if self.selected_edge_id is not None:
+            if delta > 0:
+                self.change_edge_wrap_margin(increase=True)
+            else:
+                self.change_edge_wrap_margin(increase=False)
+            modify_flag = True
+        if self.selected_swimlanes is not None and len(self.selected_swimlanes) > 0:
+            for swimlane in self.selected_swimlanes:
+                if delta > 0:
+                    swimlane.change_width(increase=True)
+                else:
+                    swimlane.change_width(increase=False)
+                modify_flag = True
+
+        if modify_flag:
+            self.push_history()
 
     def change_edge_wrap_margin(self, increase=True):
         # エッジ選択中の場合、エッジの回り込み距離を調整
@@ -465,11 +596,24 @@ class FlowchartTool(tk.Tk):
     def on_mouse_wheel_ctrl(self, event):
         # print("Ctrl + Mouse Wheel detected")
     
+        modify_flag = False
         delta = event.delta
-        if delta > 0:
-            self.change_edge_connection_points_in_sequence(increase=True)
-        else:
-            self.change_edge_connection_points_in_sequence(increase=False)
+        if self.selected_edge_id is not None:
+            if delta > 0:
+                self.change_edge_connection_points_in_sequence(increase=True)
+            else:
+                self.change_edge_connection_points_in_sequence(increase=False)
+            modify_flag = True
+        if self.selected_swimlanes is not None and len(self.selected_swimlanes) > 0:
+            for swimlane in self.selected_swimlanes:
+                if delta > 0:
+                    swimlane.change_height(increase=True)
+                else:
+                    swimlane.change_height(increase=False)
+                modify_flag = True
+
+        if modify_flag:
+            self.push_history()
 
     def on_mouse_wheel_ctrl_shift(self, event):
         # print("Ctrl + Shift + Mouse Wheel detected")
@@ -536,12 +680,12 @@ class FlowchartTool(tk.Tk):
         
         self.display_operation_info()  # 操作情報表示制御
 
-    def _create_node_with_id(self, node_id, node_type, x, y, w=None, h=None, fill_color=None, text=None):
+    def _create_node_with_id(self, node_id, node_type, x, y, w=None, h=None, fill_color=None, text=None, status=None):
         adjusted_x, adjusted_y = self.adjusted_xy(node_id, x, y, node_type)
 
         auto_text = self.auto_node_text(node_type, text)
 
-        node_obj = Node(node_id, node_type, adjusted_x, adjusted_y, w=w, h=h, fill_color=fill_color, text=auto_text, canvas=self.canvas)
+        node_obj = Node(node_id, node_type, adjusted_x, adjusted_y, w=w, h=h, fill_color=fill_color, text=auto_text, status=status, canvas=self.canvas)
 
         self.nodes[node_id] = node_obj
         # ノードは常に最前面に
@@ -566,8 +710,11 @@ class FlowchartTool(tk.Tk):
     def select_all(self):
         all_node_ids = list(self.nodes.keys())
         self.select_nodes(all_node_ids)
+        all_swimlanes = self.swimlanes
+        self.select_swimlanes(all_swimlanes)
 
     def select_node(self, node_id):
+        # print(f"Selecting node id: {node_id}")
         if node_id is not None:
             self.select_nodes([node_id])
 
@@ -587,9 +734,14 @@ class FlowchartTool(tk.Tk):
         if self.selected_edge_id:
             # print(f"Reset edge color for edge id:{self.selected_edge_id}")    # for DEBUG
             self._reset_edge_to_original_color(self.edges[self.selected_edge_id])
+        # 既存選択のハイライト解除（スイムレーン）
+        #if self.selected_swimlanes is not None and len(self.selected_swimlanes) > 0:
+        #    for swimlane_obj in self.selected_swimlanes:
+        #        swimlane_obj.deselect()
 
         self.selected_node_ids = node_ids if isinstance(node_ids, list) else [node_ids] 
         self.selected_edge_id = None
+        # self.selected_swimlanes = []
 
         if node_ids is not None and len(node_ids) > 0:
             for node_id in node_ids:
@@ -600,15 +752,10 @@ class FlowchartTool(tk.Tk):
     def _reset_node_to_original_outline_color(self, node_obj):
         if node_obj is None or node_obj.shape_id is None:
             return
-        outline_color = {
-            ct.NODE_PROCESS_PARAMS["type"]: ct.NODE_PROCESS_PARAMS["outline_color"],
-            ct.NODE_DECISION_PARAMS["type"]: ct.NODE_DECISION_PARAMS["outline_color"],
-            ct.NODE_TERMINATOR_PARAMS["type"]: ct.NODE_TERMINATOR_PARAMS["outline_color"],
-            ct.NODE_IO_PARAMS["type"]: ct.NODE_IO_PARAMS["outline_color"],
-        }.get(node_obj.type, ct.NODE_DEFAULT_PARAMS["outline_color"])
+        outline_color = node_obj.get_outline_color()  # ノードオブジェクトから元の枠色を取得
         self.canvas.itemconfig(node_obj.shape_id, outline=outline_color)
 
-    # 殿の枠の色をそれぞれのノード定義の選択職に変更する
+    # ノードの枠の色をそれぞれのノード定義の選択色に変更する
     def _set_node_to_selected_outline_color(self, node_obj):
         if node_obj is None or node_obj.shape_id is None:
             return
@@ -626,7 +773,26 @@ class FlowchartTool(tk.Tk):
             return
         self.canvas.itemconfig(edge_obj.line_id, fill=ct.EDGE_PARAMS["color"])
 
+    # 選択されているノードのステータスを変更する
+    def change_selected_nodes_status(self, status):
+        if self.selected_node_ids is not None and len(self.selected_node_ids) > 0:
+            for node_id in self.selected_node_ids:
+                if node_id in self.nodes:
+                    self.nodes[node_id].status = status
+                    fill_color = self.nodes[node_id].get_fill_color()
+                    outline_color = self.nodes[node_id].get_outline_color()
+                    outline_width = self.nodes[node_id].get_outline_width()
+                    text_color = self.nodes[node_id].get_text_color()
+                    self.canvas.itemconfig(self.nodes[node_id].shape_id, fill=fill_color, outline=outline_color, width=outline_width)
+                    if self.nodes[node_id].text_id:
+                        font_family, font_size, font_weight, text_width, text_color = self.nodes[node_id]._get_text_params()
+                        self.canvas.itemconfig(self.nodes[node_id].text_id, fill=text_color, font=(font_family, font_size, font_weight))
+
+                    self._set_node_to_selected_outline_color(self.nodes[node_id])
+        self.push_history()
+
     def select_edge(self, edge_obj):
+        # print(f"Selecting edge id: {edge_obj.line_id}")
         if edge_obj is None:
             return
         edge_id = edge_obj.line_id
@@ -639,6 +805,10 @@ class FlowchartTool(tk.Tk):
         # 既存選択のハイライト解除（エッジ）    
         if self.selected_edge_id:
             self._reset_edge_to_original_color(self.edges[self.selected_edge_id])
+        # 既存選択のハイライト解除（スイムレーン）
+        # if self.selected_swimlanes is not None and len(self.selected_swimlanes) > 0:
+        #    for swimlane_obj in self.selected_swimlanes:
+        #        swimlane_obj.deselect()
 
         self.selected_node_ids = []
         self.selected_edge_id = edge_id
@@ -646,8 +816,12 @@ class FlowchartTool(tk.Tk):
         if edge_id:
             self.canvas.itemconfig(edge_id, fill=ct.EDGE_PARAMS["selected_color"])
 
-    def cancel_selection_node_and_edge(self):
-        # ノードとエッジの選択解除
+    def select_swimlane(self, swimlane_obj):
+
+        if swimlane_obj is not None and swimlane_obj.frame_id is not None:
+            if swimlane_obj in self.selected_swimlanes:
+                return  # 既に選択中の場合は選択状態を維持
+
         # 既存選択のハイライト解除（ノード）
         if self.selected_node_ids is not None and len(self.selected_node_ids) > 0:
             for selected_node_id in self.selected_node_ids:
@@ -657,25 +831,61 @@ class FlowchartTool(tk.Tk):
         if self.selected_edge_id:
             self._reset_edge_to_original_color(self.edges[self.selected_edge_id])
 
+        self.selected_node_ids = []
+        self.selected_edge_id = None
+
+        if swimlane_obj is not None:
+            self.select_swimlanes([swimlane_obj])
+        else:
+            self.select_swimlanes([])
+
+    def select_swimlanes(self, selecting_swimlanes):
+        for swimlane_obj in self.selected_swimlanes:
+            swimlane_obj.deselect()
+        for swimlane_obj in selecting_swimlanes:
+            swimlane_obj.select()
+        
+        self.selected_swimlanes = selecting_swimlanes if isinstance(selecting_swimlanes, list) else [selecting_swimlanes]
+
+    def cancel_selection_node_and_edge_and_swimlane(self):
+        # ノードとエッジとスイムレーンの選択解除
+        # 既存選択のハイライト解除（ノード）
+        if self.selected_node_ids is not None and len(self.selected_node_ids) > 0:
+            for selected_node_id in self.selected_node_ids:
+                if selected_node_id in self.nodes:
+                    self._reset_node_to_original_outline_color(self.nodes[selected_node_id])
         # 既存選択の解除（ノード）
         self.selected_node_ids = []
+
+        # 既存選択のハイライト解除（エッジ）
+        if self.selected_edge_id:
+            self._reset_edge_to_original_color(self.edges[self.selected_edge_id])
         # 既存選択の解除（エッジ）
         self.selected_edge_id = None
         # リンク開始ノードの解除
         self.link_start_node_id = None
 
+        # 既存選択のハイライト解除（スイムレーン）
+        if self.selected_swimlanes is not None and len(self.selected_swimlanes) > 0:
+            for swimlane_obj in self.selected_swimlanes:
+                swimlane_obj.deselect()
+        # 既存選択の解除（スイムレーン）
+        self.selected_swimlanes = []
+
     def delete_selected(self):
         nids = self.selected_node_ids
         line_id = self.selected_edge_id
+        swimlanes = self.selected_swimlanes
         if nids and len(nids) > 0:
             for nid in nids:
                 if nid in self.nodes:
                     self.delete_selected_node(nid)
-        elif line_id:
+        if line_id:
             self.delete_selected_edge(line_id)
-                
-        self.display_operation_info()  # 操作情報表示制御
+        if self.selected_swimlanes and len(self.selected_swimlanes) > 0:
+            self.delete_selected_swimlanes()
 
+        self.display_operation_info()  # 操作情報表示制御
 
     def delete_selected_node(self, nid):
         node_obj = self.nodes[nid]
@@ -712,6 +922,17 @@ class FlowchartTool(tk.Tk):
             self.delete_edge(edge_to_delete)
             self.selected_edge_id = None
 
+    def delete_selected_swimlanes(self):
+        selected_swimlanes = self.selected_swimlanes
+        if selected_swimlanes and len(selected_swimlanes) > 0:
+            for selected_swimlane_obj in selected_swimlanes:
+                selected_swimlane_obj.delete()
+            for swimlane_obj in self.swimlanes:
+                if swimlane_obj in selected_swimlanes:
+                    self.swimlanes.remove(swimlane_obj)
+        self.selected_swimlanes = []
+        self.push_history()
+
     def node_at(self, x, y):
         """クリック位置からノードIDを逆引き"""
         items = self.canvas.find_overlapping(x, y, x, y)
@@ -732,6 +953,19 @@ class FlowchartTool(tk.Tk):
             for edge_line_id, edge_obj in self.edges.items():
                 if item == edge_line_id or item == edge_obj.label_id:
                     return edge_obj
+        return None
+
+    def swimlane_at(self, x, y):
+        """クリック位置からスイムレーンを逆引き"""
+        items = self.canvas.find_overlapping(x, y, x, y)
+        if not items:
+            return None
+        for item in reversed(items):
+            for swimlane_obj in self.swimlanes:
+                swimlane_top_id = swimlane_obj.top_id
+                swimlane_bottom_id = swimlane_obj.bottom_id
+                if item == swimlane_top_id or item == swimlane_bottom_id:
+                    return swimlane_obj
         return None
 
     @staticmethod
@@ -782,10 +1016,18 @@ class FlowchartTool(tk.Tk):
                     text = ct.DECISION_UNKNOWN
         return text
 
+    # スイムレーンの作成
+    def create_swimlane(self, x, y):
+        adjusted_x, adjusted_y = self.adjusted_swimlane_xy(None, x, y)
+        swimlane_obj = Swimlane(canvas=self.canvas, kind=ct.SWIMLANE_PARAMS["kind"], title=ct.SWIMLANE_PARAMS["title"], header_center_x=adjusted_x, header_center_y=adjusted_y)
+        self.swimlanes.append(swimlane_obj)
+        self.push_history()
+
     # ------------ Undo/Redo用 モデル入出力 ------------
 
     def export_model(self):
         """現在のモデル（ノード・エッジ）をJSON化しやすい形で返す"""
+        # ノードは、ID、タイプ、位置、サイズ、テキスト、塗りつぶし色、ステータスを保存
         nodes_data = []
         for node_obj in self.nodes.values():
             node_data = {
@@ -799,7 +1041,10 @@ class FlowchartTool(tk.Tk):
             }
             if node_obj.fill_color is not None:
                 node_data["fill_color"] = node_obj.fill_color
+            if node_obj.status is not None and node_obj.status != ct.NODE_STATUS_NORMAL:
+                node_data["status"] = node_obj.status
             nodes_data.append(node_data)
+        # エッジは、fromノードID、toノードID、接続位置、エッジの回り込み距離、ラベルテキスト、ラベル位置を保存
         edges_data = []
         for edge_line_id, edge_obj in self.edges.items():
             edge_data = {
@@ -817,23 +1062,40 @@ class FlowchartTool(tk.Tk):
             if edge_obj.label_position is not None:
                 edge_data["label_position"] = edge_obj.label_position
             edges_data.append(edge_data)
+        # スイムレーンは、種類、タイトル、ヘッダー位置、サイズを保存
+        swimlanes_data = []
+        for swimlane_obj in self.swimlanes:
+            swimlane_data = {
+                "kind": swimlane_obj.kind,
+                "title": swimlane_obj.title,
+                "header_center_x": swimlane_obj.header_center_x,
+                "header_center_y": swimlane_obj.header_center_y,
+                "width": swimlane_obj.width,
+                "height": swimlane_obj.height,
+            }
+            swimlanes_data.append(swimlane_data)
 
-        return {"nodes": nodes_data, "edges": edges_data}
+        return {"nodes": nodes_data, "edges": edges_data, "swimlanes": swimlanes_data}
 
     def import_model(self, data, push_to_history=False):
         """モデルを読み込み、Canvasを再構築"""
         self.canvas.delete("all")
         self.nodes.clear()
         self.edges.clear()
+        self.swimlanes.clear()
         self.selected_node_ids = []
+        self.selected_edge_id = None
         self.link_start_node_id = None
+        self.selected_swimlanes = []
 
         # グリッド
         self._draw_grid()
 
         nodes_data = data.get("nodes", [])
         edges_data = data.get("edges", [])
+        swimlanes_data = data.get("swimlanes", [])
 
+        # ノード復元
         max_id = 0
         for nd in nodes_data:
             nid = nd.get("id")
@@ -846,7 +1108,8 @@ class FlowchartTool(tk.Tk):
             h = nd.get("h", Node.get_height_of_type(node_type))
             fill_color = nd.get("fill_color", None)
             text = nd.get("text", "")
-            self._create_node_with_id(nid, node_type, x, y, w=w, h=h, fill_color=fill_color, text=text)
+            status = nd.get("status", None)
+            self._create_node_with_id(nid, node_type, x, y, w=w, h=h, fill_color=fill_color, text=text, status=status)
             if nid > max_id:
                 max_id = nid
 
@@ -873,7 +1136,19 @@ class FlowchartTool(tk.Tk):
                 if edge_obj is not None and edge_obj.line_id is not None:
                     self.edges[edge_obj.line_id] = edge_obj
 
-        # ノード最前面
+        # スイムレーン復元
+        for sd in swimlanes_data:
+            kind = sd.get("kind", ct.SWIMLANE_PARAMS["kind"])
+            title = sd.get("title", ct.SWIMLANE_PARAMS["title"])
+            header_center_x = sd.get("header_center_x", 0)
+            header_center_y = sd.get("header_center_y", 0)
+            width = sd.get("width", 0)
+            height = sd.get("height", 0)
+            swimlane_obj = Swimlane(canvas=self.canvas, kind=kind, title=title, header_center_x=header_center_x, header_center_y=header_center_y, width=width, height=height)
+            self.swimlanes.append(swimlane_obj)
+
+        # ノード・エッジ・スイムレーン階層調整
+        self.canvas.tag_raise("edge")
         self.canvas.tag_raise("node")
 
         if push_to_history:
@@ -912,7 +1187,7 @@ class FlowchartTool(tk.Tk):
     # ------------ JSON保存/読み込み ------------
 
     def save_json(self):
-        self.cancel_selection_node_and_edge()
+        self.cancel_selection_node_and_edge_and_swimlane()
 
         filename = filedialog.asksaveasfilename(
             defaultextension=".json",
@@ -1047,6 +1322,60 @@ class FlowchartTool(tk.Tk):
 
         self.edge_label_edit = None
 
+    def start_swimlane_label_edit(self, swimlane_obj:Swimlane):
+        if self.text_edit is not None:
+            self.finish_text_edit(commit=False)
+        if self.edge_label_edit is not None:
+            self.finish_edge_label_edit(commit=False)
+        if self.swimlane_label_edit is not None:
+            self.finish_swimlane_label_edit(commit=False)
+
+        if swimlane_obj is None:
+            return
+        x, y = swimlane_obj.header_center_x, swimlane_obj.header_center_y
+
+        entry = ttk.Entry(self.canvas)
+        if x and y and swimlane_obj.title:
+            entry.insert(0, swimlane_obj.title)
+            window_id = self.canvas.create_window(
+                x, y,
+                window=entry
+            )
+            self.swimlane_label_edit = {"entry": entry, "swimlane_obj": swimlane_obj, "window_id": window_id}
+
+        def commit(event=None):
+            self.finish_swimlane_label_edit(commit=True)
+
+        def cancel(event=None):
+            self.finish_swimlane_label_edit(commit=False)
+
+        entry.focus_set()
+        entry.select_range(0, tk.END)
+        entry.bind("<Return>", commit)
+        entry.bind("<Escape>", cancel)
+        entry.bind("<FocusOut>", commit)
+
+    def finish_swimlane_label_edit(self, commit=True):
+        if self.swimlane_label_edit is None:
+            return
+        entry = self.swimlane_label_edit["entry"]
+        swimlane_obj = self.swimlane_label_edit["swimlane_obj"]
+        window_id = self.swimlane_label_edit["window_id"]
+
+        new_text = entry.get().replace("\\n", "\n")
+        self.canvas.delete(window_id)
+        entry.destroy()
+
+        if commit and swimlane_obj:
+            swimlane_obj.title = new_text
+            if swimlane_obj.top_text_id:
+                self.canvas.itemconfig(swimlane_obj.top_text_id, text=new_text)
+            if swimlane_obj.bottom_text_id:
+                self.canvas.itemconfig(swimlane_obj.bottom_text_id, text=new_text)
+            self.push_history()
+
+        self.swimlane_label_edit = None
+
     def adjusted_xy(self, node_id:int|None, x:int, y:int, node_type=ct.NODE_DEFAULT_PARAMS["type"]):
         if node_id is None:
             return x, y
@@ -1068,6 +1397,40 @@ class FlowchartTool(tk.Tk):
             adjusted_y = y
 
         return adjusted_x, adjusted_y
+
+    def adjusted_swimlane_xy(self, swimlane_obj:Swimlane|None, x:int, y:int):
+        grid_size = ct.CANVAS_PARAMS["grid_spacing"]
+
+        if self.grid_on.get():
+            if swimlane_obj is None:     # 新規スイムレーン作成時
+                swimlane_kind = ct.SWIMLANE_PARAMS["kind"]
+                if swimlane_kind == ct.SWIMLANE_KIND_HORIZONTAL:
+                    w = ct.SWIMLANE_PARAMS["horizontal_width"]
+                    h = ct.SWIMLANE_PARAMS["horizontal_header_height"]
+                else:
+                    w = ct.SWIMLANE_PARAMS["vertical_header_width"]
+                    h = ct.SWIMLANE_PARAMS["vertical_height"]
+            else:   # 既存スイムレーン移動時
+                swimlane_kind = swimlane_obj.kind
+                if swimlane_kind == ct.SWIMLANE_KIND_HORIZONTAL:
+                    w = swimlane_obj.width
+                    h = ct.SWIMLANE_PARAMS["horizontal_header_height"]
+                else:
+                    w = ct.SWIMLANE_PARAMS["vertical_header_width"]
+                    h = swimlane_obj.height
+            adjusted_x = int(((x + grid_size/2 - w/2) // grid_size) * grid_size + w/2)
+            adjusted_y = int(((y + grid_size/2 - h/2) // grid_size) * grid_size + h/2)
+        else:
+            adjusted_x = x
+            adjusted_y = y
+
+        return adjusted_x, adjusted_y
+
+    def get_swimlane_by_frame_id(self, frame_id):
+        for swimlane_obj in self.swimlanes:
+            if swimlane_obj.frame_id == frame_id:
+                return swimlane_obj
+        return None
 
     def _move_node_graphics(self, node_obj):
         x, y = node_obj.x, node_obj.y
@@ -1132,7 +1495,6 @@ class FlowchartTool(tk.Tk):
         w = int(self.canvas.winfo_width() * scaling) - 4
         h = int(self.canvas.winfo_height() * scaling) - 4
         bbox = (x, y, x + w, y + h)  # (left, top, right, bottom)
-        print(f"scaling:{scaling}, Canvas bbox for image capture: {bbox}")
         img = ImageGrab.grab(bbox=bbox, all_screens=True)
 
         # 拡張子に合わせて保存（JPEGはRGB必須）
@@ -1144,7 +1506,7 @@ class FlowchartTool(tk.Tk):
             img.save(file_path, "PNG")
 
     def on_save(self):
-        self.cancel_selection_node_and_edge()
+        self.cancel_selection_node_and_edge_and_swimlane()
 
         path = filedialog.asksaveasfilename(
             defaultextension=".png",
@@ -1185,8 +1547,11 @@ class FlowchartTool(tk.Tk):
         self.canvas.delete("all")
         self.nodes.clear()
         self.edges.clear()
+        self.swimlanes.clear()
         self.selected_node_ids = []
+        self.selected_edge_id = None
         self.link_start_node_id = None
+        self.selected_swimlanes = []
         self._id_counter = itertools.count(1)
 
         # グリッド
@@ -1399,6 +1764,8 @@ class FlowchartTool(tk.Tk):
     def display_operation_info(self):
         if self.nodes is not None and len(self.nodes) > 0:
             self._hide_operation_info()
+        elif self.swimlanes is not None and len(self.swimlanes) > 0:
+            self._hide_operation_info()
         else:
             self._show_operation_info()
 
@@ -1407,7 +1774,7 @@ class FlowchartTool(tk.Tk):
             return
         self.ope_info = tk.Label(self.canvas, justify="left", font=("Consolas", 9), fg="#0f172a", text=
             "[Key Operations]\n"
-            " DEL: Delete selected node/edge\n"
+            " DEL: Delete selected node/edge/swimlane\n"
             " ESC: Cancel selection\n"
             " Ctrl-a: Select all nodes\n"
             " Ctrl-z: Undo\n"
@@ -1417,13 +1784,14 @@ class FlowchartTool(tk.Tk):
             "\n"
             "[Mouse Operations]\n"
             " Right Button: Show context menu\n"
-            " Click Node/Edge: Select node/edge\n"
-            " Double-Click Node/Edge: Edit text\n"
+            " Click Node/Edge/Swimlane: Select node/edge/swimlane\n"
+            " Double-Click Node/Edge/Swimlane: Edit text\n"
             " Drag Area: Select nodes in area\n"
             " Drag Node: Move selected node(s)\n"
+            " Drag Swimlane Header/Footer: Move swimlane(s)\n"
             " MouseWheel: Rotate menu selection\n"
-            " Ctrl+MouseWheel: Change connection point\n"
-            " Shift+MouseWheel: Change edge wrap margin\n"
+            " Ctrl+MouseWheel: Change connection point or swimlane height\n"
+            " Shift+MouseWheel: Change edge wrap margin or swimlane width\n"
             " Ctrl+Shift+MouseWheel: Change edge label position"
             )
         self.ope_info.pack(padx=8, pady=8, anchor="ne")
@@ -1449,7 +1817,8 @@ class FlowchartTool(tk.Tk):
                         ct.NODE_TERMINATOR_PARAMS["type"] : ct.NODE_TERMINATOR_PARAMS["fill_color"],
                         ct.NODE_IO_PARAMS["type"] : ct.NODE_IO_PARAMS["fill_color"],
                     }.get(node_obj.type, ct.NODE_DEFAULT_PARAMS["fill_color"])
-                self.canvas.itemconfig(node_obj.shape_id, fill=node_obj.fill_color)
+                fill_color = node_obj.get_fill_color()
+                self.canvas.itemconfig(node_obj.shape_id, fill=fill_color)
 
         self.push_history()
 
@@ -1461,15 +1830,20 @@ class FlowchartTool(tk.Tk):
             if selected_node_id in self.nodes:
                 node_obj = self.nodes[selected_node_id]
                 node_obj.fill_color = None
-                fill_color = {
-                    ct.NODE_PROCESS_PARAMS["type"] : ct.NODE_PROCESS_PARAMS["fill_color"],
-                    ct.NODE_DECISION_PARAMS["type"] : ct.NODE_DECISION_PARAMS["fill_color"],
-                    ct.NODE_TERMINATOR_PARAMS["type"] : ct.NODE_TERMINATOR_PARAMS["fill_color"],
-                    ct.NODE_IO_PARAMS["type"] : ct.NODE_IO_PARAMS["fill_color"],
-                }.get(node_obj.type, ct.NODE_DEFAULT_PARAMS["fill_color"])
+                fill_color = node_obj.get_fill_color()
                 self.canvas.itemconfig(node_obj.shape_id, fill=fill_color)
 
         self.push_history()
+
+    def isSelectedObject(self, selecting_node_id=None, selecting_swimlane=None):
+        isSelected_node = False
+        isSelected_swimlane = False
+        if selecting_node_id is not None and len(self.selected_node_ids) > 0:
+            isSelected_node = selecting_node_id in self.selected_node_ids
+        if selecting_swimlane is not None and len(self.selected_swimlanes) > 0:
+            isSelected_swimlane = selecting_swimlane in self.selected_swimlanes
+
+        return isSelected_node or isSelected_swimlane
 
 if __name__ == "__main__":
     app = FlowchartTool()

@@ -12,13 +12,15 @@ class Node:
     text = None
     shape_id = None
     text_id = None
+    status = "active" # "normal", "active", "inactive"
 
-    def __init__(self, node_id, node_type, x:int, y:int, w=None, h=None, fill_color=None, text=None, canvas=None):
-        # print(f"Creating Node: id={node_id}, type={node_type}, x={x}, y={y}, w={w}, h={h}, fill_color={fill_color}, text={text}")
+    def __init__(self, node_id, node_type, x:int, y:int, w=None, h=None, fill_color=None, text=None, status=None, canvas=None):
+        # print(f"Creating Node: id={node_id}, type={node_type}, x={x}, y={y}, w={w}, h={h}, fill_color={fill_color}, text={text}, status={status}")
         self.id = node_id
         self.type = node_type
         self.x = x
         self.y = y
+        self.status = status if status is not None else ct.NODE_STATUS_NORMAL
 
         if w is None:
             self.w = {
@@ -83,9 +85,9 @@ class Node:
         if self.x and self.y and self.w and self.h:
             points = self.get_process_points()
             self.shape_id = canvas.create_polygon(
-                points, fill=self.fill_color,
-                outline=ct.NODE_PROCESS_PARAMS["outline_color"],
-                width=ct.NODE_PROCESS_PARAMS["outline_width"],
+                points, fill=self.get_fill_color(),
+                outline=self.get_outline_color(),
+                width=self.get_outline_width(),
                 tags=("node", f"node-{self.id}", "node-shape")
             )
 
@@ -93,9 +95,9 @@ class Node:
         if self.x and self.y and self.w and self.h:
             points = self.get_decision_points()
             self.shape_id = canvas.create_polygon(
-                points, fill=self.fill_color,
-                outline=ct.NODE_DECISION_PARAMS["outline_color"],
-                width=ct.NODE_DECISION_PARAMS["outline_width"],
+                points, fill=self.get_fill_color(),
+                outline=self.get_outline_color(),
+                width=self.get_outline_width(),
                 tags=("node", f"node-{self.id}", "node-shape")
             )
 
@@ -103,9 +105,9 @@ class Node:
         if self.x and self.y and self.w and self.h:
             points = self.get_terminator_points()
             self.shape_id = canvas.create_polygon(
-                points, fill=self.fill_color,
-                outline=ct.NODE_TERMINATOR_PARAMS["outline_color"],
-                width=ct.NODE_TERMINATOR_PARAMS["outline_width"],
+                points, fill=self.get_fill_color(),
+                outline=self.get_outline_color(),
+                width=self.get_outline_width(),
                 tags=("node", f"node-{self.id}", "node-shape")
             )
 
@@ -113,9 +115,9 @@ class Node:
         if self.x and self.y and self.w and self.h:
             points = self.get_io_points()
             self.shape_id = canvas.create_polygon(
-                points, fill=self.fill_color,
-                outline=ct.NODE_IO_PARAMS["outline_color"],
-                width=ct.NODE_IO_PARAMS["outline_width"],
+                points, fill=self.get_fill_color(),
+                outline=self.get_outline_color(),
+                width=self.get_outline_width(),
                 tags=("node", f"node-{self.id}", "node-shape")
             )
 
@@ -123,11 +125,227 @@ class Node:
         if self.x and self.y and self.w and self.h:
             points = self.get_undefined_points()
             self.shape_id = canvas.create_polygon(
-                points, fill=self.fill_color,
-                outline=ct.NODE_DEFAULT_PARAMS["outline_color"],
-                width=ct.NODE_DEFAULT_PARAMS["outline_width"],
+                points, fill=self.get_fill_color(),
+                outline=self.get_outline_color(),
+                width=self.get_outline_width(),
             tags=("node", f"node-{self.id}", "node-shape")
         )
+
+    def get_fill_color(self):
+        default_fill_color = ct.NODE_DEFAULT_PARAMS["fill_color"]
+        default_active_fill_color = ct.NODE_DEFAULT_PARAMS.get("active_fill_color", default_fill_color)
+        default_inactive_fill_color = ct.NODE_DEFAULT_PARAMS.get("inactive_fill_color", default_fill_color)
+
+        if self.type == ct.NODE_PROCESS_PARAMS["type"]:        # 処理
+            if self.status == "active":
+                fill_color = ct.NODE_PROCESS_PARAMS.get("active_fill_color", default_active_fill_color)
+            elif self.status == "inactive":
+                fill_color = ct.NODE_PROCESS_PARAMS.get("inactive_fill_color", default_inactive_fill_color)
+            else:
+                fill_color = ct.NODE_PROCESS_PARAMS.get("fill_color", default_fill_color) if self.fill_color is None else self.fill_color
+        elif self.type == ct.NODE_DECISION_PARAMS["type"]:     # 分岐
+            if self.status == "active":
+                fill_color = ct.NODE_DECISION_PARAMS.get("active_fill_color", default_active_fill_color)
+            elif self.status == "inactive":
+                fill_color = ct.NODE_DECISION_PARAMS.get("inactive_fill_color", default_inactive_fill_color)
+            else:
+                fill_color = ct.NODE_DECISION_PARAMS.get("fill_color", default_fill_color) if self.fill_color is None else self.fill_color
+        elif self.type == ct.NODE_TERMINATOR_PARAMS["type"]:   # 端点
+            if self.status == "active":
+                fill_color = ct.NODE_TERMINATOR_PARAMS.get("active_fill_color", default_active_fill_color)
+            elif self.status == "inactive":
+                fill_color = ct.NODE_TERMINATOR_PARAMS.get("inactive_fill_color", default_inactive_fill_color)
+            else:
+                fill_color = ct.NODE_TERMINATOR_PARAMS.get("fill_color", default_fill_color) if self.fill_color is None else self.fill_color
+        elif self.type == ct.NODE_IO_PARAMS["type"]:           # 入出力
+            if self.status == "active":
+                fill_color = ct.NODE_IO_PARAMS.get("active_fill_color", default_active_fill_color)
+            elif self.status == "inactive":
+                fill_color = ct.NODE_IO_PARAMS.get("inactive_fill_color", default_inactive_fill_color)
+            else:
+                fill_color = ct.NODE_IO_PARAMS.get("fill_color", default_fill_color) if self.fill_color is None else self.fill_color
+        else:
+            if self.status == "active":                        # その他（未定義）
+                fill_color = default_active_fill_color
+            elif self.status == "inactive":
+                fill_color = default_inactive_fill_color
+            else:
+                fill_color = default_fill_color if self.fill_color is None else self.fill_color
+
+        # print(f"Node {self.id} fill_color determined as {fill_color}")
+        return fill_color
+
+    def get_outline_color(self):
+        default_outline_color = ct.NODE_DEFAULT_PARAMS["outline_color"]
+        default_active_outline_color = ct.NODE_DEFAULT_PARAMS.get("active_outline_color", default_outline_color)
+        default_inactive_outline_color = ct.NODE_DEFAULT_PARAMS.get("inactive_outline_color", default_outline_color)
+
+        if self.type == ct.NODE_PROCESS_PARAMS["type"]:        # 処理
+            if self.status == "active":
+                outline_color = ct.NODE_PROCESS_PARAMS.get("active_outline_color", default_active_outline_color)
+            elif self.status == "inactive":
+                outline_color = ct.NODE_PROCESS_PARAMS.get("inactive_outline_color", default_inactive_outline_color)
+            else:
+                outline_color = ct.NODE_PROCESS_PARAMS.get("outline_color", default_outline_color)
+        elif self.type == ct.NODE_DECISION_PARAMS["type"]:     # 分岐
+            if self.status == "active":
+                outline_color = ct.NODE_DECISION_PARAMS.get("active_outline_color", default_active_outline_color)
+            elif self.status == "inactive":
+                outline_color = ct.NODE_DECISION_PARAMS.get("inactive_outline_color", default_inactive_outline_color)
+            else:
+                outline_color = ct.NODE_DECISION_PARAMS.get("outline_color", default_outline_color)
+        elif self.type == ct.NODE_TERMINATOR_PARAMS["type"]:   # 端点
+            if self.status == "active":
+                outline_color = ct.NODE_TERMINATOR_PARAMS.get("active_outline_color", default_active_outline_color)
+            elif self.status == "inactive":
+                outline_color = ct.NODE_TERMINATOR_PARAMS.get("inactive_outline_color", default_inactive_outline_color)
+            else:
+                outline_color = ct.NODE_TERMINATOR_PARAMS.get("outline_color", default_outline_color)
+        elif self.type == ct.NODE_IO_PARAMS["type"]:           # 入出力
+            if self.status == "active":
+                outline_color = ct.NODE_IO_PARAMS.get("active_outline_color", default_active_outline_color)
+            elif self.status == "inactive":
+                outline_color = ct.NODE_IO_PARAMS.get("inactive_outline_color", default_inactive_outline_color)
+            else:
+                outline_color = ct.NODE_IO_PARAMS.get("outline_color", default_outline_color)
+        else:
+            if self.status == "active":                        # その他（未定義）
+                outline_color = default_active_outline_color
+            elif self.status == "inactive":
+                outline_color = default_inactive_outline_color
+            else:
+                outline_color = default_outline_color
+
+        return outline_color
+    
+    def get_outline_width(self):
+        default_outline_width = ct.NODE_DEFAULT_PARAMS["outline_width"]
+        default_active_outline_width = ct.NODE_DEFAULT_PARAMS.get("active_outline_width", default_outline_width)
+        default_inactive_outline_width = ct.NODE_DEFAULT_PARAMS.get("inactive_outline_width", default_outline_width)
+
+        if self.type == ct.NODE_PROCESS_PARAMS["type"]:        # 処理
+            if self.status == "active":
+                outline_width = ct.NODE_PROCESS_PARAMS.get("active_outline_width", default_active_outline_width)
+            elif self.status == "inactive":
+                outline_width = ct.NODE_PROCESS_PARAMS.get("inactive_outline_width", default_inactive_outline_width)
+            else:
+                outline_width = ct.NODE_PROCESS_PARAMS.get("outline_width", default_outline_width)
+        elif self.type == ct.NODE_DECISION_PARAMS["type"]:     # 分岐
+            if self.status == "active":
+                outline_width = ct.NODE_DECISION_PARAMS.get("active_outline_width", default_active_outline_width)
+            elif self.status == "inactive":
+                outline_width = ct.NODE_DECISION_PARAMS.get("inactive_outline_width", default_inactive_outline_width)
+            else:
+                outline_width = ct.NODE_DECISION_PARAMS.get("outline_width", default_outline_width)
+        elif self.type == ct.NODE_TERMINATOR_PARAMS["type"]:   # 端点
+            if self.status == "active":
+                outline_width = ct.NODE_TERMINATOR_PARAMS.get("active_outline_width", default_active_outline_width)
+            elif self.status == "inactive":
+                outline_width = ct.NODE_TERMINATOR_PARAMS.get("inactive_outline_width", default_inactive_outline_width)
+            else:
+                outline_width = ct.NODE_TERMINATOR_PARAMS.get("outline_width", default_outline_width)
+        elif self.type == ct.NODE_IO_PARAMS["type"]:           # 入出力
+            if self.status == "active":
+                outline_width = ct.NODE_IO_PARAMS.get("active_outline_width", default_active_outline_width)
+            elif self.status == "inactive":
+                outline_width = ct.NODE_IO_PARAMS.get("inactive_outline_width", default_inactive_outline_width)
+            else:
+                outline_width = ct.NODE_IO_PARAMS.get("outline_width", default_outline_width)
+        else:
+            if self.status == "active":                        # その他（未定義）
+                outline_width = default_active_outline_width
+            elif self.status == "inactive":
+                outline_width = default_inactive_outline_width
+            else:
+                outline_width = default_outline_width
+
+        return outline_width
+
+    def get_text_color(self):
+        default_text_color = ct.NODE_DEFAULT_PARAMS["text_color"]
+        default_active_text_color = ct.NODE_DEFAULT_PARAMS.get("active_text_color", default_text_color)
+        default_inactive_text_color = ct.NODE_DEFAULT_PARAMS.get("inactive_text_color", default_text_color)
+
+        if self.type == ct.NODE_PROCESS_PARAMS["type"]:        # 処理
+            if self.status == "active":
+                text_color = ct.NODE_PROCESS_PARAMS.get("active_text_color", default_active_text_color)
+            elif self.status == "inactive":
+                text_color = ct.NODE_PROCESS_PARAMS.get("inactive_text_color", default_inactive_text_color)
+            else:
+                text_color = ct.NODE_PROCESS_PARAMS.get("text_color", default_text_color)
+        elif self.type == ct.NODE_DECISION_PARAMS["type"]:     # 分岐
+            if self.status == "active":
+                text_color = ct.NODE_DECISION_PARAMS.get("active_text_color", default_active_text_color)
+            elif self.status == "inactive":
+                text_color = ct.NODE_DECISION_PARAMS.get("inactive_text_color", default_inactive_text_color)
+            else:
+                text_color = ct.NODE_DECISION_PARAMS.get("text_color", default_text_color)
+        elif self.type == ct.NODE_TERMINATOR_PARAMS["type"]:   # 端点
+            if self.status == "active":
+                text_color = ct.NODE_TERMINATOR_PARAMS.get("active_text_color", default_active_text_color)
+            elif self.status == "inactive":
+                text_color = ct.NODE_TERMINATOR_PARAMS.get("inactive_text_color", default_inactive_text_color)
+            else:
+                text_color = ct.NODE_TERMINATOR_PARAMS.get("text_color", default_text_color)
+        elif self.type == ct.NODE_IO_PARAMS["type"]:           # 入出力
+            if self.status == "active":
+                text_color = ct.NODE_IO_PARAMS.get("active_text_color", default_active_text_color)
+            elif self.status == "inactive":
+                text_color = ct.NODE_IO_PARAMS.get("inactive_text_color", default_inactive_text_color)
+            else:
+                text_color = ct.NODE_IO_PARAMS.get("text_color", default_text_color)
+        else:
+            if self.status == "active":                        # その他（未定義）
+                text_color = default_active_text_color
+            elif self.status == "inactive":
+                text_color = default_inactive_text_color
+            else:
+                text_color = default_text_color
+
+        return text_color
+
+    def get_text_font_weight(self):
+        default_font_weight = ct.NODE_DEFAULT_PARAMS["font_weight"]
+        default_active_font_weight = ct.NODE_DEFAULT_PARAMS.get("active_font_weight", default_font_weight)
+        default_inactive_font_weight = ct.NODE_DEFAULT_PARAMS.get("inactive_font_weight", default_font_weight)
+
+        if self.type == ct.NODE_PROCESS_PARAMS["type"]:        # 処理
+            if self.status == "active":
+                font_weight = ct.NODE_PROCESS_PARAMS.get("active_font_weight", default_active_font_weight)
+            elif self.status == "inactive":
+                font_weight = ct.NODE_PROCESS_PARAMS.get("inactive_font_weight", default_inactive_font_weight)
+            else:
+                font_weight = ct.NODE_PROCESS_PARAMS.get("font_weight", default_font_weight)
+        elif self.type == ct.NODE_DECISION_PARAMS["type"]:     # 分岐
+            if self.status == "active":
+                font_weight = ct.NODE_DECISION_PARAMS.get("active_font_weight", default_active_font_weight)
+            elif self.status == "inactive":
+                font_weight = ct.NODE_DECISION_PARAMS.get("inactive_font_weight", default_inactive_font_weight)
+            else:
+                font_weight = ct.NODE_DECISION_PARAMS.get("font_weight", default_font_weight)
+        elif self.type == ct.NODE_TERMINATOR_PARAMS["type"]:   # 端点
+            if self.status == "active":
+                font_weight = ct.NODE_TERMINATOR_PARAMS.get("active_font_weight", default_active_font_weight)
+            elif self.status == "inactive":
+                font_weight = ct.NODE_TERMINATOR_PARAMS.get("inactive_font_weight", default_inactive_font_weight)
+            else:
+                font_weight = ct.NODE_TERMINATOR_PARAMS.get("font_weight", default_font_weight)
+        elif self.type == ct.NODE_IO_PARAMS["type"]:           # 入出力
+            if self.status == "active":
+                font_weight = ct.NODE_IO_PARAMS.get("active_font_weight", default_active_font_weight)
+            elif self.status == "inactive":
+                font_weight = ct.NODE_IO_PARAMS.get("inactive_font_weight", default_inactive_font_weight)
+            else:
+                font_weight = ct.NODE_IO_PARAMS.get("font_weight", default_font_weight)
+        else:
+            if self.status == "active":                        # その他（未定義）
+                font_weight = default_active_font_weight
+            elif self.status == "inactive":
+                font_weight = default_inactive_font_weight
+            else:
+                font_weight = default_font_weight
+
+        return font_weight
 
     def get_process_points(self):
         left, top, right, bottom = self.x - self.w/2, self.y - self.h/2, self.x + self.w/2, self.y + self.h/2
@@ -184,15 +402,19 @@ class Node:
     
     def _get_text_params(self):
         if self.type == ct.NODE_PROCESS_PARAMS["type"]:        # 処理
-            font_family, font_size, font_weight, text_width, text_color = ct.NODE_PROCESS_PARAMS["font_family"], ct.NODE_PROCESS_PARAMS["font_size"], ct.NODE_PROCESS_PARAMS["font_weight"], ct.NODE_PROCESS_PARAMS["text_width"], ct.NODE_PROCESS_PARAMS["text_color"]
+            font_family, font_size, text_width  = ct.NODE_PROCESS_PARAMS["font_family"], ct.NODE_PROCESS_PARAMS["font_size"], ct.NODE_PROCESS_PARAMS["text_width"]
         elif self.type == ct.NODE_DECISION_PARAMS["type"]:     # 分岐
-            font_family, font_size, font_weight, text_width, text_color = ct.NODE_DECISION_PARAMS["font_family"], ct.NODE_DECISION_PARAMS["font_size"], ct.NODE_DECISION_PARAMS["font_weight"], ct.NODE_DECISION_PARAMS["text_width"], ct.NODE_DECISION_PARAMS["text_color"]
+            font_family, font_size, text_width = ct.NODE_DECISION_PARAMS["font_family"], ct.NODE_DECISION_PARAMS["font_size"], ct.NODE_DECISION_PARAMS["text_width"]
         elif self.type == ct.NODE_TERMINATOR_PARAMS["type"]:   # 端点
-            font_family, font_size, font_weight, text_width, text_color = ct.NODE_TERMINATOR_PARAMS["font_family"], ct.NODE_TERMINATOR_PARAMS["font_size"], ct.NODE_TERMINATOR_PARAMS["font_weight"], ct.NODE_TERMINATOR_PARAMS["text_width"], ct.NODE_TERMINATOR_PARAMS["text_color"]
+            font_family, font_size, text_width = ct.NODE_TERMINATOR_PARAMS["font_family"], ct.NODE_TERMINATOR_PARAMS["font_size"], ct.NODE_TERMINATOR_PARAMS["text_width"]
         elif self.type == ct.NODE_IO_PARAMS["type"]:           # 入出力
-            font_family, font_size, font_weight, text_width, text_color = ct.NODE_IO_PARAMS["font_family"], ct.NODE_IO_PARAMS["font_size"], ct.NODE_IO_PARAMS["font_weight"], ct.NODE_IO_PARAMS["text_width"], ct.NODE_IO_PARAMS["text_color"]
+            font_family, font_size, text_width = ct.NODE_IO_PARAMS["font_family"], ct.NODE_IO_PARAMS["font_size"], ct.NODE_IO_PARAMS["text_width"]
         else:                                   # その他（未定義）
-            font_family, font_size, font_weight, text_width, text_color = ct.NODE_DEFAULT_PARAMS["font_family"], ct.NODE_DEFAULT_PARAMS["font_size"], ct.NODE_DEFAULT_PARAMS["font_weight"], ct.NODE_DEFAULT_PARAMS["text_width"], ct.NODE_DEFAULT_PARAMS["text_color"]
+            font_family, font_size, text_width = ct.NODE_DEFAULT_PARAMS["font_family"], ct.NODE_DEFAULT_PARAMS["font_size"], ct.NODE_DEFAULT_PARAMS["text_width"]
+
+        font_weight = self.get_text_font_weight()
+        text_color = self.get_text_color()
+
         return font_family, font_size, font_weight, text_width, text_color
 
     def get_rectangle_coords(self, left, top, right, bottom):
@@ -221,7 +443,7 @@ class Node:
         return coords
 
     def get_corner_rounded_rectangle_coords(self, left, top, right, bottom):
-        r = self.h / 6
+        r = self.round_half_up(self.h / 5)
         if r < 0 or r > min((right - left)/2, (bottom - top)/2):
             return [left, top, right, top, right, bottom, left, bottom]
 
@@ -230,6 +452,7 @@ class Node:
         coords += [left + r, top]
         coords += [right - r, top]
         for angle in range(0 + angle_step, 91 - angle_step, angle_step):
+            # print(f"Calculating top-right corner: angle={angle}")
             radius = math.radians(angle)
             coords += [right - r + r * math.sin(radius), top + r - r * math.cos(radius)]
         coords += [right, top + r]
@@ -247,10 +470,11 @@ class Node:
         for angle in range(270 + angle_step, 361 - angle_step, angle_step):
             radius = math.radians(angle)
             coords += [left + r + r * math.sin(radius), top + r - r * math.cos(radius)]
-
         return coords
 
-
+    @staticmethod
+    def round_half_up(value):
+        return math.floor(value + 0.5)
 
     @classmethod
     def get_width_of_type(cls, node_type):
