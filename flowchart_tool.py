@@ -99,42 +99,42 @@ class FlowchartTool(tk.Tk):
 
         ttk.Separator(toolbar, orient=tk.VERTICAL).pack(side=tk.LEFT, fill=tk.Y, padx=(8,8))
 
-        button_delete = ttk.Button(toolbar, text="Delete", image=self.icons["Delete"], compound="none", command=self.delete_selected)
+        button_delete = tk.Button(toolbar, text="Delete", image=self.icons["Delete"], compound="none", command=self.delete_selected, width=30, height=30)
         button_delete.pack(side=tk.LEFT, padx=1)
         ToolTip(button_delete, "Delete Selected")
 
         ttk.Separator(toolbar, orient=tk.VERTICAL).pack(side=tk.LEFT, fill=tk.Y, padx=(8,8))
 
         # Undo/Redoボタン定義
-        button_undo = ttk.Button(toolbar, text="Undo", image=self.icons["Undo"], compound="none", command=self.undo)
+        button_undo = tk.Button(toolbar, text="Undo", image=self.icons["Undo"], compound="none", command=self.undo, width=30, height=30)
         button_undo.pack(side=tk.LEFT, padx=1)
         ToolTip(button_undo, "Undo")
-        button_redo = ttk.Button(toolbar, text="Redo", image=self.icons["Redo"], command=self.redo)
+        button_redo = tk.Button(toolbar, text="Redo", image=self.icons["Redo"], command=self.redo, width=30, height=30)
         button_redo.pack(side=tk.LEFT, padx=1)
         ToolTip(button_redo, "Redo")
 
         ttk.Separator(toolbar, orient=tk.VERTICAL).pack(side=tk.LEFT, fill=tk.Y, padx=(8,8))
 
         # JSON読み込み/保存ボタン定義
-        button_load_json = ttk.Button(toolbar, text="Load JSON", image=self.icons["Load_JSON"], compound="none", command=self.load_json)
+        button_load_json = tk.Button(toolbar, text="Load JSON", image=self.icons["Load_JSON"], compound="none", command=self.load_json, width=30, height=30)
         button_load_json.pack(side=tk.LEFT, padx=1)
         ToolTip(button_load_json, "Load JSON")
-        button_save_json = ttk.Button(toolbar, text="Save JSON", image=self.icons["Save_JSON"], compound="none", command=self.save_json)
+        button_save_json = tk.Button(toolbar, text="Save JSON", image=self.icons["Save_JSON"], compound="none", command=self.save_json, width=30, height=30)
         button_save_json.pack(side=tk.LEFT, padx=1)
         ToolTip(button_save_json, "Save JSON")
         # 画像保存ボタン定義
-        button_save_image = ttk.Button(toolbar, text="Save Image", image=self.icons["Save_Image"], compound="none", command=self.on_save)
+        button_save_image = tk.Button(toolbar, text="Save Image", image=self.icons["Save_Image"], compound="none", command=self.on_save, width=30, height=30)
         button_save_image.pack(side=tk.LEFT, padx=1)
         ToolTip(button_save_image, "Save Image")
         # Mermaid形式ファイル読み込みボタン定義
-        button_load_mermaid = ttk.Button(toolbar, text="Load Mermaid", image=self.icons["Load_Mermaid"], compound="none", command=self.load_mermaid_flowdata)
+        button_load_mermaid = tk.Button(toolbar, text="Load Mermaid", image=self.icons["Load_Mermaid"], compound="none", command=self.load_mermaid_flowdata, width=30, height=30)
         button_load_mermaid.pack(side=tk.LEFT, padx=1)
         ToolTip(button_load_mermaid, "Load Mermaid")
 
         ttk.Separator(toolbar, orient=tk.VERTICAL).pack(side=tk.LEFT, fill=tk.Y, padx=(8,8))
     
         # グリッドON/OFFボタン定義
-        checkbutton_grid = tk.Checkbutton(toolbar, text="Grid", image=self.icons["Grid"], compound="none", indicatoron=False, variable=self.grid_on, command=self.on_grid_toggle)
+        checkbutton_grid = tk.Checkbutton(toolbar, text="Grid", image=self.icons["Grid"], compound="none", indicatoron=False, variable=self.grid_on, command=self.on_grid_toggle, width=30, height=30)
         checkbutton_grid.pack(side=tk.LEFT, padx=1)
         ToolTip(checkbutton_grid, "Grid ON/OFF")
 
@@ -259,7 +259,7 @@ class FlowchartTool(tk.Tk):
 
         # ChatWindow表示On/OFFボタン
         if self.openai_client is not None:
-            checkbutton_ai = tk.Checkbutton(toolbar, text="AI-generation", image=self.icons["AI-generation"], compound="none", indicatoron=False, variable=self.chat_window_on, command=self.on_chat_window_toggle)
+            checkbutton_ai = tk.Checkbutton(toolbar, text="AI-generation", image=self.icons["AI-generation"], compound="none", indicatoron=False, variable=self.chat_window_on, command=self.on_chat_window_toggle, width=30, height=30)
             checkbutton_ai.pack(side=tk.LEFT, padx=1)
             ToolTip(checkbutton_ai, "AI-generation")
 
@@ -270,7 +270,7 @@ class FlowchartTool(tk.Tk):
         self.after(0, self.on_resize_simple)
 
     def add_mode_button(self, toolbar, text, value):
-        b = tk.Radiobutton(toolbar, text=text, image=self.icons[text], compound="none", indicatoron=False, value=value, variable=self.mode)
+        b = tk.Radiobutton(toolbar, text=text, image=self.icons[text], compound="none", indicatoron=False, value=value, variable=self.mode, width=30, height=30)
         if text == "Select":
             b.pack(side=tk.LEFT, padx=4)
         elif text == "Swimlane" or text == "Link":
