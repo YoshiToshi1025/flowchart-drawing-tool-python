@@ -58,6 +58,7 @@ This project provides a **Simple Flowchart Drawing Tool (Python version)** that 
 
   * **Available elements**
 
+    * Swimlane: Swimlane
     * Terminator: Start, End, Subroutine
     * Process: Processing step
     * Decision: Branch
@@ -118,12 +119,11 @@ This project provides a **Simple Flowchart Drawing Tool (Python version)** that 
 
 ## Notes
 
-* Automatic flowchart generation uses the OpenAI API (GPT-5.2).
+* Automatic flowchart generation uses the OpenAI API (GPT-5.4).
   API usage fees will be incurred each time automatic generation is performed.
 
 ## Planned Features
 
-* Optimization of menu structure
 * Canvas scrolling and zoom in/out
 * Export of drawn flowcharts to Excel
 * Additional elements
@@ -158,3 +158,4 @@ This project provides a **Simple Flowchart Drawing Tool (Python version)** that 
 * 2026/02/03 : Definition of mouse wheel operations, ability to select rounded rectangles for Process shapes, and improved link selection operations
 * 2026/02/09 : Added support for manually changing node fill colors.
 * 2026/03/03 : Supports swimlane display and node highlight/non-highlight display.
+* 2026/03/07 : Improved the menu structure, updated the default AI integration to GPT-5.4, and refined the source code implementation.

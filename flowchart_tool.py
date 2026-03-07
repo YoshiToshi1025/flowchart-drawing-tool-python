@@ -10,6 +10,7 @@ from openai import OpenAI
 from dotenv import load_dotenv
 from pathlib import Path
 import re
+from PIL import Image, ImageDraw, ImageTk, ImageFont
 
 import mermaid_flowdata_loader as mfloader
 import constants as ct
@@ -78,6 +79,8 @@ class FlowchartTool(tk.Tk):
     def _build_ui(self):
         # UI画面構築
 
+        self.store_icons()   # アイコンの読み込みと保存
+
         # -------------------------
         # 重要：コンテナを作って、全部 place で重ねる（安定）
         # -------------------------
@@ -93,21 +96,49 @@ class FlowchartTool(tk.Tk):
         for mode_key, mode_value in ct.MODE_DICT.items():
             self.add_mode_button(toolbar, mode_key, mode_value)
 
-        ttk.Button(toolbar, text="Delete", command=self.delete_selected).pack(side=tk.LEFT, padx=1)
-    
-        # グリッドON/OFFボタン定義
-        ttk.Checkbutton(toolbar, text="Grid", variable=self.grid_on, command=self.on_grid_toggle).pack(side=tk.LEFT, padx=1)
+
+        ttk.Separator(toolbar, orient=tk.VERTICAL).pack(side=tk.LEFT, fill=tk.Y, padx=(8,8))
+
+        button_delete = ttk.Button(toolbar, text="Delete", image=self.icons["Delete"], compound="none", command=self.delete_selected)
+        button_delete.pack(side=tk.LEFT, padx=1)
+        ToolTip(button_delete, "Delete Selected")
+
+        ttk.Separator(toolbar, orient=tk.VERTICAL).pack(side=tk.LEFT, fill=tk.Y, padx=(8,8))
 
         # Undo/Redoボタン定義
-        ttk.Button(toolbar, text="Undo", command=self.undo).pack(side=tk.LEFT, padx=1)
-        ttk.Button(toolbar, text="Redo", command=self.redo).pack(side=tk.LEFT, padx=1)
+        button_undo = ttk.Button(toolbar, text="Undo", image=self.icons["Undo"], compound="none", command=self.undo)
+        button_undo.pack(side=tk.LEFT, padx=1)
+        ToolTip(button_undo, "Undo")
+        button_redo = ttk.Button(toolbar, text="Redo", image=self.icons["Redo"], command=self.redo)
+        button_redo.pack(side=tk.LEFT, padx=1)
+        ToolTip(button_redo, "Redo")
+
+        ttk.Separator(toolbar, orient=tk.VERTICAL).pack(side=tk.LEFT, fill=tk.Y, padx=(8,8))
+
         # JSON読み込み/保存ボタン定義
-        ttk.Button(toolbar, text="Load JSON", command=self.load_json).pack(side=tk.LEFT, padx=1)
-        ttk.Button(toolbar, text="Save JSON", command=self.save_json).pack(side=tk.LEFT, padx=1)
+        button_load_json = ttk.Button(toolbar, text="Load JSON", image=self.icons["Load_JSON"], compound="none", command=self.load_json)
+        button_load_json.pack(side=tk.LEFT, padx=1)
+        ToolTip(button_load_json, "Load JSON")
+        button_save_json = ttk.Button(toolbar, text="Save JSON", image=self.icons["Save_JSON"], compound="none", command=self.save_json)
+        button_save_json.pack(side=tk.LEFT, padx=1)
+        ToolTip(button_save_json, "Save JSON")
         # 画像保存ボタン定義
-        ttk.Button(toolbar, text="Save Image", command=self.on_save).pack(side=tk.LEFT, padx=1)
+        button_save_image = ttk.Button(toolbar, text="Save Image", image=self.icons["Save_Image"], compound="none", command=self.on_save)
+        button_save_image.pack(side=tk.LEFT, padx=1)
+        ToolTip(button_save_image, "Save Image")
         # Mermaid形式ファイル読み込みボタン定義
-        ttk.Button(toolbar, text="Load Mermaid", command=self.load_mermaid_flowdata).pack(side=tk.LEFT, padx=1)
+        button_load_mermaid = ttk.Button(toolbar, text="Load Mermaid", image=self.icons["Load_Mermaid"], compound="none", command=self.load_mermaid_flowdata)
+        button_load_mermaid.pack(side=tk.LEFT, padx=1)
+        ToolTip(button_load_mermaid, "Load Mermaid")
+
+        ttk.Separator(toolbar, orient=tk.VERTICAL).pack(side=tk.LEFT, fill=tk.Y, padx=(8,8))
+    
+        # グリッドON/OFFボタン定義
+        checkbutton_grid = tk.Checkbutton(toolbar, text="Grid", image=self.icons["Grid"], compound="none", indicatoron=False, variable=self.grid_on, command=self.on_grid_toggle)
+        checkbutton_grid.pack(side=tk.LEFT, padx=1)
+        ToolTip(checkbutton_grid, "Grid ON/OFF")
+
+        ttk.Separator(toolbar, orient=tk.VERTICAL).pack(side=tk.LEFT, fill=tk.Y, padx=(8,8))
 
         # 状態ラベル表示
         self.status_label = ttk.Label(toolbar, text="Mode: select")
@@ -116,7 +147,11 @@ class FlowchartTool(tk.Tk):
         # キャンバス
         self.canvas = tk.Canvas(self.main_panel, bg=ct.CANVAS_PARAMS["bg_color"])
         # self.canvas.pack(side=tk.TOP, fill=tk.X)
-        self.canvas.grid(row=0, column=0, sticky="nsew")
+        w = max(1, self.main_panel.winfo_width())
+        h = max(1, self.main_panel.winfo_height())
+
+        self.canvas.place_configure(x=0, y=0, width=w, height=h)
+        # self.canvas.grid(row=0, column=0, sticky="nsew")
 
         # マウス操作定義
         self.canvas.bind("<Button-1>", self.on_canvas_click)
@@ -155,28 +190,28 @@ class FlowchartTool(tk.Tk):
 
         # ポップアップメニュー設定
         self.popup_menu = tk.Menu(self, tearoff=0)
-        self.popup_menu.add_command(label="Select/Move", command=lambda: self.mode.set("select"))
-        self.popup_menu.add_command(label="Select all nodes", command=self.select_all)
+        self.popup_menu.add_command(label="Mode : Select/Move", image=self.icons["Select"], compound="left", command=lambda: self.mode.set("select"))
+        self.popup_menu.add_command(label="Select all nodes", image=self.icons["Select_all"], compound="left", command=self.select_all)
         self.popup_menu.add_separator()
-        self.popup_menu.add_command(label="Add Swimlane", command=lambda: self.mode.set("add:swimlane"))
+        self.popup_menu.add_command(label="Mode : Add Swimlane", image=self.icons["Swimlane"], compound="left", command=lambda: self.mode.set("add:swimlane"))
         self.popup_menu.add_separator()
-        self.popup_menu.add_command(label="Add Terminator", command=lambda: self.mode.set("add:terminator"))
-        self.popup_menu.add_command(label="Add Process", command=lambda: self.mode.set("add:process"))
-        self.popup_menu.add_command(label="Add Decision", command=lambda: self.mode.set("add:decision"))
-        self.popup_menu.add_command(label="Add I/O", command=lambda: self.mode.set("add:io"))
-        self.popup_menu.add_command(label="Link", command=lambda: self.mode.set("link"))
+        self.popup_menu.add_command(label="Mode : Add Terminator", image=self.icons["Terminator"], compound="left", command=lambda: self.mode.set("add:terminator"))
+        self.popup_menu.add_command(label="Mode : Add Process", image=self.icons["Process"], compound="left", command=lambda: self.mode.set("add:process"))
+        self.popup_menu.add_command(label="Mode : Add Decision", image=self.icons["Decision"], compound="left", command=lambda: self.mode.set("add:decision"))
+        self.popup_menu.add_command(label="Mode : Add I/O", image=self.icons["I/O"], compound="left", command=lambda: self.mode.set("add:io"))
+        self.popup_menu.add_command(label="Mode : Link", image=self.icons["Link"], compound="left", command=lambda: self.mode.set("link"))
         self.popup_menu.add_separator()
-        self.popup_menu.add_command(label="Delete Selected", command=self.delete_selected)
+        self.popup_menu.add_command(label="Delete Selected", image=self.icons["Delete"], compound="left", command=self.delete_selected)
         self.popup_menu.add_separator()
-        self.popup_menu.add_command(label="Selected Nodes Status > Normal", command=lambda: self.change_selected_nodes_status(ct.NODE_STATUS_NORMAL))
-        self.popup_menu.add_command(label="Selected Nodes Status > Active", command=lambda: self.change_selected_nodes_status(ct.NODE_STATUS_ACTIVE))
-        self.popup_menu.add_command(label="Selected Nodes Status > Inactive", command=lambda: self.change_selected_nodes_status(ct.NODE_STATUS_INACTIVE))
+        self.popup_menu.add_command(label="Undo", image=self.icons["Undo"], compound="left", command=self.undo)
+        self.popup_menu.add_command(label="Redo", image=self.icons["Redo"], compound="left", command=self.redo)
         self.popup_menu.add_separator()
-        self.popup_menu.add_command(label="Undo", command=self.undo)
-        self.popup_menu.add_command(label="Redo", command=self.redo)
+        self.popup_menu.add_command(label="Nodes Status : Normal", image=self.icons["Status_normal"], compound="left", command=lambda: self.change_selected_nodes_status(ct.NODE_STATUS_NORMAL))
+        self.popup_menu.add_command(label="Nodes Status : Active", image=self.icons["Status_active"], compound="left", command=lambda: self.change_selected_nodes_status(ct.NODE_STATUS_ACTIVE))
+        self.popup_menu.add_command(label="Nodes Status : Inactive", image=self.icons["Status_inactive"], compound="left", command=lambda: self.change_selected_nodes_status(ct.NODE_STATUS_INACTIVE))
         self.popup_menu.add_separator()
-        self.popup_menu.add_command(label="Save JSON", command=self.save_json)
-        self.popup_menu.add_command(label="Save Image", command=self.on_save)
+        self.popup_menu.add_command(label="Save JSON", image=self.icons["Save_JSON"], compound="left", command=self.save_json)
+        self.popup_menu.add_command(label="Save Image", image=self.icons["Save_Image"], compound="left", command=self.on_save)
 
         self._draw_grid()   # 初期グリッド描画
 
@@ -224,7 +259,9 @@ class FlowchartTool(tk.Tk):
 
         # ChatWindow表示On/OFFボタン
         if self.openai_client is not None:
-            ttk.Checkbutton(toolbar, text="AI-generation", variable=self.chat_window_on, command=self.on_chat_window_toggle).pack(side=tk.LEFT, padx=1)
+            checkbutton_ai = tk.Checkbutton(toolbar, text="AI-generation", image=self.icons["AI-generation"], compound="none", indicatoron=False, variable=self.chat_window_on, command=self.on_chat_window_toggle)
+            checkbutton_ai.pack(side=tk.LEFT, padx=1)
+            ToolTip(checkbutton_ai, "AI-generation")
 
         # リサイズ追従
         self.bind("<Configure>", self.on_resize)
@@ -233,8 +270,14 @@ class FlowchartTool(tk.Tk):
         self.after(0, self.on_resize_simple)
 
     def add_mode_button(self, toolbar, text, value):
-        b = ttk.Radiobutton(toolbar, text=text, value=value, variable=self.mode)
-        b.pack(side=tk.LEFT, padx=2)
+        b = tk.Radiobutton(toolbar, text=text, image=self.icons[text], compound="none", indicatoron=False, value=value, variable=self.mode)
+        if text == "Select":
+            b.pack(side=tk.LEFT, padx=4)
+        elif text == "Swimlane" or text == "Link":
+            b.pack(side=tk.LEFT, padx=(4,2))
+        else:
+            b.pack(side=tk.LEFT, padx=2)
+        ToolTip(b, text)
         return b
 
     def update_status(self):
@@ -286,6 +329,7 @@ class FlowchartTool(tk.Tk):
 
         # オブジェクトを選択していなくて、新規登録モードであれば、指定オブジェクトの新規作成を行う
         if selecting_node_id is None and selecting_edge is None and selecting_swimlane is None:
+            self.cancel_selection_node_and_edge_and_swimlane()
             if mode.startswith("add:"):
                 node_type = mode.split(":", 1)[1]
                 if node_type == "swimlane":
@@ -317,6 +361,16 @@ class FlowchartTool(tk.Tk):
             else:
                 self.create_edge(self.link_start_node_id, selecting_node_id)
                 self.cancel_selection_node_and_edge_and_swimlane()
+        else:
+            # 選択オブジェクトが選択中の場合は、現状の選択状態を維持する
+            if self.isSelectedObject(selecting_node_id, selecting_swimlane):
+                pass
+            else:
+                if selecting_node_id is not None:
+                    self.select_node(selecting_node_id)
+                if selecting_edge is not None:
+                    self.select_edge(selecting_edge)
+                self.select_swimlane(selecting_swimlane)
         # 削除モードの場合は、選択しているオブジェクトを削除する
         #elif mode == "delete":
         #    if selecting_node_id is not None:
@@ -337,10 +391,11 @@ class FlowchartTool(tk.Tk):
         if selected_node_id is None and selected_edge_id is None and selected_swimlane is None:
             self.drag_data["mode"] = "select_area"
             self.drag_data["node_id"] = None
+            self.drag_data["shape_id"] = None
+            self.drag_data["original_x"] = None
+            self.drag_data["original_y"] = None
             self.drag_data["drag_start_x"] = event.x
             self.drag_data["drag_start_y"] = event.y
-            self.drag_data["drag_pre_x"] = event.x
-            self.drag_data["drag_pre_y"] = event.y
             self.drag_data["drag_end_x"] = event.x
             self.drag_data["drag_end_y"] = event.y
             # 選択範囲枠を描画
@@ -358,8 +413,8 @@ class FlowchartTool(tk.Tk):
             self.drag_data["shape_id"] = node_obj.shape_id
             self.drag_data["original_x"] = node_obj.x
             self.drag_data["original_y"] = node_obj.y
-            self.drag_data["drag_start_x"] = node_obj.x
-            self.drag_data["drag_start_y"] = node_obj.y
+            self.drag_data["drag_start_x"] = event.x
+            self.drag_data["drag_start_y"] = event.y
             self.drag_data["drag_end_x"] = event.x
             self.drag_data["drag_end_y"] = event.y
         elif selected_edge_id is not None:
@@ -450,24 +505,30 @@ class FlowchartTool(tk.Tk):
             drag_move_x = self.drag_data["drag_end_x"] - self.drag_data["drag_start_x"]
             drag_move_y = self.drag_data["drag_end_y"] - self.drag_data["drag_start_y"]
 
+            # ドラッグ中のノードとシェイプIDを取得
             nid = self.drag_data["node_id"]
             shape_id = self.drag_data["shape_id"]
 
+            # ドラッグデータの移動量に合わせて、選択中のノードとリンクを移動させる（複数選択している場合）
             for selected_node_id in self.selected_node_ids:
-                if selected_node_id != nid:
+                if selected_node_id is not None:
                     selected_node_obj = self.nodes[selected_node_id]
                     if selected_node_obj is not None and (abs(drag_move_x) > 2 or abs(drag_move_y) > 2):  # ダブルクリック時のノードのズレを防止
                         if shape_id == selected_node_obj.shape_id:
+                            # ドラッグ中のデータはドラッグ途中で移動しているのでドラッグ前の位置からの移動量で移動
                             move_to_x = self.drag_data["original_x"] + drag_move_x
                             move_to_y = self.drag_data["original_y"] + drag_move_y
                             selected_node_obj.x, selected_node_obj.y = self.adjusted_xy(selected_node_id, move_to_x, move_to_y)
                         else:
+                            # ドラッグ中以外の選択データは移動していないので現在の位置からの移動量で移動
                             move_to_x = selected_node_obj.x + drag_move_x
                             move_to_y = selected_node_obj.y + drag_move_y
                             selected_node_obj.x, selected_node_obj.y = self.adjusted_xy(selected_node_id, move_to_x, move_to_y)
+                        # グリッド指定を考慮して、ノードを指定位置に移動、リンクの位置もノードに追従
                         self._move_node_graphics(selected_node_obj)
                         self._update_edges_for_node(selected_node_id)
 
+            # ドラッグデータの移動量に合わせて、選択中のスイムレーンを移動させる（複数選択している場合）
             for selected_swimlane in self.selected_swimlanes:
                 if selected_swimlane.frame_id is not None:
                     move_to_x = selected_swimlane.header_center_x + drag_move_x
@@ -480,28 +541,34 @@ class FlowchartTool(tk.Tk):
                 self.push_history()
             self.drag_data["node_id"] = None
             self.drag_data["shape_id"] = None
+
         elif mode == "move_swimlane":
             drag_move_x = self.drag_data["drag_end_x"] - self.drag_data["drag_start_x"]
             drag_move_y = self.drag_data["drag_end_y"] - self.drag_data["drag_start_y"]
 
+            # ドラッグ中のシェイプIDを取得
             shape_id = self.drag_data["shape_id"]
 
+            # ドラッグデータの移動量に合わせて、選択中のスイムレーンを移動させる（複数選択している場合）
             for selected_swimlane in self.selected_swimlanes:
                 if selected_swimlane.frame_id is not None:
                     if shape_id == selected_swimlane.frame_id:
+                        # ドラッグ中のデータはドラッグ途中で移動しているのでドラッグ前の位置からの移動量で移動
                         move_to_x = self.drag_data["original_x"] + drag_move_x
                         move_to_y = self.drag_data["original_y"] + drag_move_y
                     else:
+                        # ドラッグ中以外の選択データは移動していないので現在の位置からの移動量で移動
                         move_to_x = selected_swimlane.header_center_x + drag_move_x
                         move_to_y = selected_swimlane.header_center_y + drag_move_y
+                    # グリッド指定を考慮して、指定位置に移動
                     if abs(drag_move_x) > 2 or abs(drag_move_y) > 2:  # ダブルクリック時のノードのズレを防止
                         adjusted_x, adjusted_y = self.adjusted_swimlane_xy(selected_swimlane, move_to_x, move_to_y)
                         selected_swimlane.move_to(adjusted_x, adjusted_y)
 
+            # ドラッグデータの移動量に合わせて、選択中のノードとリンクを移動させる（複数選択している場合）
             for selected_node_id in self.selected_node_ids:
                 selected_node_obj = self.nodes[selected_node_id]
                 if selected_node_obj is not None and (abs(drag_move_x) > 2 or abs(drag_move_y) > 2):  # ダブルクリック時のノードのズレを防止
-                    print(f">  Move node in swimlane: id={selected_node_id}, to=({selected_node_obj.x}, {selected_node_obj.y})")  # for DEBUG
                     move_to_x = selected_node_obj.x + drag_move_x
                     move_to_y = selected_node_obj.y + drag_move_y
                     selected_node_obj.x, selected_node_obj.y = self.adjusted_xy(selected_node_id, move_to_x, move_to_y)
@@ -510,6 +577,8 @@ class FlowchartTool(tk.Tk):
 
             if shape_id is not None:
                 self.push_history()
+            self.drag_data["mode"] = None
+            self.drag_data["shape_id"] = None 
 
     def on_canvas_double_click(self, event):
         # if self.mode.get() != "select":
@@ -535,7 +604,9 @@ class FlowchartTool(tk.Tk):
         self._draw_grid()
 
     def on_close(self):
-        if self.nodes is None or len(self.nodes) == 0 or messagebox.askokcancel(ct.WINDOW_CLOSE_DIALOG_TITLE, ct.WINDOW_CLOSE_DIALOG_MESSAGE):
+        if (self.nodes is None or len(self.nodes) == 0) and (self.swimlanes is None or len(self.swimlanes) == 0):
+            self.destroy()
+        elif messagebox.askokcancel(ct.WINDOW_CLOSE_DIALOG_TITLE, ct.WINDOW_CLOSE_DIALOG_MESSAGE):
             self.destroy()
 
     def on_mouse_wheel(self, event):
@@ -882,7 +953,7 @@ class FlowchartTool(tk.Tk):
                     self.delete_selected_node(nid)
         if line_id:
             self.delete_selected_edge(line_id)
-        if self.selected_swimlanes and len(self.selected_swimlanes) > 0:
+        if swimlanes and len(swimlanes) > 0:
             self.delete_selected_swimlanes()
 
         self.display_operation_info()  # 操作情報表示制御
@@ -927,9 +998,11 @@ class FlowchartTool(tk.Tk):
         if selected_swimlanes and len(selected_swimlanes) > 0:
             for selected_swimlane_obj in selected_swimlanes:
                 selected_swimlane_obj.delete()
+            new_swimlanes = []
             for swimlane_obj in self.swimlanes:
-                if swimlane_obj in selected_swimlanes:
-                    self.swimlanes.remove(swimlane_obj)
+                if not swimlane_obj in selected_swimlanes:
+                    new_swimlanes.append(swimlane_obj)
+            self.swimlanes = new_swimlanes  
         self.selected_swimlanes = []
         self.push_history()
 
@@ -1030,49 +1103,18 @@ class FlowchartTool(tk.Tk):
         # ノードは、ID、タイプ、位置、サイズ、テキスト、塗りつぶし色、ステータスを保存
         nodes_data = []
         for node_obj in self.nodes.values():
-            node_data = {
-                "id": node_obj.id,
-                "type": node_obj.type,
-                "x": node_obj.x,
-                "y": node_obj.y,
-                "w": node_obj.w,
-                "h": node_obj.h,
-                "text": node_obj.text,
-            }
-            if node_obj.fill_color is not None:
-                node_data["fill_color"] = node_obj.fill_color
-            if node_obj.status is not None and node_obj.status != ct.NODE_STATUS_NORMAL:
-                node_data["status"] = node_obj.status
+            node_data = node_obj.to_dict()  # Nodeクラスのto_dictメソッドを使用してノードデータを取得
             nodes_data.append(node_data)
+
         # エッジは、fromノードID、toノードID、接続位置、エッジの回り込み距離、ラベルテキスト、ラベル位置を保存
         edges_data = []
         for edge_line_id, edge_obj in self.edges.items():
-            edge_data = {
-                "from_id": edge_obj.from_node_obj.id if edge_obj.from_node_obj else None,
-                "to_id": edge_obj.to_node_obj.id if edge_obj.to_node_obj else None,
-            }
-            if edge_obj.from_node_connection_point is not None:
-                edge_data["from_connection_point"] = edge_obj.from_node_connection_point
-            if edge_obj.to_node_connection_point is not None:
-                edge_data["to_connection_point"] = edge_obj.to_node_connection_point
-            if edge_obj.edge_wrap_margin is not None:
-                edge_data["edge_wrap_margin"] = edge_obj.edge_wrap_margin
-            if edge_obj.label_text is not None:
-                edge_data["label"] = edge_obj.label_text
-            if edge_obj.label_position is not None:
-                edge_data["label_position"] = edge_obj.label_position
+            edge_data = edge_obj.to_dict()  # Edgeクラスのto_dictメソッドを使用してエッジデータを取得
             edges_data.append(edge_data)
         # スイムレーンは、種類、タイトル、ヘッダー位置、サイズを保存
         swimlanes_data = []
         for swimlane_obj in self.swimlanes:
-            swimlane_data = {
-                "kind": swimlane_obj.kind,
-                "title": swimlane_obj.title,
-                "header_center_x": swimlane_obj.header_center_x,
-                "header_center_y": swimlane_obj.header_center_y,
-                "width": swimlane_obj.width,
-                "height": swimlane_obj.height,
-            }
+            swimlane_data = swimlane_obj.to_dict()  # Swimlaneクラスのto_dictメソッドを使用してスイムレーンデータを取得
             swimlanes_data.append(swimlane_data)
 
         return {"nodes": nodes_data, "edges": edges_data, "swimlanes": swimlanes_data}
@@ -1230,7 +1272,7 @@ class FlowchartTool(tk.Tk):
         x, y = node_obj.x, node_obj.y
 
         entry = ttk.Entry(self.canvas)
-        if x and y and node_obj.text:
+        if x is not None and y is not None and node_obj.text is not None:
             entry.insert(0, node_obj.text)
             window_id = self.canvas.create_window(
                 x, y,
@@ -1335,7 +1377,7 @@ class FlowchartTool(tk.Tk):
         x, y = swimlane_obj.header_center_x, swimlane_obj.header_center_y
 
         entry = ttk.Entry(self.canvas)
-        if x and y and swimlane_obj.title:
+        if x is not None and y is not None and swimlane_obj.title is not None:
             entry.insert(0, swimlane_obj.title)
             window_id = self.canvas.create_window(
                 x, y,
@@ -1531,14 +1573,14 @@ class FlowchartTool(tk.Tk):
         if not path:
             return
 
-        # try:
-        with open(path, "r", encoding="utf-8") as f:
-            text = f.read()
-        mmd_nodes, mmd_links = mfloader.parse_mermaid_flowdata(text)
-        self.create_mermaid_flowdata(mmd_nodes, mmd_links)
-        messagebox.showinfo("Loaded", f"Loaded Mermaid flowchart from:\n{path}")
-        # except Exception as e:
-        #     messagebox.showerror("Error", str(e))
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                text = f.read()
+            mmd_nodes, mmd_links = mfloader.parse_mermaid_flowdata(text)
+            self.create_mermaid_flowdata(mmd_nodes, mmd_links)
+            messagebox.showinfo("Loaded", f"Loaded Mermaid flowchart from:\n{path}")
+        except Exception as e:
+            messagebox.showerror("Error", str(e))
         
         self.display_operation_info()  # 操作情報表示制御
 
@@ -1562,7 +1604,7 @@ class FlowchartTool(tk.Tk):
 
         nd = next(iter(mmd_nodes.values()))
         if nd.pos_tb is None or nd.pos_lr is None:
-            # 自動配置
+            # 自動配置    ※一部のnodeに位置情報がない場合、スタート位置に重ねて配置する
             auto_position_flag = True
             start_x = int(ct.CANVAS_PARAMS["grid_spacing"] * 10 + ct.NODE_DEFAULT_PARAMS["width"] / 2)
             start_y = int(ct.CANVAS_PARAMS["grid_spacing"] * 2 + ct.NODE_DEFAULT_PARAMS["height"] / 2)
@@ -1577,8 +1619,8 @@ class FlowchartTool(tk.Tk):
         vertical_count = 10
 
         id_map = {}
-        for node_strid in mmd_nodes:
-            nd = mmd_nodes[node_strid]
+        for node_strid_key in mmd_nodes:
+            nd = mmd_nodes[node_strid_key]
             node_id = next(self._id_counter)
             node_strid = nd.node_id if hasattr(nd, "node_id") else None
             if node_strid is None:
@@ -1589,6 +1631,10 @@ class FlowchartTool(tk.Tk):
                 y = start_y + (node_id-1) % vertical_count * interval_y   # 自動配置
             else:
                 x, y = mfloader.convert_pos_to_xy(pos_tb=nd.pos_tb, pos_lr=nd.pos_lr, start_x=start_x, start_y=start_y)
+                if x is None:
+                    x = start_x
+                if y is None:
+                    y = start_y
             w = Node.get_width_of_type(node_type)
             h = Node.get_height_of_type(node_type)
             text = nd.title if hasattr(nd, "title") else ""
@@ -1599,11 +1645,11 @@ class FlowchartTool(tk.Tk):
             src_id = ed.src if hasattr(ed, "src") else None
             dst_id = ed.dst if hasattr(ed, "dst") else None
             label = ed.label if hasattr(ed, "label") else None
-            fid = id_map[src_id]
-            tid = id_map[dst_id]
+            fid = id_map.get(src_id)
+            tid = id_map.get(dst_id)
             if fid in self.nodes and tid in self.nodes:
-                from_node_obj = self.nodes[fid]
-                to_node_obj = self.nodes[tid]
+                from_node_obj = self.nodes.get(fid)
+                to_node_obj = self.nodes.get(tid)
                 edge_obj = Edge(from_node_obj, to_node_obj, text=label, \
                                         canvas=self.canvas)
                 if edge_obj is not None and edge_obj.line_id is not None:
@@ -1667,11 +1713,11 @@ class FlowchartTool(tk.Tk):
 
             if self.chat_x < target_x:
                 self.chat_x = min(target_x, self.chat_x + ct.CHAT_WINDOW_SLIDE_STEP)
-                self.chat_frame.place_configure(x=self.chat_x, y=0, height=h-40, width=ct.CHAT_WIDTH)
+                self.chat_frame.place_configure(x=self.chat_x, y=0, height=h, width=ct.CHAT_WIDTH)
                 self.after(ct.CHAT_WINDOW_SLIDE_INTERVAL, animate)
             else:
                 self.chat_x = target_x
-                self.chat_frame.place_configure(x=self.chat_x, y=0, height=h-40, width=ct.CHAT_WIDTH)
+                self.chat_frame.place_configure(x=self.chat_x, y=0, height=h, width=ct.CHAT_WIDTH)
                 self.chat_visible = False
                 self.chat_animating = False
 
@@ -1703,26 +1749,27 @@ class FlowchartTool(tk.Tk):
         self.append_chat("You", user_msg)
 
         self.set_sending(True)
-        input_msg = ct.AI_INPUT_TEMPLATE.replace("$order", user_msg)
-        threading.Thread(target=self.call_gpt, args=(user_msg,), daemon=True).start()
+        user_input_msg = ct.AI_INPUT_TEMPLATE.replace("$order", user_msg)
+        filename = self.sanitize_filename(user_msg)
+        threading.Thread(target=self.call_gpt, args=(user_input_msg, filename), daemon=True).start()
 
-    def call_gpt(self, user_msg: str):
+    def call_gpt(self, user_input_msg: str, filename:str):
         try:
             resp = self.openai_client.responses.create(
                 model=ct.AI_MODEL,
                 instructions=ct.AI_SYSTEM_INSTRUCTIONS,
-                input=user_msg,
+                input=user_input_msg,
                 previous_response_id=self.previous_response_id,
             )
             assistant_text = resp.output_text or ""
             self.previous_response_id = resp.id
             self.after(0, lambda: self.append_chat("GPT", assistant_text))
-            success_flag, mmd_filepath = self.save_mmd_to_file(user_msg, assistant_text)
+            success_flag, mmd_filepath = self.save_mmd_to_file(filename, assistant_text)
             if success_flag:
                 self.after(0, lambda: messagebox.askokcancel("Saved", f"{ct.AI_GENERATED_MESSAGE1}\n{mmd_filepath}\n\n{ct.AI_GENERATED_MESSAGE2}") and self.load_mermaid_flowdata(mmd_filepath))
         except Exception as e:
-            print(e)
-            # self.after(0, lambda: messagebox.showerror("OpenAI API Error", str(e)))
+            # print(e)
+            self.after(0, lambda: messagebox.showerror("OpenAI API Error", str(e)))
         finally:
             self.after(0, lambda: self.set_sending(False))
 
@@ -1755,11 +1802,12 @@ class FlowchartTool(tk.Tk):
         return re.sub(forbidden, '_', filename)
 
     def strip_triple_quotes(self, text: str) -> str:
-        if text.startswith("```"):
-            return text[3:]
-        if text.endswith("```"):
-            return text[:-3]
-        return text
+        return_text = text.strip()
+        if return_text.startswith("```"):
+            return_text = return_text[3:]
+        if return_text.endswith("```"):
+            return_text = return_text[:-3]
+        return return_text
 
     def display_operation_info(self):
         if self.nodes is not None and len(self.nodes) > 0:
@@ -1844,6 +1892,200 @@ class FlowchartTool(tk.Tk):
             isSelected_swimlane = selecting_swimlane in self.selected_swimlanes
 
         return isSelected_node or isSelected_swimlane
+
+    def store_icons(self):
+        self.icons = {}  # アイコン画像キャッシュ
+        self.icons["Select"] = self.make_icon("Select")
+        self.icons["Select_all"] = self.make_icon("Select_all")
+        self.icons["Swimlane"] = self.make_icon("Swimlane")
+        self.icons["Terminator"] = self.make_icon("Terminator")
+        self.icons["Process"] = self.make_icon("Process")
+        self.icons["Decision"] = self.make_icon("Decision")
+        self.icons["I/O"] = self.make_icon("I/O")
+        self.icons["Link"] = self.make_icon("Link")
+        self.icons["Delete"] = self.make_icon("Delete")
+        self.icons["Grid"] = self.make_icon("Grid")
+        self.icons["Undo"] = self.make_icon("Undo")
+        self.icons["Redo"] = self.make_icon("Redo")
+        self.icons["Load_JSON"] = self.make_icon("Load_JSON")
+        self.icons["Save_JSON"] = self.make_icon("Save_JSON")
+        self.icons["Save_Image"] = self.make_icon("Save_Image")
+        self.icons["Load_Mermaid"] = self.make_icon("Load_Mermaid")
+        self.icons["AI-generation"] = self.make_icon("AI-generation")
+        self.icons["Status_normal"] = self.make_icon("Status_normal")
+        self.icons["Status_active"] = self.make_icon("Status_active")
+        self.icons["Status_inactive"] = self.make_icon("Status_inactive")
+
+    def make_icon(self, name: str, size: int = 128, fg: str = "#111827") -> ImageTk.PhotoImage:
+        img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+        d = ImageDraw.Draw(img)
+        x0, y0, x1, y1 = 0, 0, size - 1, size - 1
+
+        if platform.system() == "Windows":
+            font=ImageFont.truetype("arial.ttf", size//2.8) 
+        elif platform.system() == "Darwin":  # macOS
+            font=ImageFont.truetype("Arial.ttf", size//2.8)
+        else:
+            font=ImageFont.load_default()
+
+        if name == "Select":
+            d.line((x0+size//3+size*0//16, y0+size//3-size*3//16, x0+size//3+size*0  //12, y0+size//3-size*4//12), fill=fg, width=8)
+            d.line((x0+size//3+size*2//16, y0+size//3-size*2//16, x0+size//3+size*2.8//12, y0+size//3-size*2.8//12), fill=fg, width=8)
+            # d.line((x0+size//3+size*3//16, y0+size//3+size*0//16, x0+size//3+size*4  //12, y0+size//3+size*0//12), fill=fg, width=8)
+            # d.line((x0+size//3+size*2//16, y0+size//3+size*2//16, x0+size//3+size*2.8//12, y0+size//3+size*2.8//12), fill=fg, width=8)
+            # d.line((x0+size//3+size*0//16, y0+size//3+size*3//16, x0+size//3+size*0  //16, y0+size//3+size*4//12), fill=fg, width=8)
+            d.line((x0+size//3-size*2//16, y0+size//3+size*2//16, x0+size//3-size*2.8//16, y0+size//3+size*2.8//12), fill=fg, width=8)
+            d.line((x0+size//3-size*3//16, y0+size//3+size*0//16, x0+size//3-size*4  //12, y0+size//3+size*0  //12), fill=fg, width=8)
+            d.line((x0+size//3-size*2//16, y0+size//3-size*2//16, x0+size//3-size*2.8//12, y0+size//3-size*2.8//12), fill=fg, width=8)
+            d.polygon([(x0+size//4+size//16, y0+size//4+size//16),
+                        (x1-size//4+size// 6+size//16, y0+size//3         +size//8),
+                        (x1-size//2+size// 6+size//16, y1-size//2         +size//16),
+                        (x1-size//8+size//12+size//16, y1-size//8-size//12+size//16),
+                        (x1-size//8-size//12+size//16, y1-size//8+size//12+size//16),
+                        (x1-size//2         +size//16, y1-size//2+size// 6+size//16),
+                        (x0+size//3         +size//8, y1-size//4+size// 6+size//16)
+                    ], outline=fg, fill="white", width=8)
+        elif name == "Select_all":
+            d.text((size//3.2, size//8), "ALL", fill=fg, font=font, anchor="mm")
+            d.polygon([(x0+size//4+size//16, y0+size//4+size//16),
+                        (x1-size//4+size// 6+size//16, y0+size//3         +size//8),
+                        (x1-size//2+size// 6+size//16, y1-size//2         +size//16),
+                        (x1-size//8+size//12+size//16, y1-size//8-size//12+size//16),
+                        (x1-size//8-size//12+size//16, y1-size//8+size//12+size//16),
+                        (x1-size//2         +size//16, y1-size//2+size// 6+size//16),
+                        (x0+size//3         +size//8, y1-size//4+size// 6+size//16)
+                    ], outline=fg, fill="white", width=8)
+
+        elif name == "Swimlane":
+            d.rectangle((x0+size//6, y0, x1-size//6, y1), outline=fg, width=4)
+            d.line((x0+size//6, y0+size//8, x1-size//6, y0+size//8), fill=fg, width=4)
+            d.line((x0+size//6, y1-size//8, x1-size//6, y1-size//8), fill=fg, width=4)
+
+        elif name == "Terminator":
+            d.rounded_rectangle((x0, y0+size//5, x1, y1-size//5), radius=size//3, outline=fg, width=8)
+        elif name == "Process":
+            d.rounded_rectangle((x0, y0+size//5, x1, y1-size//5), radius=size//8, outline=fg, width=8)
+        elif name == "Decision":
+            d.polygon([(size//2, y0+size//6), (x1, size//2), (size//2, y1-size//6), (x0, size//2)], outline=fg, fill=None, width=8)
+        elif name == "I/O":
+            d.polygon([(x0+size//8, y0+size//5), (x1, y0+size//5), (x1-size//8, y1-size//5), (x0, y1-size//5)], outline=fg, fill=None, width=8)
+
+        elif name == "Link":
+            d.line((x0+size//16, y1-size//3, x0+size//2, y1-size//3, x0+size//2, y0+size//3, x1-size//16, y0+size//3), fill=fg, width=8, joint="curve")
+
+            d.line((x1-size//16, y0+size//3, x1-size//5, y0+size//3-size//10), fill=fg, width=8)
+            d.line((x1-size//16, y0+size//3, x1-size//5, y0+size//3+size//10), fill=fg, width=8)
+
+        elif name == "Delete":
+            d.polygon([(x0+size//8, y1-size*3//8), (x0+size*3//8, y1-size//8), (x0+size*5//8, y1-size*3//8), (x0+size*3//8, y1-size*5//8)], outline=fg, fill="white", width=6)
+            d.polygon([(x0+size*2//8-size//32, y1-size*4//8-size//32), (x0+size*4//8+size//32, y1-size*2//8+size//32),
+                         (x0+size*1//2+size//16+size//3, y1-size*1//4-size//3), (x0+size*1//4+size//3, y1-size*1//2-size//16-size//3)], outline=fg, fill="gray", width=6)
+            d.line((x0+size*3//8, y1-size//8+4, x0+size*5//8, y1-size//8+4), fill="lightgray", width=4)
+
+        elif name == "Grid":
+            grid_size = 32
+            for i in range(4):
+                d.line((x0 + i*grid_size + grid_size//2, y0, x0 + i*grid_size + grid_size//2, y1), fill=fg, width=4)
+            for j in range(4):
+                d.line((x0, y0 + j*grid_size + grid_size//2, x1, y0 + j*grid_size + grid_size//2), fill=fg, width=4)
+
+        elif name == "Undo":
+            d.arc((x0+size//6+size//8, y0+size//6+size//16+3, x1-size//6+size//8, y1-size//6+size//16+3), start=-100, end=120, fill=fg, width=12)
+            d.line((x0+size//2+size//8, y0+size//6+size//16+size//16, x0+size//8, y0+size//6+size//16+size//16), fill=fg, width=12)
+            d.polygon([(x0, y0+size//6+size//16+size//16), (x0+size//3, y0+size//6+size//16-size//4+size//16), (x0+size//3, y0+size//6+size//16+size//4+size//12)], fill=fg)
+        elif name == "Redo":
+            d.arc((x0+size//6-size//8, y0+size//6+size//16+3, x1-size//6-size//8, y1-size//6+size//16+3), start=60, end=280, fill=fg, width=12)
+            d.line((x0+size//2-size//8, y0+size//6+size//16+size//16, x1-size//8, y0+size//6+size//16+size//16), fill=fg, width=12)
+            d.polygon([(x1, y0+size//6+size//16+size//16), (x1-size//3, y0+size//6+size//16-size//4+size//16), (x1-size//3, y0+size//6+size//16+size//4+size//12)], fill=fg)
+
+        elif name == "Load_JSON":
+            d.polygon([(x0+size//7, y0), (x1-size//7-size//4, y0), (x1-size//7, y0+size//4), (x1-size//7, y1-size//7), (x0+size//7, y1-size//7)], outline=fg, fill=None, width=8)
+            d.line((x1-size//7-size//4, y0+4, x1-size//7-size//4, y0+size//4), fill=fg, width=8)
+            d.line((x1-size//7-size//4, y0+size//4, x1-size//7-4, y0+size//4), fill=fg, width=8)
+            d.line((x0+size//3.3, y1-size//7-4, x1-size//3.3, y1-size//7-4), fill="white", width=8)
+            d.line((x1-size//2, y1-size//3+4, x1-size//2, y1-size//64), fill=fg, width=8)
+            d.line((x1-size//2, y1-size//32, x1-size//2-size//8, y1-size//32-size//6), fill=fg, width=8)
+            d.line((x1-size//2+2, y1-size//32, x1-size//2+size//8+2, y1-size//32-size//6), fill=fg, width=8)
+            d.text((x0+size//2, y0+size//2), "Jsn", fill=fg, anchor="mm", font=font)
+        elif name == "Save_JSON":
+            d.polygon([(x0+size//7, y0), (x1-size//7-size//4, y0), (x1-size//7, y0+size//4), (x1-size//7, y1-size//7), (x0+size//7, y1-size//7)], outline=fg, fill=None, width=8)
+            d.line((x1-size//7-size//4, y0+4, x1-size//7-size//4, y0+size//4), fill=fg, width=8)
+            d.line((x1-size//7-size//4, y0+size//4, x1-size//7-4, y0+size//4), fill=fg, width=8)
+            d.line((x0+size//3.3, y1-size//7-4, x1-size//3.3, y1-size//7-4), fill="white", width=8)
+            d.line((x1-size//2, y1-size//3-size//64+4, x1-size//2, y1), fill=fg, width=8)
+            d.line((x1-size//2, y1-size//3+4, x1-size//2-size//8, y1-size//3+size//6+4), fill=fg, width=8)
+            d.line((x1-size//2, y1-size//3+4, x1-size//2+size//8, y1-size//3+size//6+4), fill=fg, width=8)
+            d.text((x0+size//2, y0+size//2), "Jsn", fill=fg, anchor="mm", font=font)
+        elif name == "Save_Image":
+            d.polygon([(x0+size//7, y0), (x1-size//7-size//4, y0), (x1-size//7, y0+size//4), (x1-size//7, y1-size//7), (x0+size//7, y1-size//7)], outline=fg, fill=None, width=8)
+            d.line((x1-size//7-size//4, y0+4, x1-size//7-size//4, y0+size//4), fill=fg, width=8)
+            d.line((x1-size//7-size//4, y0+size//4, x1-size//7-4, y0+size//4), fill=fg, width=8)
+            d.line((x0+size//3.3, y1-size//7-4, x1-size//3.3, y1-size//7-4), fill="white", width=8)
+            d.line((x1-size//2, y1-size//3-size//64+4, x1-size//2, y1), fill=fg, width=8)
+            d.line((x1-size//2, y1-size//3+4, x1-size//2-size//8, y1-size//3+size//6+4), fill=fg, width=8)
+            d.line((x1-size//2, y1-size//3+4, x1-size//2+size//8, y1-size//3+size//6+4), fill=fg, width=8)
+            d.text((x0+size//2, y0+size//2), "Img", fill=fg, anchor="mm", font=font)
+        elif name == "Load_Mermaid":
+            d.polygon([(x0+size//7, y0), (x1-size//7-size//4, y0), (x1-size//7, y0+size//4), (x1-size//7, y1-size//7), (x0+size//7, y1-size//7)], outline=fg, fill=None, width=8)
+            d.line((x1-size//7-size//4, y0+4, x1-size//7-size//4, y0+size//4), fill=fg, width=8)
+            d.line((x1-size//7-size//4, y0+size//4, x1-size//7-4, y0+size//4), fill=fg, width=8)
+            d.line((x0+size//3.3, y1-size//7-4, x1-size//3.3, y1-size//7-4), fill="white", width=8)
+            d.line((x1-size//2, y1-size//3+4, x1-size//2, y1-size//64), fill=fg, width=8)
+            d.line((x1-size//2, y1-size//32, x1-size//2-size//8, y1-size//32-size//6), fill=fg, width=8)
+            d.line((x1-size//2+2, y1-size//32, x1-size//2+size//8+2, y1-size//32-size//6), fill=fg, width=8)
+            d.text((x0+size//2, y0+size//2), "Mm", fill=fg, anchor="mm", font=font)
+        elif name == "AI-generation":
+            d.rounded_rectangle((x0, y0, x1, y1), radius=size//8, outline=fg, width=8)
+            d.text((x0+size//2, y0+size//2), "AI", fill=fg, anchor="mm", font=font)
+
+        elif name == "Status_normal":
+            d.rounded_rectangle((x0+size//8, y0+size//4, x1-size//8, y1-size//4),
+                                 radius=size//8, outline=ct.NODE_DEFAULT_PARAMS["outline_color"], fill=ct.NODE_DEFAULT_PARAMS["fill_color"], width=8)
+        elif name == "Status_active":
+            d.rounded_rectangle((x0+size//8, y0+size//4, x1-size//8, y1-size//4),
+                                 radius=size//8, outline=ct.NODE_DEFAULT_PARAMS["active_outline_color"], fill=ct.NODE_DEFAULT_PARAMS["active_fill_color"], width=12)
+        elif name == "Status_inactive":
+            d.rounded_rectangle((x0+size//8, y0+size//4, x1-size//8, y1-size//4),
+                                 radius=size//8, outline=ct.NODE_DEFAULT_PARAMS["inactive_outline_color"], fill=ct.NODE_DEFAULT_PARAMS["inactive_fill_color"], width=8)
+        else:
+            d.rectangle((x0, y0, x1, y1), outline=fg, width=2)
+
+        img = img.resize((24,24), resample=Image.Resampling.LANCZOS)
+
+        return ImageTk.PhotoImage(img)
+
+class ToolTip(tk.Toplevel):
+    def __init__(self, widget, text: str):
+        super().__init__(widget)
+        self.withdraw()
+        self.overrideredirect(True)
+        self.attributes("-topmost", True)
+        self.label = ttk.Label(self, text=text, padding=(8, 4), style="Tooltip.TLabel")
+        self.label.pack()
+        self.widget = widget
+        self._after_id = None
+        widget.bind("<Enter>", self._enter, add=True)
+        widget.bind("<Leave>", self._leave, add=True)
+
+    def _enter(self, _e=None):
+        self._after_id = self.widget.after(350, self._show)
+
+    def _leave(self, _e=None):
+        if self._after_id:
+            try:
+                self.widget.after_cancel(self._after_id)
+            except Exception:
+                pass
+            self._after_id = None
+        self.withdraw()
+
+    def _show(self):
+        self._after_id = None
+        x = self.widget.winfo_pointerx() + 14
+        y = self.widget.winfo_pointery() + 14
+        self.geometry(f"+{x}+{y}")
+        self.deiconify()
+
 
 if __name__ == "__main__":
     app = FlowchartTool()

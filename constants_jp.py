@@ -235,7 +235,7 @@ CHAT_WIDTH = 500
 CHAT_WINDOW_SLIDE_STEP = 20
 CHAT_WINDOW_SLIDE_INTERVAL = 15  # ms
 
-AI_MODEL = "gpt-5.2"  # 必要に応じて変更
+AI_MODEL = "gpt-5.4"  # 必要に応じて変更
 AI_INPUT_TEMPLATE = "「 $order 」の処理フローをまとめて、以下の形式で定義してください。"
 AI_SYSTEM_INSTRUCTIONS = '''# 役割
 あなたは、業務フローや処理概要を整理するシステム構築の専門家です。

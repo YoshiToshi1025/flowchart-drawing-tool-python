@@ -9,7 +9,7 @@ class Edge:
     line_id = None
     from_node_obj = None
     to_node_obj = None
-    points = []  # List of (x, y) tuples
+    points = None  # List of (x, y) tuples
     label_id = None
     label_x = None
     label_y = None
@@ -65,14 +65,14 @@ class Edge:
             self.line_id = canvas.create_line(
                 *self.points,
                 width=ct.EDGE_PARAMS["width"], fill=ct.EDGE_PARAMS["color"],
-                tags=("edge", f"edge-{self.line_id}")
+                tags=("edge")
             )
         else:
             self.line_id = canvas.create_line(
                 *self.points,
                 arrow=arrow_kind, arrowshape=arrow_shape,
                 width=ct.EDGE_PARAMS["width"], fill=ct.EDGE_PARAMS["color"],
-                tags=("edge", f"edge-{self.line_id}")
+                tags=("edge")
             )
         # エッジはノードの下に
         canvas.tag_lower(self.line_id, "node")
@@ -1559,3 +1559,21 @@ class Edge:
                 labe_justify = "right"
         return label_x, label_y, label_anchor, labe_justify
 
+    def to_dict(self):
+        """エッジオブジェクトを辞書化"""
+        edge_data = {
+            "from_id": self.from_node_obj.id if self.from_node_obj else None,
+            "to_id": self.to_node_obj.id if self.to_node_obj else None,
+        }
+        if self.from_node_connection_point is not None:
+            edge_data["from_connection_point"] = self.from_node_connection_point
+        if self.to_node_connection_point is not None:
+            edge_data["to_connection_point"] = self.to_node_connection_point
+        if self.edge_wrap_margin is not None:
+            edge_data["edge_wrap_margin"] = self.edge_wrap_margin
+        if self.label_text is not None:
+            edge_data["label"] = self.label_text
+        if self.label_position is not None:
+            edge_data["label_position"] = self.label_position
+
+        return edge_data

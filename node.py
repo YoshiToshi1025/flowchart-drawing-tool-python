@@ -12,7 +12,7 @@ class Node:
     text = None
     shape_id = None
     text_id = None
-    status = "active" # "normal", "active", "inactive"
+    status = "normal" # "normal", "active", "inactive"
 
     def __init__(self, node_id, node_type, x:int, y:int, w=None, h=None, fill_color=None, text=None, status=None, canvas=None):
         # print(f"Creating Node: id={node_id}, type={node_type}, x={x}, y={y}, w={w}, h={h}, fill_color={fill_color}, text={text}, status={status}")
@@ -82,7 +82,7 @@ class Node:
         self.draw_text(canvas)
 
     def draw_process(self, canvas: tk.Canvas):
-        if self.x and self.y and self.w and self.h:
+        if self.x is not None and self.y is not None and self.w is not None and self.h is not None:
             points = self.get_process_points()
             self.shape_id = canvas.create_polygon(
                 points, fill=self.get_fill_color(),
@@ -92,7 +92,7 @@ class Node:
             )
 
     def draw_decision(self, canvas: tk.Canvas):
-        if self.x and self.y and self.w and self.h:
+        if self.x is not None and self.y is not None and self.w is not None and self.h is not None:
             points = self.get_decision_points()
             self.shape_id = canvas.create_polygon(
                 points, fill=self.get_fill_color(),
@@ -102,7 +102,7 @@ class Node:
             )
 
     def draw_terminator(self, canvas: tk.Canvas):
-        if self.x and self.y and self.w and self.h:
+        if self.x is not None and self.y is not None and self.w is not None and self.h is not None:
             points = self.get_terminator_points()
             self.shape_id = canvas.create_polygon(
                 points, fill=self.get_fill_color(),
@@ -112,7 +112,7 @@ class Node:
             )
 
     def draw_io(self, canvas: tk.Canvas):
-        if self.x and self.y and self.w and self.h:
+        if self.x is not None and self.y is not None and self.w is not None and self.h is not None:
             points = self.get_io_points()
             self.shape_id = canvas.create_polygon(
                 points, fill=self.get_fill_color(),
@@ -122,7 +122,7 @@ class Node:
             )
 
     def draw_undefined(self, canvas: tk.Canvas):
-        if self.x and self.y and self.w and self.h:
+        if self.x is not None and self.y is not None and self.w is not None and self.h is not None:
             points = self.get_undefined_points()
             self.shape_id = canvas.create_polygon(
                 points, fill=self.get_fill_color(),
@@ -392,7 +392,7 @@ class Node:
 
     def draw_text(self, canvas: tk.Canvas):
         # テキストの描画（nodeタグを付与）
-        if self.x and self.y and self.text:
+        if self.x is not None and self.y is not None and self.text is not None:
             font_family, font_size, font_weight, text_width, text_color = self._get_text_params()
             self.text_id = canvas.create_text(
                 self.x, self.y, text=self.text, font=(font_family, font_size, font_weight), width=text_width,
@@ -471,6 +471,23 @@ class Node:
             radius = math.radians(angle)
             coords += [left + r + r * math.sin(radius), top + r - r * math.cos(radius)]
         return coords
+
+    def to_dict(self):
+        node_data = {
+            "id": self.id,
+            "type": self.type,
+            "x": self.x,
+            "y": self.y,
+            "w": self.w,
+            "h": self.h,
+            "text": self.text,
+        }
+        if self.fill_color is not None:
+            node_data["fill_color"] = self.fill_color
+        if self.status is not None and self.status != ct.NODE_STATUS_NORMAL:
+            node_data["status"] = self.status
+
+        return node_data
 
     @staticmethod
     def round_half_up(value):

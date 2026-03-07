@@ -235,7 +235,7 @@ CHAT_WIDTH = 500
 CHAT_WINDOW_SLIDE_STEP = 20
 CHAT_WINDOW_SLIDE_INTERVAL = 15  # ms
 
-AI_MODEL = "gpt-5.2"  # Change as needed
+AI_MODEL = "gpt-5.4"  # Change as needed
 AI_INPUT_TEMPLATE = "Please summarize the processing flow for '$order' and define it in the following format."
 AI_SYSTEM_INSTRUCTIONS = '''# Role
 You are a system architecture specialist who organizes business workflows and processing overviews.

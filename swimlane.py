@@ -240,3 +240,15 @@ class Swimlane:
             else:
                 self.height = max(ct.SWIMLANE_PARAMS["vertical_minimum_height"], self.height - ct.CANVAS_PARAMS["grid_spacing"])
         self.resize()
+
+    def to_dict(self):
+        swimlane_data = {
+            "kind": self.kind,
+            "title": self.title,
+            "header_center_x": self.header_center_x,
+            "header_center_y": self.header_center_y,
+            "width": self.width,
+            "height": self.height,
+        }
+
+        return swimlane_data
