@@ -8,22 +8,31 @@ This project provides a **Simple Flowchart Drawing Tool (Python version)** that 
 
 ## Project Purpose
 
-* Do you experience the following frustrations when creating flowcharts?
+* When creating a flowchart, have you ever experienced frustrations like the following?
 
-  * During requirement definition to detailed design, you want to use simple flowcharts to consider business processes and processing logic, but cannot find a tool that is both easy to draw and practical for real work—resulting in frustration every time you create a flowchart.
-  * You create flowcharts in Excel or PowerPoint, but it takes a lot of time to adjust them into a satisfactory shape, and you get tired of re-adjusting layouts whenever the flowchart changes.
-  * In the era of generative AI, specifications have become text-heavy. Even when you ask generative AI to create flowcharts, the results are unsatisfactory and cannot be easily edited.
+  * During the design phase, when examining business workflows or processing logic, you want to quickly sketch a simple flowchart to organize your thoughts. However, you cannot find a suitable tool, and creating flowcharts ends up feeling unnecessarily cumbersome.
+  * You create flowcharts in Excel or PowerPoint to include in design documents, but it takes a long time to arrange them into a satisfactory format. On top of that, repeated edits caused by logic changes or specification updates become tedious and frustrating.
+  * In the era of generative AI, specifications often become long documents filled with text, making them difficult to understand. Even when you ask generative AI to draw a flowchart, the result is often unsatisfactory, and you cannot easily make small adjustments, which can be quite frustrating.
 
-* With these issues in mind, this tool was developed in Python with the goal of being a **casually usable flowchart drawing tool**.
+* For people who share these common challenges, I created a “casual and easy-to-use” flowchart drawing tool.
 
-* Since the basic functions required for drawing simple flowcharts are now in place, a provisional version is released.
+* Since the tool now includes a reasonable set of basic features for quickly sketching flowcharts, I am releasing it as open source.
 
-* Note: Parts of the source code were generated using ChatGPT, and some areas are not yet well organized. These will be gradually cleaned up. 
+* I hope it will be useful to as many people as possible.
 
-* **New feature**: Integration with generative AI (GPT-5.2) to support automatic flowchart generation.
-  (Manual adjustment of flowchart elements and link routing is still required.)
+<img width="50%" src="example/フローチャート自動生成＆手動調整後_jp.png" />
 
-<img width="100%" src="example/flowchart_auto_generated_and_manual_edited.png" />
+## Features of This Tool
+
+* Create, save, and re-edit simple flowcharts quickly
+
+* Automatic link routing between elements, with links automatically updated when elements are moved. Manual routing adjustments are also supported.
+
+* Integration with generative AI (GPT-5.4) to automatically generate flowcharts (manual editing is possible after generation)
+
+* New Feature: Swimlane diagram support (Added on Mar 3, 2026)
+
+<img width="50%" src="example/商品注文対応フロー.png" />
 
 ## Installation
 

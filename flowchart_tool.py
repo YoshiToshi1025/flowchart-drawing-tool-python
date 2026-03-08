@@ -153,6 +153,14 @@ class FlowchartTool(tk.Tk):
         self.canvas.place_configure(x=0, y=0, width=w, height=h)
         # self.canvas.grid(row=0, column=0, sticky="nsew")
 
+        #scrollbar_x = ttk.Scrollbar(self.main_panel, orient=tk.HORIZONTAL, command=self.canvas.xview)
+        #scrollbar_x.pack(side=tk.BOTTOM, fill=tk.X)
+
+        #scrollbar_y = ttk.Scrollbar(self.main_panel, orient=tk.VERTICAL, command=self.canvas.yview)
+        #scrollbar_y.pack(side=tk.RIGHT, fill=tk.Y)
+
+        #self.canvas.config(xscrollcommand=scrollbar_x.set, yscrollcommand=scrollbar_y.set)
+
         # マウス操作定義
         self.canvas.bind("<Button-1>", self.on_canvas_click)
         self.canvas.bind("<ButtonPress-1>", self.on_drag_start, add="+")
