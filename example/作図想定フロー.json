@@ -3,144 +3,159 @@
     {
       "id": 1,
       "type": "terminator",
-      "x": 405,
+      "x": 345,
       "y": 37,
       "w": 120,
       "h": 45,
-      "text": "開始：フローチャートの作成"
+      "text": "フローチャート 作成作業：開始",
+      "fill_color": "#e0e0e0"
     },
     {
       "id": 2,
       "type": "process",
-      "x": 405,
+      "x": 345,
       "y": 97,
       "w": 120,
       "h": 45,
-      "text": "フローチャート作図ツールの起動"
+      "text": "作図ツールの起動",
+      "fill_color": "#F3EEFF"
     },
     {
       "id": 3,
       "type": "decision",
-      "x": 255,
+      "x": 195,
       "y": 202,
       "w": 120,
       "h": 45,
-      "text": "新規作成 or 編集?"
+      "text": "新規 or 編集?",
+      "fill_color": "#FDECEF"
     },
     {
       "id": 4,
       "type": "process",
-      "x": 165,
+      "x": 105,
       "y": 262,
       "w": 120,
       "h": 45,
-      "text": "フローチャートの 作図"
+      "text": "フローチャートの 作図",
+      "fill_color": "#FFFDE6"
     },
     {
       "id": 5,
       "type": "io",
-      "x": 330,
+      "x": 285,
       "y": 262,
       "w": 120,
       "h": 45,
-      "text": "保存データの 読み込み"
+      "text": "保存データの 読み込み",
+      "fill_color": "#F7F5F2"
     },
     {
       "id": 6,
       "type": "process",
-      "x": 330,
-      "y": 337,
+      "x": 285,
+      "y": 322,
       "w": 120,
       "h": 45,
-      "text": "フローチャートの 編集"
+      "text": "フローチャートの 編集",
+      "fill_color": "#FFFDE6"
     },
     {
       "id": 7,
       "type": "io",
-      "x": 405,
-      "y": 502,
+      "x": 345,
+      "y": 457,
       "w": 120,
       "h": 45,
-      "text": "編集データと 画像の保存"
+      "text": "編集データと 画像の保存",
+      "fill_color": "#F7F5F2"
     },
     {
       "id": 8,
       "type": "terminator",
-      "x": 405,
-      "y": 622,
+      "x": 345,
+      "y": 577,
       "w": 120,
       "h": 45,
-      "text": "終了"
+      "text": "終了",
+      "fill_color": "#e0e0e0"
     },
     {
       "id": 10,
       "type": "process",
-      "x": 405,
-      "y": 562,
+      "x": 345,
+      "y": 517,
       "w": 120,
       "h": 45,
-      "text": "資料に画像を添付"
+      "text": "資料に画像を添付",
+      "fill_color": "#EAFBFF"
     },
     {
       "id": 14,
       "type": "process",
-      "x": 540,
+      "x": 480,
       "y": 202,
       "w": 120,
       "h": 45,
-      "text": "生成AIに作成依頼"
+      "text": "生成AIに作成依頼",
+      "fill_color": "#FFFDE6"
     },
     {
       "id": 15,
       "type": "process",
-      "x": 540,
+      "x": 480,
       "y": 262,
       "w": 120,
       "h": 45,
-      "text": "自動生成フローチャートの配置を整える"
+      "text": "自動生成フローチャートの配置を整える",
+      "fill_color": "#FFFDE6"
     },
     {
       "id": 17,
       "type": "decision",
-      "x": 540,
+      "x": 480,
       "y": 382,
       "w": 120,
       "h": 45,
-      "text": "編集が必要？"
+      "text": "編集が必要？",
+      "fill_color": "#FDECEF"
     },
     {
       "id": 18,
       "type": "process",
-      "x": 540,
+      "x": 480,
       "y": 322,
       "w": 120,
       "h": 45,
-      "text": "フローチャート内容を確認する"
+      "text": "フローチャート内容を確認する",
+      "fill_color": "#EFFFF7"
     },
     {
       "id": 19,
       "type": "process",
-      "x": 675,
-      "y": 427,
+      "x": 645,
+      "y": 382,
       "w": 120,
       "h": 45,
-      "text": "フローチャートの 編集"
+      "text": "フローチャートの 編集",
+      "fill_color": "#EFFFF7"
     },
     {
       "id": 23,
       "type": "decision",
-      "x": 405,
+      "x": 345,
       "y": 157,
       "w": 120,
       "h": 45,
-      "text": "処理フローの 作成方法"
+      "text": "フロー作成方法",
+      "fill_color": "#FDECEF"
     }
   ],
   "edges": [
     {
       "from_id": 3,
       "to_id": 4,
-      "label": "新規作成"
+      "label": "新規"
     },
     {
       "from_id": 3,
@@ -162,7 +177,7 @@
       "to_id": 7,
       "from_connection_point": "bottom",
       "to_connection_point": "top",
-      "edge_wrap_margin": 105.0
+      "edge_wrap_margin": 75.0
     },
     {
       "from_id": 7,
@@ -177,14 +192,7 @@
       "to_id": 7,
       "from_connection_point": "bottom",
       "to_connection_point": "top",
-      "edge_wrap_margin": 180.0
-    },
-    {
-      "from_id": 17,
-      "to_id": 19,
-      "from_connection_point": "right",
-      "to_connection_point": "top",
-      "label": "Yes"
+      "edge_wrap_margin": 135.0
     },
     {
       "from_id": 14,
@@ -221,14 +229,20 @@
       "to_id": 7,
       "from_connection_point": "bottom",
       "to_connection_point": "top",
-      "edge_wrap_margin": 60.0,
-      "label": "No"
+      "label": "不要"
+    },
+    {
+      "from_id": 17,
+      "to_id": 19,
+      "label": "必要",
+      "label_position": "auto"
     },
     {
       "from_id": 19,
-      "to_id": 7,
-      "from_connection_point": "bottom",
-      "to_connection_point": "top"
+      "to_id": 18,
+      "edge_wrap_margin": 15.0,
+      "label_position": "auto"
     }
-  ]
+  ],
+  "swimlanes": []
 }

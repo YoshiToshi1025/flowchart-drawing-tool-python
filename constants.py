@@ -191,16 +191,16 @@ SWIMLANE_PARAMS = {
     "horizontal_height": 720,
     "horizontal_header_height": 30,
     "horizontal_minimum_width": 180,
-    "horizontal_max_width": 800,
+    "horizontal_max_width": 810,
     "horizontal_minimum_height": 300,
     "horizontal_max_height": 3000,
-    "vertical_width": 800,
-    "vertical_height": 180,
+    "vertical_width": 900,
+    "vertical_height": 120,
     "vertical_header_width": 30,
     "vertical_minimum_width": 300,
     "vertical_max_width": 3000,
-    "vertical_minimum_height": 180,
-    "vertical_max_height": 800,
+    "vertical_minimum_height": 60,
+    "vertical_max_height": 810,
     "fill_color": "#e0e0e0", # Light Gray
     "outline_color": "#808080", # Gray
     "selected_outline_color": "#0ea5e9",  # Light Blue

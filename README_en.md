@@ -34,6 +34,8 @@ This project provides a **Simple Flowchart Drawing Tool (Python version)** that 
 
 <img width="50%" src="example/商品注文対応フロー.png" />
 
+<img width="50%" src="example/設計作業承認フロー図_ステータス付.png" />
+
 ## Installation
 
 ### Prerequisites
@@ -168,3 +170,4 @@ This project provides a **Simple Flowchart Drawing Tool (Python version)** that 
 * 2026/02/09 : Added support for manually changing node fill colors.
 * 2026/03/03 : Supports swimlane display and node highlight/non-highlight display.
 * 2026/03/07 : Improved the menu structure, updated the default AI integration to GPT-5.4, and refined the source code implementation.
+* 2026/03/17 : Added support for canvas resizing and scrolling.

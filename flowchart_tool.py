@@ -20,6 +20,7 @@ import edge
 from edge import Edge
 import swimlane
 from swimlane import Swimlane
+from modal_window import ModalWindow, ResizeCanvasModal
 
 import platform
 if platform.system() == "Windows":
@@ -33,7 +34,10 @@ class FlowchartTool(tk.Tk):
         load_dotenv()   # .envファイルの読み込み
 
         self.title(ct.APP_TITLE)
-        self.geometry(ct.CANVAS_PARAMS["size"])
+
+        app_window_width = int(ct.CANVAS_PARAMS["size"].split("x")[0])+20+1
+        app_window_height = int(ct.CANVAS_PARAMS["size"].split("x")[1])+38+20+1
+        self.geometry(f"{app_window_width}x{app_window_height}")
 
         # 状態
         self.mode = tk.StringVar(value=ct.DEFAULT_MODE)  # 動作モード： select / add:process / add:decision / add:terminator / add:io / link
@@ -88,10 +92,10 @@ class FlowchartTool(tk.Tk):
         self.container.pack(fill=tk.BOTH, expand=True)
 
         toolbar = ttk.Frame(self.container)
-        toolbar.pack(side=tk.TOP, fill=tk.X, pady=4)
+        toolbar.pack(side=tk.TOP, fill=tk.X, padx=0, pady=0)
 
         self.main_panel = tk.Frame(self.container)
-        self.main_panel.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        self.main_panel.pack(side=tk.TOP, fill=tk.BOTH, padx=0, pady=0, expand=True)
 
         for mode_key, mode_value in ct.MODE_DICT.items():
             self.add_mode_button(toolbar, mode_key, mode_value)
@@ -138,6 +142,11 @@ class FlowchartTool(tk.Tk):
         checkbutton_grid.pack(side=tk.LEFT, padx=1)
         ToolTip(checkbutton_grid, "Grid ON/OFF")
 
+        # キャンバスリサイズボタン定義
+        button_resize = tk.Button(toolbar, text="Resize Canvas", image=self.icons["Resize_Canvas"], compound="none", command=self.confirm_canvas_resize, width=30, height=30)
+        button_resize.pack(side=tk.LEFT, padx=1)
+        ToolTip(button_resize, "Resize Canvas")
+
         ttk.Separator(toolbar, orient=tk.VERTICAL).pack(side=tk.LEFT, fill=tk.Y, padx=(8,8))
 
         # 状態ラベル表示
@@ -145,21 +154,24 @@ class FlowchartTool(tk.Tk):
         self.status_label.pack(side=tk.RIGHT, padx=4)
 
         # キャンバス
-        self.canvas = tk.Canvas(self.main_panel, bg=ct.CANVAS_PARAMS["bg_color"])
+        self.main_panel.grid_rowconfigure(0, weight=1)
+        self.main_panel.grid_columnconfigure(0, weight=1)
+        self.scrollbar_x = None
+        self.scrollbar_y = None
+
         # self.canvas.pack(side=tk.TOP, fill=tk.X)
-        w = max(1, self.main_panel.winfo_width())
-        h = max(1, self.main_panel.winfo_height())
+        self.canvas_width = int(ct.CANVAS_PARAMS["size"].split("x")[0])
+        self.canvas_height = int(ct.CANVAS_PARAMS["size"].split("x")[1])
+        self.canvas_resize(False)  # キャンバスサイズを親パネルに合わせて調整
+        # print(f"Main panel size: {self.canvas_width}x{self.canvas_height}")
+        self.canvas = tk.Canvas(self.main_panel, bg=ct.CANVAS_PARAMS["bg_color"], scrollregion=(0, 0, self.canvas_width-1, self.canvas_height-1))
+        self.canvas.grid(row=0, column=0, sticky="nsew")
 
-        self.canvas.place_configure(x=0, y=0, width=w, height=h)
-        # self.canvas.grid(row=0, column=0, sticky="nsew")
-
-        #scrollbar_x = ttk.Scrollbar(self.main_panel, orient=tk.HORIZONTAL, command=self.canvas.xview)
-        #scrollbar_x.pack(side=tk.BOTTOM, fill=tk.X)
-
-        #scrollbar_y = ttk.Scrollbar(self.main_panel, orient=tk.VERTICAL, command=self.canvas.yview)
-        #scrollbar_y.pack(side=tk.RIGHT, fill=tk.Y)
-
-        #self.canvas.config(xscrollcommand=scrollbar_x.set, yscrollcommand=scrollbar_y.set)
+        self.scrollbar_x = ttk.Scrollbar(self.main_panel, orient=tk.HORIZONTAL, command=self.canvas.xview)
+        self.scrollbar_x.grid(row=1, column=0, sticky="ew")
+        self.scrollbar_y = ttk.Scrollbar(self.main_panel, orient=tk.VERTICAL, command=self.canvas.yview)
+        self.scrollbar_y.grid(row=0, column=1, sticky="ns")
+        self.canvas.config(xscrollcommand=self.scrollbar_x.set, yscrollcommand=self.scrollbar_y.set)
 
         # マウス操作定義
         self.canvas.bind("<Button-1>", self.on_canvas_click)
@@ -220,6 +232,8 @@ class FlowchartTool(tk.Tk):
         self.popup_menu.add_separator()
         self.popup_menu.add_command(label="Save JSON", image=self.icons["Save_JSON"], compound="left", command=self.save_json)
         self.popup_menu.add_command(label="Save Image", image=self.icons["Save_Image"], compound="left", command=self.on_save)
+        self.popup_menu.add_separator()
+        self.popup_menu.add_command(label="Resize Canvas", image=self.icons["Resize_Canvas"], compound="left", command=self.confirm_canvas_resize)
 
         self._draw_grid()   # 初期グリッド描画
 
@@ -277,6 +291,36 @@ class FlowchartTool(tk.Tk):
         # 起動直後に配置確定
         self.after(0, self.on_resize_simple)
 
+    # キャンバスのリサイズ確認を行う（必要に応じてリサイズを実行）
+    def confirm_canvas_resize(self):
+        self.canvas_resize(True)
+
+    def canvas_resize(self, show_window_flag=False):
+        # print("Resizing canvas...")
+        if self.scrollbar_x is None or self.scrollbar_y is None:
+            # print("Scrollbars not initialized yet.")
+            return False
+        bar_x_width = self.scrollbar_x.winfo_width()-4
+        bar_y_height = self.scrollbar_y.winfo_height()-4
+        # print(f"Scrollbar sizes: horizontal={bar_x_width}, vertical={bar_y_height}")
+        # panel_width = max(1, self.main_panel.winfo_width())
+        # panel_height = max(1, self.main_panel.winfo_height())
+
+        resize_flag = False
+        if show_window_flag:
+            # modal = ModalWindow(self, title="Resizing Canvas", width=300, height=100)
+            modal = ResizeCanvasModal(self, title="Resizing Canvas")
+            self.canvas.config(scrollregion=(0, 0, self.canvas_width, self.canvas_height))
+            # self._draw_grid()   # グリッド再描画
+            resize_flag = True
+        elif bar_x_width > self.canvas_width or bar_y_height > self.canvas_height:
+            self.canvas_width = max(self.canvas_width, bar_x_width)
+            self.canvas_height = max(self.canvas_height, bar_y_height)
+            self.canvas.config(scrollregion=(0, 0, self.canvas_width, self.canvas_height))
+            # self._draw_grid()   # グリッド再描画
+            resize_flag = True
+        return resize_flag
+
     def add_mode_button(self, toolbar, text, value):
         b = tk.Radiobutton(toolbar, text=text, image=self.icons[text], compound="none", indicatoron=False, value=value, variable=self.mode, width=30, height=30)
         if text == "Select":
@@ -298,15 +342,15 @@ class FlowchartTool(tk.Tk):
         self.canvas.delete("grid")
         if not self.grid_on.get():
             return
-        w = self.canvas.winfo_width()
-        h = self.canvas.winfo_height()
-        if w <= 0 or h <= 0:
-            return
+        # w = self.canvas.winfo_width()
+        # h = self.canvas.winfo_height()
+        # if w <= 0 or h <= 0:
+        #     return
         step = ct.CANVAS_PARAMS["grid_spacing"] # グリッド間隔
-        for x in range(0, w, step):
-            self.canvas.create_line(x, 0, x, h, fill=ct.CANVAS_PARAMS["grid_color"], tags=("grid",))
-        for y in range(0, h, step):
-            self.canvas.create_line(0, y, w, y, fill=ct.CANVAS_PARAMS["grid_color"], tags=("grid",))
+        for x in range(0, self.canvas_width, step):
+            self.canvas.create_line(x, 0, x, self.canvas_height, fill=ct.CANVAS_PARAMS["grid_color"], tags=("grid",))
+        for y in range(0, self.canvas_height, step):
+            self.canvas.create_line(0, y, self.canvas_width, y, fill=ct.CANVAS_PARAMS["grid_color"], tags=("grid",))
         # グリッドを最背面へ
         self.canvas.tag_lower("grid")
 
@@ -324,11 +368,11 @@ class FlowchartTool(tk.Tk):
             self.finish_swimlane_label_edit(commit=True)
 
         # クリック位置のオブジェクトを取得
-        selecting_node_id = self.node_at(event.x, event.y)
+        selecting_node_id = self.node_at(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
         if selecting_node_id is None:
-            selecting_edge = self.edge_at(event.x, event.y)
+            selecting_edge = self.edge_at(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
             if selecting_edge is None:
-                selecting_swimlane = self.swimlane_at(event.x, event.y)
+                selecting_swimlane = self.swimlane_at(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
             else:
                 selecting_swimlane = None
         else:
@@ -341,9 +385,9 @@ class FlowchartTool(tk.Tk):
             if mode.startswith("add:"):
                 node_type = mode.split(":", 1)[1]
                 if node_type == "swimlane":
-                    self.create_swimlane(event.x, event.y)
+                    self.create_swimlane(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
                 else:
-                    self.create_node(node_type, event.x, event.y)
+                    self.create_node(node_type, self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
                 return
 
         # オブジェクトを選択している場合は、指定オブジェクトの選択処理を行う
@@ -392,9 +436,9 @@ class FlowchartTool(tk.Tk):
         if self.mode.get() == "link":
             return
 
-        selected_node_id = self.node_at(event.x, event.y)
-        selected_edge_id = self.edge_at(event.x, event.y)
-        selected_swimlane = self.swimlane_at(event.x, event.y)
+        selected_node_id = self.node_at(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
+        selected_edge_id = self.edge_at(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
+        selected_swimlane = self.swimlane_at(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
 
         if selected_node_id is None and selected_edge_id is None and selected_swimlane is None:
             self.drag_data["mode"] = "select_area"
@@ -402,10 +446,10 @@ class FlowchartTool(tk.Tk):
             self.drag_data["shape_id"] = None
             self.drag_data["original_x"] = None
             self.drag_data["original_y"] = None
-            self.drag_data["drag_start_x"] = event.x
-            self.drag_data["drag_start_y"] = event.y
-            self.drag_data["drag_end_x"] = event.x
-            self.drag_data["drag_end_y"] = event.y
+            self.drag_data["drag_start_x"] = self.canvas.canvasx(event.x)
+            self.drag_data["drag_start_y"] = self.canvas.canvasy(event.y)
+            self.drag_data["drag_end_x"] = self.canvas.canvasx(event.x)
+            self.drag_data["drag_end_y"] = self.canvas.canvasy(event.y)
             # 選択範囲枠を描画
             selection_frame_shape_id = self.canvas.create_rectangle(
                 self.drag_data["drag_start_x"], self.drag_data["drag_start_y"], self.drag_data["drag_end_x"], self.drag_data["drag_end_y"],
@@ -421,10 +465,10 @@ class FlowchartTool(tk.Tk):
             self.drag_data["shape_id"] = node_obj.shape_id
             self.drag_data["original_x"] = node_obj.x
             self.drag_data["original_y"] = node_obj.y
-            self.drag_data["drag_start_x"] = event.x
-            self.drag_data["drag_start_y"] = event.y
-            self.drag_data["drag_end_x"] = event.x
-            self.drag_data["drag_end_y"] = event.y
+            self.drag_data["drag_start_x"] = self.canvas.canvasx(event.x)
+            self.drag_data["drag_start_y"] = self.canvas.canvasy(event.y)
+            self.drag_data["drag_end_x"] = self.canvas.canvasx(event.x)
+            self.drag_data["drag_end_y"] = self.canvas.canvasy(event.y)
         elif selected_edge_id is not None:
             self.select_edge(selected_edge_id)
         elif selected_swimlane is not None:
@@ -434,10 +478,10 @@ class FlowchartTool(tk.Tk):
             self.drag_data["shape_id"] = selected_swimlane.frame_id
             self.drag_data["original_x"] = selected_swimlane.header_center_x
             self.drag_data["original_y"] = selected_swimlane.header_center_y
-            self.drag_data["drag_start_x"] = event.x
-            self.drag_data["drag_start_y"] = event.y
-            self.drag_data["drag_end_x"] = event.x
-            self.drag_data["drag_end_y"] = event.y
+            self.drag_data["drag_start_x"] = self.canvas.canvasx(event.x)
+            self.drag_data["drag_start_y"] = self.canvas.canvasy(event.y)
+            self.drag_data["drag_end_x"] = self.canvas.canvasx(event.x)
+            self.drag_data["drag_end_y"] = self.canvas.canvasy(event.y)
 
         self.display_operation_info()  # 操作情報表示制御
 
@@ -446,8 +490,8 @@ class FlowchartTool(tk.Tk):
             return
 
         mode = self.drag_data["mode"]
-        self.drag_data["drag_end_x"] = event.x
-        self.drag_data["drag_end_y"] = event.y
+        self.drag_data["drag_end_x"] = self.canvas.canvasx(event.x)
+        self.drag_data["drag_end_y"] = self.canvas.canvasy(event.y)
 
         if mode == "select_area":
             # 選択範囲枠を更新
@@ -484,8 +528,8 @@ class FlowchartTool(tk.Tk):
             return
 
         mode = self.drag_data["mode"]
-        self.drag_data["drag_end_x"] = event.x
-        self.drag_data["drag_end_y"] = event.y
+        self.drag_data["drag_end_x"] = self.canvas.canvasx(event.x)
+        self.drag_data["drag_end_y"] = self.canvas.canvasy(event.y)
 
         if mode == "select_area":
             # 選択範囲内のノードを選択状態に
@@ -592,20 +636,21 @@ class FlowchartTool(tk.Tk):
         # if self.mode.get() != "select":
         #    self.mode.set("select")
         #    #return
-        nid = self.node_at(event.x, event.y)
+        nid = self.node_at(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
         if nid:
             self.start_text_edit(nid)
         else:
-            selected_edge = self.edge_at(event.x, event.y)
+            selected_edge = self.edge_at(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
             if selected_edge is not None:
                 # エッジラベル編集
                 self.start_edge_label_edit(selected_edge)
             else:
-                selected_swimlane = self.swimlane_at(event.x, event.y)
+                selected_swimlane = self.swimlane_at(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
                 if selected_swimlane is not None:
                     self.start_swimlane_label_edit(selected_swimlane)
 
     def on_canvas_resize(self, event):
+        self.canvas_resize(False)
         self._draw_grid()
 
     def on_grid_toggle(self):
@@ -728,11 +773,13 @@ class FlowchartTool(tk.Tk):
         self.on_resize_simple()
 
     def on_resize_simple(self):
-        w = max(1, self.main_panel.winfo_width())
-        h = max(1, self.main_panel.winfo_height())
+        w = max(1, self.main_panel.winfo_width())-4
+        h = max(1, self.main_panel.winfo_height())-4
+        # print(f"Resize detected: main_panel w={w}, h={h}")  # for DEBUG
 
         # canvasも念のため全面維持（containerは rel で追従してるので通常不要だが安全）
-        self.canvas.place_configure(x=0, y=0, width=w, height=h)
+        # self.canvas.place_configure(x=0, y=0, width=self.canvas_width, height=self.canvas_height)
+
 
         # アニメ中は高さだけ追従（位置はアニメ側に任せる）
         if self.chat_animating:
@@ -1686,8 +1733,8 @@ class FlowchartTool(tk.Tk):
         self.chat_frame.lift()
 
         def animate():
-            w = max(1, self.main_panel.winfo_width())
-            h = max(1, self.main_panel.winfo_height())
+            w = max(1, self.main_panel.winfo_width())-4
+            h = max(1, self.main_panel.winfo_height())-4
             target_x = max(0, w - ct.CHAT_WIDTH)  # 常に現在幅基準
 
             if self.chat_x > target_x:
@@ -1701,8 +1748,8 @@ class FlowchartTool(tk.Tk):
                 self.chat_animating = False
 
         # スタート地点を「現在の右外」に強制（リサイズ後でも確実）
-        w0 = max(1, self.main_panel.winfo_width())
-        h0 = max(1, self.main_panel.winfo_height())
+        w0 = max(1, self.main_panel.winfo_width())-4
+        h0 = max(1, self.main_panel.winfo_height())-4
         self.chat_x = w0
         self.chat_frame.place_configure(x=self.chat_x, y=0, height=h0, width=ct.CHAT_WIDTH)
 
@@ -1715,8 +1762,8 @@ class FlowchartTool(tk.Tk):
         self.chat_frame.lift()
 
         def animate():
-            w = max(1, self.main_panel.winfo_width())
-            h = max(1, self.main_panel.winfo_height())
+            w = max(1, self.main_panel.winfo_width())-4
+            h = max(1, self.main_panel.winfo_height())-4
             target_x = w  # 現在幅の右外
 
             if self.chat_x < target_x:
@@ -1923,6 +1970,7 @@ class FlowchartTool(tk.Tk):
         self.icons["Status_normal"] = self.make_icon("Status_normal")
         self.icons["Status_active"] = self.make_icon("Status_active")
         self.icons["Status_inactive"] = self.make_icon("Status_inactive")
+        self.icons["Resize_Canvas"] = self.make_icon("Resize_Canvas")
 
     def make_icon(self, name: str, size: int = 128, fg: str = "#111827") -> ImageTk.PhotoImage:
         img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
@@ -1996,6 +2044,26 @@ class FlowchartTool(tk.Tk):
                 d.line((x0 + i*grid_size + grid_size//2, y0, x0 + i*grid_size + grid_size//2, y1), fill=fg, width=4)
             for j in range(4):
                 d.line((x0, y0 + j*grid_size + grid_size//2, x1, y0 + j*grid_size + grid_size//2), fill=fg, width=4)
+
+        elif name == "Resize_Canvas":
+            d.rectangle((x0,y0,x1,y1), outline=fg, width=2)
+            d.rectangle((x0+size//4.5, y0+size//4.5, x1-size//4.5, y1-size//4.5), outline=fg, width=8)
+
+            d.line((x0+size//15, y0+size//15, x0+size//5, y0+size//5), fill=fg, width=4)
+            d.line((x0+size//5, y0+size//5, x0+size//15, y0+size//5), fill=fg, width=4)
+            d.line((x0+size//5, y0+size//5, x0+size//5, y0+size//15), fill=fg, width=4)
+
+            d.line((x0+size//15, y1-size//15, x0+size//5, y1-size//5), fill=fg, width=4)
+            d.line((x0+size//5, y1-size//5, x0+size//15, y1-size//5), fill=fg, width=4)
+            d.line((x0+size//5, y1-size//5, x0+size//5, y1-size//15), fill=fg, width=4)
+
+            d.line((x1-size//15, y0+size//15, x1-size//5, y0+size//5), fill=fg, width=4)
+            d.line((x1-size//5, y0+size//5, x1-size//15, y0+size//5), fill=fg, width=4)
+            d.line((x1-size//5, y0+size//5, x1-size//5, y0+size//15), fill=fg, width=4)
+
+            d.line((x1-size//15, y1-size//15, x1-size//5, y1-size//5), fill=fg, width=4)
+            d.line((x1-size//5, y1-size//5, x1-size//15, y1-size//5), fill=fg, width=4)
+            d.line((x1-size//5, y1-size//5, x1-size//5, y1-size//15), fill=fg, width=4)
 
         elif name == "Undo":
             d.arc((x0+size//6+size//8, y0+size//6+size//16+3, x1-size//6+size//8, y1-size//6+size//16+3), start=-100, end=120, fill=fg, width=12)

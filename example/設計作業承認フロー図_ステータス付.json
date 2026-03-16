@@ -1,0 +1,192 @@
+{
+  "nodes": [
+    {
+      "id": 1,
+      "type": "terminator",
+      "x": 112,
+      "y": 82,
+      "w": 45,
+      "h": 45,
+      "text": "開始",
+      "fill_color": "#e0e0e0"
+    },
+    {
+      "id": 2,
+      "type": "terminator",
+      "x": 907,
+      "y": 82,
+      "w": 45,
+      "h": 45,
+      "text": "終了",
+      "fill_color": "#e0e0e0"
+    },
+    {
+      "id": 3,
+      "type": "process",
+      "x": 210,
+      "y": 82,
+      "w": 120,
+      "h": 45,
+      "text": "設計作業",
+      "fill_color": "#EEF4FF",
+      "status": "inactive"
+    },
+    {
+      "id": 4,
+      "type": "process",
+      "x": 345,
+      "y": 82,
+      "w": 120,
+      "h": 45,
+      "text": "承認依頼",
+      "fill_color": "#EEF4FF",
+      "status": "inactive"
+    },
+    {
+      "id": 7,
+      "type": "process",
+      "x": 810,
+      "y": 82,
+      "w": 120,
+      "h": 45,
+      "text": "設計完了",
+      "fill_color": "#EEF4FF"
+    },
+    {
+      "id": 8,
+      "type": "decision",
+      "x": 450,
+      "y": 187,
+      "w": 120,
+      "h": 45,
+      "text": "上長承認",
+      "fill_color": "#FDECEF",
+      "status": "active"
+    },
+    {
+      "id": 9,
+      "type": "decision",
+      "x": 555,
+      "y": 292,
+      "w": 120,
+      "h": 45,
+      "text": "部長承認",
+      "fill_color": "#FFF1E3"
+    },
+    {
+      "id": 10,
+      "type": "decision",
+      "x": 660,
+      "y": 397,
+      "w": 120,
+      "h": 45,
+      "text": "最終承認",
+      "fill_color": "#F1FAEE"
+    }
+  ],
+  "edges": [
+    {
+      "from_id": 1,
+      "to_id": 3,
+      "label_position": "auto"
+    },
+    {
+      "from_id": 3,
+      "to_id": 4,
+      "label_position": "auto"
+    },
+    {
+      "from_id": 7,
+      "to_id": 2,
+      "label_position": "auto"
+    },
+    {
+      "from_id": 4,
+      "to_id": 8,
+      "label": "承認依頼",
+      "label_position": "auto"
+    },
+    {
+      "from_id": 8,
+      "to_id": 9,
+      "from_connection_point": "bottom",
+      "to_connection_point": "left",
+      "label": "承認",
+      "label_position": "auto"
+    },
+    {
+      "from_id": 8,
+      "to_id": 4,
+      "from_connection_point": "top",
+      "to_connection_point": "right",
+      "label": "却下",
+      "label_position": "auto"
+    },
+    {
+      "from_id": 9,
+      "to_id": 4,
+      "from_connection_point": "top",
+      "to_connection_point": "right",
+      "label": "却下",
+      "label_position": "auto"
+    },
+    {
+      "from_id": 9,
+      "to_id": 10,
+      "from_connection_point": "bottom",
+      "to_connection_point": "left",
+      "label": "承認",
+      "label_position": "auto"
+    },
+    {
+      "from_id": 10,
+      "to_id": 7,
+      "from_connection_point": "auto",
+      "to_connection_point": "auto",
+      "label": "最終承認",
+      "label_position": "p1sw"
+    },
+    {
+      "from_id": 10,
+      "to_id": 4,
+      "from_connection_point": "top",
+      "to_connection_point": "right",
+      "label": "却下",
+      "label_position": "auto"
+    }
+  ],
+  "swimlanes": [
+    {
+      "kind": "vertical",
+      "title": "設計者",
+      "header_center_x": 45,
+      "header_center_y": 82,
+      "width": 960,
+      "height": 105
+    },
+    {
+      "kind": "vertical",
+      "title": "承認者_上長",
+      "header_center_x": 45,
+      "header_center_y": 187,
+      "width": 960,
+      "height": 105
+    },
+    {
+      "kind": "vertical",
+      "title": "承認者_部長",
+      "header_center_x": 45,
+      "header_center_y": 292,
+      "width": 960,
+      "height": 105
+    },
+    {
+      "kind": "vertical",
+      "title": "最終承認者",
+      "header_center_x": 45,
+      "header_center_y": 397,
+      "width": 960,
+      "height": 105
+    }
+  ]
+}
