@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 from pathlib import Path
 import re
 from PIL import Image, ImageDraw, ImageTk, ImageFont
+from typing import Literal, Tuple
 
 import mermaid_flowdata_loader as mfloader
 import constants as ct
@@ -40,7 +41,7 @@ class FlowchartTool(tk.Tk):
         self.geometry(f"{app_window_width}x{app_window_height}")
 
         # 状態
-        self.mode = tk.StringVar(value=ct.DEFAULT_MODE)  # 動作モード： select / add:process / add:decision / add:terminator / add:io / link
+        self.mode = tk.StringVar(value=ct.DEFAULT_MODE)  # 動作モード： select / add:process / add:decision / add:terminator / add:io / link_elbow / link_straight
         self.grid_on = tk.BooleanVar(value=True)  # グリッド表示ON/OFF
         self.chat_window_on = tk.BooleanVar(value=False)  # チャットウィンドウ表示ON/OFF
 
@@ -219,7 +220,8 @@ class FlowchartTool(tk.Tk):
         self.popup_menu.add_command(label="Mode : Add Process", image=self.icons["Process"], compound="left", command=lambda: self.mode.set("add:process"))
         self.popup_menu.add_command(label="Mode : Add Decision", image=self.icons["Decision"], compound="left", command=lambda: self.mode.set("add:decision"))
         self.popup_menu.add_command(label="Mode : Add I/O", image=self.icons["I/O"], compound="left", command=lambda: self.mode.set("add:io"))
-        self.popup_menu.add_command(label="Mode : Link", image=self.icons["Link"], compound="left", command=lambda: self.mode.set("link"))
+        self.popup_menu.add_command(label="Mode : Link elbow arrow", image=self.icons["Link_elbow"], compound="left", command=lambda: self.mode.set("link_elbow"))
+        self.popup_menu.add_command(label="Mode : Link straight arrow", image=self.icons["Link_straight"], compound="left", command=lambda: self.mode.set("link_straight"))
         self.popup_menu.add_separator()
         self.popup_menu.add_command(label="Delete Selected", image=self.icons["Delete"], compound="left", command=self.delete_selected)
         self.popup_menu.add_separator()
@@ -324,11 +326,11 @@ class FlowchartTool(tk.Tk):
     def add_mode_button(self, toolbar, text, value):
         b = tk.Radiobutton(toolbar, text=text, image=self.icons[text], compound="none", indicatoron=False, value=value, variable=self.mode, width=30, height=30)
         if text == "Select":
-            b.pack(side=tk.LEFT, padx=4)
-        elif text == "Swimlane" or text == "Link":
-            b.pack(side=tk.LEFT, padx=(4,2))
+            b.pack(side=tk.LEFT, padx=(4,1))
+        elif text == "Swimlane" or text == "Link_elbow":
+            b.pack(side=tk.LEFT, padx=(4,1))
         else:
-            b.pack(side=tk.LEFT, padx=2)
+            b.pack(side=tk.LEFT, padx=1)
         ToolTip(b, text)
         return b
 
@@ -402,7 +404,7 @@ class FlowchartTool(tk.Tk):
                     self.select_edge(selecting_edge)
                 self.select_swimlane(selecting_swimlane)
         # リンクモードの場合は、ノードを選択していればリンクの開始点として記憶し、次にノードを選択したらリンクを作成する
-        elif mode == "link":
+        elif mode.startswith("link"):
             if selecting_node_id is None:
                 if selecting_edge is not None:
                     self.select_edge(selecting_edge)
@@ -411,7 +413,10 @@ class FlowchartTool(tk.Tk):
                 self.link_start_node_id = selecting_node_id
                 self.select_node(selecting_node_id)
             else:
-                self.create_edge(self.link_start_node_id, selecting_node_id)
+                if mode == "link_elbow":
+                    self.create_edge(self.link_start_node_id, selecting_node_id, ct.EDGE_TYPE_ELBOW)
+                elif mode == "link_straight":
+                    self.create_edge(self.link_start_node_id, selecting_node_id, ct.EDGE_TYPE_LINE)
                 self.cancel_selection_node_and_edge_and_swimlane()
         else:
             # 選択オブジェクトが選択中の場合は、現状の選択状態を維持する
@@ -433,7 +438,7 @@ class FlowchartTool(tk.Tk):
         #        self.delete_edge(selecting_edge)
 
     def on_drag_start(self, event):
-        if self.mode.get() == "link":
+        if self.mode.get().startswith("link"):
             return
 
         selected_node_id = self.node_at(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
@@ -486,7 +491,7 @@ class FlowchartTool(tk.Tk):
         self.display_operation_info()  # 操作情報表示制御
 
     def on_drag_move(self, event):
-        if self.mode.get() == "link":
+        if self.mode.get().startswith("link"):
             return
 
         mode = self.drag_data["mode"]
@@ -524,7 +529,7 @@ class FlowchartTool(tk.Tk):
                     selected_swimlane.move_to(adjusted_x, adjusted_y)
 
     def on_drag_end(self, event):
-        if self.mode.get() == "link":
+        if self.mode.get().startswith("link"):
             return
 
         mode = self.drag_data["mode"]
@@ -1100,7 +1105,7 @@ class FlowchartTool(tk.Tk):
     def _clamp(v, vmin, vmax):
         return max(vmin, min(vmax, v))
 
-    def create_edge(self, from_id, to_id):
+    def create_edge(self, from_id, to_id, edge_type:Literal["elbow", "line"]=ct.EDGE_TYPE_ELBOW):
         if from_id == to_id:
             return
         if from_id not in self.nodes or to_id not in self.nodes:
@@ -1110,7 +1115,7 @@ class FlowchartTool(tk.Tk):
         to_node_obj = self.nodes[to_id]
 
         auto_text = self.auto_edge_label(None, from_node_obj)
-        edge_obj = Edge(from_node_obj, to_node_obj, text=auto_text, canvas=self.canvas)
+        edge_obj = Edge(edge_type=edge_type, line_style=ct.EDGE_LINE_STYLE_SOLID,from_node_obj=from_node_obj, to_node_obj=to_node_obj, text=auto_text, canvas=self.canvas)
 
         if edge_obj is not None and edge_obj.line_id is not None:
             self.edges[edge_obj.line_id] = edge_obj
@@ -1216,6 +1221,8 @@ class FlowchartTool(tk.Tk):
         for ed in edges_data:
             fid = ed.get("from_id")
             tid = ed.get("to_id")
+            edge_type = ed.get("edge_type", ct.EDGE_TYPE_ELBOW)
+            line_style = ed.get("line_style", ct.EDGE_PARAMS["line_style"])
             from_connection_point = ed.get("from_connection_point", None)
             to_connection_point = ed.get("to_connection_point", None)
             edge_wrap_margin = ed.get("edge_wrap_margin", None)
@@ -1224,7 +1231,7 @@ class FlowchartTool(tk.Tk):
             if fid in self.nodes and tid in self.nodes:
                 from_node_obj = self.nodes[fid]
                 to_node_obj = self.nodes[tid]
-                edge_obj = Edge(from_node_obj, to_node_obj, text=label, \
+                edge_obj = Edge(edge_type=edge_type, line_style=line_style, from_node_obj=from_node_obj, to_node_obj=to_node_obj, text=label, \
                                         from_node_connection_point=from_connection_point, \
                                         to_node_connection_point=to_connection_point, \
                                         edge_wrap_margin=edge_wrap_margin, \
@@ -1696,6 +1703,8 @@ class FlowchartTool(tk.Tk):
             self._create_node_with_id(node_id, node_type, x, y, w=w, h=h, text=text)
             id_map[node_strid] = node_id
 
+        edge_type = ct.EDGE_TYPE_ELBOW
+        line_style = ct.EDGE_PARAMS["line_style"]
         for ed in mmd_links:
             src_id = ed.src if hasattr(ed, "src") else None
             dst_id = ed.dst if hasattr(ed, "dst") else None
@@ -1705,7 +1714,7 @@ class FlowchartTool(tk.Tk):
             if fid in self.nodes and tid in self.nodes:
                 from_node_obj = self.nodes.get(fid)
                 to_node_obj = self.nodes.get(tid)
-                edge_obj = Edge(from_node_obj, to_node_obj, text=label, \
+                edge_obj = Edge(edge_type=edge_type, line_style=line_style, from_node_obj=from_node_obj, to_node_obj=to_node_obj, text=label, \
                                         canvas=self.canvas)
                 if edge_obj is not None and edge_obj.line_id is not None:
                     self.edges[edge_obj.line_id] = edge_obj
@@ -1957,7 +1966,8 @@ class FlowchartTool(tk.Tk):
         self.icons["Process"] = self.make_icon("Process")
         self.icons["Decision"] = self.make_icon("Decision")
         self.icons["I/O"] = self.make_icon("I/O")
-        self.icons["Link"] = self.make_icon("Link")
+        self.icons["Link_elbow"] = self.make_icon("Link_elbow")
+        self.icons["Link_straight"] = self.make_icon("Link_straight")
         self.icons["Delete"] = self.make_icon("Delete")
         self.icons["Grid"] = self.make_icon("Grid")
         self.icons["Undo"] = self.make_icon("Undo")
@@ -2026,11 +2036,17 @@ class FlowchartTool(tk.Tk):
         elif name == "I/O":
             d.polygon([(x0+size//8, y0+size//5), (x1, y0+size//5), (x1-size//8, y1-size//5), (x0, y1-size//5)], outline=fg, fill=None, width=8)
 
-        elif name == "Link":
+        elif name == "Link_elbow":
             d.line((x0+size//16, y1-size//3, x0+size//2, y1-size//3, x0+size//2, y0+size//3, x1-size//16, y0+size//3), fill=fg, width=8, joint="curve")
 
             d.line((x1-size//16, y0+size//3, x1-size//5, y0+size//3-size//10), fill=fg, width=8)
             d.line((x1-size//16, y0+size//3, x1-size//5, y0+size//3+size//10), fill=fg, width=8)
+        elif name == "Link_straight":
+
+            d.line((x0+size//16, y1-size//3, x1-size//16, y0+size//3), fill=fg, width=8, joint="curve")
+
+            d.line((x1-size//16, y0+size//3, x1-size//3.8, y0+size//3-size//40), fill=fg, width=8)
+            d.line((x1-size//16, y0+size//3, x1-size//5, y0+size//3+size//6), fill=fg, width=8)
 
         elif name == "Delete":
             d.polygon([(x0+size//8, y1-size*3//8), (x0+size*3//8, y1-size//8), (x0+size*5//8, y1-size*3//8), (x0+size*3//8, y1-size*5//8)], outline=fg, fill="white", width=6)

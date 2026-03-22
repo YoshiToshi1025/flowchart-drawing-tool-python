@@ -2,11 +2,14 @@ import tkinter as tk
 import constants as ct
 import node
 from typing import Literal, Tuple
+from math import inf
 
 LABEL_POSITION_LIST = ["auto", "p0se", "p0sw", "p0nw", "p0ne", "p1se", "p1sw", "p1nw", "p1ne", "p2se", "p2sw", "p2nw", "p2ne", "p3se", "p3sw", "p3nw", "p3ne", "p4se", "p4sw", "p4nw", "p4ne", "p5se", "p5sw", "p5nw", "p5ne"]
 
 class Edge:
     line_id = None
+    edge_type:Literal["elbow", "line"] = "elbow"  # "elbow", "line"のいずれか
+    line_style:Literal["solid", "dashed", "dotted"] = "solid"  # "solid", "dashed", "dotted"のいずれか
     from_node_obj = None
     to_node_obj = None
     points = None  # List of (x, y) tuples
@@ -21,25 +24,29 @@ class Edge:
     to_node_connection_point:Literal["top", "bottom", "left", "right", "auto", None] = None
     edge_wrap_margin = None
 
-    def __init__(self, from_node_obj, to_node_obj, points=None, text=None, \
+    def __init__(self, edge_type:Literal["elbow", "line"]="elbow", line_style:Literal["solid", "dashed", "dotted"]="solid", \
+                    from_node_obj=None, to_node_obj=None, points=None, text=None, \
                     from_node_connection_point=None, to_node_connection_point=None, edge_wrap_margin=None, \
                     label_x=None, label_y=None, canvas=None,\
-                    label_anchor:Literal["center", "n", "ne", "e", "se", "s", "sw", "w", "nw"]="center", \
-                    label_justify:Literal["left", "center", "right"]="left", \
                     label_position:Literal["auto", "p0se", "p0sw", "p0nw", "p0ne", "p1se", "p1sw", "p1nw", "p1ne", "p2se", "p2sw", "p2nw", "p2ne", "p3se", "p3sw", "p3nw", "p3ne", "p4se", "p4sw", "p4nw", "p4ne", "p5se", "p5sw", "p5nw", "p5ne"]="auto"):
+        self.edge_type = edge_type
+        self.line_style = line_style
         self.from_node_obj = from_node_obj
         self.to_node_obj = to_node_obj
         self.label_text = text
-        self.label_justify = label_justify
-        self.label_anchor = label_anchor
         self.label_position = label_position
-
+        if self.edge_type == ct.EDGE_TYPE_ELBOW:
+            self.label_anchor = "center"
+            self.label_justify = "left"
+        else:
+            self.label_anchor = "center"
+            self.label_justify = "center"
         self.from_node_connection_point = from_node_connection_point if from_node_connection_point in ["top", "bottom", "left", "right", "auto"] else None
         self.to_node_connection_point = to_node_connection_point if to_node_connection_point in ["top", "bottom", "left", "right", "auto"] else None
         self.edge_wrap_margin = edge_wrap_margin
 
         if points is None:
-            # かぎ線の座標とラベル位置を計算
+            # 直線またはかぎ線の頂点の座標とラベル位置を自動計算
             self._compute_edge_geometry(from_node_obj, to_node_obj)
         else:
             self.points = points  # List of (x, y) tuples
@@ -61,21 +68,32 @@ class Edge:
         """エッジの描画"""
         arrow_kind = ct.EDGE_PARAMS.get("arrow_kind", tk.LAST)
         arrow_shape = ct.EDGE_PARAMS.get("arrow_shape", (8, 10, 3))
+
+        dash_pattern = self.get_dash_pattern()
+
         if arrow_kind is None:
             self.line_id = canvas.create_line(
                 *self.points,
-                width=ct.EDGE_PARAMS["width"], fill=ct.EDGE_PARAMS["color"],
+                width=ct.EDGE_PARAMS["width"], fill=ct.EDGE_PARAMS["color"], dash=dash_pattern,
                 tags=("edge")
             )
         else:
             self.line_id = canvas.create_line(
                 *self.points,
                 arrow=arrow_kind, arrowshape=arrow_shape,
-                width=ct.EDGE_PARAMS["width"], fill=ct.EDGE_PARAMS["color"],
+                width=ct.EDGE_PARAMS["width"], fill=ct.EDGE_PARAMS["color"], dash=dash_pattern,
                 tags=("edge")
             )
         # エッジはノードの下に
         canvas.tag_lower(self.line_id, "node")
+    
+    def get_dash_pattern(self):
+        if self.line_style == ct.EDGE_LINE_STYLE_DASHED:
+            return "-"  # 破線（パターン指定が効かない）
+        elif self.line_style == ct.EDGE_LINE_STYLE_DOTTED:
+            return "."  # 点線（パターン指定が効かない）
+        else:
+            return ()
 
     def draw_label(self, canvas:tk.Canvas, from_node_obj):
         """エッジラベルの描画"""
@@ -90,12 +108,17 @@ class Edge:
                 tags=("edge-label",)
             )
             # ラベルもノードの下でOK（少し上に描かれるので視認性は保てる）
-            canvas.tag_lower(self.label_id, "node")
+            canvas.tag_raise(self.label_id, "node")
 
     def _compute_edge_geometry(self, from_node_obj: node.Node, to_node_obj: node.Node):
-        """かぎ線の3点座標とラベル位置を計算"""
+        """直線またはかぎ線の頂点の座標とラベル位置を計算"""
         # 各ノードのアンカーとラベル位置を設定
-        self.points, self.label_x, self.label_y, self.label_anchor, self.label_justify = self.rect_anchor(from_node_obj, to_node_obj)
+        if self.edge_type == "elbow":
+            self.points, self.label_x, self.label_y, self.label_anchor, self.label_justify = self.rect_anchor(from_node_obj, to_node_obj)
+        elif self.edge_type == "line":
+            self.points, self.label_x, self.label_y, self.label_anchor, self.label_justify = self.line_anchor(from_node_obj, to_node_obj)
+        else:
+            self.points, self.label_x, self.label_y, self.label_anchor, self.label_justify = self.simple_line_anchor(from_node_obj, to_node_obj)
 
         return self.points, self.label_x, self.label_y, self.label_anchor, self.label_justify
 
@@ -103,9 +126,9 @@ class Edge:
     def rect_anchor(self, from_node_obj, to_node_obj):
         coords = []
         if from_node_obj.x is None or from_node_obj.y is None or from_node_obj.h is None or from_node_obj.w is None:
-            return coords, None, None, None, None
+            return coords, None, None, "center", "center"
         if to_node_obj.x is None or to_node_obj.y is None or to_node_obj.h is None or to_node_obj.w is None:
-            return coords, None, None, None, None
+            return coords, None, None, "center", "center"
 
         from_center_x, from_center_y, from_width, from_height = from_node_obj.x, from_node_obj.y, from_node_obj.w, from_node_obj.h
         from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
@@ -363,7 +386,7 @@ class Edge:
                 print("Error: Invalid connection_point values")
 
         if coords == [] or coords is None:
-            coords = self.line_anchor(from_node_obj, to_node_obj)
+            coords = self.simple_line_anchor(from_node_obj, to_node_obj)
 
         if coords is not None and coords != [] and (label_x is None or label_y is None):
             label_x = (coords[0] + coords[2]) / 2 + ct.EDGE_LABEL_OFFSET["center"][0]
@@ -372,6 +395,69 @@ class Edge:
             label_justify = "center"
 
         return coords, label_x, label_y, label_anchor, label_justify
+
+    def line_anchor(self, from_node_obj, to_node_obj):
+        # fromノードとtoノードの中心を結ぶ直線上のアンカー
+        coords = []
+        if from_node_obj.x is None or from_node_obj.y is None or from_node_obj.h is None or from_node_obj.w is None:
+            return coords, None, None, "center", "center"
+        if to_node_obj.x is None or to_node_obj.y is None or to_node_obj.h is None or to_node_obj.w is None:
+            return coords, None, None, "center", "center"
+
+        from_x, from_y = self.from_rect_intersection(from_node_obj, to_node_obj)
+        to_x, to_y = self.to_rect_intersection(from_node_obj, to_node_obj)
+
+        coords = [from_x, from_y, to_x, to_y]
+
+        label_x = (coords[0] + coords[2]) / 2 + ct.EDGE_LABEL_OFFSET["center"][0]
+        label_y = (coords[1] + coords[3]) / 2 + ct.EDGE_LABEL_OFFSET["center"][1]
+        label_anchor = "center"
+        label_justify = "center"
+
+        return coords, label_x, label_y, label_anchor, label_justify
+
+    def simple_line_anchor(self, from_node_obj, to_node_obj):
+        """直線アンカー座標計算"""
+        coords = [from_node_obj.x, from_node_obj.y, to_node_obj.x, to_node_obj.y]
+        return coords
+
+    def from_rect_intersection(self, from_node_obj, to_node_obj):
+        lx1, ly1, lw1, lh1 = from_node_obj.x, from_node_obj.y, from_node_obj.w, from_node_obj.h
+        lx2, ly2, lw2, lh2 = to_node_obj.x, to_node_obj.y, to_node_obj.w, to_node_obj.h
+        w = abs(lw1)
+        h = abs(lh1)
+
+        dx = lx2 - lx1
+        dy = ly2 - ly1
+
+        if dx == 0 and dy == 0:
+            return lx1, ly1
+
+        t = min(
+            inf if dx == 0 else (w / 2) / abs(dx),
+            inf if dy == 0 else (h / 2) / abs(dy)
+        )
+
+        return lx1 + dx * t, ly1 + dy * t
+
+    def to_rect_intersection(self, from_node_obj, to_node_obj):
+        lx1, ly1, lw1, lh1 = from_node_obj.x, from_node_obj.y, from_node_obj.w, from_node_obj.h
+        lx2, ly2, lw2, lh2 = to_node_obj.x, to_node_obj.y, to_node_obj.w, to_node_obj.h
+        w = abs(lw2)
+        h = abs(lh2)
+
+        dx = lx1 - lx2
+        dy = ly1 - ly2
+
+        if dx == 0 and dy == 0:
+            return lx2, ly2
+
+        t = min(
+            inf if dx == 0 else (w / 2) / abs(dx),
+            inf if dy == 0 else (h / 2) / abs(dy)
+        )
+
+        return lx2 + dx * t, ly2 + dy * t
 
     def rect_anchor_bottom_to_top(self, from_node_obj, to_node_obj):
         # bottom_to_top     1line or 3line
@@ -921,11 +1007,6 @@ class Edge:
 
         return coords
 
-    def line_anchor(self, from_node_obj, to_node_obj):
-        """直線アンカー座標計算"""
-        coords = [from_node_obj.x, from_node_obj.y, to_node_obj.x, to_node_obj.y]
-        return coords
-
     def update_label_text(self, canvas, text):
         """エッジラベルのテキスト更新"""
         self.label_text = text
@@ -950,30 +1031,66 @@ class Edge:
     def refresh_edge(self, canvas):
         """エッジの再描画"""
         if canvas and self.line_id:
+            dash_pattern = self.get_dash_pattern()
+
             canvas.coords(self.line_id, *self.points)
+            canvas.itemconfig(self.line_id, dash=dash_pattern)
             if self.label_id and self.label_x and self.label_y:
                 canvas.coords(self.label_id, self.label_x, self.label_y)
 
     def rotate_connection_points(self, increase=True, canvas=None):
+        if self.edge_type == "elbow":
+            self.rotate_elbow_connection_points(increase=increase, canvas=canvas)
+        else:
+            self.rotate_line_style(increase=increase, canvas=canvas)
+
+    def rotate_line_style(self, increase=True, canvas=None):
+        """エッジの線種をローテーションして再描画"""
+        if increase:
+            if self.line_style == ct.EDGE_LINE_STYLE_DASHED:
+                self.line_style = ct.EDGE_LINE_STYLE_DOTTED
+            elif self.line_style == ct.EDGE_LINE_STYLE_DOTTED:
+                self.line_style = ct.EDGE_LINE_STYLE_SOLID
+            else:
+                self.line_style = ct.EDGE_LINE_STYLE_DASHED
+        else:
+            if self.line_style == ct.EDGE_LINE_STYLE_DASHED:
+                self.line_style = ct.EDGE_LINE_STYLE_SOLID
+            elif self.line_style == ct.EDGE_LINE_STYLE_DOTTED:
+                self.line_style = ct.EDGE_LINE_STYLE_DASHED
+            else:
+                self.line_style = ct.EDGE_LINE_STYLE_DOTTED
+        # print(f"** Rotate Line Style: {self.line_style} (increase: {increase})")
+        if canvas and self.line_id:
+            dash_pattern = self.get_dash_pattern()
+            canvas.itemconfig(self.line_id, dash=dash_pattern)
+
+    def rotate_elbow_connection_points(self, increase=True, canvas=None):
         """エッジの接続ポイントをローテーションして再描画(配線できないパターンを避けて最大18回スキャン)"""
         loop = 0
         while loop <= 17:
-            self._rotate_connection_points(increase=increase, canvas=canvas)
+            self._rotate_elbow_connection_points(increase=increase, canvas=canvas)
             from_x, from_y = self.points[0], self.points[1]
             if self.from_node_obj and self.from_node_obj.x is not None and self.from_node_obj.y is not None:
-                if self.from_node_connection_point == "auto" or from_x != self.from_node_obj.x or from_y != self.from_node_obj.y:
+                if self.from_node_connection_point == "auto" \
+                or from_x != self.from_node_obj.x \
+                or from_y != self.from_node_obj.y:
                     break
             loop += 1
 
-    def _rotate_connection_points(self, increase=True, canvas=None):
+    def _rotate_elbow_connection_points(self, increase=True, canvas=None):
         """エッジの接続ポイントをローテーション"""
         if self.from_node_obj is None or self.to_node_obj is None:
             return
 
         from_node_connection_point = self.from_node_connection_point
         to_node_connection_point = self.to_node_connection_point
+
         if increase:
-            if from_node_connection_point == "top" and to_node_connection_point == "top":
+            if from_node_connection_point == "auto" and to_node_connection_point == "auto":
+                from_node_connection_point = "left"
+                to_node_connection_point = "left"
+            elif from_node_connection_point == "top" and to_node_connection_point == "top":
                 from_node_connection_point = "auto"
                 to_node_connection_point = "auto"
             elif from_node_connection_point == "top" and to_node_connection_point == "right":
@@ -1022,10 +1139,13 @@ class Edge:
                 from_node_connection_point = "left"
                 to_node_connection_point = "bottom"
             else:
-                from_node_connection_point = "left"
-                to_node_connection_point = "left"
+                from_node_connection_point = "auto"
+                to_node_connection_point = "auto"
         else:
-            if from_node_connection_point == "top" and to_node_connection_point == "top":
+            if from_node_connection_point == "auto" and to_node_connection_point == "auto":
+                from_node_connection_point = "top"
+                to_node_connection_point = "top"
+            elif from_node_connection_point == "top" and to_node_connection_point == "top":
                 from_node_connection_point = "top"
                 to_node_connection_point = "right"
             elif from_node_connection_point == "top" and to_node_connection_point == "right":
@@ -1074,8 +1194,8 @@ class Edge:
                 from_node_connection_point = "auto"
                 to_node_connection_point = "auto"
             else:
-                from_node_connection_point = "top"
-                to_node_connection_point = "top"
+                from_node_connection_point = "auto"
+                to_node_connection_point = "auto"
 
         self.from_node_connection_point = from_node_connection_point
         self.to_node_connection_point = to_node_connection_point
@@ -1125,9 +1245,13 @@ class Edge:
         to_node_obj = self.to_node_obj
         if self.line_id and from_node_obj and to_node_obj:
             coords, label_x, label_y, label_anchor, labe_justify = self._compute_edge_geometry(from_node_obj, to_node_obj)
+
             self.update_points(canvas, coords, label_x, label_y)
+            dash_pattern = self.get_dash_pattern()
 
             canvas.coords(self.line_id, *coords)
+            canvas.itemconfig(self.line_id, dash=dash_pattern)
+
             if self.label_text is not None and self.label_id is not None:
                 ad_label_x, ad_label_y, ad_label_anchor, ad_label_justify = self.get_label_position()
                 canvas.coords(self.label_id, ad_label_x, ad_label_y)
@@ -1565,6 +1689,10 @@ class Edge:
             "from_id": self.from_node_obj.id if self.from_node_obj else None,
             "to_id": self.to_node_obj.id if self.to_node_obj else None,
         }
+        if self.edge_type is not None:
+            edge_data["edge_type"] = self.edge_type
+        if self.line_style is not None:
+            edge_data["line_style"] = self.line_style
         if self.from_node_connection_point is not None:
             edge_data["from_connection_point"] = self.from_node_connection_point
         if self.to_node_connection_point is not None:

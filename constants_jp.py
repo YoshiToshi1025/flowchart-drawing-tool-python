@@ -23,7 +23,8 @@ MODE_DICT = {
     "Process" : "add:process",
     "Decision" : "add:decision",
     "I/O" : "add:io",
-    "Link" : "link",
+    "Link_elbow" : "link_elbow",
+    "Link_straight" : "link_straight",
 }
 
 # デフォルトモード設定
@@ -145,7 +146,14 @@ NODE_IO_PARAMS = {
 }
 
 # エッジ・パラメータ
+EDGE_TYPE_ELBOW = "elbow"
+EDGE_TYPE_LINE = "line"
+EDGE_LINE_STYLE_SOLID = "solid"
+EDGE_LINE_STYLE_DASH = "dash"
+EDGE_LINE_STYLE_DOT = "dot"
+
 EDGE_PARAMS = {
+    "line_style": EDGE_LINE_STYLE_SOLID,
     "color": "#0f172a",
     "width": 2,
     "selected_color": "#0ea5e9",

@@ -125,7 +125,7 @@ This project provides a **Simple Flowchart Drawing Tool (Python version)** that 
 
 ## Limitations
 
-* Canvas scrolling and zoom in/out are not supported yet (under consideration).
+* Canvas zoom in/out are not supported yet (under consideration).
 * On Windows, if multiple displays use different scaling settings, the “Save Image” function may not work correctly. In such cases, please use a screen capture tool instead.
 
 ## Notes
@@ -154,8 +154,7 @@ This project provides a **Simple Flowchart Drawing Tool (Python version)** that 
 * 2025/12/16c: Updated README and added images
 * 2025/12/17: Fixed bug where some elements did not move during multi-selection moves
 * 2025/12/19: Added adjustable elements to config files, added Japanese/English configuration examples, partially refactored source code
-* 2025/12/24: Added manual link routing adjustment
-  (CTRL+MouseWheel: change connection point, SHIFT+MouseWheel: adjust detour distance)
+* 2025/12/24: Added manual link routing adjustment (CTRL+MouseWheel: change connection point, SHIFT+MouseWheel: adjust detour distance)
 * 2025/12/25: Improved usability, created tool usage video examples
 * 2025/12/27: Added support for importing Mermaid-format data, adjusted label positions during manual link routing
 * 2026/01/02: Added automatic flowchart generation via generative AI (GPT-5.2)
@@ -171,3 +170,4 @@ This project provides a **Simple Flowchart Drawing Tool (Python version)** that 
 * 2026/03/03 : Supports swimlane display and node highlight/non-highlight display.
 * 2026/03/07 : Improved the menu structure, updated the default AI integration to GPT-5.4, and refined the source code implementation.
 * 2026/03/17 : Added support for canvas resizing and scrolling.
+* 2026/03/23 : Added support for straight-line links, and enabled changing the line style of straight-line links from solid to dotted or dashed.
