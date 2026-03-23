@@ -23,6 +23,8 @@ MODE_DICT = {
     "Process" : "add:process",
     "Decision" : "add:decision",
     "I/O" : "add:io",
+    "Storage" : "add:storage",
+    "Document" : "add:document",
     "Link_elbow" : "link_elbow",
     "Link_straight" : "link_straight",
 }
@@ -134,6 +136,40 @@ NODE_IO_PARAMS = {
     "width": 120,
     "height": 45,
     "skew": 15,
+    "fill_color": "#FFFFFF", # White
+    "outline_color": "#334155",
+    "selected_outline_color": "#0ea5e9",  # Light Blue
+    "outline_width": 2,
+    "text_width": 110,
+    "text_color": "#0f172a",  # Dark Blue
+    "font_family": "Arial",
+    "font_size": 9,
+    "font_weight": font.NORMAL,
+}
+
+# ノード・ストレージ・パラメータ
+NODE_STORAGE_PARAMS = {
+    "type": "storage",
+    "text": "ストレージ",
+    "width": 120,
+    "height": 75,
+    "fill_color": "#FFFFFF", # White
+    "outline_color": "#334155",
+    "selected_outline_color": "#0ea5e9",  # Light Blue
+    "outline_width": 2,
+    "text_width": 110,
+    "text_color": "#0f172a",  # Dark Blue
+    "font_family": "Arial",
+    "font_size": 9,
+    "font_weight": font.NORMAL,
+}
+
+# ノード・文書・パラメータ
+NODE_DOCUMENT_PARAMS = {
+    "type": "document",
+    "text": "文書",
+    "width": 120,
+    "height": 75,
     "fill_color": "#FFFFFF", # White
     "outline_color": "#334155",
     "selected_outline_color": "#0ea5e9",  # Light Blue

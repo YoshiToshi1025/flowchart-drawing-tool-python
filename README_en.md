@@ -65,7 +65,7 @@ This project provides a **Simple Flowchart Drawing Tool (Python version)** that 
 
 ## Usage
 
-* **Placement**: Select Process, Decision, Terminator, or I/O from the menu, then click on the canvas to place an element.
+* **Placement**: Select Process, Decision, Terminator, I/O, Storage or Document from the menu, then click on the canvas to place an element.
 
   * **Available elements**
 
@@ -74,6 +74,8 @@ This project provides a **Simple Flowchart Drawing Tool (Python version)** that 
     * Process: Processing step
     * Decision: Branch
     * I/O: Input / Output
+    * Storage: Storage
+    * Document: Document
 
 * **Connection**: Select *Link* from the menu, then select the source element followed by the destination element to draw a connection line.
 
@@ -146,20 +148,20 @@ This project provides a **Simple Flowchart Drawing Tool (Python version)** that 
 
 ## Change Log
 
-* 2025/12/12: Released basic functionality (provisional version)
-* 2025/12/15: Fine-tuned link routing logic, added image export (JPEG/PNG)
+* 2025/12/12 : Released basic functionality (provisional version)
+* 2025/12/15 : Fine-tuned link routing logic, added image export (JPEG/PNG)
 * 2025/12/15b: Updated README, added requirements.txt
-* 2025/12/16: Fixed issue where node positions shifted on double-click
+* 2025/12/16 : Fixed issue where node positions shifted on double-click
 * 2025/12/16b: Added popup menu support, confirmation dialog on exit
 * 2025/12/16c: Updated README and added images
-* 2025/12/17: Fixed bug where some elements did not move during multi-selection moves
-* 2025/12/19: Added adjustable elements to config files, added Japanese/English configuration examples, partially refactored source code
-* 2025/12/24: Added manual link routing adjustment (CTRL+MouseWheel: change connection point, SHIFT+MouseWheel: adjust detour distance)
-* 2025/12/25: Improved usability, created tool usage video examples
-* 2025/12/27: Added support for importing Mermaid-format data, adjusted label positions during manual link routing
-* 2026/01/02: Added automatic flowchart generation via generative AI (GPT-5.2)
-* 2026/01/05: Added rough automatic layout for AI-generated flows (manual adjustment still required)
-* 2026/01/08: Support for image export when Windows display scaling is not set to 100%, and definition of shortcut keys
+* 2025/12/17 : Fixed bug where some elements did not move during multi-selection moves
+* 2025/12/19 : Added adjustable elements to config files, added Japanese/English configuration examples, partially refactored source code
+* 2025/12/24 : Added manual link routing adjustment (CTRL+MouseWheel: change connection point, SHIFT+MouseWheel: adjust detour distance)
+* 2025/12/25 : Improved usability, created tool usage video examples
+* 2025/12/27 : Added support for importing Mermaid-format data, adjusted label positions during manual link routing
+* 2026/01/02 : Added automatic flowchart generation via generative AI (GPT-5.2)
+* 2026/01/05 : Added rough automatic layout for AI-generated flows (manual adjustment still required)
+* 2026/01/08 : Support for image export when Windows display scaling is not set to 100%, and definition of shortcut keys
 * 2026/01/09 : Display adjustment on MacOS
 * 2026/01/13 : Bug fixes (generative AI integration, file dialog configuration)
 * 2026/01/19 : Supports manual adjustment of link label positions
@@ -171,3 +173,4 @@ This project provides a **Simple Flowchart Drawing Tool (Python version)** that 
 * 2026/03/07 : Improved the menu structure, updated the default AI integration to GPT-5.4, and refined the source code implementation.
 * 2026/03/17 : Added support for canvas resizing and scrolling.
 * 2026/03/23 : Added support for straight-line links, and enabled changing the line style of straight-line links from solid to dotted or dashed.
+* 2026/03/24 : Supports storage and document diagram creation.

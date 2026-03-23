@@ -23,6 +23,8 @@ MODE_DICT = {
     "Process" : "add:process",
     "Decision" : "add:decision",
     "I/O" : "add:io",
+    "Storage" : "add:storage",
+    "Document" : "add:document",
     "Link_elbow" : "link_elbow",
     "Link_straight" : "link_straight",
 }
@@ -145,12 +147,46 @@ NODE_IO_PARAMS = {
     "font_weight": font.NORMAL,
 }
 
+# Node Storage Parameters
+NODE_STORAGE_PARAMS = {
+    "type": "storage",
+    "text": "Storage",
+    "width": 120,
+    "height": 75,
+    "fill_color": "#FFFFFF", # White
+    "outline_color": "#334155",
+    "selected_outline_color": "#0ea5e9",  # Light Blue
+    "outline_width": 2,
+    "text_width": 110,
+    "text_color": "#0f172a",  # Dark Blue
+    "font_family": "Arial",
+    "font_size": 9,
+    "font_weight": font.NORMAL,
+}
+
+# Node Document Parameters
+NODE_DOCUMENT_PARAMS = {
+    "type": "document",
+    "text": "Document",
+    "width": 120,
+    "height": 75,
+    "fill_color": "#FFFFFF", # White
+    "outline_color": "#334155",
+    "selected_outline_color": "#0ea5e9",  # Light Blue
+    "outline_width": 2,
+    "text_width": 110,
+    "text_color": "#0f172a",  # Dark Blue
+    "font_family": "Arial",
+    "font_size": 9,
+    "font_weight": font.NORMAL,
+}
+
 # Edge Parameters
 EDGE_TYPE_ELBOW = "elbow"
 EDGE_TYPE_LINE = "line"
 EDGE_LINE_STYLE_SOLID = "solid"
-EDGE_LINE_STYLE_DASH = "dash"
-EDGE_LINE_STYLE_DOT = "dot"
+EDGE_LINE_STYLE_DASHED = "dashed"
+EDGE_LINE_STYLE_DOTTED = "dotted"
 
 EDGE_PARAMS = {
     "line_style": EDGE_LINE_STYLE_SOLID,

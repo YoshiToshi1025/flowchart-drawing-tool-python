@@ -220,6 +220,8 @@ class FlowchartTool(tk.Tk):
         self.popup_menu.add_command(label="Mode : Add Process", image=self.icons["Process"], compound="left", command=lambda: self.mode.set("add:process"))
         self.popup_menu.add_command(label="Mode : Add Decision", image=self.icons["Decision"], compound="left", command=lambda: self.mode.set("add:decision"))
         self.popup_menu.add_command(label="Mode : Add I/O", image=self.icons["I/O"], compound="left", command=lambda: self.mode.set("add:io"))
+        self.popup_menu.add_command(label="Mode : Add Storage", image=self.icons["Storage"], compound="left", command=lambda: self.mode.set("add:storage"))
+        self.popup_menu.add_command(label="Mode : Add Document", image=self.icons["Document"], compound="left", command=lambda: self.mode.set("add:document"))
         self.popup_menu.add_command(label="Mode : Link elbow arrow", image=self.icons["Link_elbow"], compound="left", command=lambda: self.mode.set("link_elbow"))
         self.popup_menu.add_command(label="Mode : Link straight arrow", image=self.icons["Link_straight"], compound="left", command=lambda: self.mode.set("link_straight"))
         self.popup_menu.add_separator()
@@ -895,6 +897,8 @@ class FlowchartTool(tk.Tk):
             ct.NODE_DECISION_PARAMS["type"]: ct.NODE_DECISION_PARAMS["selected_outline_color"],
             ct.NODE_TERMINATOR_PARAMS["type"]: ct.NODE_TERMINATOR_PARAMS["selected_outline_color"],
             ct.NODE_IO_PARAMS["type"]: ct.NODE_IO_PARAMS["selected_outline_color"],
+            ct.NODE_STORAGE_PARAMS["type"]: ct.NODE_STORAGE_PARAMS["selected_outline_color"],
+            ct.NODE_DOCUMENT_PARAMS["type"]: ct.NODE_DOCUMENT_PARAMS["selected_outline_color"],
         }.get(node_obj.type, ct.NODE_DEFAULT_PARAMS["selected_outline_color"])
         self.canvas.itemconfig(node_obj.shape_id, outline=selected_outline_color)
 
@@ -1553,14 +1557,25 @@ class FlowchartTool(tk.Tk):
         elif node_type == ct.NODE_TERMINATOR_PARAMS["type"]:   # 端点
             points = node_obj.get_terminator_points()
             self.canvas.coords(shape_id, *points)
-        elif node_type == ct.NODE_IO_PARAMS["type"]:  
+        elif node_type == ct.NODE_IO_PARAMS["type"]:    # 入出力  
             points = node_obj.get_io_points()
+            self.canvas.coords(shape_id, *points)
+        elif node_type == ct.NODE_STORAGE_PARAMS["type"]:      # ストレージ
+            points = node_obj.get_storage_points()
+            self.canvas.coords(shape_id, *points)
+        elif node_type == ct.NODE_DOCUMENT_PARAMS["type"]:     # ドキュメント
+            points = node_obj.get_document_points()
             self.canvas.coords(shape_id, *points)
         else:
             points = node_obj.get_default_points()
             self.canvas.coords(shape_id, *points)
 
-        self.canvas.coords(node_obj.text_id, x, y)
+        if node_obj.type == ct.NODE_STORAGE_PARAMS["type"]:
+            self.canvas.coords(node_obj.text_id, x, y + h / 10)
+        elif node_obj.type == ct.NODE_DOCUMENT_PARAMS["type"]:
+            self.canvas.coords(node_obj.text_id, x, y - h / 10)
+        else:
+            self.canvas.coords(node_obj.text_id, x, y)
         self.canvas.tag_raise("node")
 
     def _update_edges_for_node(self, nid):
@@ -1928,6 +1943,8 @@ class FlowchartTool(tk.Tk):
                         ct.NODE_DECISION_PARAMS["type"] : ct.NODE_DECISION_PARAMS["fill_color"],
                         ct.NODE_TERMINATOR_PARAMS["type"] : ct.NODE_TERMINATOR_PARAMS["fill_color"],
                         ct.NODE_IO_PARAMS["type"] : ct.NODE_IO_PARAMS["fill_color"],
+                        ct.NODE_STORAGE_PARAMS["type"] : ct.NODE_STORAGE_PARAMS["fill_color"],
+                        ct.NODE_DOCUMENT_PARAMS["type"] : ct.NODE_DOCUMENT_PARAMS["fill_color"],
                     }.get(node_obj.type, ct.NODE_DEFAULT_PARAMS["fill_color"])
                 fill_color = node_obj.get_fill_color()
                 self.canvas.itemconfig(node_obj.shape_id, fill=fill_color)
@@ -1966,6 +1983,8 @@ class FlowchartTool(tk.Tk):
         self.icons["Process"] = self.make_icon("Process")
         self.icons["Decision"] = self.make_icon("Decision")
         self.icons["I/O"] = self.make_icon("I/O")
+        self.icons["Storage"] = self.make_icon("Storage")
+        self.icons["Document"] = self.make_icon("Document")
         self.icons["Link_elbow"] = self.make_icon("Link_elbow")
         self.icons["Link_straight"] = self.make_icon("Link_straight")
         self.icons["Delete"] = self.make_icon("Delete")
@@ -2035,6 +2054,17 @@ class FlowchartTool(tk.Tk):
             d.polygon([(size//2, y0+size//6), (x1, size//2), (size//2, y1-size//6), (x0, size//2)], outline=fg, fill=None, width=8)
         elif name == "I/O":
             d.polygon([(x0+size//8, y0+size//5), (x1, y0+size//5), (x1-size//8, y1-size//5), (x0, y1-size//5)], outline=fg, fill=None, width=8)
+        elif name == "Storage":
+            d.ellipse((x0+size//20, y0+size//20, x1-size//20, y0+size*2//5.5+size//20), outline=fg, width=8)
+            d.line((x0+size//20, y0+size//5.5+size//20, x0+size//20, y1-size//5.5-size//20), fill=fg, width=8)
+            d.line((x1-size//20, y0+size//5.5+size//20, x1-size//20, y1-size//5.5-size//20), fill=fg, width=8)
+            d.arc((x0+size//20, y1-size*2//5.5-size//20, x1-size//20, y1-size//20), start=0, end=180, fill=fg, width=8)
+        elif name == "Document":
+            d.line((x0+size//16, y0+size//5.5+size//30, x1-size//16, y0+size//5.5+size//30), fill=fg, width=8)
+            d.line((x0+size//16, y0+size//5.5+size//30, x0+size//16, y1-size//5.5-size//20), fill=fg, width=8)
+            d.line((x1-size//16, y0+size//5.5+size//30, x1-size//16, y1-size//5.5-size//20), fill=fg, width=8)
+            d.arc((x0, y1-size*3//8-size//30, x0+size//2+size//20, y1-size//8-size//30), start=30, end=150, fill=fg, width=8)
+            d.arc((x0+size//2-size//20, y1-size*3//8+size//20, x1, y1-size//8+size//20), start=210, end=330, fill=fg, width=8)
 
         elif name == "Link_elbow":
             d.line((x0+size//16, y1-size//3, x0+size//2, y1-size//3, x0+size//2, y0+size//3, x1-size//16, y0+size//3), fill=fg, width=8, joint="curve")
