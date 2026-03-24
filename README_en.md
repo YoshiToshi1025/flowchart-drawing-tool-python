@@ -174,3 +174,4 @@ This project provides a **Simple Flowchart Drawing Tool (Python version)** that 
 * 2026/03/17 : Added support for canvas resizing and scrolling.
 * 2026/03/23 : Added support for straight-line links, and enabled changing the line style of straight-line links from solid to dotted or dashed.
 * 2026/03/24 : Supports storage and document diagram creation.
+* 2026/03/25 : Added support for creating an operation manual (Japanese, HTML) and accessing it from the toolbar.

@@ -43,7 +43,7 @@
     {
       "id": 23,
       "type": "terminator",
-      "x": 330,
+      "x": 300,
       "y": 217,
       "w": 120,
       "h": 45,
@@ -53,7 +53,7 @@
     {
       "id": 24,
       "type": "process",
-      "x": 540,
+      "x": 480,
       "y": 337,
       "w": 120,
       "h": 45,
@@ -63,7 +63,7 @@
     {
       "id": 25,
       "type": "decision",
-      "x": 540,
+      "x": 480,
       "y": 397,
       "w": 120,
       "h": 45,
@@ -73,7 +73,7 @@
     {
       "id": 27,
       "type": "process",
-      "x": 750,
+      "x": 660,
       "y": 397,
       "w": 120,
       "h": 45,
@@ -83,7 +83,7 @@
     {
       "id": 28,
       "type": "process",
-      "x": 960,
+      "x": 840,
       "y": 457,
       "w": 120,
       "h": 45,
@@ -93,7 +93,7 @@
     {
       "id": 29,
       "type": "process",
-      "x": 960,
+      "x": 840,
       "y": 517,
       "w": 120,
       "h": 45,
@@ -103,7 +103,7 @@
     {
       "id": 30,
       "type": "process",
-      "x": 330,
+      "x": 300,
       "y": 277,
       "w": 120,
       "h": 45,
@@ -113,7 +113,7 @@
     {
       "id": 31,
       "type": "process",
-      "x": 330,
+      "x": 300,
       "y": 337,
       "w": 120,
       "h": 45,
@@ -123,7 +123,7 @@
     {
       "id": 32,
       "type": "process",
-      "x": 330,
+      "x": 300,
       "y": 517,
       "w": 120,
       "h": 45,
@@ -133,7 +133,7 @@
     {
       "id": 33,
       "type": "terminator",
-      "x": 330,
+      "x": 300,
       "y": 577,
       "w": 120,
       "h": 45,
@@ -143,103 +143,254 @@
     {
       "id": 34,
       "type": "process",
-      "x": 540,
+      "x": 480,
       "y": 457,
       "w": 120,
       "h": 45,
       "text": "発送承認",
       "fill_color": "#FFFDE6"
+    },
+    {
+      "id": 35,
+      "type": "storage",
+      "x": 1035,
+      "y": 157,
+      "w": 120,
+      "h": 75,
+      "text": "商品マスターDB",
+      "fill_color": "#EFFFF7"
+    },
+    {
+      "id": 36,
+      "type": "storage",
+      "x": 1035,
+      "y": 277,
+      "w": 120,
+      "h": 75,
+      "text": "注文管理DB",
+      "fill_color": "#EFFFF7"
+    },
+    {
+      "id": 37,
+      "type": "storage",
+      "x": 1035,
+      "y": 502,
+      "w": 120,
+      "h": 75,
+      "text": "発送管理DB",
+      "fill_color": "#EFFFF7"
+    },
+    {
+      "id": 39,
+      "type": "storage",
+      "x": 1035,
+      "y": 397,
+      "w": 120,
+      "h": 75,
+      "text": "在庫管理DB",
+      "fill_color": "#EFFFF7"
     }
   ],
   "edges": [
     {
       "from_id": 19,
       "to_id": 20,
+      "edge_type": "elbow",
+      "line_style": "solid",
       "label_position": "auto"
     },
     {
       "from_id": 20,
       "to_id": 21,
+      "edge_type": "elbow",
+      "line_style": "solid",
       "label_position": "auto"
     },
     {
       "from_id": 21,
       "to_id": 22,
+      "edge_type": "elbow",
+      "line_style": "solid",
       "label_position": "auto"
     },
     {
       "from_id": 21,
       "to_id": 23,
+      "edge_type": "elbow",
+      "line_style": "solid",
       "label": "注文通知",
       "label_position": "auto"
     },
     {
       "from_id": 31,
       "to_id": 24,
+      "edge_type": "elbow",
+      "line_style": "solid",
       "label": "注文指示",
-      "label_position": "auto"
+      "label_position": "p0nw"
     },
     {
       "from_id": 23,
       "to_id": 30,
+      "edge_type": "elbow",
+      "line_style": "solid",
       "label_position": "auto"
     },
     {
       "from_id": 30,
       "to_id": 31,
+      "edge_type": "elbow",
+      "line_style": "solid",
       "label_position": "auto"
     },
     {
       "from_id": 24,
       "to_id": 25,
+      "edge_type": "elbow",
+      "line_style": "solid",
       "label_position": "auto"
     },
     {
       "from_id": 25,
       "to_id": 27,
+      "edge_type": "elbow",
+      "line_style": "solid",
       "label": "在庫なし",
       "label_position": "auto"
     },
     {
       "from_id": 28,
       "to_id": 29,
+      "edge_type": "elbow",
+      "line_style": "solid",
       "label_position": "auto"
     },
     {
       "from_id": 27,
       "to_id": 24,
-      "from_connection_point": "auto",
-      "to_connection_point": "auto",
-      "edge_wrap_margin": 28.5,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "from_connection_point": "top",
+      "to_connection_point": "right",
       "label": "調達済",
-      "label_position": "p2se"
+      "label_position": "p1se"
     },
     {
       "from_id": 29,
       "to_id": 32,
+      "edge_type": "elbow",
+      "line_style": "solid",
       "label": "発送手配済",
       "label_position": "auto"
     },
     {
       "from_id": 32,
       "to_id": 33,
+      "edge_type": "elbow",
+      "line_style": "solid",
       "label_position": "auto"
     },
     {
       "from_id": 25,
       "to_id": 34,
+      "edge_type": "elbow",
+      "line_style": "solid",
       "label": "在庫あり",
       "label_position": "auto"
     },
     {
       "from_id": 34,
       "to_id": 28,
+      "edge_type": "elbow",
+      "line_style": "solid",
       "label_position": "auto"
     },
     {
       "from_id": 34,
       "to_id": 28,
+      "edge_type": "elbow",
+      "line_style": "solid",
       "label": "発送指示",
+      "label_position": "p1se"
+    },
+    {
+      "from_id": 28,
+      "to_id": 37,
+      "edge_type": "line",
+      "line_style": "dotted",
+      "label": "発送計画",
+      "label_position": "p0sw"
+    },
+    {
+      "from_id": 20,
+      "to_id": 35,
+      "edge_type": "line",
+      "line_style": "dotted",
+      "label": "商品検索",
+      "label_position": "auto"
+    },
+    {
+      "from_id": 29,
+      "to_id": 37,
+      "edge_type": "line",
+      "line_style": "dotted",
+      "label": "発送手配",
+      "label_position": "p0nw"
+    },
+    {
+      "from_id": 30,
+      "to_id": 36,
+      "edge_type": "line",
+      "line_style": "dotted",
+      "label": "注文内容確認",
+      "label_position": "auto"
+    },
+    {
+      "from_id": 24,
+      "to_id": 39,
+      "edge_type": "line",
+      "line_style": "dotted",
+      "label": "在庫確認",
+      "label_position": "auto"
+    },
+    {
+      "from_id": 31,
+      "to_id": 36,
+      "edge_type": "line",
+      "line_style": "dotted",
+      "label": "注文承認",
+      "label_position": "auto"
+    },
+    {
+      "from_id": 34,
+      "to_id": 39,
+      "edge_type": "line",
+      "line_style": "dotted",
+      "label": "在庫確保",
+      "label_position": "auto"
+    },
+    {
+      "from_id": 27,
+      "to_id": 39,
+      "edge_type": "line",
+      "line_style": "dotted",
+      "label": "在庫情報更新",
+      "label_position": "auto"
+    },
+    {
+      "from_id": 34,
+      "to_id": 37,
+      "edge_type": "line",
+      "line_style": "dotted",
+      "label": "発送指示",
+      "label_position": "auto"
+    },
+    {
+      "from_id": 21,
+      "to_id": 36,
+      "edge_type": "line",
+      "line_style": "dotted",
+      "label": "注文依頼",
       "label_position": "auto"
     }
   ],
@@ -255,33 +406,41 @@
     {
       "kind": "horizontal",
       "title": "顧客サービス部門",
-      "header_center_x": 330,
+      "header_center_x": 300,
       "header_center_y": 30,
-      "width": 210,
+      "width": 180,
       "height": 645
     },
     {
       "kind": "horizontal",
       "title": "在庫管理部門",
-      "header_center_x": 540,
+      "header_center_x": 480,
       "header_center_y": 30,
-      "width": 210,
+      "width": 180,
       "height": 645
     },
     {
       "kind": "horizontal",
       "title": "調達部門",
-      "header_center_x": 750,
+      "header_center_x": 660,
       "header_center_y": 30,
-      "width": 210,
+      "width": 180,
       "height": 645
     },
     {
       "kind": "horizontal",
       "title": "物流部門",
-      "header_center_x": 960,
+      "header_center_x": 840,
       "header_center_y": 30,
-      "width": 210,
+      "width": 180,
+      "height": 645
+    },
+    {
+      "kind": "horizontal",
+      "title": "データベース",
+      "header_center_x": 1035,
+      "header_center_y": 30,
+      "width": 180,
       "height": 645
     }
   ]

@@ -12,6 +12,7 @@ from pathlib import Path
 import re
 from PIL import Image, ImageDraw, ImageTk, ImageFont
 from typing import Literal, Tuple
+import webbrowser
 
 import mermaid_flowdata_loader as mfloader
 import constants as ct
@@ -147,6 +148,11 @@ class FlowchartTool(tk.Tk):
         button_resize = tk.Button(toolbar, text="Resize Canvas", image=self.icons["Resize_Canvas"], compound="none", command=self.confirm_canvas_resize, width=30, height=30)
         button_resize.pack(side=tk.LEFT, padx=1)
         ToolTip(button_resize, "Resize Canvas")
+
+        # マニュアル表示ボタン
+        button_manual = tk.Button(toolbar, text="Manual", image=self.icons["Manual"], compound="none", command=self.show_manual, width=30, height=30)
+        button_manual.pack(side=tk.LEFT, padx=(4,1))
+        ToolTip(button_manual, "Open Manual in Browser")
 
         ttk.Separator(toolbar, orient=tk.VERTICAL).pack(side=tk.LEFT, fill=tk.Y, padx=(8,8))
 
@@ -294,6 +300,10 @@ class FlowchartTool(tk.Tk):
 
         # 起動直後に配置確定
         self.after(0, self.on_resize_simple)
+
+    def show_manual(self):
+        manual_abs_path = os.path.abspath("manual.html")
+        webbrowser.open(f"file://{manual_abs_path}")
 
     # キャンバスのリサイズ確認を行う（必要に応じてリサイズを実行）
     def confirm_canvas_resize(self):
@@ -1989,6 +1999,7 @@ class FlowchartTool(tk.Tk):
         self.icons["Link_straight"] = self.make_icon("Link_straight")
         self.icons["Delete"] = self.make_icon("Delete")
         self.icons["Grid"] = self.make_icon("Grid")
+        self.icons["Resize_Canvas"] = self.make_icon("Resize_Canvas")
         self.icons["Undo"] = self.make_icon("Undo")
         self.icons["Redo"] = self.make_icon("Redo")
         self.icons["Load_JSON"] = self.make_icon("Load_JSON")
@@ -1996,10 +2007,10 @@ class FlowchartTool(tk.Tk):
         self.icons["Save_Image"] = self.make_icon("Save_Image")
         self.icons["Load_Mermaid"] = self.make_icon("Load_Mermaid")
         self.icons["AI-generation"] = self.make_icon("AI-generation")
+        self.icons["Manual"] = self.make_icon("Manual")
         self.icons["Status_normal"] = self.make_icon("Status_normal")
         self.icons["Status_active"] = self.make_icon("Status_active")
         self.icons["Status_inactive"] = self.make_icon("Status_inactive")
-        self.icons["Resize_Canvas"] = self.make_icon("Resize_Canvas")
 
     def make_icon(self, name: str, size: int = 128, fg: str = "#111827") -> ImageTk.PhotoImage:
         img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
@@ -2159,6 +2170,10 @@ class FlowchartTool(tk.Tk):
         elif name == "AI-generation":
             d.rounded_rectangle((x0, y0, x1, y1), radius=size//8, outline=fg, width=8)
             d.text((x0+size//2, y0+size//2), "AI", fill=fg, anchor="mm", font=font)
+        elif name == "Manual":
+            # d.rounded_rectangle((x0, y0, x1, y1), radius=size//8, outline=fg, width=8)
+            d.text((x0+size//2, y0+size//3), "Guide", fill=fg, anchor="mm", font=font)
+            d.text((x0+size//2, y0+size*2//3), "page", fill=fg, anchor="mm", font=font)
 
         elif name == "Status_normal":
             d.rounded_rectangle((x0+size//8, y0+size//4, x1-size//8, y1-size//4),
