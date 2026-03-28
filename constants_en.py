@@ -272,15 +272,27 @@ LOAD_FAILED_MESSAGE = "Failed to load"
 AI_GENERATED_MESSAGE1 = "AI-generated flow data has been saved."
 AI_GENERATED_MESSAGE2 = "Do you want to load it now?"
 
-OPENAI_API_KEY_NOT_SET_MESSAGE = "Environment variable OPENAI_API_KEY is not set."
+OPENAI_API_KEY_NOT_SET_MESSAGE = "The OPENAI_API_KEY is not set in the .env file. Please define the API key in the .env file."
+GEMINI_API_KEY_NOT_SET_MESSAGE = "The GEMINI_API_KEY is not set in the .env file. Please define the API key in the .env file."
+ANTHROPIC_API_KEY_NOT_SET_MESSAGE = "The ANTHROPIC_API_KEY is not set in the .env file. Please define the API key in the .env file."
 
+UNSUPPORTED_AI_MODEL_MESSAGE = "The specified AI model is not supported. Please check the AI_MODEL field in constants.py."
+
+# AI Model to Use
+AI_MODEL = "gpt-5.4"
+# Example of available AI model names (as of 2026.3.28, for the latest types and versions, refer to each company's documentation)
+#  OpenAI (gpt-*): "gpt-5.4", "gpt-5.4-mini", "gpt-5.4-nano"
+#  GeminiAI (gemini-*): "gemini-3-flash-preview", "gemini-3.1-pro-preview", "gemini-3.1-flash-lite-preview", "gemini-pro-latest", "gemini-flash-lite-latest"
+#    ※For Gemini, if using the free tier, the pro version AI may not be available.
+#  AnthropicAI (claude-*): "claude-opus-4-6", "claude-sonnet-4-6", "claude-haiku-4-5"
+    
 # AI-related constants
 CHAT_WIDTH = 500
 CHAT_WINDOW_SLIDE_STEP = 20
 CHAT_WINDOW_SLIDE_INTERVAL = 15  # ms
 
 AI_MODEL = "gpt-5.4"  # Change as needed
-AI_INPUT_TEMPLATE = "Please summarize the processing flow for '$order' and define it in the following format."
+AI_INPUT_TEMPLATE = "Please summarize the processing flow for '$order' and define it in the specified format."
 AI_SYSTEM_INSTRUCTIONS = '''# Role
 You are a system architecture specialist who organizes business workflows and processing overviews.
 In accordance with the specified conditions, construct an efficient and clear flow, classify the flow into appropriate elements (start/end, process, decision, input/output) so that it can be defined as a flowchart, and output it in the format specified below.

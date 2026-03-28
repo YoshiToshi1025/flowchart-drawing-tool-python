@@ -272,15 +272,27 @@ LOAD_FAILED_MESSAGE = "読み込みに失敗しました"
 AI_GENERATED_MESSAGE1 = "AI生成された処理フローデータを保存しました。今すぐ読み込みますか？"
 AI_GENERATED_MESSAGE2 = "今すぐ読み込みますか？"
 
-OPENAI_API_KEY_NOT_SET_MESSAGE = "環境変数 OPENAI_API_KEY が未設定です。"
+OPENAI_API_KEY_NOT_SET_MESSAGE = ".envファイルで OPENAI_API_KEY が未設定です。.envファイルにAPIキーを定義してください。"
+GEMINI_API_KEY_NOT_SET_MESSAGE = ".envファイルで GEMINI_API_KEY が未設定です。.envファイルにAPIキーを定義してください。"
+ANTHROPIC_API_KEY_NOT_SET_MESSAGE = ".envファイルで ANTHROPIC_API_KEY が未設定です。.envファイルにAPIキーを定義してください。"
+
+UNSUPPORTED_AI_MODEL_MESSAGE = "未対応のAIモデルが指定されています。constants.pyのAI_MODEL欄を確認してください。"
+
+# 使用する生成AIモデル
+AI_MODEL = "gpt-5.4"
+# 指定可能な生成AIモデル名例（2026.3.28時点、種類やバージョンの最新は各社のドキュメントを参照のこと）
+#  OpenAI（gpt-*）："gpt-5.4", "gpt-5.4-mini", "gpt-5.4-nano"
+#  GeminiAI（gemini-*）："gemini-3-flash-preview", "gemini-3.1-pro-preview", "gemini-3.1-flash-lite-preview", "gemini-pro-latest", "gemini-flash-lite-latest"
+#    ※Geminiについては、無料枠での利用の場合はpro版のAIを利用できないようです。
+#  AnthropicAI（claude-*）："claude-opus-4-6", "claude-sonnet-4-6", "claude-haiku-4-5"
 
 # AI関連定数
-CHAT_WIDTH = 500
-CHAT_WINDOW_SLIDE_STEP = 20
-CHAT_WINDOW_SLIDE_INTERVAL = 15  # ms
+AI_CHAT_WIDTH = 500
+AI_CHAT_WINDOW_SLIDE_STEP = 20
+AI_CHAT_WINDOW_SLIDE_INTERVAL = 15  # ms
 
-AI_MODEL = "gpt-5.4"  # 必要に応じて変更
-AI_INPUT_TEMPLATE = "「 $order 」の処理フローをまとめて、以下の形式で定義してください。"
+
+AI_INPUT_TEMPLATE = "「 $order 」の処理フローをまとめて、指定された形式で定義してください。"
 AI_SYSTEM_INSTRUCTIONS = '''# 役割
 あなたは、業務フローや処理概要を整理するシステム構築の専門家です。
 指定された条件にしたがって効率の良い明快なフローを組み立て、フローチャートで定義できるようフローを適度な要素（端点、処理、分岐、入出力）に分類して、
@@ -298,9 +310,9 @@ AI_SYSTEM_INSTRUCTIONS = '''# 役割
     - 分岐の場合、タイトルの前後に{}を付ける。  出力例: C{リトライ?}
     - 入出力の場合、タイトルの前後に//を付ける。  出力例: D/データの保存/
   - フローチャート上でのノードの位置は、始点の位置を上下:0,左右:0として、処理が進むごとに上下位置を+1、分岐があると左右位置を-1,+1する。
-- リンク情報は、接続する2つのノードを、接続元ノード識別子,リンク識別子,接続先ノード識別子の形式で出力する
+- リンク情報は、接続する2つのノードを、"[接続元ノード識別子] [リンク識別子] [接続先ノード識別子]"の形式で出力する
   - 接続元ノード識別子：接続先ノード識別子はノード情報で定義したノード識別子を用いる。
-  - リンク識別子：リンクにラベルが無い場合は"-->"とし、ラベルがある場合は"--ラベル値-->"で表現する。  例: A --> B,   A --Yes--> B
+  - リンク識別子：リンクにラベルが無い場合は"-->"とし、ラベルがある場合は"--ラベル値-->"で表現する。  例1: A --> B    例2: A --Yes--> B
   - なお、リンクが連続して接続されている場合は、複数のリンクを1行に記載できる。  例: A --> B --> C
 
 ## 出力例

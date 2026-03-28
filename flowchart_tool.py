@@ -23,6 +23,8 @@ from edge import Edge
 import swimlane
 from swimlane import Swimlane
 from modal_window import ModalWindow, ResizeCanvasModal
+import generative_ai_interface
+from generative_ai_interface import Generative_AI_interface
 
 import platform
 if platform.system() == "Windows":
@@ -44,7 +46,7 @@ class FlowchartTool(tk.Tk):
         # 状態
         self.mode = tk.StringVar(value=ct.DEFAULT_MODE)  # 動作モード： select / add:process / add:decision / add:terminator / add:io / link_elbow / link_straight
         self.grid_on = tk.BooleanVar(value=True)  # グリッド表示ON/OFF
-        self.chat_window_on = tk.BooleanVar(value=False)  # チャットウィンドウ表示ON/OFF
+        self.ai_chat_window_on = tk.BooleanVar(value=False)  # チャットウィンドウ表示ON/OFF
 
         # 登録済みノード情報
         self.nodes: dict[int, Node] = {}   # node_id -> dict
@@ -252,46 +254,48 @@ class FlowchartTool(tk.Tk):
         # ウィンドウ終了時の確認
         self.protocol("WM_DELETE_WINDOW", self.on_close)
 
-        # ---- OpenAI client ----
-        api_key = os.getenv("OPENAI_API_KEY")
-        if api_key is not None and api_key != "":
-            self.openai_client = OpenAI()
-            self.previous_response_id = None
-        else:
-            self.openai_client = None
-            self.previous_response_id = None
-            messagebox.showerror("Missing API Key", ct.OPENAI_API_KEY_NOT_SET_MESSAGE)
+        # ---- 生成AI KEY読み取りと AI clientの初期設定 ----
+        self.ai_interface = Generative_AI_interface()
 
         # -------------------------
         # チャットパネル（Frame）
         # -------------------------
         # ---- state ----
-        self.chat_visible = False
-        self.chat_animating = False
-        self.chat_x = 0
+        self.ai_chat_visible = False
+        self.ai_chat_animating = False
+        self.ai_chat_x = 0
 
-        self.chat_frame = tk.Frame(self.main_panel, bg="#eeeeee")
-        self.chat_frame.pack_propagate(False)  # サイズ固定
+        self.ai_chat_frame = tk.Frame(self.main_panel, bg="#eeeeee")
+        self.ai_chat_frame.pack_propagate(False)  # サイズ固定
 
-        top = tk.Frame(self.chat_frame, bg="#eeeeee")
-        top.pack(fill="x", padx=6, pady=(0, 6))
+        # 入力フレーム
+        input_frame = tk.Frame(self.ai_chat_frame, bg="#eeeeee")
+        input_frame.pack(side=tk.TOP, fill=tk.X, padx=(4,4), pady=(4,4))
+        # ラベル
+        tk.Label(input_frame, text="Process flow:", bg="#eeeeee", font=("Arial", 9)).pack(side=tk.LEFT)
+        # 入力欄
+        self.ai_chat_prompt = tk.Entry(input_frame, font=("Arial", 11))
+        self.ai_chat_prompt.pack(side=tk.LEFT, fill=tk.X, expand=True)
+        self.ai_chat_prompt.bind("<Return>", lambda e: self.on_send_to_ai())
+        # ボタン
+        self.send_btn = tk.Button(input_frame, text="Generate", command=self.on_send_to_ai)
+        self.send_btn.pack(side=tk.LEFT, padx=(6, 0))
 
-        tk.Label(top, text="Process flow:", bg="#eeeeee").pack(side="left")
+        # 情報フレーム
+        info_frame = tk.Frame(self.ai_chat_frame, bg="#eeeeee")
+        info_frame.pack(side=tk.TOP, fill=tk.X, padx=(4,4))
+        # AIモデル表示
+        self.ai_chat_model = tk.Label(info_frame, text=f"Generative AI model : {self.ai_interface.ai_type}, {self.ai_interface.ai_model}", font=("Arial", 9))
+        self.ai_chat_model.pack(side=tk.LEFT)
 
-        self.entry = tk.Entry(top)
-        self.entry.pack(side="left", fill="x", expand=True)
-        self.entry.bind("<Return>", lambda e: self.on_send_to_ai())
-
-        self.send_btn = tk.Button(top, text="Generate", command=self.on_send_to_ai)
-        self.send_btn.pack(side="left", padx=(6, 0))
-
-        self.chat_text = tk.Text(self.chat_frame, wrap="word")
-        self.chat_text.pack(fill="both", expand=True, padx=6, pady=6)
-        self.chat_text.configure(state="disabled")
+        # チャット内容表示欄
+        self.ai_chat_text = tk.Text(self.ai_chat_frame, wrap="word")
+        self.ai_chat_text.pack(fill="both", expand=True, padx=6, pady=6)
+        self.ai_chat_text.configure(state="disabled")
 
         # ChatWindow表示On/OFFボタン
-        if self.openai_client is not None:
-            checkbutton_ai = tk.Checkbutton(toolbar, text="AI-generation", image=self.icons["AI-generation"], compound="none", indicatoron=False, variable=self.chat_window_on, command=self.on_chat_window_toggle, width=30, height=30)
+        if self.ai_interface is not None and self.ai_interface.ai_type is not None and self.ai_interface.ai_model is not None:
+            checkbutton_ai = tk.Checkbutton(toolbar, text="AI-generation", image=self.icons["AI-generation"], compound="none", indicatoron=False, variable=self.ai_chat_window_on, command=self.on_ai_chat_window_toggle, width=30, height=30)
             checkbutton_ai.pack(side=tk.LEFT, padx=1)
             ToolTip(checkbutton_ai, "AI-generation")
 
@@ -799,16 +803,16 @@ class FlowchartTool(tk.Tk):
 
 
         # アニメ中は高さだけ追従（位置はアニメ側に任せる）
-        if self.chat_animating:
-            self.chat_frame.place_configure(y=0, height=h, width=ct.CHAT_WIDTH)
+        if self.ai_chat_animating:
+            self.ai_chat_frame.place_configure(y=0, height=h, width=ct.AI_CHAT_WIDTH)
             return
 
-        if self.chat_visible:
-            self.chat_x = max(0, w - ct.CHAT_WIDTH)
+        if self.ai_chat_visible:
+            self.ai_chat_x = max(0, w - ct.AI_CHAT_WIDTH)
         else:
-            self.chat_x = w  # ★常に右外へ退避
+            self.ai_chat_x = w  # ★常に右外へ退避
 
-        self.chat_frame.place_configure(x=self.chat_x, y=0, height=h, width=ct.CHAT_WIDTH)
+        self.ai_chat_frame.place_configure(x=self.ai_chat_x, y=0, height=h, width=ct.AI_CHAT_WIDTH)
 
     # ------------ ノード・エッジ管理 ------------
 
@@ -1752,151 +1756,95 @@ class FlowchartTool(tk.Tk):
     # -----------------------------
     # UI: チャット表示切替
     # -----------------------------
-    def on_chat_window_toggle(self):
-        if self.chat_animating:
+    def on_ai_chat_window_toggle(self):
+        if self.ai_chat_animating:
             return
-        if self.chat_window_on.get():
-            self.slide_in_chat_window()
+        if self.ai_chat_window_on.get():
+            self.slide_in_ai_chat_window()
         else:
-            self.slide_out_chat_window()
+            self.slide_out_ai_chat_window()
 
-    def slide_in_chat_window(self):
-        self.chat_animating = True
+    def slide_in_ai_chat_window(self):
+        self.ai_chat_animating = True
 
         # ★必ず前面へ（ちらついて消える対策の本命）
-        self.chat_frame.lift()
+        self.ai_chat_frame.lift()
 
         def animate():
             w = max(1, self.main_panel.winfo_width())-4
             h = max(1, self.main_panel.winfo_height())-4
-            target_x = max(0, w - ct.CHAT_WIDTH)  # 常に現在幅基準
+            target_x = max(0, w - ct.AI_CHAT_WIDTH)  # 常に現在幅基準
 
-            if self.chat_x > target_x:
-                self.chat_x = max(target_x, self.chat_x - ct.CHAT_WINDOW_SLIDE_STEP)
-                self.chat_frame.place_configure(x=self.chat_x, y=0, height=h, width=ct.CHAT_WIDTH)
-                self.after(ct.CHAT_WINDOW_SLIDE_INTERVAL, animate)
+            if self.ai_chat_x > target_x:
+                self.ai_chat_x = max(target_x, self.ai_chat_x - ct.AI_CHAT_WINDOW_SLIDE_STEP)
+                self.ai_chat_frame.place_configure(x=self.ai_chat_x, y=0, height=h, width=ct.AI_CHAT_WIDTH)
+                self.after(ct.AI_CHAT_WINDOW_SLIDE_INTERVAL, animate)
             else:
-                self.chat_x = target_x
-                self.chat_frame.place_configure(x=self.chat_x, y=0, height=h, width=ct.CHAT_WIDTH)
-                self.chat_visible = True
-                self.chat_animating = False
+                self.ai_chat_x = target_x
+                self.ai_chat_frame.place_configure(x=self.ai_chat_x, y=0, height=h, width=ct.AI_CHAT_WIDTH)
+                self.ai_chat_visible = True
+                self.ai_chat_animating = False
 
         # スタート地点を「現在の右外」に強制（リサイズ後でも確実）
         w0 = max(1, self.main_panel.winfo_width())-4
         h0 = max(1, self.main_panel.winfo_height())-4
-        self.chat_x = w0
-        self.chat_frame.place_configure(x=self.chat_x, y=0, height=h0, width=ct.CHAT_WIDTH)
+        self.ai_chat_x = w0
+        self.ai_chat_frame.place_configure(x=self.ai_chat_x, y=0, height=h0, width=ct.AI_CHAT_WIDTH)
 
         animate()
 
-    def slide_out_chat_window(self):
-        self.chat_animating = True
+    def slide_out_ai_chat_window(self):
+        self.ai_chat_animating = True
 
         # 前面は維持（アニメ中に裏回りしない）
-        self.chat_frame.lift()
+        self.ai_chat_frame.lift()
 
         def animate():
             w = max(1, self.main_panel.winfo_width())-4
             h = max(1, self.main_panel.winfo_height())-4
             target_x = w  # 現在幅の右外
 
-            if self.chat_x < target_x:
-                self.chat_x = min(target_x, self.chat_x + ct.CHAT_WINDOW_SLIDE_STEP)
-                self.chat_frame.place_configure(x=self.chat_x, y=0, height=h, width=ct.CHAT_WIDTH)
-                self.after(ct.CHAT_WINDOW_SLIDE_INTERVAL, animate)
+            if self.ai_chat_x < target_x:
+                self.ai_chat_x = min(target_x, self.ai_chat_x + ct.AI_CHAT_WINDOW_SLIDE_STEP)
+                self.ai_chat_frame.place_configure(x=self.ai_chat_x, y=0, height=h, width=ct.AI_CHAT_WIDTH)
+                self.after(ct.AI_CHAT_WINDOW_SLIDE_INTERVAL, animate)
             else:
-                self.chat_x = target_x
-                self.chat_frame.place_configure(x=self.chat_x, y=0, height=h, width=ct.CHAT_WIDTH)
-                self.chat_visible = False
-                self.chat_animating = False
+                self.ai_chat_x = target_x
+                self.ai_chat_frame.place_configure(x=self.ai_chat_x, y=0, height=h, width=ct.AI_CHAT_WIDTH)
+                self.ai_chat_visible = False
+                self.ai_chat_animating = False
 
         animate()
+
+    def on_send_to_ai(self, event=None):
+        ai_chat_prompt = self.ai_chat_prompt.get().strip()
+        if self.ai_interface is not None and self.ai_interface.ai_type is not None and self.ai_interface.ai_model is not None and ai_chat_prompt is not None:
+            # print(f"Send to AI: {ai_chat_prompt}")
+            self.set_sending(True)
+            return_text, mmd_filepath = self.ai_interface.send_message_to_ai(ai_chat_prompt)
+            # print(f"AI response: {return_text}, mmd_filepath: {mmd_filepath}")
+            if mmd_filepath is not None:
+                self.ai_chat_prompt.delete(0, tk.END)
+                self.append_chat("User", ai_chat_prompt)
+                self.append_chat("AI", return_text)
+                self.load_mermaid_flowdata(mmd_filepath)
+            else:
+                messagebox.showerror("Error", return_text)
+        self.set_sending(False)
 
     # -----------------------------
     # UI: チャット表示補助
     # -----------------------------
     def append_chat(self, speaker: str, text: str):
-        self.chat_text.configure(state="normal")
-        self.chat_text.insert("end", f"{speaker}: {text}\n")
-        self.chat_text.see("end")
-        self.chat_text.configure(state="disabled")
+        self.ai_chat_text.configure(state="normal")
+        self.ai_chat_text.insert("end", f"{speaker}: {text}\n")
+        self.ai_chat_text.see("end")
+        self.ai_chat_text.configure(state="disabled")
 
     def set_sending(self, sending: bool):
         state = "disabled" if sending else "normal"
         self.send_btn.configure(state=state)
-        self.entry.configure(state=state)
-
-    # -----------------------------
-    # 生成AIに送信 → API呼び出し（別スレッド）
-    # -----------------------------
-    def on_send_to_ai(self):
-        user_msg = self.entry.get().strip()
-        if not user_msg:
-            return
-
-        self.entry.delete(0, "end")
-        self.append_chat("You", user_msg)
-
-        self.set_sending(True)
-        user_input_msg = ct.AI_INPUT_TEMPLATE.replace("$order", user_msg)
-        filename = self.sanitize_filename(user_msg)
-        threading.Thread(target=self.call_gpt, args=(user_input_msg, filename), daemon=True).start()
-
-    def call_gpt(self, user_input_msg: str, filename:str):
-        try:
-            resp = self.openai_client.responses.create(
-                model=ct.AI_MODEL,
-                instructions=ct.AI_SYSTEM_INSTRUCTIONS,
-                input=user_input_msg,
-                previous_response_id=self.previous_response_id,
-            )
-            assistant_text = resp.output_text or ""
-            self.previous_response_id = resp.id
-            self.after(0, lambda: self.append_chat("GPT", assistant_text))
-            success_flag, mmd_filepath = self.save_mmd_to_file(filename, assistant_text)
-            if success_flag:
-                self.after(0, lambda: messagebox.askokcancel("Saved", f"{ct.AI_GENERATED_MESSAGE1}\n{mmd_filepath}\n\n{ct.AI_GENERATED_MESSAGE2}") and self.load_mermaid_flowdata(mmd_filepath))
-        except Exception as e:
-            # print(e)
-            self.after(0, lambda: messagebox.showerror("OpenAI API Error", str(e)))
-        finally:
-            self.after(0, lambda: self.set_sending(False))
-
-    # -----------------------------
-    # ファイル保存（work/[roder].mmd に追記）
-    # -----------------------------
-    def save_mmd_to_file(self, order: str, answer: str):
-        # 保存先（実行フォルダ直下の work/test.txt）
-        success_flag = False
-        SAVE_DIR = Path(ct.WORK_DIR_NAME)
-        filename = self.sanitize_filename(order)
-        OUT_FILE = SAVE_DIR / f"{filename}.mmd"
- 
-        answer = self.strip_triple_quotes(answer)
-
-        try:
-            SAVE_DIR.mkdir(parents=True, exist_ok=True)  # work が無ければ作る
-            with OUT_FILE.open("w", encoding="utf-8") as f:
-                f.write(f"{answer}\n")
-            success_flag = True
-        except Exception as e:
-            # 保存失敗は致命的ではないので、UIにだけ通知
-            self.after(0, lambda: messagebox.showwarning("Save Warning", f"{ct.SAVE_FAILED_MESSAGE}: {e}"))
-
-        return success_flag, OUT_FILE
-
-    def sanitize_filename(self, filename: str) -> str:
-        # Windowsで使用禁止の文字
-        forbidden = r'[\\/:*?"<>|]'
-        return re.sub(forbidden, '_', filename)
-
-    def strip_triple_quotes(self, text: str) -> str:
-        return_text = text.strip()
-        if return_text.startswith("```"):
-            return_text = return_text[3:]
-        if return_text.endswith("```"):
-            return_text = return_text[:-3]
-        return return_text
+        self.ai_chat_prompt.configure(state=state)
 
     def display_operation_info(self):
         if self.nodes is not None and len(self.nodes) > 0:

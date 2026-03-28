@@ -20,7 +20,9 @@ This project provides a **Simple Flowchart Drawing Tool (Python version)** that 
 
 * I hope it will be useful to as many people as possible.
 
-<img width="50%" src="example/フローチャート自動生成＆手動調整後_jp.png" />
+<div style="text-align: center;">
+<img width="75%" src="example/フローチャート自動生成＆手動調整後_jp.png" />
+</div>
 
 ## Features of This Tool
 
@@ -32,9 +34,13 @@ This project provides a **Simple Flowchart Drawing Tool (Python version)** that 
 
 * New Feature: Swimlane diagram support (Added on Mar 3, 2026)
 
-<img width="50%" src="example/商品注文対応フロー.png" />
+<div style="text-align: center;">
+<img width="75%" src="example/商品注文対応フロー.png" />
+</div>
 
-<img width="50%" src="example/設計作業承認フロー図_ステータス付.png" />
+<div style="text-align: center;">
+<img width="75%" src="example/設計作業承認フロー図_ステータス付.png" />
+</div>
 
 ## Installation
 
@@ -62,6 +68,10 @@ This project provides a **Simple Flowchart Drawing Tool (Python version)** that 
 4. To use the tool in English, overwrite `constants.py` with `constants_en.py`.
 
 5. Run `flowchart_tool.py` to launch the flowchart drawing tool.
+
+<div style="text-align: center;">
+<img width="75%" src="example/作図想定フロー.png" />
+</div>
 
 ## Usage
 
@@ -175,3 +185,8 @@ This project provides a **Simple Flowchart Drawing Tool (Python version)** that 
 * 2026/03/23 : Added support for straight-line links, and enabled changing the line style of straight-line links from solid to dotted or dashed.
 * 2026/03/24 : Supports storage and document diagram creation.
 * 2026/03/25 : Added support for creating an operation manual (Japanese, HTML) and accessing it from the toolbar.
+* 2026/03/28 : With the generative AI integration feature, it is now possible to specify not only OpenAI but also Gemini or Claude. (Configure the API key in the .env file and select the model in AI_MODEL within constants.py.)
+
+## Additional Notes
+* If package errors occur, please try installing all packages at once using the following command.
+* $ pip install -r requirements.txt
