@@ -336,7 +336,7 @@
   <div class="category">はじめに</div>
   <a href="#" onclick="show('overview')">概要・特徴</a>
   <a href="#" onclick="show('screen')">画面構成</a>
-  <a href="#" onclick="show('startup')">起動方法</a>
+  <a href="#" onclick="show('startup')">インストール・実行方法</a>
 
   <div class="category">要素の配置</div>
   <a href="#" onclick="show('nodes')">フローチャート要素</a>
@@ -390,7 +390,7 @@
       <li>ダブルクリックによるラベル直接編集、改行（<code>\n</code>）対応</li>
       <li>JSON 形式でフローを保存・再読み込み、PNG/JPEG 画像として書き出し</li>
       <li>Mermaid 形式テキストからの自動インポート</li>
-      <li>OpenAI API（GPT-5.4）連携によるフロー自動生成</li>
+      <li>生成AI連携によるフロー自動生成（OpenAI GPT, Google Gemini, Anthropic ClaudeとのAPI接続に対応）</li>
       <li>Undo / Redo で作業を自由に戻せる</li>
       <li>ノードの塗りつぶし色を 10 色から選択可能</li>
       <li>ノードのステータス（Normal / Active / Inactive）をビジュアルで切り替え</li>
@@ -398,7 +398,7 @@
 
     <h3>動作環境</h3>
     <ul>
-      <li>Python 実行可能な環境（Windows11 および macOS26.3にて動作確認）</li>
+      <li>Python 実行可能な環境（Windows11 および macOS26.4にて動作確認）</li>
       <li>Tkinter の Canvas が利用できること（Google Colaboratory など Web 環境は不可）</li>
     </ul>
   </div>
@@ -440,7 +440,7 @@
     <p>フローチャートを描画するメイン領域です。スクロールバーでスクロール可能です。グリッドが表示されている場合、要素の配置がグリッドにスナップされます。</p>
 
     <h3>AI パネル（右サイドパネル）</h3>
-    <p>AI-generation を ON にするとキャンバス右側にスライドして表示されます。テキストボックスに処理フローの概要を入力して「Generate」ボタンを押すと、OpenAI が Mermaid 形式のフローを生成し、読み込み確認後にキャンバスへ反映できます。</p>
+    <p>AI-generation を ON にするとキャンバス右側にスライドして表示されます。テキストボックスに処理フローの概要を入力して「Generate」ボタンを押すと、設定ファイルで指定した生成AIモデルと連携して Mermaid 形式のフローを生成し、キャンバスへ反映できます。</p>
   </div>
 
   <!-- ======= 起動方法 ======= -->
@@ -448,21 +448,25 @@
     <h2>起動方法</h2>
 
     <h3>インストール手順</h3>
+    <div class="tip">前提条件：pythonとgitがインストールされていること。インストールされていない場合は、公式サイトからインストールしてください。</div>    
     <ol class="steps">
-      <li>プロジェクトのコードをチェックアウトします。</li>
+      <li>コマンドプロンプト（またはターミナル）を起動し、チェックアウトフォルダに移動します。</li>
+      <li>以下のコマンドを実行し、プロジェクトのコードをチェックアウトします。<br><code>git clone https://github.com/YoshiToshi1025/flowchart-drawing-tool-python.git</code></li>
       <li>チェックアウトフォルダで以下を実行して依存パッケージをインストールします。<br><code>pip install -r requirements.txt</code></li>
-      <li>（AI 自動生成を使う場合）チェックアウトフォルダに <code>.env</code> ファイルを作成し、以下を記述します。<br><code>OPENAI_API_KEY=(取得した API Key)</code></li>
       <li>英語版で使いたい場合は <code>constants_en.py</code> を <code>constants.py</code> に上書きコピーします。</li>
+      <li>AIによるフロー自動生成を行いたい場合は、チェックアウトフォルダ内の <code>.env</code> ファイルに連携したい生成AIのAPI KEYを記述し、設定ファイル(constants.py)内で生成AIモデル名を指定します。<br><br>
+        <code>[.envファイル内]<br>OPENAI_API_KEY=(OpenAI GPT接続用API Key)<br>GEMINI_API_KEY=(Google Gemini接続用API Key)<br>ANTHROPIC_API_KEY=(Anthropic Claude接続用API Key)</code><br><br>
+        <code>[constants.pyファイル内]<br>AI_MODEL=使用する生成AIモデル名<br>  例) AI_MODEL="gpt-5.4"</code></li>
       <li><code>flowchart_tool.py</code> を実行します。</li>
     </ol>
+    <div class="tip">git cloneでチェックアウトしたプロジェクトを最新にするには、<code>git pull</code> を実行します。</div>
+    <div class="tip">API Key を設定していない場合、生成AI連携機能は利用できませんが、AI 機能以外のフローチャートの手作業での作図は問題なく使用できます。</div>
 
     <h3>実行コマンド</h3>
     <pre>python flowchart_tool.py</pre>
 
-    <div class="tip">API Key が設定されていない場合、起動時にエラーダイアログが表示されますが、AI 機能以外は通常どおり使用できます。</div>
-
     <h3>終了</h3>
-    <p>ウィンドウを閉じると確認ダイアログが表示されます。保存が完了していることを確認してから終了してください。</p>
+    <p>ウィンドウを閉じようとすると確認ダイアログが表示されます。自動保存には対応していないので、編集データを保存してから終了するようにしてください。</p>
   </div>
 
   <!-- ======= ノード ======= -->
@@ -471,9 +475,11 @@
 
     <h3>配置の手順</h3>
     <ol class="steps">
-      <li>ツールバーで配置したい要素のモードボタンをクリックします（例: Process）。</li>
-      <li>キャンバス上の配置したい位置でクリックします。</li>
-      <li>ノードが配置されます。グリッドが ON の場合はグリッドにスナップされます。</li>
+      <li>ツールバーで配置したい要素のモードボタンを選択します（例: Process）。</li>
+      <li>キャンバス上で、要素を配置したい位置でクリックします。（マウスボタンを押したまま、位置の微調整ができます）</li>
+      <li>マウスボタンを離すことで、ノードの位置が確定します。グリッドが ON の場合は、格子点にのみ配置されます。</li>
+      <li>要素位置を微調整したい場合、要素をマウスで選択しながらドラッグ操作により位置を調整できます。</li>
+      <li>配置したノードをダブルクリックすると、テキスト編集モードになります。（詳細は、基本操作：テキスト編集を参照）</li>
     </ol>
 
     <h3>要素の種類</h3>
@@ -568,11 +574,11 @@
 
     <div class="tip">スイムレーンの種類は <code>constants.py</code> の <code>SWIMLANE_PARAMS["kind"]</code> で設定します（<code>"horizontal"</code> または <code>"vertical"</code>）。</div>
 
-    <h3>サイズの変更</h3>
-    <p>スイムレーンを選択してドラッグすることでサイズを変更できます。スイムレーン内の要素は独立して配置・移動できます。</p>
+    <h3>位置とサイズの変更</h3>
+    <p>スイムレーンのヘッダーまたはフッター部分を選択しながらドラッグ操作を行うことで、スイムレーンの位置を変更できます。</p>
+    <p>スイムレーンを選択した状態で、Shiftキー+マウスホイール操作で、スイムレーンの幅を調整できます。</p>
+    <p>スイムレーンを選択した状態で、Ctrlキー+マウスホイール操作で、スイムレーンの長さを調整できます。</p>
 
-    <h3>ステータス表示との連携</h3>
-    <p>スイムレーン内に配置されたノードは通常のノードと同様にステータス（Normal / Active / Inactive）を持てます。</p>
   </div>
 
   <!-- ======= リンク ======= -->
@@ -692,7 +698,7 @@
       <tr><td>右クリックメニュー → 「Delete Selected」</td><td>同上</td></tr>
     </table>
 
-    <div class="warn">ノードを削除すると、そのノードに接続されているリンクも同時に削除されます。削除後は Undo で元に戻せます。</div>
+    <div class="warn">ノードを削除すると、そのノードに接続されているリンクも同時に削除されます。削除後は Undo で削除前の状態に戻せます。</div>
   </div>
 
   <!-- ======= Undo/Redo ======= -->
@@ -732,14 +738,17 @@
   <!-- ======= キャンバスリサイズ ======= -->
   <div class="page" id="page-canvas-resize">
     <h2>キャンバスのリサイズ</h2>
-    <p>フローチャートが大きくなった場合にキャンバスのサイズを変更できます。</p>
+    <p>大きなフローチャートを作図するためにキャンバスのサイズをツール画面のサイズより大きくしたり、大きくなってしまったサイズを小さくすることができます。</p>
 
     <h3>操作方法</h3>
     <ol class="steps">
       <li>ツールバーの「Resize Canvas」ボタンをクリックします。</li>
-      <li>リサイズダイアログが表示されます。新しいサイズを入力します。</li>
+      <li>リサイズダイアログが表示されます。新しい縦・横のサイズ（ピクセル指定）を入力します。画面と同サイズにするには、Minimum Sizeのチェックボックスを選択してください。</li>
       <li>確定するとキャンバスが指定サイズに変更されます。</li>
     </ol>
+
+    <div class="tip">ツール画面を拡大すると、キャンバスサイズも自動で拡大されます。なお、ツール画面を縮めてもキャンバスサイズ自体は自動で縮小されません。</div>
+    <div class="tip">ツール画面に表示されている範囲よりキャンバスサイズを小さくすることはできません。</div>
 
     <h3>スクロール</h3>
     <p>キャンバスが画面より大きくなった場合、キャンバス右側・下側のスクロールバーでスクロールできます。またはマウスホイールで縦スクロール、<kbd>Shift</kbd> + マウスホイールで横スクロールが可能です（リンク非選択時）。</p>
@@ -801,6 +810,7 @@
     </table>
 
     <div class="tip">複数のノードを選択した状態でショートカットを押すと、選択中のすべてのノードの色が一括変更されます。</div>
+    <div class="tip">各キーに割り当てる色は、<code>constants.py</code> の <code>NODE_FILL_COLORS</code> を変更することで変えられます。</div>
   </div>
 
   <!-- ======= ノードステータス ======= -->
@@ -849,7 +859,7 @@
     </ol>
 
     <div class="tip"><code>example</code> フォルダにサンプル JSON ファイルが含まれています。Load JSON で読み込んで動作を確認できます。</div>
-    <div class="warn">読み込み時は現在のキャンバスの内容が上書きされます。必要に応じて先に保存してください。</div>
+    <div class="warn">読み込み時は現在のキャンバスの内容がクリアされ、上書きされます。必要に応じて、読み込み前に保存するようにしてください。</div>
   </div>
 
   <!-- ======= 画像保存 ======= -->
@@ -898,21 +908,23 @@
   <!-- ======= AI 生成 ======= -->
   <div class="page" id="page-ai-gen">
     <h2>フローの自動生成（AI 連携）</h2>
-    <p>OpenAI API（GPT-5.4）と連携して、テキストで指定した処理フローを自動的にフローチャートとして生成します。</p>
+    <p>生成AIと連携して、生成AIが自動生成したフローチャートをキャンバスに描画できます。ツールに描画したフローチャートを手動で編集することも可能です。</p>
 
     <h3>事前準備</h3>
-    <p>プロジェクトフォルダに <code>.env</code> ファイルを作成し、以下を記述してください。</p>
-    <pre>OPENAI_API_KEY=(OpenAI から取得した API Key)</pre>
+    <p>チェックアウトフォルダに <code>.env</code> ファイルを作成し、利用したい生成AIサービスの API KEY を記述し、設定ファイル <code>constants.py</code> に使用する生成AIモデルを指定してください。</p>
+    <pre>[.envファイル内]<br>OPENAI_API_KEY=(OpenAI GPT接続用API Key)<br>GEMINI_API_KEY=(Google Gemini接続用API Key)<br>ANTHROPIC_API_KEY=(Anthropic Claude接続用API Key)</pre>
+    <pre>[constants.pyファイル内]<br>AI_MODEL=使用する生成AIモデル名<br>  例) AI_MODEL="gpt-5.4"</pre>
 
-    <div class="tip">API Key の取得方法は <code>Docs/OpenAI_API_Keyの取得方法(ChatGPT生成).md</code> を参照ください。</div>
+    <div class="tip">API Key の取得方法は、利用したい生成AIサービスの公式ドキュメントを参照ください。</div>
+    <div class="tip">ツールバーに 「AI-generation」ボタンが表示されない場合、生成AI利用のための設定が正しく行われていません。設定内容をチェックしてください。</div>
 
     <h3>操作手順</h3>
     <ol class="steps">
-      <li>ツールバーの「AI-generation」チェックボックスを ON にします（右サイドパネルが開きます）。</li>
+      <li>ツールバーの「AI-generation」アイコンを ON にします（右サイドパネルが開きます）。</li>
       <li>「Process flow:」テキストボックスに生成したい処理フローの概要を入力します。</li>
       <li>「Generate」ボタンをクリック（または <kbd>Enter</kbd>）します。</li>
-      <li>AI が Mermaid 形式のフローデータを生成し、読み込み確認ダイアログが表示されます。</li>
-      <li>「はい」を選択するとキャンバスにフローチャートが描画されます。</li>
+      <li>AI が Mermaid 形式のフローデータを生成し、生成内容がチャットエリアに表示され、キャンバスに自動生成されたフローチャートが描画されます。</li>
+      <li>保存されたMermaidファイルのファイル名が確認ダイアログに表示されます。</li>
       <li>必要に応じて手動で位置・テキスト・リンクを調整します。</li>
     </ol>
 
@@ -920,7 +932,7 @@
     <pre>商品の注文から出荷までの業務フロー</pre>
     <pre>ユーザー認証処理のロジック</pre>
 
-    <div class="warn">AI 自動生成を実行するたびに OpenAI API の利用料が発生します。不要な生成を避けるようにしてください。</div>
+    <div class="warn">AI 自動生成を実行するたびに 生成AIのAPI の利用料が発生します。</div>
 
     <h3>使用モデル</h3>
     <p>デフォルトモデル: <code>gpt-5.4</code>（<code>constants.py</code> の <code>AI_MODEL</code> で変更可能）</p>
@@ -1004,7 +1016,7 @@
 
     <h3>注意事項</h3>
     <ul>
-      <li>フローチャートの自動生成には OpenAI の API（GPT-5.4）を利用するため、自動生成を行うたびに GPT API の利用料が発生します。</li>
+      <li>フローチャートの自動生成には OpenAI/Gemini/Claude の API を利用するため、自動生成を行う毎に各生成モデル側の API利用料 が発生します。</li>
       <li>Google Colaboratory などの Web 環境では動作しません。</li>
       <li>macOS では Tkinter が利用できる設定が必要です。</li>
     </ul>
