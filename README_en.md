@@ -30,9 +30,9 @@ This project provides a **Simple Flowchart Drawing Tool (Python version)** that 
 
 * Automatic link routing between elements, with links automatically updated when elements are moved. Manual routing adjustments are also supported.
 
-* Integration with generative AI (GPT-5.4) to automatically generate flowcharts (manual editing is possible after generation)
+* Integration with generative AI (GPT, Gemini, Claude) to automatically generate flowcharts (manual editing is possible after generation)
 
-* New Feature: Swimlane diagram support (Added on Mar 3, 2026)
+* Swimlane diagram support
 
 <div style="text-align: center;">
 <img width="75%" src="example/商品注文対応フロー.png" />
@@ -44,34 +44,43 @@ This project provides a **Simple Flowchart Drawing Tool (Python version)** that 
 
 ## Installation
 
-### Prerequisites
+* **Prerequisites**
 
-* A Python-executable environment is required, with support for the Tkinter Canvas library.
+  * Supported OS: Verified to run on Windows 11 and macOS 26.4
+  * A Python runtime environment is required, along with support for the Tkinter Canvas library.
+    (Not supported in web environments such as Google Colaboratory. On macOS, Tkinter must be properly configured.)
+  * It is recommended to use the `git` command to check out the latest code from GitHub.
 
-  * This tool does **not** work in web-based environments such as Google Colaboratory.
-  * On macOS, Tkinter must be properly enabled.
+* **Installation Steps**
 
-### Installation Steps
+  1. Launch Command Prompt (or Terminal) and prepare a folder for checkout.
+  2. Navigate to the checkout folder and clone this project from GitHub:
 
-1. Check out this project’s code into a Python-capable environment.
+     ```
+     git clone https://github.com/YoshiToshi1025/flowchart-drawing-tool-python.git
+     ```
+  3. In the checkout folder, run the following command to install the required packages:
 
-2. In the checkout directory, run `pip install -r requirements.txt` to install required packages.
+     ```
+     pip install -r requirements.txt
+     ```
+  4. If you want to use the tool in English, overwrite `constants.py` with `constants_en.py`.
+  5. If you want to enable AI-based flow generation, add the API key of your preferred generative AI to the `.env` file in the checkout folder, and specify the AI model name in the configuration file (`constants.py`).
+     *Note: You can still use the tool for manual flowchart creation without setting an API key.*
 
-3. To automatically generate process flows using generative AI, create a `.env` file in the checkout directory and write your OpenAI API Key in the following format:
-   (For instructions on obtaining an OpenAI API Key, refer to
-   `"Docs/How_to_obtain_OpenAI_API_Key.md"`)
+     ```
+     [.env file]
+     OPENAI_API_KEY=(API key for OpenAI GPT)
+     GEMINI_API_KEY=(API key for Google Gemini)
+     ANTHROPIC_API_KEY=(API key for Anthropic Claude)
+     ```
 
-   ```
-   OPENAI_API_KEY=(API Key obtained from OpenAI)
-   ```
-
-4. To use the tool in English, overwrite `constants.py` with `constants_en.py`.
-
-5. Run `flowchart_tool.py` to launch the flowchart drawing tool.
-
-<div style="text-align: center;">
-<img width="75%" src="example/作図想定フロー.png" />
-</div>
+     ```
+     [constants.py file]
+     AI_MODEL=Name of the generative AI model to use
+     Example) AI_MODEL="gpt-5.4"
+     ```
+  6. Run `flowchart_tool.py` to launch the flowchart drawing tool.
 
 ## Usage
 
@@ -135,6 +144,10 @@ This project provides a **Simple Flowchart Drawing Tool (Python version)** that 
   4. Save the completed flowchart data and images
   5. Paste the images into documentation
 
+<div style="text-align: center;">
+<img width="75%" src="example/作図想定フロー.png" />
+</div>
+
 ## Limitations
 
 * Canvas zoom in/out are not supported yet (under consideration).
@@ -142,7 +155,7 @@ This project provides a **Simple Flowchart Drawing Tool (Python version)** that 
 
 ## Notes
 
-* Automatic flowchart generation uses the OpenAI API (GPT-5.4).
+* Automatic flowchart generation uses the Generative AI API (OpenAI GPT, Google Gemini, Anthropic Claude).
   API usage fees will be incurred each time automatic generation is performed.
 
 ## Planned Features
@@ -186,6 +199,7 @@ This project provides a **Simple Flowchart Drawing Tool (Python version)** that 
 * 2026/03/24 : Supports storage and document diagram creation.
 * 2026/03/25 : Added support for creating an operation manual (Japanese, HTML) and accessing it from the toolbar.
 * 2026/03/28 : With the generative AI integration feature, it is now possible to specify not only OpenAI but also Gemini or Claude. (Configure the API key in the .env file and select the model in AI_MODEL within constants.py.)
+* 2026/03/30 : Updated the README and the user manual (HTML, Japanese).
 
 ## Additional Notes
 * If package errors occur, please try installing all packages at once using the following command.

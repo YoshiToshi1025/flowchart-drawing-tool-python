@@ -22,8 +22,8 @@
 ## 本ツールの特徴
 - 簡易フローチャートを短時間で作図、保存、再編集に対応
 - 要素間のリンク接続および要素移動時にリンクを自動配線、手動操作での配線調整も可能
-- 生成AI(GPT5.4)と連携して、フローチャートの自動作成に対応（自動作成後にフローチャートの手動編集可能）
-- 新機能：スイムレーンの作図に対応(2026.3.3)
+- 生成AI(OpenAI GPT, Google Gemini, Anthropic Claude)と連携して、フローチャートの自動作成に対応（自動作成後にツール上でフローの手動編集が可能）
+- 縦・横のスイムレーンの作図に対応
 
 <div style="text-align: center;">
 <img width="75%" src="example/商品注文対応フロー.png" />
@@ -36,19 +36,28 @@
 ## インストール
 
 - 前提条件
+  - 対応OS：Windows11, macOS26.4にて動作確認
   - Pythonコードが実行可能な環境で、さらに、TKinterライブラリのCanvasが利用可能な環境が必要です。
 (Google ColaboratoryなどのWeb環境では動作不可、MacOSではTKInterが利用できる設定が必要です)
+  - Githubから最新コードをチェックアウトするには、gitコマンドの利用を推奨します。
 
 - インストール手順
-  1. Python実行可能環境にて、当該プロジェクトのコードをチェックアウトします。
-  2. チェックアウトフォルダにて、"pip install -r requirements.txt"を実行して、必要なパッケージをインストールします。
-  3. 生成AIで処理フローを自動生成したい場合は、チェックアウトフォルダに".env"ファイルを作成し、OpenAI API Keyを以下の形式で
-  記述します。（OpenAI API Keyの取得方法は、"Docs/OpenAI_API_Keyの取得方法(ChatGPT生成).md"を参照ください）
-  
-      「.envファイル内容(１行)」    OPENAI_API_KEY=(OpenAIから取得したAPI Key)
-  
-  4. 英語で使用したい場合は、constants_en.pyをconstants.pyに上書きコピーしてください。 
-  5. flowchart_tool.pyを実行すると、フローチャート作図ツール画面が表示されます。
+  1. コマンドプロンプト（またはターミナル）を起動し、チェックアウト用フォルダを用意します。
+  2. チェックアウト用フォルダに移動し、当該プロジェクトのコードをGithubからチェックアウトします。<br><br>
+        git clone https://github.com/YoshiToshi1025/flowchart-drawing-tool-python.git<br><br>
+  3. チェックアウトフォルダにて、以下のコマンドを実行し、必要なパッケージをインストールします。<br><br>
+        pip install -r requirements.txt<br><br>
+  4. 英語で使いたい場合は、 constants_en.py を constants.py に上書きコピーします。 
+  5. AIによるフロー自動生成を行いたい場合は、チェックアウトフォルダ内の .env ファイルに連携したい生成AIのAPI KEYを記述し、設定ファイル(constants.py)内で生成AIモデル名を指定します。<br>
+    ※なお、API Key を設定しなくても、フローチャートの手作業での作図操作は問題なく利用できます。<br><br>
+        [.envファイル内]<br>
+        OPENAI_API_KEY=(OpenAI GPT接続用API Key)<br>
+        GEMINI_API_KEY=(Google Gemini接続用API Key)<br>
+        ANTHROPIC_API_KEY=(Anthropic Claude接続用API Key)<br><br>
+        [constants.pyファイル内]<br>
+        AI_MODEL=使用する生成AIモデル名<br>
+        例) AI_MODEL="gpt-5.4"<br><br>
+  6. flowchart_tool.pyを実行すると、フローチャート作図ツール画面が表示されます。
 
 ## 使い方
 
@@ -100,7 +109,7 @@
 
 ## 注意事項
 
-- フローチャートの自動作成にはOpenAIのAPI(GPT5.4)を利用するため、自動生成を行うごとに GPT API の利用料が発生します。
+- フローチャートの自動作成には指定した生成AIのAPIを利用するため、自動生成を行うごとに 生成AIのAPI利用料 が発生します。
 
 ## 対応予定内容
 
@@ -143,6 +152,7 @@
 * 2026/03/24 : ストレージおよび書類の作図に対応
 * 2026/03/25 : 操作マニュアル（日本語, html）の作成とツールバーからの呼び出しに対応
 * 2026/03/28 : 生成AI連携機能で、OpenAIだけでなくGeminiまたはClaudeのAIを指定可能に(.envでAPI_KEYの指定と、constants.pyのAI_MODELで指定)
+* 2026/03/30 : README、および、操作マニュアル(html)を更新
 
 ## 補足
 * パッケージエラーが発生する場合は、以下のコマンドでパッケージを一括インストールしてみてください。
