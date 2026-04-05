@@ -7,7 +7,8 @@
       "y": 37,
       "w": 120,
       "h": 45,
-      "text": "開始"
+      "text": "開始",
+      "fill_color": "#e0e0e0"
     },
     {
       "id": 2,
@@ -16,7 +17,8 @@
       "y": 517,
       "w": 120,
       "h": 45,
-      "text": "終了"
+      "text": "終了",
+      "fill_color": "#e0e0e0"
     },
     {
       "id": 3,
@@ -25,7 +27,8 @@
       "y": 97,
       "w": 120,
       "h": 45,
-      "text": "初期化"
+      "text": "初期化",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 5,
@@ -34,7 +37,8 @@
       "y": 217,
       "w": 120,
       "h": 45,
-      "text": "開始処理"
+      "text": "開始処理",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 6,
@@ -43,7 +47,8 @@
       "y": 277,
       "w": 120,
       "h": 45,
-      "text": "メインループ開始"
+      "text": "メインループ開始",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 8,
@@ -52,7 +57,8 @@
       "y": 397,
       "w": 120,
       "h": 45,
-      "text": "時間更新"
+      "text": "時間更新",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 9,
@@ -61,7 +67,8 @@
       "y": 502,
       "w": 120,
       "h": 45,
-      "text": "モグラ生成"
+      "text": "モグラ生成",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 10,
@@ -70,7 +77,8 @@
       "y": 502,
       "w": 120,
       "h": 45,
-      "text": "モグラ状態更新"
+      "text": "モグラ状態更新",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 11,
@@ -79,7 +87,8 @@
       "y": 622,
       "w": 120,
       "h": 45,
-      "text": "ヒット判定＆スコア更新"
+      "text": "ヒット判定＆スコア更新",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 12,
@@ -88,7 +97,8 @@
       "y": 622,
       "w": 120,
       "h": 45,
-      "text": "描画更新"
+      "text": "描画更新",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 14,
@@ -97,7 +107,8 @@
       "y": 157,
       "w": 120,
       "h": 45,
-      "text": "開始待ち"
+      "text": "開始待ち",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 16,
@@ -106,7 +117,8 @@
       "y": 337,
       "w": 120,
       "h": 45,
-      "text": "終了判定"
+      "text": "終了判定",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 18,
@@ -115,7 +127,8 @@
       "y": 457,
       "w": 120,
       "h": 45,
-      "text": "モグラ出現判定"
+      "text": "モグラ出現判定",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 19,
@@ -124,7 +137,8 @@
       "y": 577,
       "w": 120,
       "h": 45,
-      "text": "入力イベント有無"
+      "text": "入力イベント有無",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 20,
@@ -133,7 +147,8 @@
       "y": 697,
       "w": 120,
       "h": 45,
-      "text": "ループ継続"
+      "text": "ループ継続",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 22,
@@ -142,7 +157,8 @@
       "y": 397,
       "w": 120,
       "h": 45,
-      "text": "リザルト表示"
+      "text": "リザルト表示",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 23,
@@ -151,7 +167,8 @@
       "y": 337,
       "w": 120,
       "h": 45,
-      "text": "終了処理"
+      "text": "終了処理",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 25,
@@ -160,109 +177,242 @@
       "y": 457,
       "w": 120,
       "h": 45,
-      "text": "リトライ？"
+      "text": "リトライ？",
+      "fill_color": "#FFFFFF"
     }
   ],
   "edges": [
     {
       "from_id": 20,
       "to_id": 6,
-      "from_connection_point": "auto",
-      "to_connection_point": "auto",
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "left",
+      "to_connection_point": "left",
       "edge_wrap_margin": 138.0
     },
     {
       "from_id": 1,
-      "to_id": 3
+      "to_id": 3,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 3,
-      "to_id": 14
+      "to_id": 14,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 14,
-      "to_id": 5
+      "to_id": 5,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 5,
-      "to_id": 6
+      "to_id": 6,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 6,
-      "to_id": 16
+      "to_id": 16,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 16,
       "to_id": 8,
-      "label": "No"
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top",
+      "label": "No",
+      "label_x": 353,
+      "label_y": 359.5,
+      "label_anchor": "nw",
+      "label_justify": "left"
     },
     {
       "from_id": 8,
-      "to_id": 18
+      "to_id": 18,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 18,
       "to_id": 9,
-      "label": "Yes"
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "left",
+      "to_connection_point": "top",
+      "label": "Yes",
+      "label_x": 277.0,
+      "label_y": 457,
+      "label_anchor": "se",
+      "label_justify": "right"
     },
     {
       "from_id": 18,
       "to_id": 10,
-      "label": "No"
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "right",
+      "to_connection_point": "top",
+      "label": "No",
+      "label_x": 413.0,
+      "label_y": 457,
+      "label_anchor": "sw",
+      "label_justify": "left"
     },
     {
       "from_id": 19,
       "to_id": 11,
-      "label": "Yes"
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "left",
+      "to_connection_point": "top",
+      "label": "Yes",
+      "label_x": 277.0,
+      "label_y": 577,
+      "label_anchor": "se",
+      "label_justify": "right"
     },
     {
       "from_id": 9,
-      "to_id": 19
+      "to_id": 19,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 19,
       "to_id": 12,
-      "label": "No"
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "right",
+      "to_connection_point": "top",
+      "label": "No",
+      "label_x": 413.0,
+      "label_y": 577,
+      "label_anchor": "sw",
+      "label_justify": "left"
     },
     {
       "from_id": 11,
-      "to_id": 20
+      "to_id": 20,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 12,
-      "to_id": 20
+      "to_id": 20,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 16,
       "to_id": 23,
-      "from_connection_point": "auto",
-      "to_connection_point": "auto",
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "right",
+      "to_connection_point": "left",
       "edge_wrap_margin": 18.0,
-      "label": "Yes"
+      "label": "Yes",
+      "label_x": 413.0,
+      "label_y": 337,
+      "label_anchor": "sw",
+      "label_justify": "left"
     },
     {
       "from_id": 23,
-      "to_id": 22
+      "to_id": 22,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 10,
-      "to_id": 19
+      "to_id": 19,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 22,
-      "to_id": 25
+      "to_id": 25,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 25,
       "to_id": 2,
-      "label": "No"
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top",
+      "label": "No",
+      "label_x": 638,
+      "label_y": 479.5,
+      "label_anchor": "nw",
+      "label_justify": "left"
     },
     {
       "from_id": 25,
       "to_id": 3,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "manual",
       "from_connection_point": "right",
       "to_connection_point": "right",
-      "label": "Yes"
+      "label": "Yes",
+      "label_x": 698.0,
+      "label_y": 463,
+      "label_anchor": "nw",
+      "label_justify": "left"
     }
-  ]
+  ],
+  "swimlanes": []
 }

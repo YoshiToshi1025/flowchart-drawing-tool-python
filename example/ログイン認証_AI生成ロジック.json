@@ -7,7 +7,8 @@
       "y": 37,
       "w": 120,
       "h": 45,
-      "text": "ログイン認証：開始"
+      "text": "ログイン認証：開始",
+      "fill_color": "#e0e0e0"
     },
     {
       "id": 2,
@@ -16,7 +17,8 @@
       "y": 97,
       "w": 120,
       "h": 45,
-      "text": "ログイン情報入力"
+      "text": "ログイン情報入力",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 3,
@@ -25,7 +27,8 @@
       "y": 157,
       "w": 120,
       "h": 45,
-      "text": "入力値検証"
+      "text": "入力値検証",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 4,
@@ -34,7 +37,8 @@
       "y": 217,
       "w": 120,
       "h": 45,
-      "text": "必須項目不足 または形式不正?"
+      "text": "必須項目不足 または形式不正?",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 5,
@@ -43,7 +47,8 @@
       "y": 217,
       "w": 120,
       "h": 45,
-      "text": "エラーメッセージ 表示"
+      "text": "エラーメッセージ 表示",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 6,
@@ -52,7 +57,8 @@
       "y": 277,
       "w": 120,
       "h": 45,
-      "text": "認証要求送信"
+      "text": "認証要求送信",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 7,
@@ -61,7 +67,8 @@
       "y": 337,
       "w": 120,
       "h": 45,
-      "text": "ユーザー情報取得"
+      "text": "ユーザー情報取得",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 8,
@@ -70,7 +77,8 @@
       "y": 397,
       "w": 120,
       "h": 45,
-      "text": "ユーザー存在?"
+      "text": "ユーザー存在?",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 9,
@@ -79,7 +87,8 @@
       "y": 877,
       "w": 120,
       "h": 45,
-      "text": "認証失敗表示"
+      "text": "認証失敗表示",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 10,
@@ -88,7 +97,8 @@
       "y": 457,
       "w": 120,
       "h": 45,
-      "text": "アカウント 状態正常?"
+      "text": "アカウント 状態正常?",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 11,
@@ -97,7 +107,8 @@
       "y": 877,
       "w": 120,
       "h": 45,
-      "text": "アカウントロック または無効表示"
+      "text": "アカウントロック または無効表示",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 12,
@@ -106,7 +117,8 @@
       "y": 517,
       "w": 120,
       "h": 45,
-      "text": "パスワード照合"
+      "text": "パスワード照合",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 13,
@@ -115,7 +127,8 @@
       "y": 577,
       "w": 120,
       "h": 45,
-      "text": "パスワード一致?"
+      "text": "パスワード一致?",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 14,
@@ -124,7 +137,8 @@
       "y": 577,
       "w": 120,
       "h": 45,
-      "text": "失敗回数加算"
+      "text": "失敗回数加算",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 15,
@@ -133,7 +147,8 @@
       "y": 637,
       "w": 120,
       "h": 45,
-      "text": "ロック閾値到達?"
+      "text": "ロック閾値到達?",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 16,
@@ -142,7 +157,8 @@
       "y": 697,
       "w": 120,
       "h": 45,
-      "text": "アカウントロック"
+      "text": "アカウントロック",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 17,
@@ -151,7 +167,8 @@
       "y": 637,
       "w": 120,
       "h": 45,
-      "text": "認証成功表示"
+      "text": "認証成功表示",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 18,
@@ -160,7 +177,8 @@
       "y": 697,
       "w": 120,
       "h": 45,
-      "text": "セッション発行"
+      "text": "セッション発行",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 19,
@@ -169,7 +187,8 @@
       "y": 757,
       "w": 120,
       "h": 45,
-      "text": "最終ログイン更新"
+      "text": "最終ログイン更新",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 21,
@@ -178,7 +197,8 @@
       "y": 877,
       "w": 120,
       "h": 45,
-      "text": "トップページ表示"
+      "text": "トップページ表示",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 22,
@@ -187,7 +207,8 @@
       "y": 952,
       "w": 120,
       "h": 45,
-      "text": "ログイン認証：終了"
+      "text": "ログイン認証：終了",
+      "fill_color": "#e0e0e0"
     },
     {
       "id": 23,
@@ -196,7 +217,8 @@
       "y": 817,
       "w": 120,
       "h": 45,
-      "text": "監視ログ記録"
+      "text": "監視ログ記録",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 24,
@@ -205,7 +227,8 @@
       "y": 817,
       "w": 120,
       "h": 45,
-      "text": "監視ログ記録"
+      "text": "監視ログ記録",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 25,
@@ -214,137 +237,313 @@
       "y": 817,
       "w": 120,
       "h": 45,
-      "text": "監視ログ記録"
+      "text": "監視ログ記録",
+      "fill_color": "#FFFFFF"
     }
   ],
   "edges": [
     {
       "from_id": 1,
-      "to_id": 2
+      "to_id": 2,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 2,
-      "to_id": 3
+      "to_id": 3,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 3,
-      "to_id": 4
+      "to_id": 4,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 4,
       "to_id": 5,
-      "label": "Yes"
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "right",
+      "to_connection_point": "left",
+      "label": "Yes",
+      "label_x": 353.0,
+      "label_y": 217,
+      "label_anchor": "sw",
+      "label_justify": "left"
     },
     {
       "from_id": 5,
-      "to_id": 2
+      "to_id": 2,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "right",
+      "to_connection_point": "right"
     },
     {
       "from_id": 4,
       "to_id": 6,
-      "label": "No"
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top",
+      "label": "No",
+      "label_x": 293,
+      "label_y": 239.5,
+      "label_anchor": "nw",
+      "label_justify": "left"
     },
     {
       "from_id": 6,
-      "to_id": 7
+      "to_id": 7,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 7,
-      "to_id": 8
+      "to_id": 8,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 8,
       "to_id": 10,
-      "label": "Yes"
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top",
+      "label": "Yes",
+      "label_x": 293,
+      "label_y": 419.5,
+      "label_anchor": "nw",
+      "label_justify": "left"
     },
     {
       "from_id": 10,
       "to_id": 12,
-      "label": "Yes"
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top",
+      "label": "Yes",
+      "label_x": 293,
+      "label_y": 479.5,
+      "label_anchor": "nw",
+      "label_justify": "left"
     },
     {
       "from_id": 12,
-      "to_id": 13
+      "to_id": 13,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 13,
       "to_id": 14,
-      "label": "No"
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "right",
+      "to_connection_point": "left",
+      "label": "No",
+      "label_x": 353.0,
+      "label_y": 577,
+      "label_anchor": "sw",
+      "label_justify": "left"
     },
     {
       "from_id": 14,
-      "to_id": 15
+      "to_id": 15,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 15,
       "to_id": 16,
-      "label": "Yes"
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top",
+      "label": "Yes",
+      "label_x": 473,
+      "label_y": 659.5,
+      "label_anchor": "nw",
+      "label_justify": "left"
     },
     {
       "from_id": 13,
       "to_id": 17,
-      "label": "Yes"
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top",
+      "label": "Yes",
+      "label_x": 293,
+      "label_y": 599.5,
+      "label_anchor": "nw",
+      "label_justify": "left"
     },
     {
       "from_id": 17,
-      "to_id": 18
+      "to_id": 18,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 18,
-      "to_id": 19
+      "to_id": 19,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 19,
-      "to_id": 23
+      "to_id": 23,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 23,
-      "to_id": 21
+      "to_id": 21,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 8,
       "to_id": 25,
-      "label": "No"
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "right",
+      "to_connection_point": "top",
+      "label": "No",
+      "label_x": 353.0,
+      "label_y": 397,
+      "label_anchor": "sw",
+      "label_justify": "left"
     },
     {
       "from_id": 15,
       "to_id": 25,
-      "label": "No"
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "right",
+      "to_connection_point": "top",
+      "label": "No",
+      "label_x": 533.0,
+      "label_y": 637,
+      "label_anchor": "sw",
+      "label_justify": "left"
     },
     {
       "from_id": 25,
-      "to_id": 9
+      "to_id": 9,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 9,
       "to_id": 22,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "manual",
       "from_connection_point": "bottom",
       "to_connection_point": "top"
     },
     {
       "from_id": 21,
-      "to_id": 22
+      "to_id": 22,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 11,
       "to_id": 22,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "manual",
       "from_connection_point": "bottom",
       "to_connection_point": "top"
     },
     {
       "from_id": 24,
-      "to_id": 11
+      "to_id": 11,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 10,
       "to_id": 24,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "manual",
       "from_connection_point": "right",
       "to_connection_point": "right",
-      "label": "No"
+      "label": "No",
+      "label_x": 353.0,
+      "label_y": 457,
+      "label_anchor": "sw",
+      "label_justify": "left"
     },
     {
       "from_id": 16,
-      "to_id": 24
+      "to_id": 24,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     }
-  ]
+  ],
+  "swimlanes": []
 }

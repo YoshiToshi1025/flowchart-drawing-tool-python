@@ -3,7 +3,7 @@
     {
       "id": 1,
       "type": "terminator",
-      "x": 112,
+      "x": 105,
       "y": 82,
       "w": 45,
       "h": 45,
@@ -85,76 +85,139 @@
     {
       "from_id": 1,
       "to_id": 3,
-      "label_position": "auto"
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "right",
+      "to_connection_point": "left"
     },
     {
       "from_id": 3,
       "to_id": 4,
-      "label_position": "auto"
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "right",
+      "to_connection_point": "left"
     },
     {
       "from_id": 7,
       "to_id": 2,
-      "label_position": "auto"
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "right",
+      "to_connection_point": "left"
     },
     {
       "from_id": 4,
       "to_id": 8,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "manual",
+      "from_connection_point": "bottom",
+      "to_connection_point": "left",
       "label": "承認依頼",
-      "label_position": "auto"
+      "label_position": "auto",
+      "label_x": 353,
+      "label_y": 110.5,
+      "label_anchor": "nw",
+      "label_justify": "left"
     },
     {
       "from_id": 8,
       "to_id": 9,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "manual",
       "from_connection_point": "bottom",
       "to_connection_point": "left",
       "label": "承認",
-      "label_position": "auto"
+      "label_position": "auto",
+      "label_x": 458,
+      "label_y": 215.5,
+      "label_anchor": "nw",
+      "label_justify": "left"
     },
     {
       "from_id": 8,
       "to_id": 4,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "manual",
       "from_connection_point": "top",
       "to_connection_point": "right",
       "label": "却下",
-      "label_position": "auto"
+      "label_position": "auto",
+      "label_x": 458,
+      "label_y": 164.5,
+      "label_anchor": "sw",
+      "label_justify": "left"
     },
     {
       "from_id": 9,
       "to_id": 4,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "manual",
       "from_connection_point": "top",
       "to_connection_point": "right",
       "label": "却下",
-      "label_position": "auto"
+      "label_position": "p1ne",
+      "label_x": 547,
+      "label_y": 86,
+      "label_anchor": "ne",
+      "label_justify": "right"
     },
     {
       "from_id": 9,
       "to_id": 10,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "manual",
       "from_connection_point": "bottom",
       "to_connection_point": "left",
       "label": "承認",
-      "label_position": "auto"
+      "label_position": "auto",
+      "label_x": 563,
+      "label_y": 320.5,
+      "label_anchor": "nw",
+      "label_justify": "left"
     },
     {
       "from_id": 10,
       "to_id": 7,
-      "from_connection_point": "auto",
-      "to_connection_point": "auto",
-      "label": "最終承認",
-      "label_position": "p1sw"
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "right",
+      "to_connection_point": "left",
+      "label": "最終承認\n最終承認",
+      "label_position": "p1sw",
+      "label_x": 743.0,
+      "label_y": 397,
+      "label_anchor": "sw",
+      "label_justify": "left"
     },
     {
       "from_id": 10,
       "to_id": 4,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "manual",
       "from_connection_point": "top",
       "to_connection_point": "right",
       "label": "却下",
-      "label_position": "auto"
+      "label_position": "p1nw",
+      "label_x": 668,
+      "label_y": 88,
+      "label_anchor": "nw",
+      "label_justify": "left"
     }
   ],
   "swimlanes": [
     {
-      "kind": "vertical",
+      "kind": "horizontal",
       "title": "設計者",
       "header_center_x": 45,
       "header_center_y": 82,
@@ -162,7 +225,7 @@
       "height": 105
     },
     {
-      "kind": "vertical",
+      "kind": "horizontal",
       "title": "承認者_上長",
       "header_center_x": 45,
       "header_center_y": 187,
@@ -170,7 +233,7 @@
       "height": 105
     },
     {
-      "kind": "vertical",
+      "kind": "horizontal",
       "title": "承認者_部長",
       "header_center_x": 45,
       "header_center_y": 292,
@@ -178,7 +241,7 @@
       "height": 105
     },
     {
-      "kind": "vertical",
+      "kind": "horizontal",
       "title": "最終承認者",
       "header_center_x": 45,
       "header_center_y": 397,

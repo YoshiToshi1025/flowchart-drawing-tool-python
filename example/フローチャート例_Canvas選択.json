@@ -7,7 +7,8 @@
       "y": 37,
       "w": 120,
       "h": 45,
-      "text": "Canvas選択：Start"
+      "text": "Canvas選択：Start",
+      "fill_color": "#e0e0e0"
     },
     {
       "id": 2,
@@ -16,7 +17,8 @@
       "y": 277,
       "w": 120,
       "h": 45,
-      "text": "選択Nodeを選択状態に"
+      "text": "選択Nodeを選択状態に",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 3,
@@ -25,7 +27,8 @@
       "y": 382,
       "w": 120,
       "h": 45,
-      "text": "Canvas選択：End"
+      "text": "Canvas選択：End",
+      "fill_color": "#e0e0e0"
     },
     {
       "id": 5,
@@ -34,7 +37,8 @@
       "y": 217,
       "w": 120,
       "h": 45,
-      "text": "選択の種類"
+      "text": "選択の種類",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 7,
@@ -43,7 +47,8 @@
       "y": 277,
       "w": 120,
       "h": 45,
-      "text": "指定範囲内のNodeを選択状態に"
+      "text": "指定範囲内のNodeを選択状態に",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 8,
@@ -52,7 +57,8 @@
       "y": 277,
       "w": 120,
       "h": 45,
-      "text": "選択Linkを選択状態に"
+      "text": "選択Linkを選択状態に",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 9,
@@ -61,7 +67,8 @@
       "y": 157,
       "w": 120,
       "h": 45,
-      "text": "クリックの種類"
+      "text": "クリックの種類",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 11,
@@ -70,7 +77,8 @@
       "y": 277,
       "w": 120,
       "h": 45,
-      "text": "Nodeテキストの編集モードへ"
+      "text": "Nodeテキストの編集モードへ",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 12,
@@ -79,7 +87,8 @@
       "y": 217,
       "w": 120,
       "h": 45,
-      "text": "選択の種類"
+      "text": "選択の種類",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 13,
@@ -88,7 +97,8 @@
       "y": 277,
       "w": 120,
       "h": 45,
-      "text": "Linkテキストの編集モードへ"
+      "text": "Linkテキストの編集モードへ",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 14,
@@ -97,72 +107,172 @@
       "y": 97,
       "w": 120,
       "h": 45,
-      "text": "選択状態のリセット"
+      "text": "選択状態のリセット",
+      "fill_color": "#FFFFFF"
     }
   ],
   "edges": [
     {
       "from_id": 5,
       "to_id": 7,
-      "label": "範囲選択"
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "left",
+      "to_connection_point": "top",
+      "label": "範囲選択",
+      "label_x": 172.0,
+      "label_y": 217,
+      "label_anchor": "se",
+      "label_justify": "right"
     },
     {
       "from_id": 5,
       "to_id": 2,
-      "label": "Node選択"
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top",
+      "label": "Node選択",
+      "label_x": 248,
+      "label_y": 239.5,
+      "label_anchor": "nw",
+      "label_justify": "left"
     },
     {
       "from_id": 5,
       "to_id": 8,
-      "label": "Link選択"
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "right",
+      "to_connection_point": "top",
+      "label": "Link選択",
+      "label_x": 308.0,
+      "label_y": 217,
+      "label_anchor": "sw",
+      "label_justify": "left"
     },
     {
       "from_id": 7,
-      "to_id": 3
+      "to_id": 3,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 2,
-      "to_id": 3
+      "to_id": 3,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 8,
-      "to_id": 3
+      "to_id": 3,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 9,
       "to_id": 5,
-      "label": "シングル"
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "left",
+      "to_connection_point": "top",
+      "label": "シングル",
+      "label_x": 382.0,
+      "label_y": 157,
+      "label_anchor": "se",
+      "label_justify": "right"
     },
     {
       "from_id": 9,
       "to_id": 12,
-      "label": "ダブル"
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "right",
+      "to_connection_point": "top",
+      "label": "ダブル",
+      "label_x": 518.0,
+      "label_y": 157,
+      "label_anchor": "sw",
+      "label_justify": "left"
     },
     {
       "from_id": 12,
       "to_id": 11,
-      "label": "Node選択"
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "left",
+      "to_connection_point": "top",
+      "label": "Node選択",
+      "label_x": 592.0,
+      "label_y": 217,
+      "label_anchor": "se",
+      "label_justify": "right"
     },
     {
       "from_id": 12,
       "to_id": 13,
-      "label": "Link選択"
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "right",
+      "to_connection_point": "top",
+      "label": "Link選択",
+      "label_x": 728.0,
+      "label_y": 217,
+      "label_anchor": "sw",
+      "label_justify": "left"
     },
     {
       "from_id": 11,
-      "to_id": 3
+      "to_id": 3,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 13,
-      "to_id": 3
+      "to_id": 3,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 1,
-      "to_id": 14
+      "to_id": 14,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 14,
-      "to_id": 9
+      "to_id": 9,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     }
-  ]
+  ],
+  "swimlanes": []
 }

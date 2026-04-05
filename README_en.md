@@ -200,7 +200,10 @@ This project provides a **Simple Flowchart Drawing Tool (Python version)** that 
 * 2026/03/25 : Added support for creating an operation manual (Japanese, HTML) and accessing it from the toolbar.
 * 2026/03/28 : With the generative AI integration feature, it is now possible to specify not only OpenAI but also Gemini or Claude. (Configure the API key in the .env file and select the model in AI_MODEL within constants.py.)
 * 2026/03/30 : Updated the README and the user manual (HTML, Japanese).
+* 2026/04/06 : Changes to the output content of flowchart JSON data, and release of a beta version of an Excel VBA tool for importing JSON files.
 
-## Additional Notes
+## Additional Note 1
 * If package errors occur, please try installing all packages at once using the following command.
 * $ pip install -r requirements.txt
+## Additional Note 2
+* The Excel import VBA is currently in beta and is still being fine-tuned.

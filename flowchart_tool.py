@@ -1241,6 +1241,7 @@ class FlowchartTool(tk.Tk):
             tid = ed.get("to_id")
             edge_type = ed.get("edge_type", ct.EDGE_TYPE_ELBOW)
             line_style = ed.get("line_style", ct.EDGE_PARAMS["line_style"])
+            connection_mode = ed.get("connection_mode", None)
             from_connection_point = ed.get("from_connection_point", None)
             to_connection_point = ed.get("to_connection_point", None)
             edge_wrap_margin = ed.get("edge_wrap_margin", None)
@@ -1250,6 +1251,7 @@ class FlowchartTool(tk.Tk):
                 from_node_obj = self.nodes[fid]
                 to_node_obj = self.nodes[tid]
                 edge_obj = Edge(edge_type=edge_type, line_style=line_style, from_node_obj=from_node_obj, to_node_obj=to_node_obj, text=label, \
+                                        connection_mode=connection_mode, \
                                         from_node_connection_point=from_connection_point, \
                                         to_node_connection_point=to_connection_point, \
                                         edge_wrap_margin=edge_wrap_margin, \
@@ -1527,19 +1529,19 @@ class FlowchartTool(tk.Tk):
             if swimlane_obj is None:     # 新規スイムレーン作成時
                 swimlane_kind = ct.SWIMLANE_PARAMS["kind"]
                 if swimlane_kind == ct.SWIMLANE_KIND_HORIZONTAL:
-                    w = ct.SWIMLANE_PARAMS["horizontal_width"]
-                    h = ct.SWIMLANE_PARAMS["horizontal_header_height"]
+                    w = ct.SWIMLANE_PARAMS["horizontal_header_width"]
+                    h = ct.SWIMLANE_PARAMS["horizontal_height"]
                 else:
-                    w = ct.SWIMLANE_PARAMS["vertical_header_width"]
-                    h = ct.SWIMLANE_PARAMS["vertical_height"]
+                    w = ct.SWIMLANE_PARAMS["vertical_width"]
+                    h = ct.SWIMLANE_PARAMS["vertical_header_height"]
             else:   # 既存スイムレーン移動時
                 swimlane_kind = swimlane_obj.kind
                 if swimlane_kind == ct.SWIMLANE_KIND_HORIZONTAL:
-                    w = swimlane_obj.width
-                    h = ct.SWIMLANE_PARAMS["horizontal_header_height"]
-                else:
-                    w = ct.SWIMLANE_PARAMS["vertical_header_width"]
+                    w = ct.SWIMLANE_PARAMS["horizontal_header_width"]
                     h = swimlane_obj.height
+                else:
+                    w = swimlane_obj.width
+                    h = ct.SWIMLANE_PARAMS["vertical_header_height"]
             adjusted_x = int(((x + grid_size/2 - w/2) // grid_size) * grid_size + w/2)
             adjusted_y = int(((y + grid_size/2 - h/2) // grid_size) * grid_size + h/2)
         else:

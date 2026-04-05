@@ -155,93 +155,189 @@
     {
       "from_id": 3,
       "to_id": 4,
-      "label": "新規"
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "left",
+      "to_connection_point": "top",
+      "label": "新規",
+      "label_x": 127.0,
+      "label_y": 202,
+      "label_anchor": "se",
+      "label_justify": "right"
     },
     {
       "from_id": 3,
       "to_id": 5,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "manual",
       "from_connection_point": "right",
       "to_connection_point": "top",
-      "label": "編集"
+      "label": "編集",
+      "label_x": 263.0,
+      "label_y": 202,
+      "label_anchor": "sw",
+      "label_justify": "left"
     },
     {
       "from_id": 1,
-      "to_id": 2
+      "to_id": 2,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 5,
-      "to_id": 6
+      "to_id": 6,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 6,
       "to_id": 7,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "manual",
       "from_connection_point": "bottom",
       "to_connection_point": "top",
       "edge_wrap_margin": 75.0
     },
     {
       "from_id": 7,
-      "to_id": 10
+      "to_id": 10,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 10,
-      "to_id": 8
+      "to_id": 8,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 4,
       "to_id": 7,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "manual",
       "from_connection_point": "bottom",
       "to_connection_point": "top",
       "edge_wrap_margin": 135.0
     },
     {
       "from_id": 14,
-      "to_id": 15
+      "to_id": 15,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 15,
-      "to_id": 18
+      "to_id": 18,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 18,
-      "to_id": 17
+      "to_id": 17,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 23,
       "to_id": 14,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "manual",
       "from_connection_point": "right",
       "to_connection_point": "top",
-      "label": "自動生成"
+      "label": "自動生成",
+      "label_x": 413.0,
+      "label_y": 157,
+      "label_anchor": "sw",
+      "label_justify": "left"
     },
     {
       "from_id": 23,
       "to_id": 3,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "manual",
       "from_connection_point": "left",
       "to_connection_point": "top",
-      "label": "手動作図"
+      "label": "手動作図",
+      "label_x": 277.0,
+      "label_y": 157,
+      "label_anchor": "se",
+      "label_justify": "right"
     },
     {
       "from_id": 2,
-      "to_id": 23
+      "to_id": 23,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 17,
       "to_id": 7,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "manual",
       "from_connection_point": "bottom",
       "to_connection_point": "top",
-      "label": "不要"
+      "label": "不要",
+      "label_x": 488,
+      "label_y": 410.5,
+      "label_anchor": "nw",
+      "label_justify": "left"
     },
     {
       "from_id": 17,
       "to_id": 19,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "right",
+      "to_connection_point": "left",
       "label": "必要",
-      "label_position": "auto"
+      "label_position": "auto",
+      "label_x": 548.0,
+      "label_y": 382,
+      "label_anchor": "sw",
+      "label_justify": "left"
     },
     {
       "from_id": 19,
       "to_id": 18,
-      "edge_wrap_margin": 15.0,
-      "label_position": "auto"
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "right",
+      "to_connection_point": "right",
+      "edge_wrap_margin": 15.0
     }
   ],
   "swimlanes": []

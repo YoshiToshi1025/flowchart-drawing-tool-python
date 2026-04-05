@@ -7,7 +7,8 @@
       "y": 52,
       "w": 120,
       "h": 45,
-      "text": "開始"
+      "text": "開始",
+      "fill_color": "#e0e0e0"
     },
     {
       "id": 2,
@@ -16,7 +17,8 @@
       "y": 112,
       "w": 120,
       "h": 45,
-      "text": "初期化（回数=0、勝敗カウント=0）"
+      "text": "初期化（回数=0、勝敗カウント=0）",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 3,
@@ -25,7 +27,8 @@
       "y": 172,
       "w": 120,
       "h": 45,
-      "text": "ラウンド開始（回数+1）"
+      "text": "ラウンド開始（回数+1）",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 4,
@@ -34,7 +37,8 @@
       "y": 232,
       "w": 120,
       "h": 45,
-      "text": "ユーザーに手を入力させる（グー・チョキ・パー）"
+      "text": "ユーザーに手を入力させる（グー・チョキ・パー）",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 5,
@@ -43,7 +47,8 @@
       "y": 292,
       "w": 120,
       "h": 45,
-      "text": "入力は有効?"
+      "text": "入力は有効?",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 6,
@@ -52,7 +57,8 @@
       "y": 292,
       "w": 120,
       "h": 45,
-      "text": "エラーメッセージ表示（再入力促し）"
+      "text": "エラーメッセージ表示（再入力促し）",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 7,
@@ -61,7 +67,8 @@
       "y": 352,
       "w": 120,
       "h": 45,
-      "text": "コンピュータの手を決定（乱数）"
+      "text": "コンピュータの手を決定（乱数）",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 8,
@@ -70,7 +77,8 @@
       "y": 412,
       "w": 120,
       "h": 45,
-      "text": "勝敗判定（ユーザー手 vs コンピュータ手）"
+      "text": "勝敗判定（ユーザー手 vs コンピュータ手）",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 9,
@@ -79,7 +87,8 @@
       "y": 472,
       "w": 120,
       "h": 45,
-      "text": "結果は?"
+      "text": "結果は?",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 10,
@@ -88,7 +97,8 @@
       "y": 532,
       "w": 120,
       "h": 45,
-      "text": "ユーザー勝ち数+1"
+      "text": "ユーザー勝ち数+1",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 11,
@@ -97,7 +107,8 @@
       "y": 532,
       "w": 120,
       "h": 45,
-      "text": "コンピュータ勝ち数+1"
+      "text": "コンピュータ勝ち数+1",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 12,
@@ -106,7 +117,8 @@
       "y": 532,
       "w": 120,
       "h": 45,
-      "text": "あいこ（カウントなし）"
+      "text": "あいこ（カウントなし）",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 13,
@@ -115,7 +127,8 @@
       "y": 592,
       "w": 120,
       "h": 45,
-      "text": "ラウンド結果表示（両者の手・勝敗）"
+      "text": "ラウンド結果表示（両者の手・勝敗）",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 14,
@@ -124,7 +137,8 @@
       "y": 652,
       "w": 120,
       "h": 45,
-      "text": "3回終了?"
+      "text": "3回終了?",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 15,
@@ -133,7 +147,8 @@
       "y": 712,
       "w": 120,
       "h": 45,
-      "text": "最終結果集計（勝ち数比較）"
+      "text": "最終結果集計（勝ち数比較）",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 16,
@@ -142,7 +157,8 @@
       "y": 772,
       "w": 120,
       "h": 45,
-      "text": "最終勝者は?"
+      "text": "最終勝者は?",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 17,
@@ -151,7 +167,8 @@
       "y": 832,
       "w": 120,
       "h": 45,
-      "text": "最終結果表示（ユーザー勝ち・負け・引き分け）"
+      "text": "最終結果表示（ユーザー勝ち・負け・引き分け）",
+      "fill_color": "#FFFFFF"
     },
     {
       "id": 18,
@@ -160,137 +177,306 @@
       "y": 892,
       "w": 120,
       "h": 45,
-      "text": "終了"
+      "text": "終了",
+      "fill_color": "#e0e0e0"
     }
   ],
   "edges": [
     {
       "from_id": 1,
-      "to_id": 2
+      "to_id": 2,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 2,
-      "to_id": 3
+      "to_id": 3,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 3,
-      "to_id": 4
+      "to_id": 4,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 4,
-      "to_id": 5
+      "to_id": 5,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 5,
       "to_id": 6,
-      "label": "No"
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "right",
+      "to_connection_point": "left",
+      "label": "No",
+      "label_x": 443.0,
+      "label_y": 292,
+      "label_anchor": "sw",
+      "label_justify": "left"
     },
     {
       "from_id": 6,
       "to_id": 4,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "right",
+      "to_connection_point": "right",
       "edge_wrap_margin": 21.0
     },
     {
       "from_id": 5,
       "to_id": 7,
-      "label": "Yes"
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top",
+      "label": "Yes",
+      "label_x": 383,
+      "label_y": 314.5,
+      "label_anchor": "nw",
+      "label_justify": "left"
     },
     {
       "from_id": 7,
-      "to_id": 8
+      "to_id": 8,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 8,
-      "to_id": 9
+      "to_id": 9,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 9,
       "to_id": 10,
-      "label": "ユーザー勝ち"
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "left",
+      "to_connection_point": "top",
+      "label": "ユーザー勝ち",
+      "label_x": 307.0,
+      "label_y": 472,
+      "label_anchor": "se",
+      "label_justify": "right"
     },
     {
       "from_id": 10,
-      "to_id": 13
+      "to_id": 13,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "left"
     },
     {
       "from_id": 13,
-      "to_id": 14
+      "to_id": 14,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 9,
       "to_id": 11,
-      "label": "コンピュータ勝ち"
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "right",
+      "to_connection_point": "top",
+      "label": "コンピュータ勝ち",
+      "label_x": 443.0,
+      "label_y": 472,
+      "label_anchor": "sw",
+      "label_justify": "left"
     },
     {
       "from_id": 11,
-      "to_id": 13
+      "to_id": 13,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "right"
     },
     {
       "from_id": 13,
-      "to_id": 14
+      "to_id": 14,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 9,
       "to_id": 12,
-      "label": "あいこ"
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top",
+      "label": "あいこ",
+      "label_x": 383,
+      "label_y": 494.5,
+      "label_anchor": "nw",
+      "label_justify": "left"
     },
     {
       "from_id": 12,
-      "to_id": 13
+      "to_id": 13,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 13,
-      "to_id": 14
+      "to_id": 14,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 14,
       "to_id": 3,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "manual",
       "from_connection_point": "right",
       "to_connection_point": "right",
       "edge_wrap_margin": 201.0,
-      "label": "No"
+      "label": "No",
+      "label_x": 443.0,
+      "label_y": 658,
+      "label_anchor": "nw",
+      "label_justify": "left"
     },
     {
       "from_id": 14,
       "to_id": 15,
-      "label": "Yes"
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top",
+      "label": "Yes",
+      "label_x": 383,
+      "label_y": 674.5,
+      "label_anchor": "nw",
+      "label_justify": "left"
     },
     {
       "from_id": 15,
-      "to_id": 16
+      "to_id": 16,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 16,
       "to_id": 17,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "manual",
       "from_connection_point": "left",
       "to_connection_point": "left",
-      "label": "ユーザー勝ち"
+      "label": "ユーザー勝ち",
+      "label_x": 307.0,
+      "label_y": 772,
+      "label_anchor": "se",
+      "label_justify": "right"
     },
     {
       "from_id": 17,
-      "to_id": 18
+      "to_id": 18,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 16,
       "to_id": 17,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "manual",
       "from_connection_point": "right",
       "to_connection_point": "right",
-      "label": "コンピュータ勝ち"
+      "label": "コンピュータ勝ち",
+      "label_x": 443.0,
+      "label_y": 772,
+      "label_anchor": "sw",
+      "label_justify": "left"
     },
     {
       "from_id": 17,
-      "to_id": 18
+      "to_id": 18,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     },
     {
       "from_id": 16,
       "to_id": 17,
-      "from_connection_point": "auto",
-      "to_connection_point": "auto",
-      "label": "引き分け"
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top",
+      "label": "引き分け",
+      "label_x": 383,
+      "label_y": 794.5,
+      "label_anchor": "nw",
+      "label_justify": "left"
     },
     {
       "from_id": 17,
-      "to_id": 18
+      "to_id": 18,
+      "edge_type": "elbow",
+      "line_style": "solid",
+      "connection_mode": "auto",
+      "from_connection_point": "bottom",
+      "to_connection_point": "top"
     }
-  ]
+  ],
+  "swimlanes": []
 }
