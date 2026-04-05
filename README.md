@@ -160,10 +160,10 @@
 * 2026/03/25 : 操作マニュアル（日本語, html）の作成とツールバーからの呼び出しに対応
 * 2026/03/28 : 生成AI連携機能で、OpenAIだけでなくGeminiまたはClaudeのAIを指定可能に(.envでAPI_KEYの指定と、constants.pyのAI_MODELで指定)
 * 2026/03/30 : README、および、操作マニュアル(html)を更新
-* 2026/04/06 : フローチャートJSONデータの出力内容の変更と、JSONファイルのExcel読込VBAベータ版公開
+* 2026/04/06 : フローチャートJSONデータの出力内容の変更と、JSONファイルのExcel読込Windows用VBAベータ版公開
 
 ## 補足1
 * パッケージエラーが発生する場合は、以下のコマンドでパッケージを一括インストールしてみてください。
 * $ pip install -r requirements.txt
 ## 補足2
-* Excel読込VBAはベータ版で、動作調整中です。
+* Excel読込VBAは "Windows用ベータ版" で、動作調整中です。(macOS対応時期は未定)

@@ -44,19 +44,27 @@
 - インストール手順
   1. コマンドプロンプト（またはターミナル）を起動し、チェックアウト用フォルダを用意します。
   2. チェックアウト用フォルダに移動し、当該プロジェクトのコードをGithubからチェックアウトします。<br><br>
-        git clone https://github.com/YoshiToshi1025/flowchart-drawing-tool-python.git<br><br>
+      ```
+        git clone https://github.com/YoshiToshi1025/flowchart-drawing-tool-python.git
+      ```
   3. チェックアウトフォルダにて、以下のコマンドを実行し、必要なパッケージをインストールします。<br><br>
-        pip install -r requirements.txt<br><br>
+      ```
+        pip install -r requirements.txt
+      ```
   4. 英語で使いたい場合は、 constants_en.py を constants.py に上書きコピーします。 
   5. AIによるフロー自動生成を行いたい場合は、チェックアウトフォルダ内の .env ファイルに連携したい生成AIのAPI KEYを記述し、設定ファイル(constants.py)内で生成AIモデル名を指定します。<br>
     ※なお、API Key を設定しなくても、フローチャートの手作業での作図操作は問題なく利用できます。<br><br>
+       ```
         [.envファイル内]<br>
-        OPENAI_API_KEY=(OpenAI GPT接続用API Key)<br>
-        GEMINI_API_KEY=(Google Gemini接続用API Key)<br>
-        ANTHROPIC_API_KEY=(Anthropic Claude接続用API Key)<br><br>
-        [constants.pyファイル内]<br>
-        AI_MODEL=使用する生成AIモデル名<br>
-        例) AI_MODEL="gpt-5.4"<br><br>
+        OPENAI_API_KEY=(OpenAI GPT接続用API Key)
+        GEMINI_API_KEY=(Google Gemini接続用API Key)
+        ANTHROPIC_API_KEY=(Anthropic Claude接続用API Key)
+      ```
+      ```
+        [constants.pyファイル内]
+        AI_MODEL=使用する生成AIモデル名
+        例) AI_MODEL="gpt-5.4"
+      ```
   6. flowchart_tool.pyを実行すると、フローチャート作図ツール画面が表示されます。
 
 ## 使い方
@@ -114,7 +122,6 @@
 ## 対応予定内容
 
 - キャンバスの拡大・縮小表示
-- 描画フローチャートのExcel出力対応
 - 他要素の追加
 - など
 
@@ -153,10 +160,10 @@
 * 2026/03/25 : 操作マニュアル（日本語, html）の作成とツールバーからの呼び出しに対応
 * 2026/03/28 : 生成AI連携機能で、OpenAIだけでなくGeminiまたはClaudeのAIを指定可能に(.envでAPI_KEYの指定と、constants.pyのAI_MODELで指定)
 * 2026/03/30 : README、および、操作マニュアル(html)を更新
-* 2026/04/06 : フローチャートJSONデータの出力内容の変更と、JSONファイルのExcel読込VBAベータ版公開
+* 2026/04/06 : フローチャートJSONデータの出力内容の変更と、JSONファイルのExcel読込Windows用VBAベータ版公開
 
 ## 補足1
 * パッケージエラーが発生する場合は、以下のコマンドでパッケージを一括インストールしてみてください。
 * $ pip install -r requirements.txt
 ## 補足2
-* Excel読込VBAはベータ版で、動作調整中です。
+* Excel読込VBAは "Windows用ベータ版" で、動作調整中です。(macOS対応時期は未定)
