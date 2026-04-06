@@ -347,6 +347,8 @@ class Edge:
                 if coords is not None and coords != []:
                     label_x = coords[0] + ct.EDGE_LABEL_OFFSET["sw"][0]
                     label_y = coords[1] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                    self.from_node_connection_point = "top"
+                    self.to_node_connection_point = "top"
                     label_anchor = "sw"
                     label_justify = "left"
             elif self.from_node_connection_point == "top" and self.to_node_connection_point == "right":
@@ -354,6 +356,8 @@ class Edge:
                 if coords is not None and coords != []:
                     label_x = coords[0] + ct.EDGE_LABEL_OFFSET["sw"][0]
                     label_y = coords[1] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                    self.from_node_connection_point = "top"
+                    self.to_node_connection_point = "right"
                     label_anchor = "sw"
                     label_justify = "left"
             elif self.from_node_connection_point == "top" and self.to_node_connection_point == "bottom":
@@ -361,6 +365,8 @@ class Edge:
                 if coords is not None and coords != []:
                     label_x = coords[0] + ct.EDGE_LABEL_OFFSET["sw"][0]
                     label_y = coords[1] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                    self.from_node_connection_point = "top"
+                    self.to_node_connection_point = "bottom"
                     label_anchor = "sw"
                     label_justify = "left"
             elif self.from_node_connection_point == "top" and self.to_node_connection_point == "left":
@@ -368,6 +374,8 @@ class Edge:
                 if coords is not None and coords != []:
                     label_x = coords[0] + ct.EDGE_LABEL_OFFSET["sw"][0]
                     label_y = coords[1] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                    self.from_node_connection_point = "top"
+                    self.to_node_connection_point = "left"
                     label_anchor = "sw"
                     label_justify = "left"
             elif self.from_node_connection_point == "right" and self.to_node_connection_point == "top":
@@ -375,6 +383,8 @@ class Edge:
                 if coords is not None and coords != []:
                     label_x = coords[0] + ct.EDGE_LABEL_OFFSET["sw"][0]
                     label_y = coords[1] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                    self.from_node_connection_point = "right"
+                    self.to_node_connection_point = "top"
                     label_anchor = "sw"
                     label_justify = "left"
             elif self.from_node_connection_point == "right" and self.to_node_connection_point == "right":
@@ -383,11 +393,15 @@ class Edge:
                     if from_right_y < to_right_y:
                         label_x = coords[0] + ct.EDGE_LABEL_OFFSET["sw"][0]
                         label_y = coords[1] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                        self.from_node_connection_point = "right"
+                        self.to_node_connection_point = "right"
                         label_anchor = "sw"
                         label_justify = "left"
                     else:
                         label_x = coords[0] + ct.EDGE_LABEL_OFFSET["nw"][0]
                         label_y = coords[1] + ct.EDGE_LABEL_OFFSET["nw"][1]
+                        self.from_node_connection_point = "right"
+                        self.to_node_connection_point = "right"
                         label_anchor = "nw"
                         label_justify = "left"
             elif self.from_node_connection_point == "right" and self.to_node_connection_point == "bottom":
@@ -395,6 +409,8 @@ class Edge:
                 if coords is not None and coords != []:
                     label_x = coords[0] + ct.EDGE_LABEL_OFFSET["sw"][0]
                     label_y = coords[1] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                    self.from_node_connection_point = "right"
+                    self.to_node_connection_point = "bottom"
                     label_anchor = "sw"
                     label_justify = "left"
             elif self.from_node_connection_point == "right" and self.to_node_connection_point == "left":
@@ -402,6 +418,8 @@ class Edge:
                 if coords is not None and coords != []:
                     label_x = coords[0] + ct.EDGE_LABEL_OFFSET["sw"][0]
                     label_y = coords[1] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                    self.from_node_connection_point = "right"
+                    self.to_node_connection_point = "left"
                     label_anchor = "sw"
                     label_justify = "left"
             elif self.from_node_connection_point == "bottom" and self.to_node_connection_point == "top":
@@ -409,6 +427,8 @@ class Edge:
                 if coords is not None and coords != []:
                     label_x = coords[0] + ct.EDGE_LABEL_OFFSET["nw"][0]
                     label_y = coords[1] + ct.EDGE_LABEL_OFFSET["nw"][1]
+                    self.from_node_connection_point = "bottom"
+                    self.to_node_connection_point = "top"
                     label_anchor = "nw"
                     label_justify = "left"
             elif self.from_node_connection_point == "bottom" and self.to_node_connection_point == "right":
@@ -416,6 +436,8 @@ class Edge:
                 if coords is not None and coords != []:
                     label_x = coords[0] + ct.EDGE_LABEL_OFFSET["nw"][0]
                     label_y = coords[1] + ct.EDGE_LABEL_OFFSET["nw"][1]
+                    self.from_node_connection_point = "bottom"
+                    self.to_node_connection_point = "right"
                     label_anchor = "nw"
                     label_justify = "left"
             elif self.from_node_connection_point == "bottom" and self.to_node_connection_point == "bottom":
@@ -423,6 +445,8 @@ class Edge:
                 if coords is not None and coords != []:
                     label_x = coords[0] + ct.EDGE_LABEL_OFFSET["nw"][0]
                     label_y = coords[1] + ct.EDGE_LABEL_OFFSET["nw"][1]
+                    self.from_node_connection_point = "bottom"
+                    self.to_node_connection_point = "bottom"
                     label_anchor = "nw"
                     label_justify = "left"
             elif self.from_node_connection_point == "bottom" and self.to_node_connection_point == "left":
@@ -430,6 +454,8 @@ class Edge:
                 if coords is not None and coords != []:
                     label_x = coords[0] + ct.EDGE_LABEL_OFFSET["nw"][0]
                     label_y = coords[1] + ct.EDGE_LABEL_OFFSET["nw"][1]
+                    self.from_node_connection_point = "bottom"
+                    self.to_node_connection_point = "left"
                     label_anchor = "nw"
                     label_justify = "left"
             elif self.from_node_connection_point == "left" and self.to_node_connection_point == "top":
@@ -437,6 +463,8 @@ class Edge:
                 if coords is not None and coords != []:
                     label_x = coords[0] + ct.EDGE_LABEL_OFFSET["se"][0]
                     label_y = coords[1] + ct.EDGE_LABEL_OFFSET["se"][1]
+                    self.from_node_connection_point = "left"
+                    self.to_node_connection_point = "top"
                     label_anchor = "se"
                     label_justify = "right"
             elif self.from_node_connection_point == "left" and self.to_node_connection_point == "right":
@@ -444,6 +472,8 @@ class Edge:
                 if coords is not None and coords != []:
                     label_x = coords[0] + ct.EDGE_LABEL_OFFSET["se"][0]
                     label_y = coords[1] + ct.EDGE_LABEL_OFFSET["se"][1]
+                    self.from_node_connection_point = "left"
+                    self.to_node_connection_point = "right"
                     label_anchor = "se"
                     label_justify = "right"
             elif self.from_node_connection_point == "left" and self.to_node_connection_point == "bottom":
@@ -451,6 +481,8 @@ class Edge:
                 if coords is not None and coords != []:
                     label_x = coords[0] + ct.EDGE_LABEL_OFFSET["se"][0]
                     label_y = coords[1] + ct.EDGE_LABEL_OFFSET["se"][1]
+                    self.from_node_connection_point = "left"
+                    self.to_node_connection_point = "bottom"
                     label_anchor = "se"
                     label_justify = "right"
             elif self.from_node_connection_point == "left" and self.to_node_connection_point == "left":
@@ -459,11 +491,15 @@ class Edge:
                     if from_left_y < to_left_y:
                         label_x = coords[0] + ct.EDGE_LABEL_OFFSET["se"][0]
                         label_y = coords[1] + ct.EDGE_LABEL_OFFSET["se"][1]
+                        self.from_node_connection_point = "left"
+                        self.to_node_connection_point = "left"
                         label_anchor = "se"
                         label_justify = "right"
                     else:
                         label_x = coords[0] + ct.EDGE_LABEL_OFFSET["ne"][0]
                         label_y = coords[1] + ct.EDGE_LABEL_OFFSET["ne"][1]
+                        self.from_node_connection_point = "left"
+                        self.to_node_connection_point = "left"
                         label_anchor = "ne"
                         label_justify = "right"
             else:

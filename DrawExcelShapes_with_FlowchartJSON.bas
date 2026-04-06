@@ -1,7 +1,17 @@
+Attribute VB_Name = "DrawExcelShapes_with_FlowchartJSON"
+''
+' Excel Shapes Drawing Program to active sheet with Flowchart JSON Data
+' Version 2026.04.07
+' (c) Toshiki Yoshino - https://github.com/YoshiToshi1025/flowchart-drawing-tool-python
+'
+' @author Toshiki Yoshino
+' @license MIT (http://www.opensource.org/licenses/mit-license.php)
+'==============================================================
+
 Option Explicit
 
 '==============================================================
-' フローチャートJSON → Excel図形 描画 by YoshiToshi Ver.20260406
+' フローチャート JSON → Excel 描画マクロ
 ' Excel VBA for Microsoft 365
 '
 ' JSONファイルに定義されたフローチャートデータ（ノード・エッジ・
@@ -15,32 +25,34 @@ Option Explicit
 ' ノード（要素）情報
 Private Type NodeData
     id        As Long     ' 要素ID
-    nodeType  As String   ' terminal/terminator, process, decision, io, storage, document
+    nodeType  As String   ' ノード種類 terminal/terminator, process, decision, io, storage, document
     x         As Double   ' 中心x座標(pt)
     y         As Double   ' 中心y座標(pt)
     w         As Double   ' 幅(pt)
     h         As Double   ' 高さ(pt)
     cellText  As String   ' ラベルテキスト
     fillColor As String   ' 塗りつぶし色 "#rrggbb"
-    shapeType As String   ' connector/terminator/rectangle/corner_rounded_rectangle/rounded_rectangle
+    shapeType As String   ' 形状 connector/terminator/rectangle/corner_rounded_rectangle/rounded_rectangle
     shapeName As String   ' Excelシェイプ名（エッジ接続用）
+    status    As String   ' ステータス normal/active/inactive
 End Type
 
 ' エッジ（リンク）情報
 Private Type EdgeData
-    fromId       As Long     ' from側ノードID
-    toId         As Long     ' to側ノードID
-    edgeType     As String   ' elbow, line
-    lineStyle    As String   ' solid, dotted, dashed
-    connMode     As String   ' 自動接続? auto/manual
-    fromCP       As String   ' 接続点 top/left/bottom/right/""(auto)   autoは廃止予定
-    toCP         As String   ' 接続点 top/left/bottom/right/""(auto)   autoは廃止予定
-    edgeLabel    As String   ' ラベルテキスト
-    labelPos     As String   ' ラベル位置 auto/p2se/posw/p0nw/p0ne/p1se/....
-    labelX       As Double   ' ラベルx座標(pt)
-    labelY       As Double   ' ラベルy座標(pt)
-    labelAnchor  As String   ' ラベル基準位置 center/n/ne/e/se/s/sw/w/nw
-    labelJustify As String   ' 基準位置におけるラベル配置位置 left/center/right
+    fromId         As Long     ' from側ノードID
+    toId           As Long     ' to側ノードID
+    edgeType       As String   ' elbow, line
+    lineStyle      As String   ' solid, dotted, dashed
+    connMode       As String   ' 自動接続? auto/manual
+    fromCP         As String   ' 接続点 top/left/bottom/right/""(auto)   autoは廃止予定
+    toCP           As String   ' 接続点 top/left/bottom/right/""(auto)   autoは廃止予定
+    edgeLabel      As String   ' ラベルテキスト
+    labelPos       As String   ' ラベル位置 auto/p2se/posw/p0nw/p0ne/p1se/....
+    labelX         As Double   ' ラベルx座標(pt)
+    labelY         As Double   ' ラベルy座標(pt)
+    labelAnchor    As String   ' ラベル基準位置 center/n/ne/e/se/s/sw/w/nw
+    labelJustify   As String   ' 基準位置におけるラベル配置位置 left/center/right
+    edgeWrapMargin As Double   ' エッジ回り込み距離(pt) ※未対応
 End Type
 
 ' スイムレーン情報
@@ -319,6 +331,8 @@ Private Sub ParseNodeObj(nd As NodeData)
                 nd.fillColor = JsonStr()
             Case "shape_type"
                 nd.shapeType = JsonStr()
+            Case "status"
+                nd.status = JsonStr()
             Case Else
                 Call JsonSkip
         End Select
@@ -442,6 +456,8 @@ Private Sub ParseEdgeObj(ed As EdgeData)
                 ed.labelAnchor = JsonStr()
             Case "label_justify"
                 ed.labelJustify = JsonStr()
+            Case "edge_wrap_margin"
+                ed.edgeWrapMargin = CDbl(Val(JsonNum())) * 0.75
             Case Else
                 Call JsonSkip
         End Select
@@ -842,15 +858,33 @@ Private Sub DrawNode(ws As Worksheet, nd As NodeData)
     ' 塗りつぶし
     With shp.Fill
         .Visible = msoTrue
-        .ForeColor.RGB = HexToRGB(nd.fillColor)
+        If nd.status = "active" Then
+            .ForeColor.RGB = RGB(255, 250, 205)
+        ElseIf nd.status = "inactive" Then
+            .ForeColor.RGB = RGB(240, 240, 240)
+        Else
+            .ForeColor.RGB = HexToRgb(nd.fillColor)
+        End If
     End With
 
     ' 枠線（実線 1.75pt）
     With shp.Line
-        .Visible = msoTrue
-        .ForeColor.RGB = RGB(0, 0, 0)
-        .Weight = 1.75 * 0.75
-        .DashStyle = msoLineSolid
+        If nd.status = "active" Then
+            .Visible = msoTrue
+            .ForeColor.RGB = RGB(218, 165, 32)
+            .Weight = 2.5 * 0.75
+            .DashStyle = msoLineSolid
+        ElseIf nd.status = "inactive" Then
+            .Visible = msoTrue
+            .ForeColor.RGB = RGB(169, 169, 169)
+            .Weight = 1.75 * 0.75
+            .DashStyle = msoLineSolid
+        Else
+            .Visible = msoTrue
+            .ForeColor.RGB = RGB(0, 0, 0)
+            .Weight = 1.75 * 0.75
+            .DashStyle = msoLineSolid
+        End If
     End With
 
     ' テキスト
@@ -860,7 +894,13 @@ Private Sub DrawNode(ws As Worksheet, nd As NodeData)
         .VerticalAlignment = xlVAlignCenter
         .HorizontalOverflow = xlOartHorizontalOverflowOverflow
         .VerticalOverflow = xlOartVerticalOverflowOverflow
-        .Characters.Font.Color = RGB(0, 0, 0)
+        If nd.status = "active" Then
+            .Characters.Font.Color = RGB(218, 165, 32)
+        ElseIf nd.status = "inactive" Then
+            .Characters.Font.Color = RGB(169, 169, 169)
+        Else
+            .Characters.Font.Color = RGB(0, 0, 0)
+        End If
         .Characters.Font.Size = 13 * 0.75
         .MarginTop = 5.67 * 0.75
         .MarginBottom = 0
@@ -973,8 +1013,17 @@ Private Sub DrawEdge(ws As Worksheet, ed As EdgeData, _
     conn.ConnectorFormat.BeginConnect fromShp, fromSite
     conn.ConnectorFormat.EndConnect toShp, toSite
 
-    ' カギ線の微妙な段差を解消
-    If ct = msoConnectorElbow And conn.height <= 1 And conn.width <= 30 Then conn.height = 0
+    ' x位置またはy位置が同じ直線なのにExcelで発生するカギ線の微妙な段差を解消する対応
+    If ct = msoConnectorElbow And conn.height <= 1 Then
+        If nodes(fi).x = nodes(ti).x Then
+            If nodes(fi).y < nodes(ti).y And ed.fromCP = "bottom" And ed.toCP = "top" Then conn.height = 0
+            If nodes(fi).y > nodes(ti).y And ed.fromCP = "top" And ed.toCP = "bottom" Then conn.height = 0
+        End If
+        If nodes(fi).y = nodes(ti).y Then
+            If nodes(fi).x < nodes(ti).x And ed.fromCP = "right" And ed.toCP = "left" Then conn.height = 0
+            If nodes(fi).x > nodes(ti).x And ed.fromCP = "left" And ed.toCP = "right" Then conn.height = 0
+        End If
+    End If
 
     ' 線スタイル（太さ 1.75pt、矢印は終点のみ）
     With conn.Line
@@ -1211,16 +1260,16 @@ End Sub
 ' ============================================================
 
 ' "#rrggbb" 形式の色文字列をExcel RGB値に変換
-Private Function HexToRGB(hexColor As String) As Long
+Private Function HexToRgb(hexColor As String) As Long
     Dim s As String
     s = Trim(Replace(hexColor, "#", ""))
 
     If Len(s) < 6 Then
-        HexToRGB = RGB(255, 255, 255)  ' デフォルト: 白
+        HexToRgb = RGB(255, 255, 255)  ' デフォルト: 白
         Exit Function
     End If
 
-    HexToRGB = RGB(CLng("&H" & Mid(s, 1, 2)), _
+    HexToRgb = RGB(CLng("&H" & Mid(s, 1, 2)), _
                    CLng("&H" & Mid(s, 3, 2)), _
                    CLng("&H" & Mid(s, 5, 2)))
 End Function

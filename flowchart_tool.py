@@ -1918,9 +1918,8 @@ class FlowchartTool(tk.Tk):
         for selected_node_id in self.selected_node_ids:
             if selected_node_id in self.nodes:
                 node_obj = self.nodes[selected_node_id]
-                node_obj.fill_color = None
-                fill_color = node_obj.get_fill_color()
-                self.canvas.itemconfig(node_obj.shape_id, fill=fill_color)
+                node_obj.fill_color = node_obj.get_fill_color()
+                self.canvas.itemconfig(node_obj.shape_id, fill=node_obj.fill_color)
 
         self.push_history()
 
