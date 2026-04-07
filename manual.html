@@ -337,6 +337,7 @@
   <a href="#" onclick="show('overview')">概要・特徴</a>
   <a href="#" onclick="show('screen')">画面構成</a>
   <a href="#" onclick="show('startup')">インストール・実行方法</a>
+  <a href="#" onclick="show('excelconv')">Excel作図VBAの使い方</a>
 
   <div class="category">要素の配置</div>
   <a href="#" onclick="show('nodes')">フローチャート要素</a>
@@ -394,12 +395,14 @@
       <li>Undo / Redo で作業を自由に戻せる</li>
       <li>ノードの塗りつぶし色を 10 色から選択可能</li>
       <li>ノードのステータス（Normal / Active / Inactive）をビジュアルで切り替え</li>
+      <li><strong>NEW</strong> ツールで作図したフローチャートデータを読み込んで、Excel上でのフローチャート作図を可能に</li>
     </ul>
 
-    <h3>動作環境</h3>
+    <h3>動作環境</h3
     <ul>
       <li>Python 実行可能な環境（Windows11 および macOS26.4にて動作確認）</li>
       <li>Tkinter の Canvas が利用できること（Google Colaboratory など Web 環境は不可）</li>
+      <li>Excelでのフローチャート作図機能は、現状、Windows環境のみ対応（macOS版は検討中）</li>
     </ul>
   </div>
 
@@ -468,6 +471,33 @@
     <h3>終了</h3>
     <p>ウィンドウを閉じようとすると確認ダイアログが表示されます。自動保存には対応していないので、編集データを保存してから終了するようにしてください。</p>
   </div>
+
+  <!-- ======= Excel作図VBAの使い方 ======= -->
+  <div class="page" id="page-excelconv">
+    <h2>Excel作図VBA(Windows版)の使い方</h2>
+
+    <h3>ExcelファイルにVBAを登録</h3>
+    <ol class="steps">
+      <li>Excelを起動し、フローチャートを作図したいブックを開く</li>
+      <li>VisualBasicエディタを起動（VisualBasicエディタの利用方法はネット等でお調べください）</li>
+      <li>VisualBasicエディタの「ファイル」メニューから「ファイルのインポート」を選択</li>
+      <li>ファイルダイアログで、 ExcelShapesDrawingWithJSON.bas を選択</li>
+      <li>標準モジュールに ExcelShapesDrawingWithJSON が登録されていれば、登録完了です。</li>
+    </ol>
+    <div class="tip">前提条件：VBAはWindows版のExcelでのみ利用可能です。macOS版は対応検討中です。</div>
+    <div class="tip">本VBA実行は単独で動作するため、他のライブラリや参照設定は不要です。</div>
+
+    <h3>VBA実行</h3>
+    <ol class="steps">
+      <li>Excelを起動し、上記VBAが登録されているブックを開く</li>
+      <li>フローチャートを作図したいシートを選択</li>
+      <li>マクロ画面で DrawFlowchat を実行</li>
+      <li>ファイルダイアログで、インポートするJSONファイルを選択</li>
+      <li>Excelアクティブシートに自動描画されます。必要に応じてフローチャートを調整してください。</li>
+    </ol>
+    <div class="tip">概ね、ツールで作図した内容がExcel上に反映されますが、リンクの接続点や回り込みなどで手動調整が必要な場合があります。</div>
+
+   </div>
 
   <!-- ======= ノード ======= -->
   <div class="page" id="page-nodes">
