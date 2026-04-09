@@ -37,7 +37,7 @@
       "y": 217,
       "w": 120,
       "h": 45,
-      "text": "必須項目不足 または形式不正?",
+      "text": "必須項目不足\nまたは形式不正?",
       "fill_color": "#FFFFFF"
     },
     {
@@ -47,7 +47,7 @@
       "y": 217,
       "w": 120,
       "h": 45,
-      "text": "エラーメッセージ 表示",
+      "text": "エラーメッセージ\n表示",
       "fill_color": "#FFFFFF"
     },
     {
@@ -97,7 +97,7 @@
       "y": 457,
       "w": 120,
       "h": 45,
-      "text": "アカウント 状態正常?",
+      "text": "アカウント\n状態正常?",
       "fill_color": "#FFFFFF"
     },
     {
@@ -107,7 +107,7 @@
       "y": 877,
       "w": 120,
       "h": 45,
-      "text": "アカウントロック または無効表示",
+      "text": "アカウントロック\nまたは無効表示",
       "fill_color": "#FFFFFF"
     },
     {
@@ -290,7 +290,8 @@
       "line_style": "solid",
       "connection_mode": "auto",
       "from_connection_point": "right",
-      "to_connection_point": "right"
+      "to_connection_point": "right",
+      "edge_wrap_ratio1": -0.21818181818181817
     },
     {
       "from_id": 4,
@@ -492,7 +493,8 @@
       "line_style": "solid",
       "connection_mode": "manual",
       "from_connection_point": "bottom",
-      "to_connection_point": "top"
+      "to_connection_point": "top",
+      "edge_wrap_ratio1": 0.5
     },
     {
       "from_id": 21,
@@ -510,7 +512,8 @@
       "line_style": "solid",
       "connection_mode": "manual",
       "from_connection_point": "bottom",
-      "to_connection_point": "top"
+      "to_connection_point": "top",
+      "edge_wrap_ratio1": 0.5
     },
     {
       "from_id": 24,
@@ -529,6 +532,7 @@
       "connection_mode": "manual",
       "from_connection_point": "right",
       "to_connection_point": "right",
+      "edge_wrap_ratio1": 1.2,
       "label": "No",
       "label_x": 353.0,
       "label_y": 457,

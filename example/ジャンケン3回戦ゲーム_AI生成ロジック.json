@@ -17,7 +17,7 @@
       "y": 112,
       "w": 120,
       "h": 45,
-      "text": "初期化（回数=0、勝敗カウント=0）",
+      "text": "初期化（回数=0、\n勝敗カウント=0）",
       "fill_color": "#FFFFFF"
     },
     {
@@ -27,7 +27,7 @@
       "y": 172,
       "w": 120,
       "h": 45,
-      "text": "ラウンド開始（回数+1）",
+      "text": "ラウンド開始\n（回数+1）",
       "fill_color": "#FFFFFF"
     },
     {
@@ -37,7 +37,7 @@
       "y": 232,
       "w": 120,
       "h": 45,
-      "text": "ユーザーに手を入力させる（グー・チョキ・パー）",
+      "text": "ユーザーに手を入力\nさせる（グー・チョ\nキ・パー）",
       "fill_color": "#FFFFFF"
     },
     {
@@ -57,7 +57,7 @@
       "y": 292,
       "w": 120,
       "h": 45,
-      "text": "エラーメッセージ表示（再入力促し）",
+      "text": "エラーメッセージ\n表示（再入力促し）",
       "fill_color": "#FFFFFF"
     },
     {
@@ -67,7 +67,7 @@
       "y": 352,
       "w": 120,
       "h": 45,
-      "text": "コンピュータの手を決定（乱数）",
+      "text": "コンピュータの手を\n決定（乱数）",
       "fill_color": "#FFFFFF"
     },
     {
@@ -77,7 +77,7 @@
       "y": 412,
       "w": 120,
       "h": 45,
-      "text": "勝敗判定（ユーザー手 vs コンピュータ手）",
+      "text": "勝敗判定（ユーザー\n手 vs コンピュータ\n手）",
       "fill_color": "#FFFFFF"
     },
     {
@@ -107,7 +107,7 @@
       "y": 532,
       "w": 120,
       "h": 45,
-      "text": "コンピュータ勝ち数+1",
+      "text": "コンピュータ勝ち数\n+1",
       "fill_color": "#FFFFFF"
     },
     {
@@ -117,7 +117,7 @@
       "y": 532,
       "w": 120,
       "h": 45,
-      "text": "あいこ（カウントなし）",
+      "text": "あいこ（カウント\nなし）",
       "fill_color": "#FFFFFF"
     },
     {
@@ -127,7 +127,7 @@
       "y": 592,
       "w": 120,
       "h": 45,
-      "text": "ラウンド結果表示（両者の手・勝敗）",
+      "text": "ラウンド結果表示\n（両者の手・勝敗）",
       "fill_color": "#FFFFFF"
     },
     {
@@ -147,7 +147,7 @@
       "y": 712,
       "w": 120,
       "h": 45,
-      "text": "最終結果集計（勝ち数比較）",
+      "text": "最終結果集計\n（勝ち数比較）",
       "fill_color": "#FFFFFF"
     },
     {
@@ -167,7 +167,7 @@
       "y": 832,
       "w": 120,
       "h": 45,
-      "text": "最終結果表示（ユーザー勝ち・負け・引き分け）",
+      "text": "最終結果表示\n（ユーザー勝ち・\n負け・引き分け）",
       "fill_color": "#FFFFFF"
     },
     {
@@ -240,7 +240,8 @@
       "connection_mode": "auto",
       "from_connection_point": "right",
       "to_connection_point": "right",
-      "edge_wrap_margin": 21.0
+      "edge_wrap_margin": 21.0,
+      "edge_wrap_ratio1": -0.14
     },
     {
       "from_id": 5,
@@ -379,6 +380,7 @@
       "from_connection_point": "right",
       "to_connection_point": "right",
       "edge_wrap_margin": 201.0,
+      "edge_wrap_ratio1": 150.75,
       "label": "No",
       "label_x": 443.0,
       "label_y": 658,
@@ -416,6 +418,7 @@
       "connection_mode": "manual",
       "from_connection_point": "left",
       "to_connection_point": "left",
+      "edge_wrap_ratio1": -3.0,
       "label": "ユーザー勝ち",
       "label_x": 307.0,
       "label_y": 772,
@@ -439,6 +442,7 @@
       "connection_mode": "manual",
       "from_connection_point": "right",
       "to_connection_point": "right",
+      "edge_wrap_ratio1": -3.0,
       "label": "コンピュータ勝ち",
       "label_x": 443.0,
       "label_y": 772,

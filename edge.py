@@ -24,6 +24,8 @@ class Edge:
     from_node_connection_point:Literal["top", "bottom", "left", "right", "auto", None] = None
     to_node_connection_point:Literal["top", "bottom", "left", "right", "auto", None] = None
     edge_wrap_margin = None
+    edge_wrap_ratio1 = None
+    edge_wrap_ratio2 = None
 
     def __init__(self, edge_type:Literal["elbow", "line"]="elbow", line_style:Literal["solid", "dashed", "dotted"]="solid", \
                     from_node_obj=None, to_node_obj=None, points=None, text=None, \
@@ -62,6 +64,8 @@ class Edge:
             self.points = points  # List of (x, y) tuples
             self.label_x = label_x
             self.label_y = label_y
+
+        self.edge_wrap_ratio1, self.edge_wrap_ratio2 = self.get_edge_wrap_ratios()
 
         if canvas is not None:
             self.draw(canvas, from_node_obj, to_node_obj, text)
@@ -1324,6 +1328,7 @@ class Edge:
         self.from_node_connection_point = from_node_connection_point
         self.to_node_connection_point = to_node_connection_point
         self.edge_wrap_margin = None
+        self.edge_wrap_ratio1, self.edge_wrap_ratio2 = self.get_edge_wrap_ratios()
 
         if canvas is not None:
             self._update_edge(canvas)
@@ -1529,7 +1534,8 @@ class Edge:
                     self.edge_wrap_margin = distance_to_node
                     vertex_x = max(from_x, to_x) + self.edge_wrap_margin
                     self.points = [from_x, from_y, vertex_x, from_y, vertex_x, to_y, to_x, to_y]
-        
+
+        self.edge_wrap_ratio1, self.edge_wrap_ratio2 = self.get_edge_wrap_ratios()
 
         if canvas is not None:
             self.refresh_edge(canvas)
@@ -1617,6 +1623,8 @@ class Edge:
                     vertex_x = from_x - self.edge_wrap_margin
                     self.points = [from_x, from_y, vertex_x, from_y, vertex_x, vertex3_y, to_x, vertex3_y, to_x, to_y]
 
+        self.edge_wrap_ratio1, self.edge_wrap_ratio2 = self.get_edge_wrap_ratios()
+
         if canvas is not None:
             self.refresh_edge(canvas)
 
@@ -1649,6 +1657,8 @@ class Edge:
                 self.edge_wrap_margin = distance_to_from_node
                 vertex2_x = from_x + self.edge_wrap_margin
                 self.points = [from_x, from_y, from_x, vertex1_y, vertex2_x, vertex1_y, vertex2_x, vertex3_y, to_x, vertex3_y, to_x, to_y]
+
+        self.edge_wrap_ratio1, self.edge_wrap_ratio2 = self.get_edge_wrap_ratios()
 
         if canvas is not None:
             self.refresh_edge(canvas)
@@ -1807,6 +1817,160 @@ class Edge:
                 labe_justify = "right"
         return label_x, label_y, label_anchor, labe_justify
 
+    def get_edge_wrap_ratios(self):
+        if self.points is None:
+            print("get_edge_wrap_ratios: points is None")
+            return None, None
+        point_num = len(self.points)
+        from_X = self.points[0]
+        from_Y = self.points[1]
+        to_X = self.points[-2]
+        to_Y = self.points[-1]
+        from_side = self.from_node_connection_point
+        to_side = self.to_node_connection_point
+        item1_ratio = None
+        item2_ratio = None
+        if from_side == "bottom" and to_side == "top":
+            if point_num == 8:
+                mid_Y = self.points[3]
+                item1_ratio = (mid_Y - from_Y) / (to_Y - from_Y)
+                item2_ratio = None
+            elif point_num == 12:
+                if from_X == to_X:
+                    mid_X = self.points[4]
+                    item1_ratio = None
+                    item2_ratio = -(mid_X - from_X) * 0.75    # このケースでX座標が同じ場合は、Excelでのオフセット距離はポイント指定になる
+                else:
+                    mid_X = self.points[4]
+                    item1_ratio = None
+                    item2_ratio = (mid_X - from_X) / (to_X - from_X)
+        elif from_side == "bottom" and to_side == "right":
+            if point_num == 10:
+                mid_X = self.points[4]
+                item1_ratio = None
+                item2_ratio = (mid_X - from_X) / (to_X - from_X)
+        elif from_side == "bottom" and to_side == "left":
+            if point_num == 10:
+                mid_X = self.points[4]
+                item1_ratio = None
+                item2_ratio = (mid_X - from_X) / (to_X - from_X)
+        elif from_side == "bottom" and to_side == "bottom":
+            if point_num == 8:
+                if from_Y == to_Y:
+                    mid_Y = self.points[3]
+                    item1_ratio = (mid_Y - from_Y) * 0.75    # このケースでY座標が同じ場合は、Excelでのオフセット距離はポイント指定になる
+                    item2_ratio = None
+                else:
+                    mid_Y = self.points[3]
+                    item1_ratio = (mid_Y - from_Y) / (to_Y - from_Y)
+                    item2_ratio = None
+        elif from_side == "right" and to_side == "top":
+            if point_num == 10:
+                mid_X = self.points[2]
+                item1_ratio = (mid_X - from_X) / (to_X - from_X)
+                item2_ratio = None
+        elif from_side == "right" and to_side == "right":
+            if point_num == 8:
+                mid_X = self.points[2]
+                if from_X == to_X:    # 両端がプロセスでX座標が同じ場合は、Excelでのオフセット距離はポイント指定になる
+                    if self.from_node_obj.type == "io" and self.to_node_obj.type != "io" or self.from_node_obj.type != "io" and self.to_node_obj.type == "io":
+                        item1_ratio = -(mid_X - from_X) / 12
+                        item2_ratio = None
+                    else:
+                        item1_ratio = (mid_X - from_X) * 0.75    # このケースでX座標が同じ場合は、Excelでのオフセット距離はポイント指定になる
+                        item2_ratio = None
+                else:
+                    item1_ratio = (mid_X - from_X) / (to_X - from_X)
+                    item2_ratio = None
+        elif from_side == "right" and to_side == "left":
+            if point_num == 8:
+                mid_X = self.points[2]
+                item1_ratio = (mid_X - from_X) / (to_X - from_X)
+                item2_ratio = None
+            elif point_num == 12:    # 現状、この回り込みパターンは現状未対応
+                mid_Y = self.points[5]
+                if from_Y == to_Y:
+                    item1_ratio = None
+                    item2_ratio = (mid_Y - from_Y) * 0.75    # このケースでY座標が同じ場合は、Excelでのオフセット距離はポイント指定になる
+                else:
+                    item1_ratio = None
+                    item2_ratio = (mid_Y - from_Y) / (to_Y - from_Y)
+        elif from_side == "right" and to_side == "bottom":
+            if point_num == 10:
+                mid_X = self.points[2]
+                item1_ratio = (mid_X - from_X) / (to_X - from_X)
+                item2_ratio = None
+        elif from_side == "left" and to_side == "right":
+            if point_num == 8:
+                mid_X = self.points[2]
+                item1_ratio = (mid_X - from_X) / (to_X - from_X)
+                item2_ratio = None
+            if point_num == 12:    # 現状、この回り込みパターンは現状未対応
+                mid_Y = self.points[5]
+                if from_Y == to_Y:
+                    item1_ratio = None
+                    item2_ratio = -(mid_Y - from_Y) * 0.75    # このケースでY座標が同じ場合は、Excelでのオフセット距離はポイント指定になる
+                else:
+                    item1_ratio = None
+                    item2_ratio = (mid_Y - from_Y) / (to_Y - from_Y)
+        elif from_side == "left" and to_side == "left":
+            if point_num == 8:
+                mid_X = self.points[2]
+                if from_X == to_X:    # 両端がプロセスでX座標が同じ場合は、Excelでのオフセット距離はポイント指定になる
+                    if self.from_node_obj.type == "io" and self.to_node_obj.type != "io" or self.from_node_obj.type != "io" and self.to_node_obj.type == "io":
+                        item1_ratio = (mid_X - from_X) / 12
+                        item2_ratio = None
+                    else:
+                        item1_ratio = -(mid_X - from_X) * 0.75    # このケースでX座標が同じ場合は、Excelでのオフセット距離はポイント指定になる
+                        item2_ratio = None
+                else:
+                    item1_ratio = (mid_X - from_X) / (to_X - from_X)
+                    item2_ratio = None
+        elif from_side == "left" and to_side == "bottom":
+            if point_num == 10:
+                mid_X = self.points[2]
+                item1_ratio = (mid_X - from_X) / (to_X - from_X)
+                item2_ratio = None
+        elif from_side == "top" and to_side == "top":
+            if point_num == 8:
+                if from_Y == to_Y:
+                    mid_Y = self.points[3]
+                    item1_ratio = -(mid_Y - from_Y) * 0.75    # このケースでY座標が同じ場合は、Excelでのオフセット距離はポイント指定になる
+                    item2_ratio = None
+                else:
+                    mid_Y = self.points[3]
+                    item1_ratio = (mid_Y - from_Y) / (to_Y - from_Y)
+                    item2_ratio = None
+        elif from_side == "top" and to_side == "right":
+            if point_num == 10:
+                mid_X = self.points[4]
+                item1_ratio = None
+                item2_ratio = (mid_X - from_X) / (to_X - from_X)
+        elif from_side == "top" and to_side == "left":
+            if point_num == 10:
+                mid_X = self.points[4]
+                item1_ratio = None
+                item2_ratio = (mid_X - from_X) / (to_X - from_X)
+        elif from_side == "top" and to_side == "bottom":
+            if point_num == 8:
+                mid_Y = self.points[3]
+                item1_ratio = (mid_Y - from_Y) / (to_Y - from_Y)
+                item2_ratio = None
+            elif point_num == 12:
+                mid_X = self.points[4]
+                if from_X == to_X:
+                    item1_ratio = (mid_X - from_X) * 0.75    # このケースでX座標が同じ場合は、Excelでのオフセット距離はポイント指定になる
+                    item2_ratio = None
+                else:
+                    item1_ratio = None
+                    item2_ratio = (mid_X - from_X) / (to_X - from_X)
+        else:
+            item1_ratio = None
+            item2_ratio = None
+
+        print(f"get_edge_wrap_ratios: from_side={from_side}, to_side={to_side}, edge_wrap_margin={self.edge_wrap_margin} item1_ratio={item1_ratio}, item2_ratio={item2_ratio}")
+        return item1_ratio, item2_ratio
+
     def to_dict(self):
         """エッジオブジェクトを辞書化"""
         edge_data = {
@@ -1817,14 +1981,21 @@ class Edge:
             edge_data["edge_type"] = self.edge_type
         if self.line_style is not None:
             edge_data["line_style"] = self.line_style
+
         if self.connection_mode is not None:
             edge_data["connection_mode"] = self.connection_mode
         if self.from_node_connection_point is not None:
             edge_data["from_connection_point"] = self.from_node_connection_point
         if self.to_node_connection_point is not None:
             edge_data["to_connection_point"] = self.to_node_connection_point
+
         if self.edge_wrap_margin is not None:
             edge_data["edge_wrap_margin"] = self.edge_wrap_margin
+        if self.edge_wrap_ratio1 is not None:
+            edge_data["edge_wrap_ratio1"] = self.edge_wrap_ratio1
+        if self.edge_wrap_ratio2 is not None:
+            edge_data["edge_wrap_ratio2"] = self.edge_wrap_ratio2
+
         if self.label_text is not None:
             edge_data["label"] = self.label_text
         if self.label_text is not None:

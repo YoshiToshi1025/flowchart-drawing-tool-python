@@ -87,7 +87,7 @@
       "y": 622,
       "w": 120,
       "h": 45,
-      "text": "ヒット判定＆スコア更新",
+      "text": "ヒット判定＆\nスコア更新",
       "fill_color": "#FFFFFF"
     },
     {
@@ -190,7 +190,8 @@
       "connection_mode": "auto",
       "from_connection_point": "left",
       "to_connection_point": "left",
-      "edge_wrap_margin": 138.0
+      "edge_wrap_margin": 138.0,
+      "edge_wrap_ratio1": 103.5
     },
     {
       "from_id": 1,
@@ -309,7 +310,8 @@
       "line_style": "solid",
       "connection_mode": "auto",
       "from_connection_point": "bottom",
-      "to_connection_point": "top"
+      "to_connection_point": "top",
+      "edge_wrap_ratio1": 0.5
     },
     {
       "from_id": 19,
@@ -332,7 +334,8 @@
       "line_style": "solid",
       "connection_mode": "auto",
       "from_connection_point": "bottom",
-      "to_connection_point": "top"
+      "to_connection_point": "top",
+      "edge_wrap_ratio1": 0.5
     },
     {
       "from_id": 12,
@@ -341,7 +344,8 @@
       "line_style": "solid",
       "connection_mode": "auto",
       "from_connection_point": "bottom",
-      "to_connection_point": "top"
+      "to_connection_point": "top",
+      "edge_wrap_ratio1": 0.5
     },
     {
       "from_id": 16,
@@ -374,7 +378,8 @@
       "line_style": "solid",
       "connection_mode": "auto",
       "from_connection_point": "bottom",
-      "to_connection_point": "top"
+      "to_connection_point": "top",
+      "edge_wrap_ratio1": 0.5
     },
     {
       "from_id": 22,
@@ -407,6 +412,7 @@
       "connection_mode": "manual",
       "from_connection_point": "right",
       "to_connection_point": "right",
+      "edge_wrap_ratio1": -0.12631578947368421,
       "label": "Yes",
       "label_x": 698.0,
       "label_y": 463,

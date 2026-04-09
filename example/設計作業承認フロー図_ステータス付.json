@@ -13,7 +13,7 @@
     {
       "id": 2,
       "type": "terminator",
-      "x": 907,
+      "x": 922,
       "y": 82,
       "w": 45,
       "h": 45,
@@ -195,6 +195,7 @@
       "connection_mode": "auto",
       "from_connection_point": "right",
       "to_connection_point": "left",
+      "edge_wrap_ratio1": 0.5,
       "label": "最終承認",
       "label_position": "p1sw",
       "label_x": 743.0,

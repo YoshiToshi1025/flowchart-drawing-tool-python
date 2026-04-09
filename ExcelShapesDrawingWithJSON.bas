@@ -53,6 +53,8 @@ Private Type EdgeData
     labelAnchor    As String   ' ラベル基準位置 center/n/ne/e/se/s/sw/w/nw
     labelJustify   As String   ' 基準位置におけるラベル配置位置 left/center/right
     edgeWrapMargin As Double   ' エッジ回り込み距離(pt) ※未対応
+    edgeWrapRatio1 As Double   ' Item1のエッジ回り込み割合
+    edgeWrapRatio2 As Double   ' Item2のエッジ回り込み割合
 End Type
 
 ' スイムレーン情報
@@ -458,6 +460,10 @@ Private Sub ParseEdgeObj(ed As EdgeData)
                 ed.labelJustify = JsonStr()
             Case "edge_wrap_margin"
                 ed.edgeWrapMargin = CDbl(Val(JsonNum())) * 0.75
+            Case "edge_wrap_ratio1"
+                ed.edgeWrapRatio1 = CDbl(Val(JsonNum()))
+            Case "edge_wrap_ratio2"
+                ed.edgeWrapRatio2 = CDbl(Val(JsonNum()))
             Case Else
                 Call JsonSkip
         End Select
@@ -1023,6 +1029,14 @@ Private Sub DrawEdge(ws As Worksheet, ed As EdgeData, _
             If nodes(fi).x < nodes(ti).x And ed.fromCP = "right" And ed.toCP = "left" Then conn.height = 0
             If nodes(fi).x > nodes(ti).x And ed.fromCP = "left" And ed.toCP = "right" Then conn.height = 0
         End If
+    End If
+    
+    ' エッジ回り込み設定
+    If ed.edgeWrapRatio1 <> 0 Then
+        conn.Adjustments.Item(1) = ed.edgeWrapRatio1
+    End If
+    If ed.edgeWrapRatio2 <> 0 Then
+        conn.Adjustments.Item(2) = ed.edgeWrapRatio2
     End If
 
     ' 線スタイル（太さ 1.75pt、矢印は終点のみ）

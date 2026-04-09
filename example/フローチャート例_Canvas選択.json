@@ -17,7 +17,7 @@
       "y": 277,
       "w": 120,
       "h": 45,
-      "text": "選択Nodeを選択状態に",
+      "text": "選択Nodeを\n選択状態に",
       "fill_color": "#FFFFFF"
     },
     {
@@ -47,7 +47,7 @@
       "y": 277,
       "w": 120,
       "h": 45,
-      "text": "指定範囲内のNodeを選択状態に",
+      "text": "指定範囲内のNode\nを選択状態に",
       "fill_color": "#FFFFFF"
     },
     {
@@ -57,7 +57,7 @@
       "y": 277,
       "w": 120,
       "h": 45,
-      "text": "選択Linkを選択状態に",
+      "text": "選択Linkを\n選択状態に",
       "fill_color": "#FFFFFF"
     },
     {
@@ -77,7 +77,7 @@
       "y": 277,
       "w": 120,
       "h": 45,
-      "text": "Nodeテキストの編集モードへ",
+      "text": "Nodeテキストの\n編集モードへ",
       "fill_color": "#FFFFFF"
     },
     {
@@ -97,7 +97,7 @@
       "y": 277,
       "w": 120,
       "h": 45,
-      "text": "Linkテキストの編集モードへ",
+      "text": "Linkテキストの\n編集モードへ",
       "fill_color": "#FFFFFF"
     },
     {
@@ -161,7 +161,8 @@
       "line_style": "solid",
       "connection_mode": "auto",
       "from_connection_point": "bottom",
-      "to_connection_point": "top"
+      "to_connection_point": "top",
+      "edge_wrap_ratio1": 0.5
     },
     {
       "from_id": 2,
@@ -170,7 +171,8 @@
       "line_style": "solid",
       "connection_mode": "auto",
       "from_connection_point": "bottom",
-      "to_connection_point": "top"
+      "to_connection_point": "top",
+      "edge_wrap_ratio1": 0.5
     },
     {
       "from_id": 8,
@@ -179,7 +181,8 @@
       "line_style": "solid",
       "connection_mode": "auto",
       "from_connection_point": "bottom",
-      "to_connection_point": "top"
+      "to_connection_point": "top",
+      "edge_wrap_ratio1": 0.5
     },
     {
       "from_id": 9,
@@ -244,7 +247,8 @@
       "line_style": "solid",
       "connection_mode": "auto",
       "from_connection_point": "bottom",
-      "to_connection_point": "top"
+      "to_connection_point": "top",
+      "edge_wrap_ratio1": 0.5
     },
     {
       "from_id": 13,
@@ -253,7 +257,8 @@
       "line_style": "solid",
       "connection_mode": "auto",
       "from_connection_point": "bottom",
-      "to_connection_point": "top"
+      "to_connection_point": "top",
+      "edge_wrap_ratio1": 0.5
     },
     {
       "from_id": 1,

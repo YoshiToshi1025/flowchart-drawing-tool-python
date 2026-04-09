@@ -17,7 +17,7 @@
       "y": 97,
       "w": 120,
       "h": 45,
-      "text": "User Inputs Username and Password",
+      "text": "User Inputs\nUsername and\nPassword",
       "fill_color": "#FFFFFF"
     },
     {
@@ -27,7 +27,7 @@
       "y": 157,
       "w": 120,
       "h": 45,
-      "text": "Validate Input Format",
+      "text": "Validate Input\nFormat",
       "fill_color": "#FFFFFF"
     },
     {
@@ -47,7 +47,7 @@
       "y": 712,
       "w": 120,
       "h": 45,
-      "text": "Show Input Error Message",
+      "text": "Show Input Error\nMessage",
       "fill_color": "#FFFFFF"
     },
     {
@@ -57,7 +57,7 @@
       "y": 277,
       "w": 120,
       "h": 45,
-      "text": "Lookup User Account",
+      "text": "Lookup User/nAccount",
       "fill_color": "#FFFFFF"
     },
     {
@@ -77,7 +77,7 @@
       "y": 712,
       "w": 120,
       "h": 45,
-      "text": "Show Invalid Credentials Message",
+      "text": "Show Invalid\nCredentials\nMessage",
       "fill_color": "#FFFFFF"
     },
     {
@@ -97,7 +97,7 @@
       "y": 712,
       "w": 120,
       "h": 45,
-      "text": "Show Account Locked Message",
+      "text": "Show Account\nLocked Message",
       "fill_color": "#FFFFFF"
     },
     {
@@ -107,7 +107,7 @@
       "y": 457,
       "w": 120,
       "h": 45,
-      "text": "Verify Password Hash",
+      "text": "Verify Password\nHash",
       "fill_color": "#FFFFFF"
     },
     {
@@ -117,7 +117,7 @@
       "y": 517,
       "w": 120,
       "h": 45,
-      "text": "Password Correct?",
+      "text": "Password\nCorrect?",
       "fill_color": "#FFFFFF"
     },
     {
@@ -127,7 +127,7 @@
       "y": 517,
       "w": 120,
       "h": 45,
-      "text": "Increment Failed Attempts",
+      "text": "Increment Failed\nAttempts",
       "fill_color": "#FFFFFF"
     },
     {
@@ -137,7 +137,7 @@
       "y": 577,
       "w": 120,
       "h": 45,
-      "text": "Failed Attempts Exceed Limit?",
+      "text": "Failed Attempts\nExceed Limit?",
       "fill_color": "#FFFFFF"
     },
     {
@@ -157,7 +157,7 @@
       "y": 577,
       "w": 120,
       "h": 45,
-      "text": "Issue Session Token or Set Auth Cookie",
+      "text": "Issue Session\nToken or Set Auth\nCookie",
       "fill_color": "#FFFFFF"
     },
     {
@@ -167,7 +167,7 @@
       "y": 637,
       "w": 120,
       "h": 45,
-      "text": "Log Successful Login",
+      "text": "Log Successful\nLogin",
       "fill_color": "#FFFFFF"
     },
     {
@@ -230,7 +230,8 @@
       "line_style": "solid",
       "connection_mode": "auto",
       "from_connection_point": "bottom",
-      "to_connection_point": "top"
+      "to_connection_point": "top",
+      "edge_wrap_ratio1": 0.5
     },
     {
       "from_id": 4,
@@ -276,7 +277,8 @@
       "line_style": "solid",
       "connection_mode": "auto",
       "from_connection_point": "bottom",
-      "to_connection_point": "top"
+      "to_connection_point": "top",
+      "edge_wrap_ratio1": 0.5
     },
     {
       "from_id": 7,
@@ -313,7 +315,8 @@
       "line_style": "solid",
       "connection_mode": "auto",
       "from_connection_point": "bottom",
-      "to_connection_point": "top"
+      "to_connection_point": "top",
+      "edge_wrap_ratio1": 0.5
     },
     {
       "from_id": 9,
@@ -382,7 +385,8 @@
       "line_style": "solid",
       "connection_mode": "auto",
       "from_connection_point": "bottom",
-      "to_connection_point": "top"
+      "to_connection_point": "top",
+      "edge_wrap_ratio1": 0.5
     },
     {
       "from_id": 14,

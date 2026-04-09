@@ -266,7 +266,8 @@
       "connection_mode": "manual",
       "from_connection_point": "bottom",
       "to_connection_point": "top",
-      "edge_wrap_margin": 45.0
+      "edge_wrap_margin": 45.0,
+      "edge_wrap_ratio1": 0.6
     },
     {
       "from_id": 7,
@@ -275,7 +276,8 @@
       "line_style": "solid",
       "connection_mode": "auto",
       "from_connection_point": "bottom",
-      "to_connection_point": "top"
+      "to_connection_point": "top",
+      "edge_wrap_ratio1": 0.5
     },
     {
       "from_id": 10,
@@ -284,7 +286,8 @@
       "line_style": "solid",
       "connection_mode": "auto",
       "from_connection_point": "bottom",
-      "to_connection_point": "top"
+      "to_connection_point": "top",
+      "edge_wrap_ratio1": 0.5
     },
     {
       "from_id": 4,
@@ -294,7 +297,8 @@
       "connection_mode": "manual",
       "from_connection_point": "bottom",
       "to_connection_point": "top",
-      "edge_wrap_margin": 90.0
+      "edge_wrap_margin": 90.0,
+      "edge_wrap_ratio1": 0.75
     },
     {
       "from_id": 14,
@@ -369,6 +373,7 @@
       "from_connection_point": "bottom",
       "to_connection_point": "top",
       "edge_wrap_margin": 15.0,
+      "edge_wrap_ratio1": 0.3333333333333333,
       "label": "不要",
       "label_x": 518,
       "label_y": 410.5,
@@ -398,7 +403,8 @@
       "connection_mode": "auto",
       "from_connection_point": "right",
       "to_connection_point": "right",
-      "edge_wrap_margin": 15.0
+      "edge_wrap_margin": 15.0,
+      "edge_wrap_ratio1": -0.09090909090909091
     },
     {
       "from_id": 7,
@@ -407,7 +413,8 @@
       "line_style": "solid",
       "connection_mode": "auto",
       "from_connection_point": "bottom",
-      "to_connection_point": "top"
+      "to_connection_point": "top",
+      "edge_wrap_ratio1": 0.5
     },
     {
       "from_id": 24,
@@ -416,7 +423,8 @@
       "line_style": "solid",
       "connection_mode": "auto",
       "from_connection_point": "bottom",
-      "to_connection_point": "top"
+      "to_connection_point": "top",
+      "edge_wrap_ratio1": 0.5
     },
     {
       "from_id": 7,

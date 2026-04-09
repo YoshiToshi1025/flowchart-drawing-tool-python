@@ -169,10 +169,6 @@ pip install -r requirements.txt
 ### Note 2
 
 * Excel VBA import works only on Windows
-* Current limitations:
-
-  * Manual routing adjustments are not reflected
-  * Straight link connections use connector points instead of shortest path
 
 ### Note 3
 

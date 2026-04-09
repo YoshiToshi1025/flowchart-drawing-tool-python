@@ -737,6 +737,7 @@ class FlowchartTool(tk.Tk):
                     edge_obj.change_edge_wrap_margin_4line(increase=increase, canvas=self.canvas)
                 elif len(edge_obj.points) == 12:
                     edge_obj.change_edge_wrap_margin_5line(increase=increase, canvas=self.canvas)
+                
 
     def on_mouse_wheel_ctrl(self, event):
         # print("Ctrl + Mouse Wheel detected")
@@ -1599,6 +1600,8 @@ class FlowchartTool(tk.Tk):
         for edge_line_id, edge_obj in self.edges.items():
             if (edge_obj.from_node_obj and edge_obj.from_node_obj.id == nid) or (edge_obj.to_node_obj and edge_obj.to_node_obj.id == nid):
                 self._update_edge(edge_obj)
+                edge_obj.edge_wrap_ratio1, edge_obj.edge_wrap_ratio2 = edge_obj.get_edge_wrap_ratios()
+
 
         self.canvas.tag_lower("edge", "node")
     
