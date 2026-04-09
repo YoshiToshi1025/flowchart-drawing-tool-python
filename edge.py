@@ -1819,7 +1819,7 @@ class Edge:
 
     def get_edge_wrap_ratios(self):
         if self.points is None:
-            print("get_edge_wrap_ratios: points is None")
+            # print("get_edge_wrap_ratios: points is None")
             return None, None
         point_num = len(self.points)
         from_X = self.points[0]
@@ -1968,7 +1968,7 @@ class Edge:
             item1_ratio = None
             item2_ratio = None
 
-        print(f"get_edge_wrap_ratios: from_side={from_side}, to_side={to_side}, edge_wrap_margin={self.edge_wrap_margin} item1_ratio={item1_ratio}, item2_ratio={item2_ratio}")
+        # print(f"get_edge_wrap_ratios: from_side={from_side}, to_side={to_side}, edge_wrap_margin={self.edge_wrap_margin} item1_ratio={item1_ratio}, item2_ratio={item2_ratio}")
         return item1_ratio, item2_ratio
 
     def to_dict(self):
