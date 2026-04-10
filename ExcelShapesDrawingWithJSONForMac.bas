@@ -75,26 +75,37 @@ Private gJson As String   ' 解析対象JSON文字列
 Private gPos  As Long     ' 現在の解析位置
 
 ' ============================================================
+' パラメータ
+' ============================================================
+Public PointPerPixel As Double  ' 1ピクセルあたりのポイント値（OSや環境で異なる）
+Public BackSlash As String      ' バックスラッシュ文字（WindowsとmacOSで異なる）
+
+
+' ============================================================
 ' エントリーポイント
 ' ============================================================
 Public Sub DrawFlowchart()
 
+    #If Mac Then
+        PointPerPixel = 1#    ' macOSでは1.0に
+        BackSlash = Chr(92)
+    #Else
+        PointPerPixel = 0.75  ' Windowsでは0.75に
+        BackSlash = "\"
+    #End If
+    
     ' --- JSONファイル選択 ---
     Dim filePath As String
-    If Application.OperatingSystem Like "*Mac*" Then
+    #If Mac Then
         filePath = GetJsonFilePathForMacOS()
-    Else
+    #Else
         filePath = GetJsonFilePath()
-    End If
+    #End If
     If filePath = "" Then Exit Sub
 
     ' --- ファイル読み込み ---
     Dim jsonText As String
-    If Application.OperatingSystem Like "*Mac*" Then
-        jsonText = ReadUtf8TextFile(filePath)    ' convert text from UTF-8 to Unicode in JSON File
-    Else
-        jsonText = ReadTextFile(filePath)
-    End If
+    jsonText = ReadTextFile(filePath)
     If jsonText = "" Then
         MsgBox "ファイルの読み込みに失敗しました。" & vbCrLf & filePath, vbCritical, "エラー"
         Exit Sub
@@ -328,13 +339,13 @@ Private Sub ParseNodeObj(nd As NodeData)
             Case "type"
                 nd.nodeType = JsonStr()
             Case "x"
-                nd.x = CDbl(Val(JsonNum())) * 0.75
+                nd.x = CDbl(Val(JsonNum())) * PointPerPixel
             Case "y"
-                nd.y = CDbl(Val(JsonNum())) * 0.75
+                nd.y = CDbl(Val(JsonNum())) * PointPerPixel
             Case "w"
-                nd.w = CDbl(Val(JsonNum())) * 0.75
+                nd.w = CDbl(Val(JsonNum())) * PointPerPixel
             Case "h"
-                nd.h = CDbl(Val(JsonNum())) * 0.75
+                nd.h = CDbl(Val(JsonNum())) * PointPerPixel
             Case "text"
                 nd.cellText = JsonStr()
             Case "fill_color"
@@ -459,15 +470,15 @@ Private Sub ParseEdgeObj(ed As EdgeData)
             Case "label_position"
                 ed.labelPos = JsonStr()
             Case "label_x"
-                ed.labelX = CDbl(Val(JsonNum())) * 0.75
+                ed.labelX = CDbl(Val(JsonNum())) * PointPerPixel
             Case "label_y"
-                ed.labelY = CDbl(Val(JsonNum())) * 0.75
+                ed.labelY = CDbl(Val(JsonNum())) * PointPerPixel
             Case "label_anchor"
                 ed.labelAnchor = JsonStr()
             Case "label_justify"
                 ed.labelJustify = JsonStr()
             Case "edge_wrap_margin"
-                ed.edgeWrapMargin = CDbl(Val(JsonNum())) * 0.75
+                ed.edgeWrapMargin = CDbl(Val(JsonNum())) * PointPerPixel
             Case "edge_wrap_ratio1"
                 ed.edgeWrapRatio1 = CDbl(Val(JsonNum()))
             Case "edge_wrap_ratio2"
@@ -553,13 +564,13 @@ Private Sub ParseSwimlaneObj(sw As SwimlaneData)
             Case "title"
                 sw.title = JsonStr()
             Case "header_center_x"
-                sw.headerCX = CDbl(Val(JsonNum())) * 0.75
+                sw.headerCX = CDbl(Val(JsonNum())) * PointPerPixel
             Case "header_center_y"
-                sw.headerCY = CDbl(Val(JsonNum())) * 0.75
+                sw.headerCY = CDbl(Val(JsonNum())) * PointPerPixel
             Case "width"
-                sw.width = CDbl(Val(JsonNum())) * 0.75
+                sw.width = CDbl(Val(JsonNum())) * PointPerPixel
             Case "height"
-                sw.height = CDbl(Val(JsonNum())) * 0.75
+                sw.height = CDbl(Val(JsonNum())) * PointPerPixel
             Case Else
                 Call JsonSkip
         End Select
@@ -608,7 +619,7 @@ Private Function JsonStr() As String
         If c = """" Then
             gPos = gPos + 1
             Exit Do
-        ElseIf c = "\" Then
+        ElseIf c = BackSlash Then
             gPos = gPos + 1
             If gPos > Len(gJson) Then Exit Do
             c = Mid(gJson, gPos, 1)
@@ -617,7 +628,7 @@ Private Function JsonStr() As String
                 Case "r": result = result & Chr(13)    ' CR
                 Case "t": result = result & Chr(9)     ' タブ
                 Case """": result = result & """"
-                Case "\": result = result & "\"
+                Case BackSlash: result = result & BackSlash
                 Case "/": result = result & "/"
                 Case Else: result = result & c
             End Select
@@ -744,7 +755,8 @@ End Sub
 
 ' スイムレーン1つを描画（本体・ヘッダー・フッターをグループ化）
 Private Sub DrawSwimlane(ws As Worksheet, sw As SwimlaneData)
-    Const HDR_SIZE As Double = 30 * 0.75   ' ヘッダー/フッターの固定サイズ(pt)
+    Dim HDR_SIZE As Double
+    HDR_SIZE = 30 * PointPerPixel   ' ヘッダー/フッターの固定サイズ(pt)
 
     Dim bodyL As Double, bodyT As Double
     Dim bodyW As Double, bodyH As Double
@@ -781,7 +793,7 @@ Private Sub DrawSwimlane(ws As Worksheet, sw As SwimlaneData)
         .Fill.Visible = msoFalse
         .Line.Visible = msoTrue
         .Line.ForeColor.RGB = RGB(0, 0, 0)
-        .Line.Weight = 1 * 0.75
+        .Line.Weight = 1 * PointPerPixel
         .Line.DashStyle = msoLineSolid
         .TextFrame.Characters.text = ""
     End With
@@ -811,7 +823,7 @@ Private Sub ApplySwimlaneHeaderStyle(shp As Shape, title As String, isHoriz As B
     With shp.Line
         .Visible = msoTrue
         .ForeColor.RGB = RGB(0, 0, 0)
-        .Weight = 1 * 0.75
+        .Weight = 1 * PointPerPixel
         .DashStyle = msoLineSolid
     End With
     With shp.TextFrame
@@ -821,14 +833,14 @@ Private Sub ApplySwimlaneHeaderStyle(shp As Shape, title As String, isHoriz As B
         .HorizontalOverflow = xlOartHorizontalOverflowOverflow
         .VerticalOverflow = xlOartVerticalOverflowOverflow
         .Characters.Font.Color = RGB(0, 0, 0)
-        .Characters.Font.Size = 15 * 0.75
+        .Characters.Font.Size = 15 * PointPerPixel
         If isHoriz Then
             .MarginTop = 0
             .MarginBottom = 0
-            .MarginLeft = 7.085 * 0.75
+            .MarginLeft = 7.085 * PointPerPixel
             .MarginRight = 0
         Else
-            .MarginTop = 7.0875 * 0.75
+            .MarginTop = 7.0875 * PointPerPixel
             .MarginBottom = 0
             .MarginLeft = 0
             .MarginRight = 0
@@ -838,7 +850,7 @@ Private Sub ApplySwimlaneHeaderStyle(shp As Shape, title As String, isHoriz As B
         .WordWrap = msoFalse
         With .TextRange.Characters.ParagraphFormat
             .LineRuleWithin = msoTriStateToggle
-            .SpaceWithin = 15.5 * 0.75
+            .SpaceWithin = 15.5 * PointPerPixel
         End With
     End With
     
@@ -886,17 +898,17 @@ Private Sub DrawNode(ws As Worksheet, nd As NodeData)
         If nd.status = "active" Then
             .Visible = msoTrue
             .ForeColor.RGB = RGB(218, 165, 32)
-            .Weight = 2.5 * 0.75
+            .Weight = 2.5 * PointPerPixel
             .DashStyle = msoLineSolid
         ElseIf nd.status = "inactive" Then
             .Visible = msoTrue
             .ForeColor.RGB = RGB(169, 169, 169)
-            .Weight = 1.75 * 0.75
+            .Weight = 1.75 * PointPerPixel
             .DashStyle = msoLineSolid
         Else
             .Visible = msoTrue
             .ForeColor.RGB = RGB(0, 0, 0)
-            .Weight = 1.75 * 0.75
+            .Weight = 1.75 * PointPerPixel
             .DashStyle = msoLineSolid
         End If
     End With
@@ -915,8 +927,8 @@ Private Sub DrawNode(ws As Worksheet, nd As NodeData)
         Else
             .Characters.Font.Color = RGB(0, 0, 0)
         End If
-        .Characters.Font.Size = 13 * 0.75
-        .MarginTop = 5.67 * 0.75
+        .Characters.Font.Size = 13 * PointPerPixel
+        .MarginTop = 5.67 * PointPerPixel
         .MarginBottom = 0
         .MarginLeft = 0
         .MarginRight = 0
@@ -925,7 +937,7 @@ Private Sub DrawNode(ws As Worksheet, nd As NodeData)
         .WordWrap = msoFalse
         With .TextRange.Characters.ParagraphFormat
             .LineRuleWithin = msoTriStateToggle
-            .SpaceWithin = 14 * 0.75
+            .SpaceWithin = 14 * PointPerPixel
         End With
     End With
 
@@ -1049,7 +1061,7 @@ Private Sub DrawEdge(ws As Worksheet, ed As EdgeData, _
 
     ' 線スタイル（太さ 1.75pt、矢印は終点のみ）
     With conn.Line
-        .Weight = 1.75 * 0.75
+        .Weight = 1.75 * PointPerPixel
         .ForeColor.RGB = RGB(0, 0, 0)
         Select Case LCase(Trim(ed.lineStyle))
             Case "dotted": .DashStyle = msoLineSysDot
@@ -1116,7 +1128,7 @@ Private Sub DrawEdge(ws As Worksheet, ed As EdgeData, _
             .HorizontalOverflow = xlOartHorizontalOverflowOverflow
             .VerticalOverflow = xlOartVerticalOverflowOverflow
             .Characters.Font.Color = RGB(0, 0, 0)
-            .Characters.Font.Size = 12 * 0.75
+            .Characters.Font.Size = 12 * PointPerPixel
             .MarginTop = 0
             .MarginBottom = 0
             .MarginLeft = 0
@@ -1127,7 +1139,7 @@ Private Sub DrawEdge(ws As Worksheet, ed As EdgeData, _
             .WordWrap = msoFalse
             With .TextRange.Characters.ParagraphFormat
                 .LineRuleWithin = msoTriStateToggle
-                .SpaceWithin = 12.5 * 0.75
+                .SpaceWithin = 12.5 * PointPerPixel
             End With
         End With
     End If
@@ -1318,14 +1330,8 @@ Function ReadUtf8TextFile(ByVal filePath As String) As String
     
     fileNo = FreeFile
     
-    Dim byteFilePath() As Byte
-    byteFilePath = filePath
-    
-    Dim unicodeFilePath As String
-    unicodeFilePath = Utf8BytesToString(byteFilePath, 0)
-    
     ' バイナリで開く
-    Open unicodeFilePath For Binary Access Read As #fileNo
+    Open filePath For Binary Access Read As #fileNo
     
     fileSize = LOF(fileNo)
     If fileSize <= 0 Then

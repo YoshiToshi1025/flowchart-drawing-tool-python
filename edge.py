@@ -3,6 +3,7 @@ import constants as ct
 import node
 from typing import Literal, Tuple
 from math import inf
+import platform
 
 LABEL_POSITION_LIST = ["auto", "p0se", "p0sw", "p0nw", "p0ne", "p1se", "p1sw", "p1nw", "p1ne", "p2se", "p2sw", "p2nw", "p2ne", "p3se", "p3sw", "p3nw", "p3ne", "p4se", "p4sw", "p4nw", "p4ne", "p5se", "p5sw", "p5nw", "p5ne"]
 
@@ -26,6 +27,14 @@ class Edge:
     edge_wrap_margin = None
     edge_wrap_ratio1 = None
     edge_wrap_ratio2 = None
+
+    if platform.system() == "Windows":
+        PointPerPixel = 0.75  # 1 pixel = 0.75 points 
+    elif platform.system() == "Darwin":  # macOS
+        PointPerPixel = 1.0  # 1 pixel = 1.0 points 
+    else:
+        PointPerPixel = 0.75  # 1 pixel = 0.75 points 
+
 
     def __init__(self, edge_type:Literal["elbow", "line"]="elbow", line_style:Literal["solid", "dashed", "dotted"]="solid", \
                     from_node_obj=None, to_node_obj=None, points=None, text=None, \
@@ -1839,7 +1848,7 @@ class Edge:
                 if from_X == to_X:
                     mid_X = self.points[4]
                     item1_ratio = None
-                    item2_ratio = -(mid_X - from_X) * 0.75    # このケースでX座標が同じ場合は、Excelでのオフセット距離はポイント指定になる
+                    item2_ratio = -(mid_X - from_X) * Edge.PointPerPixel    # このケースでX座標が同じ場合は、Excelでのオフセット距離はポイント指定になる
                 else:
                     mid_X = self.points[4]
                     item1_ratio = None
@@ -1858,7 +1867,7 @@ class Edge:
             if point_num == 8:
                 if from_Y == to_Y:
                     mid_Y = self.points[3]
-                    item1_ratio = (mid_Y - from_Y) * 0.75    # このケースでY座標が同じ場合は、Excelでのオフセット距離はポイント指定になる
+                    item1_ratio = (mid_Y - from_Y) * Edge.PointPerPixel    # このケースでY座標が同じ場合は、Excelでのオフセット距離はポイント指定になる
                     item2_ratio = None
                 else:
                     mid_Y = self.points[3]
@@ -1877,7 +1886,7 @@ class Edge:
                         item1_ratio = -(mid_X - from_X) / 12
                         item2_ratio = None
                     else:
-                        item1_ratio = (mid_X - from_X) * 0.75    # このケースでX座標が同じ場合は、Excelでのオフセット距離はポイント指定になる
+                        item1_ratio = (mid_X - from_X) * Edge.PointPerPixel    # このケースでX座標が同じ場合は、Excelでのオフセット距離はポイント指定になる
                         item2_ratio = None
                 else:
                     item1_ratio = (mid_X - from_X) / (to_X - from_X)
@@ -1891,7 +1900,7 @@ class Edge:
                 mid_Y = self.points[5]
                 if from_Y == to_Y:
                     item1_ratio = None
-                    item2_ratio = (mid_Y - from_Y) * 0.75    # このケースでY座標が同じ場合は、Excelでのオフセット距離はポイント指定になる
+                    item2_ratio = (mid_Y - from_Y) * Edge.PointPerPixel    # このケースでY座標が同じ場合は、Excelでのオフセット距離はポイント指定になる
                 else:
                     item1_ratio = None
                     item2_ratio = (mid_Y - from_Y) / (to_Y - from_Y)
@@ -1909,7 +1918,7 @@ class Edge:
                 mid_Y = self.points[5]
                 if from_Y == to_Y:
                     item1_ratio = None
-                    item2_ratio = -(mid_Y - from_Y) * 0.75    # このケースでY座標が同じ場合は、Excelでのオフセット距離はポイント指定になる
+                    item2_ratio = -(mid_Y - from_Y) * Edge.PointPerPixel    # このケースでY座標が同じ場合は、Excelでのオフセット距離はポイント指定になる
                 else:
                     item1_ratio = None
                     item2_ratio = (mid_Y - from_Y) / (to_Y - from_Y)
@@ -1921,7 +1930,7 @@ class Edge:
                         item1_ratio = (mid_X - from_X) / 12
                         item2_ratio = None
                     else:
-                        item1_ratio = -(mid_X - from_X) * 0.75    # このケースでX座標が同じ場合は、Excelでのオフセット距離はポイント指定になる
+                        item1_ratio = -(mid_X - from_X) * Edge.PointPerPixel    # このケースでX座標が同じ場合は、Excelでのオフセット距離はポイント指定になる
                         item2_ratio = None
                 else:
                     item1_ratio = (mid_X - from_X) / (to_X - from_X)
@@ -1935,7 +1944,7 @@ class Edge:
             if point_num == 8:
                 if from_Y == to_Y:
                     mid_Y = self.points[3]
-                    item1_ratio = -(mid_Y - from_Y) * 0.75    # このケースでY座標が同じ場合は、Excelでのオフセット距離はポイント指定になる
+                    item1_ratio = -(mid_Y - from_Y) * Edge.PointPerPixel    # このケースでY座標が同じ場合は、Excelでのオフセット距離はポイント指定になる
                     item2_ratio = None
                 else:
                     mid_Y = self.points[3]
@@ -1959,7 +1968,7 @@ class Edge:
             elif point_num == 12:
                 mid_X = self.points[4]
                 if from_X == to_X:
-                    item1_ratio = (mid_X - from_X) * 0.75    # このケースでX座標が同じ場合は、Excelでのオフセット距離はポイント指定になる
+                    item1_ratio = (mid_X - from_X) * Edge.PointPerPixel    # このケースでX座標が同じ場合は、Excelでのオフセット距離はポイント指定になる
                     item2_ratio = None
                 else:
                     item1_ratio = None
