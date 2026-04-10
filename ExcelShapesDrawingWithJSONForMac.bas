@@ -1,0 +1,1424 @@
+Attribute VB_Name = "ExcelShapesDrawingWithJSON"
+''
+' Excel Shapes Drawing Program to active sheet with Flowchart JSON Data
+' Version 2026.04.07
+' (c) Toshiki Yoshino - https://github.com/YoshiToshi1025/flowchart-drawing-tool-python
+'
+' @author Toshiki Yoshino
+' @license MIT (http://www.opensource.org/licenses/mit-license.php)
+'==============================================================
+
+Option Explicit
+
+'==============================================================
+' フローチャート JSON → Excel 描画マクロ
+' Excel VBA for Microsoft 365
+'
+' JSONファイルに定義されたフローチャートデータ（ノード・エッジ・
+' スイムレーン）を読み込み、アクティブシートに描画する。
+'==============================================================
+
+' ============================================================
+' データ構造定義
+' ============================================================
+
+' ノード（要素）情報
+Private Type NodeData
+    id        As Long     ' 要素ID
+    nodeType  As String   ' ノード種類 terminal/terminator, process, decision, io, storage, document
+    x         As Double   ' 中心x座標(pt)
+    y         As Double   ' 中心y座標(pt)
+    w         As Double   ' 幅(pt)
+    h         As Double   ' 高さ(pt)
+    cellText  As String   ' ラベルテキスト
+    fillColor As String   ' 塗りつぶし色 "#rrggbb"
+    shapeType As String   ' 形状 connector/terminator/rectangle/corner_rounded_rectangle/rounded_rectangle
+    shapeName As String   ' Excelシェイプ名（エッジ接続用）
+    status    As String   ' ステータス normal/active/inactive
+End Type
+
+' エッジ（リンク）情報
+Private Type EdgeData
+    fromId         As Long     ' from側ノードID
+    toId           As Long     ' to側ノードID
+    edgeType       As String   ' elbow, line
+    lineStyle      As String   ' solid, dotted, dashed
+    connMode       As String   ' 自動接続? auto/manual
+    fromCP         As String   ' 接続点 top/left/bottom/right/""(auto)   autoは廃止予定
+    toCP           As String   ' 接続点 top/left/bottom/right/""(auto)   autoは廃止予定
+    edgeLabel      As String   ' ラベルテキスト
+    labelPos       As String   ' ラベル位置 auto/p2se/posw/p0nw/p0ne/p1se/....
+    labelX         As Double   ' ラベルx座標(pt)
+    labelY         As Double   ' ラベルy座標(pt)
+    labelAnchor    As String   ' ラベル基準位置 center/n/ne/e/se/s/sw/w/nw
+    labelJustify   As String   ' 基準位置におけるラベル配置位置 left/center/right
+    edgeWrapMargin As Double   ' エッジ回り込み距離(pt) ※未対応
+    edgeWrapRatio1 As Double   ' Item1のエッジ回り込み割合
+    edgeWrapRatio2 As Double   ' Item2のエッジ回り込み割合
+End Type
+
+' スイムレーン情報
+Private Type SwimlaneData
+    kind      As String   ' vertical, horizontal
+    title     As String   ' ヘッダー/フッターテキスト
+    headerCX  As Double   ' ヘッダー中心x(pt)
+    headerCY  As Double   ' ヘッダー中心y(pt)
+    width     As Double   ' 本体幅(pt)
+    height    As Double   ' 本体高さ(pt)
+    groupName As String   ' グループシェイプ名（Z-order調整用）
+End Type
+
+' ============================================================
+' JSON解析用グローバル変数
+' ============================================================
+Private gJson As String   ' 解析対象JSON文字列
+Private gPos  As Long     ' 現在の解析位置
+
+' ============================================================
+' エントリーポイント
+' ============================================================
+Public Sub DrawFlowchart()
+
+    ' --- JSONファイル選択 ---
+    Dim filePath As String
+    If Application.OperatingSystem Like "*Mac*" Then
+        filePath = GetJsonFilePathForMacOS()
+    Else
+        filePath = GetJsonFilePath()
+    End If
+    If filePath = "" Then Exit Sub
+
+    ' --- ファイル読み込み ---
+    Dim jsonText As String
+    If Application.OperatingSystem Like "*Mac*" Then
+        jsonText = ReadUtf8TextFile(filePath)    ' convert text from UTF-8 to Unicode in JSON File
+    Else
+        jsonText = ReadTextFile(filePath)
+    End If
+    If jsonText = "" Then
+        MsgBox "ファイルの読み込みに失敗しました。" & vbCrLf & filePath, vbCritical, "エラー"
+        Exit Sub
+    End If
+
+    ' --- 描画先シート ---
+    Dim ws As Worksheet
+    Set ws = ActiveSheet
+
+    ' --- データ配列 ---
+    Dim nodes()     As NodeData
+    Dim edges()     As EdgeData
+    Dim swimlanes() As SwimlaneData
+    Dim nCount As Long, eCount As Long, sCount As Long
+    nCount = 0: eCount = 0: sCount = 0
+
+    On Error GoTo ErrHandler
+    Application.ScreenUpdating = False
+
+    ' --- JSON解析 ---
+    Call ParseFlowchartJson(jsonText, nodes, edges, swimlanes, nCount, eCount, sCount)
+
+    ' --- 描画（Z-order: スイムレーン → エッジ → ノード の順で最前面）---
+    ' 描画順: スイムレーン → ノード → エッジ（後でZ-order調整）
+    Call DrawSwimlanes(ws, swimlanes, sCount)
+    Call DrawNodes(ws, nodes, nCount)
+    Call DrawEdges(ws, edges, eCount, nodes, nCount)
+    Call AdjustZOrder(ws, nodes, nCount, swimlanes, sCount)
+
+    Application.ScreenUpdating = True
+    MsgBox "描画完了" & vbCrLf & _
+           "  ノード    : " & nCount & " 個" & vbCrLf & _
+           "  エッジ    : " & eCount & " 個" & vbCrLf & _
+           "  スイムレーン: " & sCount & " 個", vbInformation, "フローチャート描画"
+    Exit Sub
+
+ErrHandler:
+    Application.ScreenUpdating = True
+    MsgBox "エラーが発生しました。" & vbCrLf & _
+           "説明: " & Err.Description & vbCrLf & _
+           "番号: " & Err.Number, vbCritical, "エラー"
+End Sub
+
+' ============================================================
+' ファイル操作
+' ============================================================
+
+' ファイルダイアログでJSONファイルパスを取得
+Private Function GetJsonFilePath() As String
+    With Application.FileDialog(msoFileDialogFilePicker)
+        .title = "JSONファイルを選択してください"
+        .Filters.Clear
+        .Filters.Add "JSONファイル", "*.json"
+        .Filters.Add "すべてのファイル", "*.*"
+        .AllowMultiSelect = False
+        If .Show Then
+            GetJsonFilePath = .SelectedItems(1)
+        End If
+    End With
+End Function
+
+' テキストファイルをUTF-8で読み込む（ADODB.Stream使用）
+Private Function ReadTextFile(filePath As String) As String
+    On Error GoTo FallbackRead
+    ' ADODB.Stream でUTF-8読み込みを試みる
+    Dim stm As Object
+    Set stm = CreateObject("ADODB.Stream")
+    stm.Type = 2          ' adTypeText
+    stm.Charset = "UTF-8"
+    stm.Open
+    stm.LoadFromFile filePath
+    ReadTextFile = stm.ReadText
+    stm.Close
+    Set stm = Nothing
+    Exit Function
+
+FallbackRead:
+    ' フォールバック: 通常のファイル入力
+    On Error GoTo 0
+    Dim fNum As Integer
+    Dim ln   As String
+    Dim buf  As String
+    fNum = FreeFile()
+    Open filePath For Input As #fNum
+    buf = ""
+    Do While Not EOF(fNum)
+        Line Input #fNum, ln
+        buf = buf & ln & Chr(10)
+    Loop
+    Close #fNum
+    ReadTextFile = buf
+End Function
+
+' ============================================================
+' JSON パーサー（メイン）
+' ============================================================
+
+' JSONテキストを解析してノード・エッジ・スイムレーンを配列に格納する
+Private Sub ParseFlowchartJson(jsonText As String, _
+    nodes() As NodeData, edges() As EdgeData, swimlanes() As SwimlaneData, _
+    nCount As Long, eCount As Long, sCount As Long)
+
+    gJson = jsonText
+    gPos = 1
+
+    ' 十分な配列サイズを確保
+    ReDim nodes(0 To 499)
+    ReDim edges(0 To 999)
+    ReDim swimlanes(0 To 99)
+
+    Dim key As String
+    Dim c   As String
+
+    SkipWS
+    ExpectCh "{"
+
+    Do While gPos <= Len(gJson)
+        SkipWS
+        If gPos > Len(gJson) Then Exit Do
+        c = Mid(gJson, gPos, 1)
+        If c = "}" Then
+            gPos = gPos + 1
+            Exit Do
+        End If
+        If c = "," Then
+            gPos = gPos + 1
+            SkipWS
+        End If
+        If gPos > Len(gJson) Then Exit Do
+        c = Mid(gJson, gPos, 1)
+        If c = "}" Then
+            gPos = gPos + 1
+            Exit Do
+        End If
+        If c <> """" Then Exit Do
+
+        key = JsonStr()
+        SkipWS
+        ExpectCh ":"
+        SkipWS
+
+        Select Case key
+            Case "nodes"
+                Call ParseNodesArr(nodes, nCount)
+            Case "edges"
+                Call ParseEdgesArr(edges, eCount)
+            Case "swimlanes"
+                Call ParseSwimlanesArr(swimlanes, sCount)
+            Case Else
+                Call JsonSkip
+        End Select
+    Loop
+End Sub
+
+' ============================================================
+' ノード配列・オブジェクト解析
+' ============================================================
+
+Private Sub ParseNodesArr(nodes() As NodeData, nCount As Long)
+    Dim c As String
+    ExpectCh "["
+    SkipWS
+
+    Do While gPos <= Len(gJson)
+        SkipWS
+        If gPos > Len(gJson) Then Exit Do
+        c = Mid(gJson, gPos, 1)
+        If c = "]" Then
+            gPos = gPos + 1
+            Exit Do
+        End If
+        If c = "," Then
+            gPos = gPos + 1
+            SkipWS
+        End If
+        If gPos > Len(gJson) Then Exit Do
+        c = Mid(gJson, gPos, 1)
+        If c = "]" Then
+            gPos = gPos + 1
+            Exit Do
+        End If
+
+        If c = "{" Then
+            Call ParseNodeObj(nodes(nCount))
+            nCount = nCount + 1
+        Else
+            Call JsonSkip
+        End If
+    Loop
+End Sub
+
+Private Sub ParseNodeObj(nd As NodeData)
+    Dim key As String
+    Dim c   As String
+
+    ' デフォルト値
+    nd.shapeType = ""
+    nd.fillColor = "#ffffff"
+
+    ExpectCh "{"
+    SkipWS
+
+    Do While gPos <= Len(gJson)
+        SkipWS
+        If gPos > Len(gJson) Then Exit Do
+        c = Mid(gJson, gPos, 1)
+        If c = "}" Then
+            gPos = gPos + 1
+            Exit Do
+        End If
+        If c = "," Then
+            gPos = gPos + 1
+            SkipWS
+        End If
+        If gPos > Len(gJson) Then Exit Do
+        c = Mid(gJson, gPos, 1)
+        If c = "}" Then
+            gPos = gPos + 1
+            Exit Do
+        End If
+        If c <> """" Then Exit Do
+
+        key = JsonStr()
+        SkipWS
+        ExpectCh ":"
+        SkipWS
+
+        Select Case key
+            Case "id"
+                nd.id = CLng(Val(JsonNum()))
+            Case "type"
+                nd.nodeType = JsonStr()
+            Case "x"
+                nd.x = CDbl(Val(JsonNum())) * 0.75
+            Case "y"
+                nd.y = CDbl(Val(JsonNum())) * 0.75
+            Case "w"
+                nd.w = CDbl(Val(JsonNum())) * 0.75
+            Case "h"
+                nd.h = CDbl(Val(JsonNum())) * 0.75
+            Case "text"
+                nd.cellText = JsonStr()
+            Case "fill_color"
+                nd.fillColor = JsonStr()
+            Case "shape_type"
+                nd.shapeType = JsonStr()
+            Case "status"
+                nd.status = JsonStr()
+            Case Else
+                Call JsonSkip
+        End Select
+    Loop
+    
+    If nd.shapeType = "" Then
+        Select Case LCase(nd.nodeType)
+            Case "terminator"
+                If nd.w <= 45 Then
+                    nd.shapeType = "connector"
+                Else
+                    nd.shapeType = "terminator"
+                End If
+            Case "process"
+                nd.shapeType = "corner_rounded_rectangle"
+            Case Else
+                nd.shapeType = ""
+        End Select
+    End If
+End Sub
+
+' ============================================================
+' エッジ配列・オブジェクト解析
+' ============================================================
+
+Private Sub ParseEdgesArr(edges() As EdgeData, eCount As Long)
+    Dim c As String
+    ExpectCh "["
+    SkipWS
+
+    Do While gPos <= Len(gJson)
+        SkipWS
+        If gPos > Len(gJson) Then Exit Do
+        c = Mid(gJson, gPos, 1)
+        If c = "]" Then
+            gPos = gPos + 1
+            Exit Do
+        End If
+        If c = "," Then
+            gPos = gPos + 1
+            SkipWS
+        End If
+        If gPos > Len(gJson) Then Exit Do
+        c = Mid(gJson, gPos, 1)
+        If c = "]" Then
+            gPos = gPos + 1
+            Exit Do
+        End If
+
+        If c = "{" Then
+            Call ParseEdgeObj(edges(eCount))
+            eCount = eCount + 1
+        Else
+            Call JsonSkip
+        End If
+    Loop
+End Sub
+
+Private Sub ParseEdgeObj(ed As EdgeData)
+    Dim key As String
+    Dim c   As String
+
+    ' デフォルト値
+    ed.edgeType = "elbow"
+    ed.lineStyle = "solid"
+    ed.fromCP = ""
+    ed.toCP = ""
+    ed.edgeLabel = ""
+    ' ed.labelPos = ""
+
+    ExpectCh "{"
+    SkipWS
+
+    Do While gPos <= Len(gJson)
+        SkipWS
+        If gPos > Len(gJson) Then Exit Do
+        c = Mid(gJson, gPos, 1)
+        If c = "}" Then
+            gPos = gPos + 1
+            Exit Do
+        End If
+        If c = "," Then
+            gPos = gPos + 1
+            SkipWS
+        End If
+        If gPos > Len(gJson) Then Exit Do
+        c = Mid(gJson, gPos, 1)
+        If c = "}" Then
+            gPos = gPos + 1
+            Exit Do
+        End If
+        If c <> """" Then Exit Do
+
+        key = JsonStr()
+        SkipWS
+        ExpectCh ":"
+        SkipWS
+
+        Select Case key
+            Case "from_id"
+                ed.fromId = CLng(Val(JsonNum()))
+            Case "to_id"
+                ed.toId = CLng(Val(JsonNum()))
+            Case "edge_type"
+                ed.edgeType = JsonStr()
+            Case "line_style"
+                ed.lineStyle = JsonStr()
+            Case "from_connection_point"
+                ed.fromCP = JsonStr()
+            Case "to_connection_point"
+                ed.toCP = JsonStr()
+            Case "label"
+                ed.edgeLabel = JsonStr()
+            Case "label_position"
+                ed.labelPos = JsonStr()
+            Case "label_x"
+                ed.labelX = CDbl(Val(JsonNum())) * 0.75
+            Case "label_y"
+                ed.labelY = CDbl(Val(JsonNum())) * 0.75
+            Case "label_anchor"
+                ed.labelAnchor = JsonStr()
+            Case "label_justify"
+                ed.labelJustify = JsonStr()
+            Case "edge_wrap_margin"
+                ed.edgeWrapMargin = CDbl(Val(JsonNum())) * 0.75
+            Case "edge_wrap_ratio1"
+                ed.edgeWrapRatio1 = CDbl(Val(JsonNum()))
+            Case "edge_wrap_ratio2"
+                ed.edgeWrapRatio2 = CDbl(Val(JsonNum()))
+            Case Else
+                Call JsonSkip
+        End Select
+    Loop
+End Sub
+
+' ============================================================
+' スイムレーン配列・オブジェクト解析
+' ============================================================
+
+Private Sub ParseSwimlanesArr(swimlanes() As SwimlaneData, sCount As Long)
+    Dim c As String
+    ExpectCh "["
+    SkipWS
+
+    Do While gPos <= Len(gJson)
+        SkipWS
+        If gPos > Len(gJson) Then Exit Do
+        c = Mid(gJson, gPos, 1)
+        If c = "]" Then
+            gPos = gPos + 1
+            Exit Do
+        End If
+        If c = "," Then
+            gPos = gPos + 1
+            SkipWS
+        End If
+        If gPos > Len(gJson) Then Exit Do
+        c = Mid(gJson, gPos, 1)
+        If c = "]" Then
+            gPos = gPos + 1
+            Exit Do
+        End If
+
+        If c = "{" Then
+            Call ParseSwimlaneObj(swimlanes(sCount))
+            sCount = sCount + 1
+        Else
+            Call JsonSkip
+        End If
+    Loop
+End Sub
+
+Private Sub ParseSwimlaneObj(sw As SwimlaneData)
+    Dim key As String
+    Dim c   As String
+
+    ExpectCh "{"
+    SkipWS
+
+    Do While gPos <= Len(gJson)
+        SkipWS
+        If gPos > Len(gJson) Then Exit Do
+        c = Mid(gJson, gPos, 1)
+        If c = "}" Then
+            gPos = gPos + 1
+            Exit Do
+        End If
+        If c = "," Then
+            gPos = gPos + 1
+            SkipWS
+        End If
+        If gPos > Len(gJson) Then Exit Do
+        c = Mid(gJson, gPos, 1)
+        If c = "}" Then
+            gPos = gPos + 1
+            Exit Do
+        End If
+        If c <> """" Then Exit Do
+
+        key = JsonStr()
+        SkipWS
+        ExpectCh ":"
+        SkipWS
+
+        Select Case key
+            Case "kind"
+                sw.kind = JsonStr()
+            Case "title"
+                sw.title = JsonStr()
+            Case "header_center_x"
+                sw.headerCX = CDbl(Val(JsonNum())) * 0.75
+            Case "header_center_y"
+                sw.headerCY = CDbl(Val(JsonNum())) * 0.75
+            Case "width"
+                sw.width = CDbl(Val(JsonNum())) * 0.75
+            Case "height"
+                sw.height = CDbl(Val(JsonNum())) * 0.75
+            Case Else
+                Call JsonSkip
+        End Select
+    Loop
+End Sub
+
+' ============================================================
+' JSON 低レベルパーサー（字句解析）
+' ============================================================
+
+' 空白・改行をスキップ
+Private Sub SkipWS()
+    Dim c As String
+    Do While gPos <= Len(gJson)
+        c = Mid(gJson, gPos, 1)
+        If c = " " Or c = Chr(9) Or c = Chr(10) Or c = Chr(13) Then
+            gPos = gPos + 1
+        Else
+            Exit Do
+        End If
+    Loop
+End Sub
+
+' 指定文字を消費（一致しない場合は何もしない）
+Private Sub ExpectCh(c As String)
+    If gPos <= Len(gJson) Then
+        If Mid(gJson, gPos, 1) = c Then gPos = gPos + 1
+    End If
+End Sub
+
+' JSON文字列を解析して返す（エスケープ処理含む）
+Private Function JsonStr() As String
+    Dim result As String
+    Dim c      As String
+
+    SkipWS
+    If gPos > Len(gJson) Or Mid(gJson, gPos, 1) <> """" Then
+        JsonStr = ""
+        Exit Function
+    End If
+    gPos = gPos + 1  ' 開始 " をスキップ
+
+    result = ""
+    Do While gPos <= Len(gJson)
+        c = Mid(gJson, gPos, 1)
+        If c = """" Then
+            gPos = gPos + 1
+            Exit Do
+        ElseIf c = "\" Then
+            gPos = gPos + 1
+            If gPos > Len(gJson) Then Exit Do
+            c = Mid(gJson, gPos, 1)
+            Select Case c
+                Case "n": result = result & Chr(10)    ' 改行
+                Case "r": result = result & Chr(13)    ' CR
+                Case "t": result = result & Chr(9)     ' タブ
+                Case """": result = result & """"
+                Case "\": result = result & "\"
+                Case "/": result = result & "/"
+                Case Else: result = result & c
+            End Select
+            gPos = gPos + 1
+        Else
+            result = result & c
+            gPos = gPos + 1
+        End If
+    Loop
+
+    JsonStr = result
+End Function
+
+' JSON数値を解析して文字列で返す
+Private Function JsonNum() As String
+    Dim start As Long
+    Dim c     As String
+
+    SkipWS
+    start = gPos
+
+    If gPos <= Len(gJson) And Mid(gJson, gPos, 1) = "-" Then gPos = gPos + 1
+
+    Do While gPos <= Len(gJson)
+        c = Mid(gJson, gPos, 1)
+        If c >= "0" And c <= "9" Then gPos = gPos + 1 Else Exit Do
+    Loop
+
+    If gPos <= Len(gJson) And Mid(gJson, gPos, 1) = "." Then
+        gPos = gPos + 1
+        Do While gPos <= Len(gJson)
+            c = Mid(gJson, gPos, 1)
+            If c >= "0" And c <= "9" Then gPos = gPos + 1 Else Exit Do
+        Loop
+    End If
+
+    ' 指数部
+    If gPos <= Len(gJson) Then
+        c = Mid(gJson, gPos, 1)
+        If c = "e" Or c = "E" Then
+            gPos = gPos + 1
+            If gPos <= Len(gJson) Then
+                c = Mid(gJson, gPos, 1)
+                If c = "+" Or c = "-" Then gPos = gPos + 1
+            End If
+            Do While gPos <= Len(gJson)
+                c = Mid(gJson, gPos, 1)
+                If c >= "0" And c <= "9" Then gPos = gPos + 1 Else Exit Do
+            Loop
+        End If
+    End If
+
+    JsonNum = Mid(gJson, start, gPos - start)
+End Function
+
+' JSON値を読み飛ばす（未知のキーの値用）
+Private Sub JsonSkip()
+    Dim c     As String
+    Dim dummy As String
+
+    SkipWS
+    If gPos > Len(gJson) Then Exit Sub
+    c = Mid(gJson, gPos, 1)
+
+    Select Case c
+        Case "{": Call JsonSkipObj
+        Case "[": Call JsonSkipArr
+        Case """": dummy = JsonStr()
+        Case "t": gPos = gPos + 4   ' true
+        Case "f": gPos = gPos + 5   ' false
+        Case "n": gPos = gPos + 4   ' null
+        Case Else: dummy = JsonNum()
+    End Select
+End Sub
+
+Private Sub JsonSkipObj()
+    Dim depth As Long
+    Dim c     As String
+    Dim dummy As String
+
+    ExpectCh "{"
+    depth = 1
+
+    Do While gPos <= Len(gJson) And depth > 0
+        c = Mid(gJson, gPos, 1)
+        Select Case c
+            Case """": dummy = JsonStr()
+            Case "{": depth = depth + 1: gPos = gPos + 1
+            Case "}": depth = depth - 1: gPos = gPos + 1
+            Case Else: gPos = gPos + 1
+        End Select
+    Loop
+End Sub
+
+Private Sub JsonSkipArr()
+    Dim depth As Long
+    Dim c     As String
+    Dim dummy As String
+
+    ExpectCh "["
+    depth = 1
+
+    Do While gPos <= Len(gJson) And depth > 0
+        c = Mid(gJson, gPos, 1)
+        Select Case c
+            Case """": dummy = JsonStr()
+            Case "[": depth = depth + 1: gPos = gPos + 1
+            Case "]": depth = depth - 1: gPos = gPos + 1
+            Case Else: gPos = gPos + 1
+        End Select
+    Loop
+End Sub
+
+' ============================================================
+' 描画: スイムレーン
+' ============================================================
+
+Private Sub DrawSwimlanes(ws As Worksheet, swimlanes() As SwimlaneData, sCount As Long)
+    Dim i As Long
+    For i = 0 To sCount - 1
+        Call DrawSwimlane(ws, swimlanes(i))
+    Next i
+End Sub
+
+' スイムレーン1つを描画（本体・ヘッダー・フッターをグループ化）
+Private Sub DrawSwimlane(ws As Worksheet, sw As SwimlaneData)
+    Const HDR_SIZE As Double = 30 * 0.75   ' ヘッダー/フッターの固定サイズ(pt)
+
+    Dim bodyL As Double, bodyT As Double
+    Dim bodyW As Double, bodyH As Double
+    Dim hdrL  As Double, hdrT As Double, hdrW As Double, hdrH As Double
+    Dim ftrL  As Double, ftrT As Double, ftrW As Double, ftrH As Double
+    Dim isHoriz As Boolean
+
+    bodyW = sw.width
+    bodyH = sw.height
+    isHoriz = (LCase(sw.kind) = "horizontal")
+
+    If Not isHoriz Then
+        ' 縦型: ヘッダー上部/フッター下部、幅=本体幅、高さ=30
+        hdrW = bodyW: hdrH = HDR_SIZE
+        hdrL = sw.headerCX - hdrW / 2
+        hdrT = sw.headerCY - hdrH / 2
+        bodyL = hdrL: bodyT = hdrT          ' 本体左上 = ヘッダー左上
+        ftrL = bodyL: ftrT = bodyT + bodyH - HDR_SIZE
+        ftrW = bodyW: ftrH = HDR_SIZE
+    Else
+        ' 横型: ヘッダー左部/フッター右部、幅=30、高さ=本体高さ
+        hdrW = HDR_SIZE: hdrH = bodyH
+        hdrL = sw.headerCX - hdrW / 2
+        hdrT = sw.headerCY - hdrH / 2
+        bodyL = hdrL: bodyT = hdrT          ' 本体左上 = ヘッダー左上
+        ftrL = bodyL + bodyW - HDR_SIZE: ftrT = bodyT
+        ftrW = HDR_SIZE: ftrH = bodyH
+    End If
+
+    ' --- 本体（塗りつぶしなし） ---
+    Dim bodyShp As Shape
+    Set bodyShp = ws.Shapes.AddShape(msoShapeRectangle, bodyL, bodyT, bodyW, bodyH)
+    With bodyShp
+        .Fill.Visible = msoFalse
+        .Line.Visible = msoTrue
+        .Line.ForeColor.RGB = RGB(0, 0, 0)
+        .Line.Weight = 1 * 0.75
+        .Line.DashStyle = msoLineSolid
+        .TextFrame.Characters.text = ""
+    End With
+
+    ' --- ヘッダー（ライトグレー塗りつぶし） ---
+    Dim hdrShp As Shape
+    Set hdrShp = ws.Shapes.AddShape(msoShapeRectangle, hdrL, hdrT, hdrW, hdrH)
+    Call ApplySwimlaneHeaderStyle(hdrShp, sw.title, isHoriz)
+
+    ' --- フッター（ヘッダーと同じスタイル） ---
+    Dim ftrShp As Shape
+    Set ftrShp = ws.Shapes.AddShape(msoShapeRectangle, ftrL, ftrT, ftrW, ftrH)
+    Call ApplySwimlaneHeaderStyle(ftrShp, sw.title, isHoriz)
+
+    ' --- 3つの図形をグループ化 ---
+    Dim grp As Shape
+    Set grp = ws.Shapes.Range(Array(bodyShp.Name, hdrShp.Name, ftrShp.Name)).Group
+    sw.groupName = grp.Name
+End Sub
+
+' ヘッダー/フッター共通スタイル適用
+Private Sub ApplySwimlaneHeaderStyle(shp As Shape, title As String, isHoriz As Boolean)
+    With shp.Fill
+        .Visible = msoTrue
+        .ForeColor.RGB = RGB(211, 211, 211)  ' ライトグレー
+    End With
+    With shp.Line
+        .Visible = msoTrue
+        .ForeColor.RGB = RGB(0, 0, 0)
+        .Weight = 1 * 0.75
+        .DashStyle = msoLineSolid
+    End With
+    With shp.TextFrame
+        .Characters.text = title
+        .HorizontalAlignment = xlHAlignCenter
+        .VerticalAlignment = xlVAlignCenter
+        .HorizontalOverflow = xlOartHorizontalOverflowOverflow
+        .VerticalOverflow = xlOartVerticalOverflowOverflow
+        .Characters.Font.Color = RGB(0, 0, 0)
+        .Characters.Font.Size = 15 * 0.75
+        If isHoriz Then
+            .MarginTop = 0
+            .MarginBottom = 0
+            .MarginLeft = 7.085 * 0.75
+            .MarginRight = 0
+        Else
+            .MarginTop = 7.0875 * 0.75
+            .MarginBottom = 0
+            .MarginLeft = 0
+            .MarginRight = 0
+        End If
+    End With
+    With shp.TextFrame2
+        .WordWrap = msoFalse
+        With .TextRange.Characters.ParagraphFormat
+            .LineRuleWithin = msoTriStateToggle
+            .SpaceWithin = 15.5 * 0.75
+        End With
+    End With
+    
+    ' 横型スイムレーン: テキストを左90度回転（反時計回り = msoTextOrientationUpward）
+    If isHoriz Then
+        shp.TextFrame.Orientation = msoTextOrientationUpward
+    End If
+End Sub
+
+' ============================================================
+' 描画: ノード（要素）
+' ============================================================
+
+Private Sub DrawNodes(ws As Worksheet, nodes() As NodeData, nCount As Long)
+    Dim i As Long
+    For i = 0 To nCount - 1
+        Call DrawNode(ws, nodes(i))
+    Next i
+End Sub
+
+' ノード1つを描画
+Private Sub DrawNode(ws As Worksheet, nd As NodeData)
+    Dim shpType As MsoAutoShapeType
+    shpType = GetNodeShapeType(nd.nodeType, nd.shapeType)
+
+    ' x, y は中心座標なので左上角に変換
+    Dim shp As Shape
+    Set shp = ws.Shapes.AddShape(shpType, _
+        nd.x - nd.w / 2, nd.y - nd.h / 2, nd.w, nd.h)
+
+    ' 塗りつぶし
+    With shp.Fill
+        .Visible = msoTrue
+        If nd.status = "active" Then
+            .ForeColor.RGB = RGB(255, 250, 205)
+        ElseIf nd.status = "inactive" Then
+            .ForeColor.RGB = RGB(240, 240, 240)
+        Else
+            .ForeColor.RGB = HexToRgb(nd.fillColor)
+        End If
+    End With
+
+    ' 枠線（実線 1.75pt）
+    With shp.Line
+        If nd.status = "active" Then
+            .Visible = msoTrue
+            .ForeColor.RGB = RGB(218, 165, 32)
+            .Weight = 2.5 * 0.75
+            .DashStyle = msoLineSolid
+        ElseIf nd.status = "inactive" Then
+            .Visible = msoTrue
+            .ForeColor.RGB = RGB(169, 169, 169)
+            .Weight = 1.75 * 0.75
+            .DashStyle = msoLineSolid
+        Else
+            .Visible = msoTrue
+            .ForeColor.RGB = RGB(0, 0, 0)
+            .Weight = 1.75 * 0.75
+            .DashStyle = msoLineSolid
+        End If
+    End With
+
+    ' テキスト
+    With shp.TextFrame
+        .Characters.text = nd.cellText
+        .HorizontalAlignment = xlHAlignCenter
+        .VerticalAlignment = xlVAlignCenter
+        .HorizontalOverflow = xlOartHorizontalOverflowOverflow
+        .VerticalOverflow = xlOartVerticalOverflowOverflow
+        If nd.status = "active" Then
+            .Characters.Font.Color = RGB(218, 165, 32)
+        ElseIf nd.status = "inactive" Then
+            .Characters.Font.Color = RGB(169, 169, 169)
+        Else
+            .Characters.Font.Color = RGB(0, 0, 0)
+        End If
+        .Characters.Font.Size = 13 * 0.75
+        .MarginTop = 5.67 * 0.75
+        .MarginBottom = 0
+        .MarginLeft = 0
+        .MarginRight = 0
+    End With
+    With shp.TextFrame2
+        .WordWrap = msoFalse
+        With .TextRange.Characters.ParagraphFormat
+            .LineRuleWithin = msoTriStateToggle
+            .SpaceWithin = 14 * 0.75
+        End With
+    End With
+
+    ' エッジ接続用に一意の名前を設定
+    shp.Name = "FlowNode_" & CStr(nd.id)
+    nd.shapeName = shp.Name
+End Sub
+
+' ノードタイプとシェイプタイプからExcelシェイプ種類を返す
+Private Function GetNodeShapeType(nodeType As String, shapeType As String) As MsoAutoShapeType
+    Select Case LCase(Trim(nodeType))
+
+        Case "terminal", "terminator"
+            If LCase(Trim(shapeType)) = "connector" Then
+                GetNodeShapeType = msoShapeFlowchartConnector      ' 結合子（円）
+            Else
+                GetNodeShapeType = msoShapeFlowchartTerminator     ' 端子（スタジアム型）
+            End If
+
+        Case "process"
+            Select Case LCase(Trim(shapeType))
+                Case "corner_rounded_rectangle"
+                    GetNodeShapeType = msoShapeFlowchartAlternateProcess  ' 代替処理
+                Case "rounded_rectangle"
+                    GetNodeShapeType = msoShapeFlowchartTerminator        ' 端子（丸角矩形）
+                Case Else  ' "rectangle" またはデフォルト
+                    GetNodeShapeType = msoShapeFlowchartProcess           ' 処理（矩形）
+            End Select
+
+        Case "decision"
+            GetNodeShapeType = msoShapeFlowchartDecision       ' 判断（ひし形）
+
+        Case "io", "i/o"
+            GetNodeShapeType = msoShapeFlowchartData           ' データ（平行四辺形）
+
+        Case "storage"
+            GetNodeShapeType = msoShapeFlowchartMagneticDisk   ' 磁気ディスク（シリンダ）
+
+        Case "document"
+            GetNodeShapeType = msoShapeFlowchartDocument       ' 書類（波底矩形）
+
+        Case Else
+            GetNodeShapeType = msoShapeFlowchartProcess        ' フォールバック
+    End Select
+End Function
+
+' ============================================================
+' 描画: エッジ（リンク）
+' ============================================================
+
+Private Sub DrawEdges(ws As Worksheet, edges() As EdgeData, eCount As Long, _
+    nodes() As NodeData, nCount As Long)
+    Dim i As Long
+    For i = 0 To eCount - 1
+        Call DrawEdge(ws, edges(i), nodes, nCount)
+    Next i
+End Sub
+
+' エッジ1つを描画
+Private Sub DrawEdge(ws As Worksheet, ed As EdgeData, _
+    nodes() As NodeData, nCount As Long)
+
+    ' from/toノードをID検索
+    Dim fi As Long, ti As Long
+    fi = -1: ti = -1
+    Dim i As Long
+    For i = 0 To nCount - 1
+        If nodes(i).id = ed.fromId Then fi = i
+        If nodes(i).id = ed.toId Then ti = i
+    Next i
+    If fi < 0 Or ti < 0 Then Exit Sub   ' 対応ノードが見つからない
+
+    ' Shape参照取得
+    Dim fromShp As Shape, toShp As Shape
+    On Error Resume Next
+    Set fromShp = ws.Shapes(nodes(fi).shapeName)
+    Set toShp = ws.Shapes(nodes(ti).shapeName)
+    On Error GoTo 0
+    If fromShp Is Nothing Or toShp Is Nothing Then Exit Sub
+
+    ' コネクタ種類
+    Dim ct As MsoConnectorType
+    If LCase(Trim(ed.edgeType)) = "line" Then
+        ct = msoConnectorStraight   ' 直線矢印
+    Else
+        ct = msoConnectorElbow      ' カギ線矢印（デフォルト）
+    End If
+
+    ' コネクタを作成（初期位置: fromノード中心 → toノード中心）
+    Dim conn As Shape
+    Set conn = ws.Shapes.AddConnector(ct, _
+        nodes(fi).x, nodes(fi).y, nodes(ti).x, nodes(ti).y)
+
+    ' 接続点を設定
+    Dim fromSite As Long, toSite As Long
+    fromSite = GetConnSite(ed.fromCP, fi, ti, nodes)
+    toSite = GetConnSite(ed.toCP, ti, fi, nodes)
+
+    conn.ConnectorFormat.BeginConnect fromShp, fromSite
+    conn.ConnectorFormat.EndConnect toShp, toSite
+
+    ' x位置またはy位置が同じ直線なのにExcelで発生するカギ線の微妙な段差を解消する対応
+    If ct = msoConnectorElbow And conn.height <= 1 Then
+        If nodes(fi).x = nodes(ti).x Then
+            If nodes(fi).y < nodes(ti).y And ed.fromCP = "bottom" And ed.toCP = "top" Then conn.height = 0
+            If nodes(fi).y > nodes(ti).y And ed.fromCP = "top" And ed.toCP = "bottom" Then conn.height = 0
+        End If
+        If nodes(fi).y = nodes(ti).y Then
+            If nodes(fi).x < nodes(ti).x And ed.fromCP = "right" And ed.toCP = "left" Then conn.height = 0
+            If nodes(fi).x > nodes(ti).x And ed.fromCP = "left" And ed.toCP = "right" Then conn.height = 0
+        End If
+    End If
+    
+    ' エッジ回り込み設定
+    If ed.edgeWrapRatio1 <> 0 Then
+        conn.Adjustments.Item(1) = ed.edgeWrapRatio1
+    End If
+    If ed.edgeWrapRatio2 <> 0 Then
+        conn.Adjustments.Item(2) = ed.edgeWrapRatio2
+    End If
+
+    ' 線スタイル（太さ 1.75pt、矢印は終点のみ）
+    With conn.Line
+        .Weight = 1.75 * 0.75
+        .ForeColor.RGB = RGB(0, 0, 0)
+        Select Case LCase(Trim(ed.lineStyle))
+            Case "dotted": .DashStyle = msoLineSysDot
+            Case "dashed": .DashStyle = msoLineSysDash
+            Case Else: .DashStyle = msoLineSolid
+        End Select
+        .BeginArrowheadStyle = msoArrowheadNone
+        .EndArrowheadStyle = msoArrowheadTriangle
+    End With
+
+    ' ラベル描画（指定がある場合）
+    If Trim(ed.edgeLabel) <> "" Then
+        Dim connLabel As Shape
+        Dim labelX, labelY, labelW, labelH, adjustX, adjustY As Double
+        If ed.labelX > 0 And ed.labelY > 0 Then
+            labelW = 100
+            labelH = 1
+            
+            If ed.labelAnchor = "n" Or ed.labelAnchor = "nw" Or ed.labelAnchor = "ne" Then
+                adjustY = 2
+            ElseIf ed.labelAnchor = "s" Or ed.labelAnchor = "sw" Or ed.labelAnchor = "se" Then
+                adjustY = -10
+            Else
+                adjustY = -2
+            End If
+
+            If ed.labelJustify = "right" Then
+                adjustX = -labelW
+            ElseIf ed.labelJustify = "left" Then
+                adjustX = 0
+            Else
+                adjustX = -labelW / 2
+            End If
+                        
+            labelX = ed.labelX + adjustX
+            labelY = ed.labelY + adjustY
+            Set connLabel = ws.Shapes.AddLabel(msoTextOrientationHorizontal, labelX, labelY, labelW, labelH)
+        Else
+            If ct = msoConnectorStraight Then
+                labelX = (nodes(fi).x + nodes(ti).x) / 2 - 75 / 2
+                labelY = (nodes(fi).y + nodes(ti).y) / 2 - 20
+                labelW = 100
+                labelH = 1
+                Set connLabel = ws.Shapes.AddLabel(msoTextOrientationHorizontal, labelX, labelY, labelW, labelH)
+            Else
+                labelX = nodes(fi).x + nodes(fi).w / 2 + 5
+                labelY = nodes(fi).y - 20
+                labelW = 100
+                labelH = 1
+                Set connLabel = ws.Shapes.AddLabel(msoTextOrientationHorizontal, labelX, labelY, labelW, labelH)
+            End If
+        End If
+
+        With connLabel.TextFrame
+            .Characters.text = ed.edgeLabel
+            If ed.labelJustify = "right" Then
+                .HorizontalAlignment = xlHAlignRight
+            ElseIf ed.labelJustify = "left" Then
+                .HorizontalAlignment = xlHAlignLeft
+            Else
+                .HorizontalAlignment = xlHAlignCenter
+            End If
+            .VerticalAlignment = xlVAlignTop
+            .HorizontalOverflow = xlOartHorizontalOverflowOverflow
+            .VerticalOverflow = xlOartVerticalOverflowOverflow
+            .Characters.Font.Color = RGB(0, 0, 0)
+            .Characters.Font.Size = 12 * 0.75
+            .MarginTop = 0
+            .MarginBottom = 0
+            .MarginLeft = 0
+            .MarginRight = 0
+            .AutoSize = False
+        End With
+        With connLabel.TextFrame2
+            .WordWrap = msoFalse
+            With .TextRange.Characters.ParagraphFormat
+                .LineRuleWithin = msoTriStateToggle
+                .SpaceWithin = 12.5 * 0.75
+            End With
+        End With
+    End If
+End Sub
+
+' 接続点文字列をExcelコネクタサイト番号に変換
+'   サイト番号: 1=上, 2=右, 3=下, 4=左
+'   auto時は相手ノードとの相対位置から最適方向を自動選択
+Private Function GetConnSite(cpStr As String, nIdx As Long, otherIdx As Long, _
+    nodes() As NodeData) As Long
+
+    Select Case LCase(Trim(cpStr))
+        Case "top"
+            Select Case LCase(Trim(nodes(nIdx).nodeType))
+                Case "io"
+                    GetConnSite = 2
+                Case "storage"
+                    GetConnSite = 2
+                Case "terminator"
+                    If LCase(Trim(nodes(nIdx).shapeType)) = "connector" Then
+                        GetConnSite = 1
+                    Else
+                        GetConnSite = 1
+                    End If
+                Case Else
+                    GetConnSite = 1
+                End Select
+        Case "right"
+            Select Case LCase(Trim(nodes(nIdx).nodeType))
+                Case "io"
+                    GetConnSite = 6
+                Case "storage"
+                    GetConnSite = 5
+                Case "terminator"
+                    If LCase(Trim(nodes(nIdx).shapeType)) = "connector" Then
+                        GetConnSite = 7
+                    Else
+                        GetConnSite = 4
+                    End If
+                Case Else
+                    GetConnSite = 4
+                End Select
+        Case "bottom"
+            Select Case LCase(Trim(nodes(nIdx).nodeType))
+                Case "io"
+                    GetConnSite = 5
+                Case "storage"
+                    GetConnSite = 4
+                Case "terminator"
+                    If LCase(Trim(nodes(nIdx).shapeType)) = "connector" Then
+                        GetConnSite = 5
+                    Else
+                        GetConnSite = 3
+                    End If
+                Case Else
+                    GetConnSite = 3
+                End Select
+        Case "left"
+            Select Case LCase(Trim(nodes(nIdx).nodeType))
+                Case "io"
+                    GetConnSite = 3
+                Case "storage"
+                    GetConnSite = 3
+                Case "terminator"
+                    If LCase(Trim(nodes(nIdx).shapeType)) = "connector" Then
+                        GetConnSite = 3
+                    Else
+                        GetConnSite = 2
+                    End If
+                Case Else
+                    GetConnSite = 2
+                End Select
+        Case Else
+            ' 自動: 相手ノードの方向（dx/dy の大きい方）から判定
+            Dim dx As Double, dy As Double
+            dx = nodes(otherIdx).x - nodes(nIdx).x
+            dy = nodes(otherIdx).y - nodes(nIdx).y
+            Select Case LCase(Trim(nodes(nIdx).nodeType))
+                Case "io"
+                    If Abs(dx) >= Abs(dy) Then
+                        GetConnSite = IIf(dx >= 0, 6, 3) ' 右 or 左  1->2, 2->3, 3->5, 4->6
+                    Else
+                        GetConnSite = IIf(dy >= 0, 5, 2) ' 下 or 上
+                    End If
+                Case "storage"
+                    If Abs(dx) >= Abs(dy) Then
+                        GetConnSite = IIf(dx >= 0, 5, 3)  ' 右 or 左 1->2, 2->3, 3->4, 4->5
+                    Else
+                        GetConnSite = IIf(dy >= 0, 4, 2)  ' 下 or 上
+                    End If
+                Case "terminator"
+                    If LCase(Trim(nodes(nIdx).shapeType)) = "connector" Then
+                        If Abs(dx) >= Abs(dy) Then
+                            GetConnSite = IIf(dx >= 0, 7, 3)  ' 右 or 左 1->1, 2->3, 3->5, 4->7
+                        Else
+                            GetConnSite = IIf(dy >= 0, 5, 1)  ' 下 or 上
+                        End If
+                    Else
+                        If Abs(dx) >= Abs(dy) Then
+                            GetConnSite = IIf(dx >= 0, 4, 2)  ' 右 or 左
+                        Else
+                            GetConnSite = IIf(dy >= 0, 3, 1)  ' 下 or 上
+                        End If
+                    End If
+                Case Else
+                    If Abs(dx) >= Abs(dy) Then
+                        GetConnSite = IIf(dx >= 0, 4, 2)  ' 右 or 左
+                    Else
+                        GetConnSite = IIf(dy >= 0, 3, 1)  ' 下 or 上
+                    End If
+            End Select
+    End Select
+End Function
+
+' ============================================================
+' Z-order 調整
+' ============================================================
+
+' 描画優先順位（前面から）: ノード > エッジ > スイムレーン
+' スイムレーングループを最背面、ノードを最前面に移動する
+Private Sub AdjustZOrder(ws As Worksheet, nodes() As NodeData, nCount As Long, _
+    swimlanes() As SwimlaneData, sCount As Long)
+
+    Dim i   As Long
+    Dim shp As Shape
+
+    ' 1. スイムレーングループを最背面へ送る
+    For i = 0 To sCount - 1
+        If swimlanes(i).groupName <> "" Then
+            Set shp = Nothing
+            On Error Resume Next
+            Set shp = ws.Shapes(swimlanes(i).groupName)
+            On Error GoTo 0
+            If Not shp Is Nothing Then shp.ZOrder msoSendToBack
+        End If
+    Next i
+
+    ' 2. ノードを最前面へ持ってくる
+    For i = 0 To nCount - 1
+        If nodes(i).shapeName <> "" Then
+            Set shp = Nothing
+            On Error Resume Next
+            Set shp = ws.Shapes(nodes(i).shapeName)
+            On Error GoTo 0
+            If Not shp Is Nothing Then shp.ZOrder msoBringToFront
+        End If
+    Next i
+End Sub
+
+' ============================================================
+' ユーティリティ
+' ============================================================
+
+' "#rrggbb" 形式の色文字列をExcel RGB値に変換
+Private Function HexToRgb(hexColor As String) As Long
+    Dim s As String
+    s = Trim(Replace(hexColor, "#", ""))
+
+    If Len(s) < 6 Then
+        HexToRgb = RGB(255, 255, 255)  ' デフォルト: 白
+        Exit Function
+    End If
+
+    HexToRgb = RGB(CLng("&H" & Mid(s, 1, 2)), _
+                   CLng("&H" & Mid(s, 3, 2)), _
+                   CLng("&H" & Mid(s, 5, 2)))
+End Function
+
+
+' ================================
+' ファイルダイアログでJSONファイルパスを取得(macOS用)
+' 戻り値は選択したファイル名を含むファイルパス(String)
+' ================================
+Private Function GetJsonFilePathForMacOS() As String
+    GetJsonFilePathForMacOS = Application.GetOpenFilename(title:="Select a JSON File")
+End Function
+
+
+' ================================
+' UTF-8テキストファイル読込
+' 戻り値はVBAのUnicode文字列(String)
+' ================================
+Function ReadUtf8TextFile(ByVal filePath As String) As String
+    Dim fileNo As Integer
+    Dim fileSize As Long
+    Dim bytes() As Byte
+    Dim text As String
+    
+    fileNo = FreeFile
+    
+    Dim byteFilePath() As Byte
+    byteFilePath = filePath
+    
+    Dim unicodeFilePath As String
+    unicodeFilePath = Utf8BytesToString(byteFilePath, 0)
+    
+    ' バイナリで開く
+    Open unicodeFilePath For Binary Access Read As #fileNo
+    
+    fileSize = LOF(fileNo)
+    If fileSize <= 0 Then
+        Close #fileNo
+        ReadUtf8TextFile = ""
+        Exit Function
+    End If
+    
+    ReDim bytes(0 To fileSize - 1) As Byte
+    Get #fileNo, , bytes
+    Close #fileNo
+    
+    ' UTF-8 BOM があれば除去
+    If fileSize >= 3 Then
+        If bytes(0) = &HEF And bytes(1) = &HBB And bytes(2) = &HBF Then
+            text = Utf8BytesToString(bytes, 3)
+        Else
+            text = Utf8BytesToString(bytes, 0)
+        End If
+    Else
+        text = Utf8BytesToString(bytes, 0)
+    End If
+    
+    ReadUtf8TextFile = text
+End Function
+
+
+' ================================
+' UTF-8バイト配列 → VBA文字列(Unicode)
+' startPos で先頭オフセット指定可能
+' ================================
+Function Utf8BytesToString(ByRef bytes() As Byte, Optional ByVal startPos As Long = 0) As String
+    Dim i As Long
+    Dim b1 As Long, b2 As Long, b3 As Long, b4 As Long
+    Dim codePoint As Long
+    Dim result As String
+    
+    result = ""
+    i = startPos
+    
+    Do While i <= UBound(bytes)
+        b1 = bytes(i)
+        
+        Select Case True
+            ' 1バイトASCII
+            Case b1 < &H80
+                result = result & ChrW(b1)
+                i = i + 1
+            
+            ' 2バイトUTF-8
+            Case (b1 And &HE0) = &HC0
+                If i + 1 > UBound(bytes) Then Exit Do
+                b2 = bytes(i + 1)
+                codePoint = ((b1 And &H1F) * &H40) Or (b2 And &H3F)
+                result = result & ChrW(codePoint)
+                i = i + 2
+            
+            ' 3バイトUTF-8
+            Case (b1 And &HF0) = &HE0
+                If i + 2 > UBound(bytes) Then Exit Do
+                b2 = bytes(i + 1)
+                b3 = bytes(i + 2)
+                codePoint = ((b1 And &HF) * &H1000) Or _
+                            ((b2 And &H3F) * &H40) Or _
+                            (b3 And &H3F)
+                result = result & ChrW(codePoint)
+                i = i + 3
+            
+            ' 4バイトUTF-8
+            Case (b1 And &HF8) = &HF0
+                If i + 3 > UBound(bytes) Then Exit Do
+                b2 = bytes(i + 1)
+                b3 = bytes(i + 2)
+                b4 = bytes(i + 3)
+                
+                codePoint = ((b1 And &H7) * &H40000) Or _
+                            ((b2 And &H3F) * &H1000) Or _
+                            ((b3 And &H3F) * &H40) Or _
+                            (b4 And &H3F)
+                
+                ' UTF-16サロゲートペアに変換
+                codePoint = codePoint - &H10000
+                result = result & ChrW((&HD800 Or ((codePoint \ &H400) And &H3FF)))
+                result = result & ChrW((&HDC00 Or (codePoint And &H3FF)))
+                i = i + 4
+            
+            Case Else
+                ' 不正バイト列は置換文字相当にする
+                result = result & "?"
+                i = i + 1
+        End Select
+    Loop
+    
+    Utf8BytesToString = result
+End Function
+
