@@ -88,7 +88,7 @@ Public Sub DrawFlowchart()
 
     #If Mac Then
         PointPerPixel = 1#    ' macOSÇ≈ÇÕ1.0Ç…
-        BackSlash = Chr(92)
+        BackSlash = "Ä"
     #Else
         PointPerPixel = 0.75  ' WindowsÇ≈ÇÕ0.75Ç…
         BackSlash = "\"
@@ -105,7 +105,11 @@ Public Sub DrawFlowchart()
 
     ' --- ÉtÉ@ÉCÉãì«Ç›çûÇ› ---
     Dim jsonText As String
-    jsonText = ReadTextFile(filePath)
+    #If Mac Then
+        jsonText = ReadUtf8TextFile(filePath)
+    #Else
+        jsonText = ReadTextFile(filePath)
+    #End If
     If jsonText = "" Then
         MsgBox "ÉtÉ@ÉCÉãÇÃì«Ç›çûÇ›Ç…é∏îsÇµÇ‹ÇµÇΩÅB" & vbCrLf & filePath, vbCritical, "ÉGÉâÅ["
         Exit Sub
