@@ -229,22 +229,22 @@ SWIMLANE_KIND_VERTICAL = "vertical"
 
 # Swimlane Parameters
 SWIMLANE_PARAMS = {
-    "kind": SWIMLANE_KIND_HORIZONTAL,  # SWIMLANE_KIND_HORIZONTAL(横型レーン) or SWIMLANE_KIND_VERTICAL(縦型レーン)
+    "kind": SWIMLANE_KIND_VERTICAL,  # SWIMLANE_KIND_HORIZONTAL(横型レーン) or SWIMLANE_KIND_VERTICAL(縦型レーン)
     "title": "Swimlane",
-    "horizontal_width": 210,
-    "horizontal_height": 720,
-    "horizontal_header_height": 30,
-    "horizontal_minimum_width": 180,
-    "horizontal_max_width": 810,
-    "horizontal_minimum_height": 300,
-    "horizontal_max_height": 3000,
-    "vertical_width": 900,
-    "vertical_height": 120,
-    "vertical_header_width": 30,
-    "vertical_minimum_width": 300,
-    "vertical_max_width": 3000,
-    "vertical_minimum_height": 60,
-    "vertical_max_height": 810,
+    "horizontal_width": 900,
+    "horizontal_height": 120,
+    "horizontal_header_width": 30,
+    "horizontal_minimum_width": 300,
+    "horizontal_max_width": 3000,
+    "horizontal_minimum_height": 60,
+    "horizontal_max_height": 810,
+    "vertical_width": 210,
+    "vertical_height": 720,
+    "vertical_header_height": 30,
+    "vertical_minimum_width": 180,
+    "vertical_max_width": 800,
+    "vertical_minimum_height": 300,
+    "vertical_max_height": 3000,
     "fill_color": "#e0e0e0", # Light Gray
     "outline_color": "#808080", # Gray
     "selected_outline_color": "#0ea5e9",  # Light Blue
@@ -279,74 +279,111 @@ ANTHROPIC_API_KEY_NOT_SET_MESSAGE = "The ANTHROPIC_API_KEY is not set in the .en
 UNSUPPORTED_AI_MODEL_MESSAGE = "The specified AI model is not supported. Please check the AI_MODEL field in constants.py."
 
 # AI Model to Use
-AI_MODEL = "gpt-5.4"
+AI_MODEL = "gpt-5.5"
 # Example of available AI model names (as of 2026.3.28, for the latest types and versions, refer to each company's documentation)
-#  OpenAI (gpt-*): "gpt-5.4", "gpt-5.4-mini", "gpt-5.4-nano"
+#  OpenAI (gpt-*): "gpt-5.5", "gpt-5.4-mini", "gpt-5.4-nano"
 #  GeminiAI (gemini-*): "gemini-3-flash-preview", "gemini-3.1-pro-preview", "gemini-3.1-flash-lite-preview", "gemini-pro-latest", "gemini-flash-lite-latest"
 #    ※For Gemini, if using the free tier, the pro version AI may not be available.
-#  AnthropicAI (claude-*): "claude-opus-4-6", "claude-sonnet-4-6", "claude-haiku-4-5"
+#  AnthropicAI (claude-*): "claude-opus-4-7", "claude-sonnet-4-6", "claude-haiku-4-5"
     
 # AI-related constants
-CHAT_WIDTH = 500
-CHAT_WINDOW_SLIDE_STEP = 20
-CHAT_WINDOW_SLIDE_INTERVAL = 15  # ms
+AI_CHAT_WIDTH = 550
+AI_CHAT_WINDOW_SLIDE_STEP = 20
+AI_CHAT_WINDOW_SLIDE_INTERVAL = 15  # ms
 
-AI_MODEL = "gpt-5.4"  # Change as needed
-AI_INPUT_TEMPLATE = "Please summarize the processing flow for '$order' and define it in the specified format."
+AI_INPUT_TEMPLATE = "Summarize the process flow for \"$order\" and define it in the specified format."
+AI_SPEC_TEMPLATE = "# Detailed Specifications\n$spec"
 AI_SYSTEM_INSTRUCTIONS = '''# Role
-You are a system architecture specialist who organizes business workflows and processing overviews.
-In accordance with the specified conditions, construct an efficient and clear flow, classify the flow into appropriate elements (start/end, process, decision, input/output) so that it can be defined as a flowchart, and output it in the format specified below.
+You are an expert in system design specializing in organizing business workflows and process overviews.
+Based on the given conditions, construct an efficient and clear flow, classify it into appropriate elements (start/end, process, decision, input/output),
+and output it in the format defined below so that it can be represented as a flowchart.
 
 # Output Format
-Output using Mermaid notation in accordance with the following rules.
-* First, output the list of node information, then output the link information.
-* Each node information line must be output as a string formed by directly concatenating the following elements **without any separators or spaces**:
-  **“Node Identifier” + “Node Type (opening)” + “Title” + “Node Type (closing)”**.
-  In addition, append the position of the node in the flowchart, separated by commas (,), specifying the vertical position and horizontal position.
+Output using Mermaid notation according to the following rules:
+- Output in the order: header information, node information, link information, and footer information.
+- Header information:
+  - First line: "```mermaid"
+  - Second line: "flowchart TD"
 
-  * **Node Identifier**: Assign a unique symbol to each node so that no identifiers overlap (A, B, C, …, Z, AA, BB, CC, …, ZZ).
-  * **Title**: The name of the process. If the node is an input/output node, the title must not contain a slash (/).
-  * **Node Type**:
+- Node information:
+  - Output all nodes, one per line, using the following format, including the node type, title, and its horizontal and vertical position in the flowchart.
+  - Format:
+    <NodeID>@{ shape: NodeType, label: "Title", bx: HorizontalPosition, by: VerticalPosition }
 
-    * For **start, end, or subroutine**, enclose the title in parentheses ().
-      Output example: `A(Start)`
-    * For **process**, enclose the title in square brackets [].
-      Output example: `B[Initialization Process]`
-    * For **decision**, enclose the title in curly braces {}.
-      Output example: `C{Retry?}`
-    * For **input/output**, enclose the title in slashes //.
-      Output example: `D/Data Save/`
-  * **Node position in the flowchart**:
-    Set the start node position as vertical: 0, horizontal: 0.
-    As processing proceeds, increment the vertical position by +1.
-    When there is a branch, adjust the horizontal position by -1 or +1.
-* Link information must be output in the format:
-  **Source Node Identifier, Link Identifier, Destination Node Identifier**
+  - Node ID:
+    Assign unique identifiers to each node so that no duplicates exist (A, B, C, ..., Z, AA, BB, CC, ..., ZZ).
 
-  * **Source/Destination Node Identifier**: Use the node identifiers defined in the node information.
-  * **Link Identifier**:
-    If the link has no label, use `"-->"`.
-    If the link has a label, represent it as `"--label value-->"`.
-    Examples: `A --> B`, `A --Yes--> B`
-  * If links are connected consecutively, multiple links may be written on a single line.
-    Example: `A --> B --> C`
+  - Node types:
+    - Start / End / Subroutine:
+      Use shape: stadium
+      Example: A@{ shape: stadium, label: "Start", bx: 0, by: 0 }
+
+    - Process:
+      Use shape: rounded
+      Example: B@{ shape: rounded, label: "Initialization", bx: 0, by: 0 }
+
+    - Decision:
+      Use shape: diamond
+      Example: C@{ shape: diamond, label: "Retry?", bx: 0, by: 0 }
+
+    - Input/Output:
+      Use shape: lean-r
+      Example: D@{ shape: lean-r, label: "Save Data", bx: 0, by: 0 }
+
+  - Title:
+    Specify the process name in the label field and enclose it in double quotes.
+    Example: A@{ shape: stadium, label: "Start", bx: 0, by: 0 }
+
+  - Node position (horizontal and vertical):
+    Treat the start node as (bx: 0, by: 0).
+    As the process progresses, increment the vertical position by +1.
+    When branching occurs, represent horizontal position as -1 or +1.
+    Example: B@{ shape: rounded, label: "Process A", bx: -1, by: +1 }
+
+- Link information:
+  - For each connection between nodes, output the source node ID, label (if any), and destination node ID using the format below:
+
+    With label:
+      SourceNodeID -- "Label" --> DestinationNodeID
+
+    Without label:
+      SourceNodeID --> DestinationNodeID
+
+  - Source node ID:
+    Use the node ID defined in the node information.
+
+  - Destination node ID:
+    Use the node ID defined in the node information.
+
+  - Link representation:
+    - Without label: -->
+    - With label: -- "Label" -->
+    Examples:
+      A --> B
+      A -- "Yes" --> B
+
+  - If links are connected sequentially, multiple links can be written on a single line.
+    Example: A --> B --> C
+
+- Footer information:
+  - Output "```" on the last line.
 
 ## Output Example
 mermaid
 
 flowchart TD
-  A(Start), 0, 0
-  B[Launch Tool], 1, 0
-  C{Create New or Edit?}, 2, 0
-  D[Draw], 3, -1
-  E/Data Load/, 3, 1
-  F[Edit], 4, 1
-  G/Image Output/, 5, 0
-  H[Attach Image to Document], 6, 0
-  I(End), 7, 0
+  A@{ shape: stadium, label: "Start", bx: 0, by: 0 }
+  B@{ shape: rounded, label: "Launch Tool", bx: 0, by: 1 }
+  C@{ shape: diamond, label: "Create New or Edit?", bx: 0, by: 2 }
+  D@{ shape: rounded, label: "Draw", bx: 1, by: 3 }
+  E@{ shape: lean-r, label: "Data Load", bx: -1, by: 3 }
+  F@{ shape: rounded, label: "Edit", bx: -1, by: 4 }
+  G@{ shape: rounded, label: "Image Output", bx: 0, by: 5 }
+  H@{ shape: rounded, label: "Attach Image to Document", bx: 0, by: 6 }
+  I@{ shape: stadium, label: "End", bx: 0, by: 7 }
 
-  A --> B --> C --Create New--> D --> G --> H --> I
-  C --Edit--> E --> F --> G
+  A --> B --> C -- "Create New" --> D --> G --> H --> I
+  C -- "Edit" --> E --> F --> G
 
 # Output Format
 Text format

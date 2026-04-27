@@ -15,6 +15,7 @@ from typing import Literal, Tuple
 import webbrowser
 
 import mermaid_flowdata_loader as mfloader
+import mermaid_flowdata_saver as mfsaver
 import constants as ct
 import node
 from node import Node
@@ -138,6 +139,10 @@ class FlowchartTool(tk.Tk):
         button_load_mermaid = tk.Button(toolbar, text="Load Mermaid", image=self.icons["Load_Mermaid"], compound="none", command=self.load_mermaid_flowdata, width=30, height=30)
         button_load_mermaid.pack(side=tk.LEFT, padx=1)
         ToolTip(button_load_mermaid, "Load Mermaid")
+        # Mermaid形式ファイル保存ボタン定義
+        button_save_mermaid = tk.Button(toolbar, text="Save Mermaid", image=self.icons["Save_Mermaid"], compound="none", command=self.save_mermaid_flowdata, width=30, height=30)
+        button_save_mermaid.pack(side=tk.LEFT, padx=1)
+        ToolTip(button_save_mermaid, "Save Mermaid")
 
         ttk.Separator(toolbar, orient=tk.VERTICAL).pack(side=tk.LEFT, fill=tk.Y, padx=(8,8))
     
@@ -244,6 +249,7 @@ class FlowchartTool(tk.Tk):
         self.popup_menu.add_separator()
         self.popup_menu.add_command(label="Save JSON", image=self.icons["Save_JSON"], compound="left", command=self.save_json)
         self.popup_menu.add_command(label="Save Image", image=self.icons["Save_Image"], compound="left", command=self.on_save)
+        self.popup_menu.add_command(label="Save Mermaid", image=self.icons["Save_Mermaid"], compound="left", command=self.save_mermaid_flowdata)
         self.popup_menu.add_separator()
         self.popup_menu.add_command(label="Resize Canvas", image=self.icons["Resize_Canvas"], compound="left", command=self.confirm_canvas_resize)
 
@@ -271,22 +277,32 @@ class FlowchartTool(tk.Tk):
         # 入力フレーム
         input_frame = tk.Frame(self.ai_chat_frame, bg="#eeeeee")
         input_frame.pack(side=tk.TOP, fill=tk.X, padx=(4,4), pady=(4,4))
-        # ラベル
-        tk.Label(input_frame, text="Process flow:", bg="#eeeeee", font=("Arial", 9)).pack(side=tk.LEFT)
+        # フローラベル
+        tk.Label(input_frame, text="Flow Title:", bg="#eeeeee", font=("Arial", 9), width=8, anchor=tk.E).pack(side=tk.LEFT)
         # 入力欄
-        self.ai_chat_prompt = tk.Entry(input_frame, font=("Arial", 11))
+        self.ai_chat_prompt = tk.Entry(input_frame, font=("Arial", 10))
         self.ai_chat_prompt.pack(side=tk.LEFT, fill=tk.X, expand=True)
-        self.ai_chat_prompt.bind("<Return>", lambda e: self.on_send_to_ai())
+        # self.ai_chat_prompt.bind("<Return>", lambda e: self.on_send_to_ai())
         # ボタン
         self.send_btn = tk.Button(input_frame, text="Generate", command=self.on_send_to_ai)
         self.send_btn.pack(side=tk.LEFT, padx=(6, 0))
+
+        # 詳細仕様フレーム
+        spec_frame = tk.Frame(self.ai_chat_frame, bg="#eeeeee")
+        spec_frame.pack(side=tk.TOP, fill=tk.X, padx=(4,4), pady=(4,4))
+        # 詳細仕様ラベル
+        tk.Label(spec_frame, text="Specs:", bg="#eeeeee", font=("Arial", 9), width=8, anchor=tk.E).pack(side=tk.LEFT)
+        # 入力欄
+        self.ai_spec_prompt = tk.Text(spec_frame, font=("Arial", 9), height=6)
+        self.ai_spec_prompt.pack(side=tk.LEFT, fill=tk.X, expand=True)
+        # self.ai_spec_prompt.bind("<Return>", lambda e: self.on_send_to_ai())
 
         # 情報フレーム
         info_frame = tk.Frame(self.ai_chat_frame, bg="#eeeeee")
         info_frame.pack(side=tk.TOP, fill=tk.X, padx=(4,4))
         # AIモデル表示
-        self.ai_chat_model = tk.Label(info_frame, text=f"Generative AI model : {self.ai_interface.ai_type}, {self.ai_interface.ai_model}", font=("Arial", 9))
-        self.ai_chat_model.pack(side=tk.LEFT)
+        tk.Label(info_frame, text=f"AI Model:", font=("Arial", 9), width=8, anchor=tk.E).pack(side=tk.LEFT)
+        tk.Entry(info_frame, font=("Arial", 9), state="readonly", readonlybackground="#eeeeee", fg="black", textvariable=tk.StringVar(value=f" {self.ai_interface.ai_type}, {self.ai_interface.ai_model}")).pack(side=tk.LEFT, fill=tk.X, expand=True)
 
         # チャット内容表示欄
         self.ai_chat_text = tk.Text(self.ai_chat_frame, wrap="word")
@@ -1133,8 +1149,10 @@ class FlowchartTool(tk.Tk):
         from_node_obj = self.nodes[from_id]
         to_node_obj = self.nodes[to_id]
 
+        line_style = ct.EDGE_PARAMS["line_style"] if edge_type == ct.EDGE_TYPE_ELBOW else ct.EDGE_LINE_STYLE_DOTTED
+
         auto_text = self.auto_edge_label(None, from_node_obj)
-        edge_obj = Edge(edge_type=edge_type, line_style=ct.EDGE_LINE_STYLE_SOLID,from_node_obj=from_node_obj, to_node_obj=to_node_obj, text=auto_text, canvas=self.canvas)
+        edge_obj = Edge(edge_type=edge_type, line_style=line_style, from_node_obj=from_node_obj, to_node_obj=to_node_obj, text=auto_text, canvas=self.canvas)
 
         if edge_obj is not None and edge_obj.line_id is not None:
             self.edges[edge_obj.line_id] = edge_obj
@@ -1241,7 +1259,8 @@ class FlowchartTool(tk.Tk):
             fid = ed.get("from_id")
             tid = ed.get("to_id")
             edge_type = ed.get("edge_type", ct.EDGE_TYPE_ELBOW)
-            line_style = ed.get("line_style", ct.EDGE_PARAMS["line_style"])
+            default_line_style = ct.EDGE_PARAMS["line_style"] if edge_type == ct.EDGE_TYPE_ELBOW else ct.EDGE_LINE_STYLE_DOTTED
+            line_style = ed.get("line_style", default_line_style)
             connection_mode = ed.get("connection_mode", None)
             from_connection_point = ed.get("from_connection_point", None)
             to_connection_point = ed.get("to_connection_point", None)
@@ -1661,7 +1680,7 @@ class FlowchartTool(tk.Tk):
     def load_mermaid_flowdata(self, mmd_filepath=None):
         if mmd_filepath is None:
             path = filedialog.askopenfilename(
-                filetypes=[("Mermaid Flowchart", "*.mmd"), ("All files", "*.*")]
+                filetypes=[("Mermaid Flowchart", "*.md"), ("All files", "*.*")]
             )
         else:
             path = mmd_filepath
@@ -1672,7 +1691,8 @@ class FlowchartTool(tk.Tk):
         try:
             with open(path, "r", encoding="utf-8") as f:
                 text = f.read()
-            mmd_nodes, mmd_links = mfloader.parse_mermaid_flowdata(text)
+            canvas_width = self.canvas.winfo_width()
+            mmd_nodes, mmd_links = mfloader.parse_mermaid_flowdata(text, canvas_width=canvas_width)
             self.create_mermaid_flowdata(mmd_nodes, mmd_links)
             messagebox.showinfo("Loaded", f"Loaded Mermaid flowchart from:\n{path}")
         except Exception as e:
@@ -1699,7 +1719,7 @@ class FlowchartTool(tk.Tk):
             return
 
         nd = next(iter(mmd_nodes.values()))
-        if nd.pos_tb is None or nd.pos_lr is None:
+        if nd.pos_x is None or nd.pos_y is None:
             # 自動配置    ※一部のnodeに位置情報がない場合、スタート位置に重ねて配置する
             auto_position_flag = True
             start_x = int(ct.CANVAS_PARAMS["grid_spacing"] * 10 + ct.NODE_DEFAULT_PARAMS["width"] / 2)
@@ -1726,7 +1746,9 @@ class FlowchartTool(tk.Tk):
                 x = start_x + (node_id-1) // vertical_count * interval_x  # 自動配置
                 y = start_y + (node_id-1) % vertical_count * interval_y   # 自動配置
             else:
-                x, y = mfloader.convert_pos_to_xy(pos_tb=nd.pos_tb, pos_lr=nd.pos_lr, start_x=start_x, start_y=start_y)
+                # x, y = mfloader.convert_pos_to_xy(pos_tb=nd.pos_tb, pos_lr=nd.pos_lr, start_x=start_x, start_y=start_y)  # x,y位置はmmdローダー側で計算するように変更
+                x = nd.pos_x if hasattr(nd, "pos_x") else None
+                y = nd.pos_y if hasattr(nd, "pos_y") else None
                 if x is None:
                     x = start_x
                 if y is None:
@@ -1737,14 +1759,14 @@ class FlowchartTool(tk.Tk):
             self._create_node_with_id(node_id, node_type, x, y, w=w, h=h, text=text)
             id_map[node_strid] = node_id
 
-        edge_type = ct.EDGE_TYPE_ELBOW
-        line_style = ct.EDGE_PARAMS["line_style"]
         for ed in mmd_links:
             src_id = ed.src if hasattr(ed, "src") else None
             dst_id = ed.dst if hasattr(ed, "dst") else None
             label = ed.label if hasattr(ed, "label") else None
             fid = id_map.get(src_id)
             tid = id_map.get(dst_id)
+            edge_type = ed.edge_type if hasattr(ed, "edge_type") else ct.EDGE_TYPE_ELBOW
+            line_style = ct.EDGE_PARAMS["line_style"] if edge_type == ct.EDGE_TYPE_ELBOW else ct.EDGE_LINE_STYLE_DOTTED
             if fid in self.nodes and tid in self.nodes:
                 from_node_obj = self.nodes.get(fid)
                 to_node_obj = self.nodes.get(tid)
@@ -1757,6 +1779,10 @@ class FlowchartTool(tk.Tk):
         self.canvas.tag_raise("node")
 
         self.push_history()
+
+    def save_mermaid_flowdata(self):
+        # print(f"save_mermaid_flowdata()")
+        mfsaver.save_data_to_mermaid_file(self.nodes, self.edges)
 
     # -----------------------------
     # UI: チャット表示切替
@@ -1823,14 +1849,16 @@ class FlowchartTool(tk.Tk):
 
     def on_send_to_ai(self, event=None):
         ai_chat_prompt = self.ai_chat_prompt.get().strip()
+        ai_spec_prompt = self.ai_spec_prompt.get("1.0", tk.END).strip()
         if self.ai_interface is not None and self.ai_interface.ai_type is not None and self.ai_interface.ai_model is not None and ai_chat_prompt is not None:
             # print(f"Send to AI: {ai_chat_prompt}")
             self.set_sending(True)
-            return_text, mmd_filepath = self.ai_interface.send_message_to_ai(ai_chat_prompt)
+            return_text, mmd_filepath = self.ai_interface.send_message_to_ai(ai_chat_prompt, ai_spec_prompt)
             # print(f"AI response: {return_text}, mmd_filepath: {mmd_filepath}")
             if mmd_filepath is not None:
                 self.ai_chat_prompt.delete(0, tk.END)
                 self.append_chat("User", ai_chat_prompt)
+                self.append_chat("User", ai_spec_prompt)
                 self.append_chat("AI", return_text)
                 self.load_mermaid_flowdata(mmd_filepath)
             else:
@@ -1840,7 +1868,7 @@ class FlowchartTool(tk.Tk):
     # -----------------------------
     # UI: チャット表示補助
     # -----------------------------
-    def append_chat(self, speaker: str, text: str):
+    def append_chat(self, speaker: str, text: str|None):
         self.ai_chat_text.configure(state="normal")
         self.ai_chat_text.insert("end", f"{speaker}: {text}\n")
         self.ai_chat_text.see("end")
@@ -1958,6 +1986,7 @@ class FlowchartTool(tk.Tk):
         self.icons["Save_JSON"] = self.make_icon("Save_JSON")
         self.icons["Save_Image"] = self.make_icon("Save_Image")
         self.icons["Load_Mermaid"] = self.make_icon("Load_Mermaid")
+        self.icons["Save_Mermaid"] = self.make_icon("Save_Mermaid")
         self.icons["AI-generation"] = self.make_icon("AI-generation")
         self.icons["Manual"] = self.make_icon("Manual")
         self.icons["Status_normal"] = self.make_icon("Status_normal")
@@ -2118,7 +2147,16 @@ class FlowchartTool(tk.Tk):
             d.line((x1-size//2, y1-size//3+4, x1-size//2, y1-size//64), fill=fg, width=8)
             d.line((x1-size//2, y1-size//32, x1-size//2-size//8, y1-size//32-size//6), fill=fg, width=8)
             d.line((x1-size//2+2, y1-size//32, x1-size//2+size//8+2, y1-size//32-size//6), fill=fg, width=8)
-            d.text((x0+size//2, y0+size//2), "Mm", fill=fg, anchor="mm", font=font)
+            d.text((x0+size//2, y0+size//2), "Md", fill=fg, anchor="mm", font=font)
+        elif name == "Save_Mermaid":
+            d.polygon([(x0+size//7, y0), (x1-size//7-size//4, y0), (x1-size//7, y0+size//4), (x1-size//7, y1-size//7), (x0+size//7, y1-size//7)], outline=fg, fill=None, width=8)
+            d.line((x1-size//7-size//4, y0+4, x1-size//7-size//4, y0+size//4), fill=fg, width=8)
+            d.line((x1-size//7-size//4, y0+size//4, x1-size//7-4, y0+size//4), fill=fg, width=8)
+            d.line((x0+size//3.3, y1-size//7-4, x1-size//3.3, y1-size//7-4), fill="white", width=8)
+            d.line((x1-size//2, y1-size//3+4, x1-size//2, y1-size//64), fill=fg, width=8)
+            d.line((x1-size//2, y1-size//3+4, x1-size//2-size//8, y1-size//3+size//6+4), fill=fg, width=8)
+            d.line((x1-size//2, y1-size//3+4, x1-size//2+size//8, y1-size//3+size//6+4), fill=fg, width=8)
+            d.text((x0+size//2, y0+size//2), "Md", fill=fg, anchor="mm", font=font)
         elif name == "AI-generation":
             d.rounded_rectangle((x0, y0, x1, y1), radius=size//8, outline=fg, width=8)
             d.text((x0+size//2, y0+size//2), "AI", fill=fg, anchor="mm", font=font)

@@ -680,6 +680,8 @@ class Node:
             ct.NODE_DECISION_PARAMS["type"] : ct.NODE_DECISION_PARAMS["width"],
             ct.NODE_TERMINATOR_PARAMS["type"] : ct.NODE_TERMINATOR_PARAMS["width"],
             ct.NODE_IO_PARAMS["type"] : ct.NODE_IO_PARAMS["width"],
+            ct.NODE_STORAGE_PARAMS["type"] : ct.NODE_STORAGE_PARAMS["width"],
+            ct.NODE_DOCUMENT_PARAMS["type"] : ct.NODE_DOCUMENT_PARAMS["width"],
         }.get(node_type, ct.NODE_DEFAULT_PARAMS["width"])
         return width
 
@@ -690,5 +692,7 @@ class Node:
             ct.NODE_DECISION_PARAMS["type"] : ct.NODE_DECISION_PARAMS["height"],
             ct.NODE_TERMINATOR_PARAMS["type"] : ct.NODE_TERMINATOR_PARAMS["height"],
             ct.NODE_IO_PARAMS["type"] : ct.NODE_IO_PARAMS["height"],
+            ct.NODE_STORAGE_PARAMS["type"] : ct.NODE_STORAGE_PARAMS["height"],
+            ct.NODE_DOCUMENT_PARAMS["type"] : ct.NODE_DOCUMENT_PARAMS["height"],
         }.get(node_type, ct.NODE_DEFAULT_PARAMS["height"])
         return height

@@ -1842,7 +1842,7 @@ class Edge:
         if from_side == "bottom" and to_side == "top":
             if point_num == 8:
                 mid_Y = self.points[3]
-                item1_ratio = (mid_Y - from_Y) / (to_Y - from_Y)
+                item1_ratio = (mid_Y - from_Y) / (to_Y - from_Y) if to_Y != from_Y else 0.5
                 item2_ratio = None
             elif point_num == 12:
                 if from_X == to_X:

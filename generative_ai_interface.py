@@ -55,18 +55,20 @@ class Generative_AI_interface:
             print(ct.ANTHROPIC_API_KEY_NOT_SET_MESSAGE)
             return False
 
-    def send_message_to_ai(self, user_msg: str):
+    def send_message_to_ai(self, user_msg: str, spec_msg: str|None = None):
         # print(f"send_message_to_ai called with user_msg: {user_msg}")
         if not user_msg:
-            return
+            return None, None
 
         user_input_msg = ct.AI_INPUT_TEMPLATE.replace("$order", user_msg)
+        if spec_msg:
+            user_input_msg += ct.AI_SPEC_TEMPLATE.replace("$spec", spec_msg)
         original_filename = f"{user_msg}_{self.ai_model}"
         sanitized_filename = self.sanitize_filename(original_filename)
         args = (user_input_msg, sanitized_filename)
         return_values = [None, None]
         if self.ai_type == "OpenAI":
-            print("Calling OpenAI API...")
+            # print("Calling OpenAI API...")
             thread = Thread(target=self.call_openai_ai, args=(args, return_values), daemon=True)
         elif self.ai_type == "Gemini":
             # print("Calling Gemini API...")
@@ -146,16 +148,16 @@ class Generative_AI_interface:
             return_values[1] = None
 
     # -----------------------------
-    # ファイル保存（work/[roder].mmd に追記）
+    # ファイル保存（work/[roder].md に追記）
     # -----------------------------
     def save_mmd_to_file(self, order: str, answer: str):
-        # 保存先（実行フォルダ直下の work/test.txt）
+        # 保存先（実行フォルダ直下の work/test.md）
         success_flag = False
         SAVE_DIR = Path(ct.WORK_DIR_NAME)
         filename = self.sanitize_filename(order)
-        OUT_FILE = SAVE_DIR / f"{filename}.mmd"
+        OUT_FILE = SAVE_DIR / f"{filename}.md"
  
-        answer = self.strip_triple_quotes(answer)
+        # answer = self.strip_triple_quotes(answer) # AI回答の前後の ``` をそのまま残す
 
         try:
             SAVE_DIR.mkdir(parents=True, exist_ok=True)  # work が無ければ作る
