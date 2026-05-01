@@ -21,6 +21,7 @@ class Swimlane:
     bottom_text_id: int|None = None
 
     def __post_init__(self):
+        self.kind = self.kind.replace("Swimlane_", "")  # "Swimlane_horizontal" -> "horizontal", "Swimlane_vertical" -> "vertical"
         if self.kind == ct.SWIMLANE_KIND_HORIZONTAL:
             self.width = ct.SWIMLANE_PARAMS["horizontal_width"] if self.width == 0 else self.width
             self.height = ct.SWIMLANE_PARAMS["horizontal_height"] if self.height == 0 else self.height
@@ -240,6 +241,10 @@ class Swimlane:
             else:
                 self.height = max(ct.SWIMLANE_PARAMS["vertical_minimum_height"], self.height - ct.CANVAS_PARAMS["grid_spacing"])
         self.resize()
+
+    def get_fill_color(self):
+        default_fill_color = ct.SWIMLANE_PARAMS["fill_color"]
+        return default_fill_color
 
     def to_dict(self):
         swimlane_data = {

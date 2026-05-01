@@ -63,6 +63,8 @@ class FlowchartTool(tk.Tk):
         self.swimlanes = [] # 登録済みスイムレーンオブジェクトリスト
         self.selected_swimlanes = [] # 選択中のスイムレーンオブジェクトリスト
 
+        self.current_swimlane_kind = "Swimlane_" + ct.SWIMLANE_PARAMS["kind"]  # スイムレーンの種類（垂直 or 水平）
+        self.current_terminator_kind = "Terminator"  # ターミネータの種類（通常 or 小さいやつ）
 
         # ドラッグ操作用の一時データ
         self.drag_data = {"mode": None, "node_id": None, "shape_id": None, "drag_start_x": 0, "drag_start_y": 0, "drag_pre_x": 0, "drag_pre_y": 0, "drag_end_x": 0, "drag_end_y": 0}
@@ -227,9 +229,9 @@ class FlowchartTool(tk.Tk):
         self.popup_menu.add_command(label="Mode : Select/Move", image=self.icons["Select"], compound="left", command=lambda: self.mode.set("select"))
         self.popup_menu.add_command(label="Select all nodes", image=self.icons["Select_all"], compound="left", command=self.select_all)
         self.popup_menu.add_separator()
-        self.popup_menu.add_command(label="Mode : Add Swimlane", image=self.icons["Swimlane"], compound="left", command=lambda: self.mode.set("add:swimlane"))
+        self.popup_menu.add_command(label="Mode : Add Swimlane", image=self.icons[self.current_swimlane_kind], compound="left", command=lambda: self.mode.set("add:swimlane"))
         self.popup_menu.add_separator()
-        self.popup_menu.add_command(label="Mode : Add Terminator", image=self.icons["Terminator"], compound="left", command=lambda: self.mode.set("add:terminator"))
+        self.popup_menu.add_command(label="Mode : Add Terminator", image=self.icons[self.current_terminator_kind], compound="left", command=lambda: self.mode.set("add:terminator"))
         self.popup_menu.add_command(label="Mode : Add Process", image=self.icons["Process"], compound="left", command=lambda: self.mode.set("add:process"))
         self.popup_menu.add_command(label="Mode : Add Decision", image=self.icons["Decision"], compound="left", command=lambda: self.mode.set("add:decision"))
         self.popup_menu.add_command(label="Mode : Add I/O", image=self.icons["I/O"], compound="left", command=lambda: self.mode.set("add:io"))
@@ -356,14 +358,33 @@ class FlowchartTool(tk.Tk):
         return resize_flag
 
     def add_mode_button(self, toolbar, text, value):
-        b = tk.Radiobutton(toolbar, text=text, image=self.icons[text], compound="none", indicatoron=False, value=value, variable=self.mode, width=30, height=30)
+        if text == "Swimlane":
+            text = self.current_swimlane_kind
+            b = tk.Radiobutton(toolbar, text=text, image=self.icons[text], compound="none", indicatoron=False, value=value, variable=self.mode, width=30, height=30)
+            self.swimlane_button_in_toolbar = b  # スイムレーンボタンを保持しておく
+        elif text == "Terminator":
+            text = self.current_terminator_kind
+            b = tk.Radiobutton(toolbar, text=text, image=self.icons[text], compound="none", indicatoron=False, value=value, variable=self.mode, width=30, height=30)
+            self.terminator_button_in_toolbar = b  # ターミネータボタンを保持しておく
+        else:
+            b = tk.Radiobutton(toolbar, text=text, image=self.icons[text], compound="none", indicatoron=False, value=value, variable=self.mode, width=30, height=30)
+
         if text == "Select":
             b.pack(side=tk.LEFT, padx=(4,1))
-        elif text == "Swimlane" or text == "Link_elbow":
+        elif text == "Swimlane_vertical" or text == "Swimlane_horizontal":
+            b.pack(side=tk.LEFT, padx=(4,1))
+            b.bind("<Button-3>", lambda event: self.change_current_swimlane_kind())  # スイムレーンの種類変更のための右クリックイベントをバインド
+        elif text == "Terminator":
+            b.pack(side=tk.LEFT, padx=(4,1))
+            b.bind("<Button-3>", lambda event: self.change_current_terminator_kind())  # ターミネータの種類変更のための右クリックイベントをバインド
+        elif text == "Link_elbow":
             b.pack(side=tk.LEFT, padx=(4,1))
         else:
             b.pack(side=tk.LEFT, padx=1)
-        ToolTip(b, text)
+
+        tooltip = ToolTip(b, text)
+        if text == "Swimlane_vertical" or text == "Swimlane_horizontal":
+            self.swimlane_toolbar_tooltip = tooltip
         return b
 
     def update_status(self):
@@ -849,6 +870,10 @@ class FlowchartTool(tk.Tk):
 
         auto_text = self.auto_node_text(node_type, text)
 
+        if node_type == ct.NODE_TERMINATOR_PARAMS["type"] and w is None:
+            if self.current_terminator_kind == "Terminator_small":
+                w = ct.NODE_TERMINATOR_PARAMS["width"]  // 2
+
         node_obj = Node(node_id, node_type, adjusted_x, adjusted_y, w=w, h=h, fill_color=fill_color, text=auto_text, status=status, canvas=self.canvas)
 
         self.nodes[node_id] = node_obj
@@ -1038,6 +1063,35 @@ class FlowchartTool(tk.Tk):
         # 既存選択の解除（スイムレーン）
         self.selected_swimlanes = []
 
+    def change_current_swimlane_kind(self, swimlane_kind: Literal["vertical", "horizontal"]|None = None):
+        print(f"Changing current swimlane kind: {swimlane_kind}")  # for DEBUG
+        if swimlane_kind in [ct.SWIMLANE_KIND_HORIZONTAL, ct.SWIMLANE_KIND_VERTICAL]:
+            self.current_swimlane_kind = "Swimlane_" + swimlane_kind
+        else:
+            if self.current_swimlane_kind == "Swimlane_" + ct.SWIMLANE_KIND_HORIZONTAL:
+                self.current_swimlane_kind = "Swimlane_" + ct.SWIMLANE_KIND_VERTICAL
+            else:
+                self.current_swimlane_kind = "Swimlane_" + ct.SWIMLANE_KIND_HORIZONTAL
+        print(f"Current swimlane kind set to: {self.current_swimlane_kind}")  # for DEBUG
+
+        self.swimlane_button_in_toolbar.configure(image=self.icons[self.current_swimlane_kind])
+        self.swimlane_toolbar_tooltip.modify_label(self.current_swimlane_kind)  # ツールチップのテキストも更新
+
+    def change_current_terminator_kind(self, terminator_kind: Literal["normal", "small"]|None = None):
+        print(f"Changing current terminator kind: {terminator_kind}")  # for DEBUG
+        if terminator_kind == "normal":
+            self.current_terminator_kind = "Terminator"
+        if terminator_kind =="small":
+            self.current_terminator_kind = "Terminator_small"
+        else:
+            if self.current_terminator_kind == "Terminator":
+                self.current_terminator_kind = "Terminator_small"
+            else:
+                self.current_terminator_kind = "Terminator"
+        print(f"Current terminator kind set to: {self.current_terminator_kind}")  # for DEBUG
+
+        self.terminator_button_in_toolbar.configure(image=self.icons[self.current_terminator_kind])
+
     def delete_selected(self):
         nids = self.selected_node_ids
         line_id = self.selected_edge_id
@@ -1189,7 +1243,7 @@ class FlowchartTool(tk.Tk):
     # スイムレーンの作成
     def create_swimlane(self, x, y):
         adjusted_x, adjusted_y = self.adjusted_swimlane_xy(None, x, y)
-        swimlane_obj = Swimlane(canvas=self.canvas, kind=ct.SWIMLANE_PARAMS["kind"], title=ct.SWIMLANE_PARAMS["title"], header_center_x=adjusted_x, header_center_y=adjusted_y)
+        swimlane_obj = Swimlane(canvas=self.canvas, kind=self.current_swimlane_kind, title=ct.SWIMLANE_PARAMS["title"], header_center_x=adjusted_x, header_center_y=adjusted_y)
         self.swimlanes.append(swimlane_obj)
         self.push_history()
 
@@ -1921,8 +1975,8 @@ class FlowchartTool(tk.Tk):
 
     def change_node_fill_color(self, color_no):
         # print(f"Change node fill color to {color_no}")
-        if self.selected_node_ids is None or len(self.selected_node_ids) == 0:
-            return
+        #if self.selected_node_ids is None or len(self.selected_node_ids) == 0:
+        #    return
         for selected_node_id in self.selected_node_ids:
             if selected_node_id in self.nodes:
                 node_obj = self.nodes[selected_node_id]
@@ -1940,17 +1994,27 @@ class FlowchartTool(tk.Tk):
                 fill_color = node_obj.get_fill_color()
                 self.canvas.itemconfig(node_obj.shape_id, fill=fill_color)
 
+        for selected_swimlane in self.selected_swimlanes:
+            selected_swimlane.fill_color = ct.SWIMLANE_FILL_COLORS[color_no]
+            self.canvas.itemconfig(selected_swimlane.top_id, fill=selected_swimlane.fill_color)
+            self.canvas.itemconfig(selected_swimlane.bottom_id, fill=selected_swimlane.fill_color)
+
         self.push_history()
 
     def reset_node_fill_color(self):
         # print("Reset node fill color")
-        if self.selected_node_ids is None or len(self.selected_node_ids) == 0:
-            return
+        #if self.selected_node_ids is None or len(self.selected_node_ids) == 0:
+        #    return
         for selected_node_id in self.selected_node_ids:
             if selected_node_id in self.nodes:
                 node_obj = self.nodes[selected_node_id]
                 node_obj.fill_color = node_obj.get_fill_color()
                 self.canvas.itemconfig(node_obj.shape_id, fill=node_obj.fill_color)
+
+        for selected_swimlane in self.selected_swimlanes:
+            selected_swimlane.fill_color = selected_swimlane.get_fill_color()
+            self.canvas.itemconfig(selected_swimlane.top_id, fill=selected_swimlane.fill_color)
+            self.canvas.itemconfig(selected_swimlane.bottom_id, fill=selected_swimlane.fill_color)
 
         self.push_history()
 
@@ -1968,8 +2032,10 @@ class FlowchartTool(tk.Tk):
         self.icons = {}  # アイコン画像キャッシュ
         self.icons["Select"] = self.make_icon("Select")
         self.icons["Select_all"] = self.make_icon("Select_all")
-        self.icons["Swimlane"] = self.make_icon("Swimlane")
+        self.icons["Swimlane_vertical"] = self.make_icon("Swimlane_vertical")
+        self.icons["Swimlane_horizontal"] = self.make_icon("Swimlane_horizontal")
         self.icons["Terminator"] = self.make_icon("Terminator")
+        self.icons["Terminator_small"] = self.make_icon("Terminator_small")
         self.icons["Process"] = self.make_icon("Process")
         self.icons["Decision"] = self.make_icon("Decision")
         self.icons["I/O"] = self.make_icon("I/O")
@@ -2033,13 +2099,19 @@ class FlowchartTool(tk.Tk):
                         (x0+size//3         +size//8, y1-size//4+size// 6+size//16)
                     ], outline=fg, fill="white", width=8)
 
-        elif name == "Swimlane":
+        elif name == "Swimlane_vertical":
             d.rectangle((x0+size//6, y0, x1-size//6, y1), outline=fg, width=4)
             d.line((x0+size//6, y0+size//8, x1-size//6, y0+size//8), fill=fg, width=4)
             d.line((x0+size//6, y1-size//8, x1-size//6, y1-size//8), fill=fg, width=4)
+        elif name == "Swimlane_horizontal":
+            d.rectangle((x0, y0+size//6, x1, y1-size//6), outline=fg, width=4)
+            d.line((x0+size//8, y0+size//6, x0+size//8, y1-size//6), fill=fg, width=4)
+            d.line((x1-size//8, y0+size//6, x1-size//8, y1-size//6), fill=fg, width=4)
 
         elif name == "Terminator":
             d.rounded_rectangle((x0, y0+size//5, x1, y1-size//5), radius=size//3, outline=fg, width=8)
+        elif name == "Terminator_small":
+            d.rounded_rectangle((x0+size//8, y0+size//5, x1-size//8, y1-size//5.5), radius=size//3, outline=fg, width=8)
         elif name == "Process":
             d.rounded_rectangle((x0, y0+size//5, x1, y1-size//5), radius=size//8, outline=fg, width=8)
         elif name == "Decision":
@@ -2213,6 +2285,9 @@ class ToolTip(tk.Toplevel):
         self.geometry(f"+{x}+{y}")
         self.deiconify()
 
+    def modify_label(self, text: str):
+        print("Modifying tooltip label")
+        self.label.config(text=text)
 
 if __name__ == "__main__":
     app = FlowchartTool()

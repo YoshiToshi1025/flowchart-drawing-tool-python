@@ -150,19 +150,20 @@ This project provides a **“Simple Flowchart Drawing Tool (Python version)”**
 
 ## Changelog
 
-* 2025/12/12: Initial release (basic features)
-* 2025/12/15: Improved link routing, image export support
-* 2025/12/16+: Various bug fixes and UI improvements
-* 2026/01/02: AI integration (GPT-5.2)
-* 2026/01/08: Display scaling support on Windows
-* 2026/02/09: Node fill color customization
-* 2026/03/03: Swimlane + highlight support
-* 2026/03/17: Canvas resize and scroll support
-* 2026/03/23: Straight links + dashed/dotted styles
-* 2026/03/28: Multi-AI support (GPT, Gemini, Claude)
-* 2026/04/06: JSON output update + Excel VBA beta
-* 2026/04/07: Excel VBA (Windows) official release
-* 2026/04/27: Verified operation with the latest AI models (GPT-5.5, Claude Opus 4.7) / Enabled detailed spec input when generating flows with AI / Added support for Mermaid format output
+* 2025/12/12 : Initial release (basic features)
+* 2025/12/15 : Improved link routing, image export support
+* 2025/12/16 : Various bug fixes and UI improvements
+* 2026/01/02 : AI integration (GPT-5.2)
+* 2026/01/08 : Display scaling support on Windows
+* 2026/02/09 : Node fill color customization
+* 2026/03/03 : Swimlane + highlight support
+* 2026/03/17 : Canvas resize and scroll support
+* 2026/03/23 : Straight links + dashed/dotted styles
+* 2026/03/28 : Multi-AI support (GPT, Gemini, Claude)
+* 2026/04/06 : JSON output update + Excel VBA beta
+* 2026/04/07 : Excel VBA (Windows) official release
+* 2026/04/27 : Verified operation with the latest AI models (GPT-5.5, Claude Opus 4.7) / Enabled detailed spec input when generating flows with AI / Added support for Mermaid format output
+* 2026/05/01 : Support for switching swimlane orientation (vertical/horizontal) via right-click on the toolbar icon, and updates to the online manual. 
 
 ## Notes (Additional)
 

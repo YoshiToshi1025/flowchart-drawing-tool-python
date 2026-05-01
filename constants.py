@@ -232,14 +232,14 @@ SWIMLANE_PARAMS = {
     "kind": SWIMLANE_KIND_VERTICAL,  # SWIMLANE_KIND_HORIZONTAL(横型レーン) or SWIMLANE_KIND_VERTICAL(縦型レーン)
     "title": "Swimlane",
     "horizontal_width": 900,
-    "horizontal_height": 120,
+    "horizontal_height": 150,
     "horizontal_header_width": 30,
     "horizontal_minimum_width": 300,
     "horizontal_max_width": 3000,
     "horizontal_minimum_height": 60,
     "horizontal_max_height": 810,
     "vertical_width": 210,
-    "vertical_height": 720,
+    "vertical_height": 660,
     "vertical_header_height": 30,
     "vertical_minimum_width": 180,
     "vertical_max_width": 800,
@@ -261,6 +261,20 @@ SELECTION_AREA_PARAMS = {
     "outline_width": 1,
     "outline_dash": (4, 2),
 }
+
+# スイムレーン・背景色リスト
+SWIMLANE_FILL_COLORS = [
+    "#FDECEF",  # Light Pink
+    "#FFEFF2",  # Light Orange
+    "#FFF1E3",  # Light Yellow
+    "#FFFDE6",  # Light Yellow
+    "#F1FAEE",  # Light Green
+    "#EFFFF7",  # Light Teal
+    "#EAFBFF",  # Light Blue
+    "#EEF4FF",  # Light Indigo
+    "#F3EEFF",  # Light Purple
+    "#F7F5F2",  # Light Gray
+]
 
 # メッセージ定義一覧
 WINDOW_CLOSE_DIALOG_TITLE = "終了確認"
