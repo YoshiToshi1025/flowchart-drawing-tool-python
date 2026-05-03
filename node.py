@@ -14,13 +14,16 @@ class Node:
     text_id = None
     status = "normal" # "normal", "active", "inactive"
 
-    def __init__(self, node_id, node_type, x:int, y:int, w=None, h=None, fill_color=None, text=None, status=None, canvas=None):
-        # print(f"Creating Node: id={node_id}, type={node_type}, x={x}, y={y}, w={w}, h={h}, fill_color={fill_color}, text={text}, status={status}")
+    def __init__(self, node_id, node_type, x:int, y:int, w=None, h=None, shape_type=None, fill_color=None, text=None, status=None, canvas=None):
+        # print(f"Creating Node: id={node_id}, type={node_type}, x={x}, y={y}, w={w}, h={h}, shape_type={shape_type}, fill_color={fill_color}, text={text}, status={status}")
         self.id = node_id
         self.type = node_type
         self.x = x
         self.y = y
+        self.shape_type = shape_type if self.type == ct.NODE_PROCESS_PARAMS["type"] and shape_type is not None else ct.NODE_PROCESS_PARAMS["shape_type"]
         self.status = status if status is not None else ct.NODE_STATUS_NORMAL
+
+        # print(f"create Node {self.id} initialized with type={self.type}, shape_type={self.shape_type}, status={self.status}")
 
         if w is None:
             self.w = {
@@ -452,12 +455,16 @@ class Node:
         return font_weight
 
     def get_process_points(self):
+        # print(f"Calculating process points for Node {self.id} with shape_type={self.shape_type}")
+
         left, top, right, bottom = self.x - self.w/2, self.y - self.h/2, self.x + self.w/2, self.y + self.h/2
-        shape_type = ct.NODE_PROCESS_PARAMS.get("shape_type", "rectangle")
+        shape_type = self.shape_type if self.shape_type is not None else ct.NODE_PROCESS_PARAMS["shape_type"]
         if shape_type == "rounded_rectangle":
             points = self.get_rounded_rectangle_coords(left, top, right, bottom)
         elif shape_type == "corner_rounded_rectangle":
             points = self.get_corner_rounded_rectangle_coords(left, top, right, bottom)
+        elif shape_type == "ellipse":
+            points = self.get_ellipse_coords(left, top, right, bottom)
         else:
             points = self.get_rectangle_coords(left, top, right, bottom)
         return points
@@ -602,6 +609,20 @@ class Node:
             radius = math.radians(angle)
             coords += [left + r + r * math.sin(radius), top + r - r * math.cos(radius)]
         return coords
+    
+    def get_ellipse_coords(self, left, top, right, bottom):
+        rw = self.w / 2
+        rh = self.h / 2
+        x = (left + right) / 2
+        y = (top + bottom) / 2
+
+        coords = []
+        angle_step = 5
+        for angle in range(0, 361, angle_step):
+            radius = math.radians(angle)
+            coords += [x - rw * math.cos(radius), y - rh * math.sin(radius)]
+
+        return coords
 
     def get_storage_coords(self, left, top, right, bottom):
         r = self.w / 2
@@ -660,7 +681,8 @@ class Node:
             "y": self.y,
             "w": self.w,
             "h": self.h,
-            "text": self.text,
+            "shape_type": self.shape_type,
+            "text": self.text.replace("\n", "\\n"),
         }
         if self.fill_color is not None:
             node_data["fill_color"] = self.fill_color

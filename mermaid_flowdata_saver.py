@@ -47,20 +47,21 @@ def _get_mermaid_node_data(nodes: Dict[int, Node]) -> str:
     mermaid_node_data : str = ""
     for node_id, node in nodes.items():
         mermaid_str_id = _get_mermaid_str_id(node_id)
+        text = node.text.replace("\n", "\\n") if node.text is not None else ""
         if node.type == ct.NODE_PROCESS_PARAMS["type"]:             # 処理
-            mermaid_node_data += f'  {mermaid_str_id}@{{ shape: rounded, label: "{node.text}", x: {node.x}, y: {node.y} }}\n'
+            mermaid_node_data += f'  {mermaid_str_id}@{{ shape: rounded, label: "{text}", x: {node.x}, y: {node.y} }}\n'
         elif node.type == ct.NODE_DECISION_PARAMS["type"]:          # 分岐
-            mermaid_node_data += f'  {mermaid_str_id}@{{ shape: diamond, label: "{node.text}", x: {node.x}, y: {node.y} }}\n'
+            mermaid_node_data += f'  {mermaid_str_id}@{{ shape: diamond, label: "{text}", x: {node.x}, y: {node.y} }}\n'
         elif node.type == ct.NODE_TERMINATOR_PARAMS["type"]:        # 端点
-            mermaid_node_data += f'  {mermaid_str_id}@{{ shape: stadium, label: "{node.text}", x: {node.x}, y: {node.y} }}\n'
+            mermaid_node_data += f'  {mermaid_str_id}@{{ shape: stadium, label: "{text}", x: {node.x}, y: {node.y} }}\n'
         elif node.type == ct.NODE_IO_PARAMS["type"]:                # 入出力
-            mermaid_node_data += f'  {mermaid_str_id}@{{ shape: lean-r, label: "{node.text}", x: {node.x}, y: {node.y} }}\n'
+            mermaid_node_data += f'  {mermaid_str_id}@{{ shape: lean-r, label: "{text}", x: {node.x}, y: {node.y} }}\n'
         elif node.type == ct.NODE_STORAGE_PARAMS["type"]:           # ストレージ
-            mermaid_node_data += f'  {mermaid_str_id}@{{ shape: cyl, label: "{node.text}", x: {node.x}, y: {node.y} }}\n'
+            mermaid_node_data += f'  {mermaid_str_id}@{{ shape: cyl, label: "{text}", x: {node.x}, y: {node.y} }}\n'
         elif node.type == ct.NODE_DOCUMENT_PARAMS["type"]:          # ドキュメント
-            mermaid_node_data += f'  {mermaid_str_id}@{{ shape: doc, label: "{node.text}", x: {node.x}, y: {node.y} }}\n'
+            mermaid_node_data += f'  {mermaid_str_id}@{{ shape: doc, label: "{text}", x: {node.x}, y: {node.y} }}\n'
         else:                                                       # その他（未定義）
-            mermaid_node_data += f'  {mermaid_str_id}@{{ shape: rect, label: "{node.text}", x: {node.x}, y: {node.y} }}\n'
+            mermaid_node_data += f'  {mermaid_str_id}@{{ shape: rect, label: "{text}", x: {node.x}, y: {node.y} }}\n'
     mermaid_node_data += "\n"
 
     return mermaid_node_data
@@ -74,12 +75,14 @@ def _get_mermaid_edge_data(edges: Dict[int, Edge]) -> str:
 
             if edge.edge_type == "elbow":    # エルボータイプの場合、実線を指定する
                 if edge.label_text is not None and edge.label_text != "":
-                        mermaid_edge_data += f'  {from_mermaid_str_id} -- "{edge.label_text}" --> {to_mermaid_str_id}\n'
+                        label_text = edge.label_text.replace("\n", "\\n")
+                        mermaid_edge_data += f'  {from_mermaid_str_id} -- "{label_text}" --> {to_mermaid_str_id}\n'
                 else:
                     mermaid_edge_data += f'  {from_mermaid_str_id} --> {to_mermaid_str_id}\n'
             else:
                 if edge.label_text is not None and edge.label_text != "":
-                        mermaid_edge_data += f'  {from_mermaid_str_id} -. "{edge.label_text}" .-> {to_mermaid_str_id}\n'
+                        label_text = edge.label_text.replace("\n", "\\n")
+                        mermaid_edge_data += f'  {from_mermaid_str_id} -. "{label_text}" .-> {to_mermaid_str_id}\n'
                 else:
                     mermaid_edge_data += f'  {from_mermaid_str_id} -.-> {to_mermaid_str_id}\n'
 
