@@ -249,7 +249,7 @@ class Swimlane:
     def to_dict(self):
         swimlane_data = {
             "kind": self.kind,
-            "title": self.title.replace("\n", "\\n"),
+            "title": self.title,
             "header_center_x": self.header_center_x,
             "header_center_y": self.header_center_y,
             "width": self.width,

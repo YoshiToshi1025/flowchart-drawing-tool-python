@@ -682,7 +682,7 @@ class Node:
             "w": self.w,
             "h": self.h,
             "shape_type": self.shape_type,
-            "text": self.text.replace("\n", "\\n"),
+            "text": self.text,
         }
         if self.fill_color is not None:
             node_data["fill_color"] = self.fill_color

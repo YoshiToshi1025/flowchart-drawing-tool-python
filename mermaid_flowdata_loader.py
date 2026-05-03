@@ -204,6 +204,7 @@ def parse_mermaid_flowdata(text: str, canvas_width: int|None = None) -> Tuple[Di
         if nm:
             node_id = nm.group("id")
             kind, title = _node_kind_and_title(nm)
+            title = title.replace("\\n", "\n") if title is not None else None  # Mermaid allows \n in labels for line breaks
             pos_x, pos_y = _node_kind_and_position_xy(nm)
             if pos_x is None or pos_y is None:
                 pos_tb, pos_lr = _node_kind_and_position_tblr(nm)
@@ -284,6 +285,7 @@ def parse_link_chain_line(line: str) -> List[Link]:
             label = em_line.group("label")
             edge_type = ct.EDGE_TYPE_LINE
         label = label.strip() if label is not None else None
+        label = label.replace("\\n", "\n") if label is not None else None
         if label is not None and len(label) > 3 and label.startswith('"') and label.endswith('"'):
             label = label[1:-1].strip()  # remove surrounding quotes if present
         i = em_elbow.end() if em_elbow else em_line.end()

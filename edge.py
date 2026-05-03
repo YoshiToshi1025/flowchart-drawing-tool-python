@@ -2006,7 +2006,7 @@ class Edge:
             edge_data["edge_wrap_ratio2"] = self.edge_wrap_ratio2
 
         if self.label_text is not None:
-            edge_data["label"] = self.label_text.replace("\n", "\\n")
+            edge_data["label"] = self.label_text
         if self.label_text is not None:
             if self.label_position is not None:
                 edge_data["label_position"] = self.label_position
