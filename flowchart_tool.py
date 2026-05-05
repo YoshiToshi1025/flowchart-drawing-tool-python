@@ -74,6 +74,15 @@ class FlowchartTool(tk.Tk):
         else:
             self.current_process_kind = "corner_rounded_rectangle"  # デフォルトは角丸長方形
 
+        if ct.EDGE_PARAMS["path_type"] == "vertical":
+            self.current_link_elbow_path_type = "vertical"
+        elif ct.EDGE_PARAMS["path_type"] == "horizontal":
+            self.current_link_elbow_path_type = "horizontal"
+        elif ct.EDGE_PARAMS["path_type"] == "tree":
+            self.current_link_elbow_path_type = "tree"
+        else:
+            self.current_link_elbow_path_type = "vertical"  # デフォルトは垂直
+
         # ドラッグ操作用の一時データ
         self.drag_data = {"mode": None, "node_id": None, "shape_id": None, "drag_start_x": 0, "drag_start_y": 0, "drag_pre_x": 0, "drag_pre_y": 0, "drag_end_x": 0, "drag_end_y": 0}
 
@@ -114,7 +123,6 @@ class FlowchartTool(tk.Tk):
 
         for mode_key, mode_value in ct.MODE_DICT.items():
             self.add_mode_button(toolbar, mode_key, mode_value)
-
 
         ttk.Separator(toolbar, orient=tk.VERTICAL).pack(side=tk.LEFT, fill=tk.Y, padx=(8,8))
 
@@ -245,7 +253,7 @@ class FlowchartTool(tk.Tk):
         self.popup_menu.add_command(label="Mode : Add I/O", image=self.icons["I/O"], compound="left", command=lambda: self.mode.set("add:io"))
         self.popup_menu.add_command(label="Mode : Add Storage", image=self.icons["Storage"], compound="left", command=lambda: self.mode.set("add:storage"))
         self.popup_menu.add_command(label="Mode : Add Document", image=self.icons["Document"], compound="left", command=lambda: self.mode.set("add:document"))
-        self.popup_menu.add_command(label="Mode : Link elbow arrow", image=self.icons["Link_elbow"], compound="left", command=lambda: self.mode.set("link_elbow"))
+        self.popup_menu.add_command(label="Mode : Link elbow arrow", image=self.icons["Link_elbow_" + self.current_link_elbow_path_type], compound="left", command=lambda: self.mode.set("link_elbow"))
         self.popup_menu.add_command(label="Mode : Link straight arrow", image=self.icons["Link_straight"], compound="left", command=lambda: self.mode.set("link_straight"))
         self.popup_menu.add_separator()
         self.popup_menu.add_command(label="Delete Selected", image=self.icons["Delete"], compound="left", command=self.delete_selected)
@@ -378,6 +386,10 @@ class FlowchartTool(tk.Tk):
             text = "Process_" + self.current_process_kind
             b = tk.Radiobutton(toolbar, text=text, image=self.icons[text], compound="none", indicatoron=False, value=value, variable=self.mode, width=30, height=30)
             self.process_button_in_toolbar = b  # プロセスボタンを保持しておく
+        elif text == "Link_elbow":
+            text = "Link_elbow_" + self.current_link_elbow_path_type
+            b = tk.Radiobutton(toolbar, text=text, image=self.icons[text], compound="none", indicatoron=False, value=value, variable=self.mode, width=30, height=30)
+            self.link_elbow_button_in_toolbar = b  # リンクエルボボタンを保持しておく
         else:
             b = tk.Radiobutton(toolbar, text=text, image=self.icons[text], compound="none", indicatoron=False, value=value, variable=self.mode, width=30, height=30)
 
@@ -390,18 +402,21 @@ class FlowchartTool(tk.Tk):
             b.pack(side=tk.LEFT, padx=(4,1))
             b.bind("<Button-3>", lambda event: self.change_current_terminator_kind())  # ターミネータの種類変更のための右クリックイベントをバインド
         elif text == "Process_rectangle" or text == "Process_corner_rounded_rectangle" or text == "Process_ellipse":
-            b.pack(side=tk.LEFT, padx=(4,1))
+            b.pack(side=tk.LEFT, padx=1)
             b.bind("<Button-3>", lambda event: self.change_current_process_kind())  # プロセスの種類変更のための右クリックイベントをバインド
-        elif text == "Link_elbow":
+        elif text == "Link_elbow_vertical" or text == "Link_elbow_horizontal" or text == "Link_elbow_tree":
             b.pack(side=tk.LEFT, padx=(4,1))
+            b.bind("<Button-3>", lambda event: self.change_current_link_elbow_path_type())  # リンクエルボの種類変更のための右クリックイベントをバインド
         else:
             b.pack(side=tk.LEFT, padx=1)
 
         tooltip = ToolTip(b, text)
         if text == "Swimlane_vertical" or text == "Swimlane_horizontal":
             self.swimlane_toolbar_tooltip = tooltip
-        if text == "Process_rectangle" or text == "Process_corner_rounded_rectangle" or text == "Process_ellipse":
+        elif text == "Process_rectangle" or text == "Process_corner_rounded_rectangle" or text == "Process_ellipse":
             self.process_toolbar_tooltip = tooltip
+        elif text == "Link_elbow_vertical" or text == "Link_elbow_horizontal" or text == "Link_elbow_tree":
+            self.link_elbow_toolbar_tooltip = tooltip
         return b
 
     def update_status(self):
@@ -484,7 +499,7 @@ class FlowchartTool(tk.Tk):
                 self.select_node(selecting_node_id)
             else:
                 if mode == "link_elbow":
-                    self.create_edge(self.link_start_node_id, selecting_node_id, ct.EDGE_TYPE_ELBOW)
+                    self.create_edge(self.link_start_node_id, selecting_node_id, ct.EDGE_TYPE_ELBOW, path_type=self.current_link_elbow_path_type)
                 elif mode == "link_straight":
                     self.create_edge(self.link_start_node_id, selecting_node_id, ct.EDGE_TYPE_LINE)
                 self.cancel_selection_node_and_edge_and_swimlane()
@@ -1125,6 +1140,20 @@ class FlowchartTool(tk.Tk):
         self.process_button_in_toolbar.configure(image=self.icons["Process_" + self.current_process_kind])
         self.process_toolbar_tooltip.modify_label("Process_" + self.current_process_kind)  # ツールチップのテキストも更新
 
+    def change_current_link_elbow_path_type(self, link_elbow_path_type: Literal["vertical", "horizontal", "tree"]|None = None):
+        # print(f"Changing current link elbow path type: {link_elbow_path_type}")  # for DEBUG
+        if link_elbow_path_type in ["vertical", "horizontal", "tree"]:
+            self.current_link_elbow_path_type = link_elbow_path_type
+        else:
+            if self.current_link_elbow_path_type == "vertical":
+                self.current_link_elbow_path_type = "horizontal"
+            elif self.current_link_elbow_path_type == "horizontal":
+                self.current_link_elbow_path_type = "tree"
+            else:
+                self.current_link_elbow_path_type = "vertical"
+        self.link_elbow_button_in_toolbar.configure(image=self.icons["Link_elbow_" + self.current_link_elbow_path_type])
+        self.link_elbow_toolbar_tooltip.modify_label("Link_elbow_" + self.current_link_elbow_path_type)  # ツールチップのテキストも更新
+
     def delete_selected(self):
         nids = self.selected_node_ids
         line_id = self.selected_edge_id
@@ -1227,11 +1256,15 @@ class FlowchartTool(tk.Tk):
     def _clamp(v, vmin, vmax):
         return max(vmin, min(vmax, v))
 
-    def create_edge(self, from_id, to_id, edge_type:Literal["elbow", "line"]=ct.EDGE_TYPE_ELBOW):
+    def create_edge(self, from_id, to_id, edge_type:Literal["elbow", "line"]=ct.EDGE_TYPE_ELBOW, path_type=None):
         if from_id == to_id:
             return
         if from_id not in self.nodes or to_id not in self.nodes:
             return
+
+        if edge_type == ct.EDGE_TYPE_ELBOW:
+            if path_type is None:
+                path_type = self.current_link_elbow_path_type
 
         from_node_obj = self.nodes[from_id]
         to_node_obj = self.nodes[to_id]
@@ -1239,7 +1272,7 @@ class FlowchartTool(tk.Tk):
         line_style = ct.EDGE_PARAMS["line_style"] if edge_type == ct.EDGE_TYPE_ELBOW else ct.EDGE_LINE_STYLE_DOTTED
 
         auto_text = self.auto_edge_label(None, from_node_obj)
-        edge_obj = Edge(edge_type=edge_type, line_style=line_style, from_node_obj=from_node_obj, to_node_obj=to_node_obj, text=auto_text, canvas=self.canvas)
+        edge_obj = Edge(edge_type=edge_type, path_type=path_type, line_style=line_style, from_node_obj=from_node_obj, to_node_obj=to_node_obj, text=auto_text, canvas=self.canvas)
 
         if edge_obj is not None and edge_obj.line_id is not None:
             self.edges[edge_obj.line_id] = edge_obj
@@ -1347,6 +1380,7 @@ class FlowchartTool(tk.Tk):
             fid = ed.get("from_id")
             tid = ed.get("to_id")
             edge_type = ed.get("edge_type", ct.EDGE_TYPE_ELBOW)
+            path_type = ed.get("path_type", ct.EDGE_PARAMS["path_type"]) if edge_type == ct.EDGE_TYPE_ELBOW else None
             default_line_style = ct.EDGE_PARAMS["line_style"] if edge_type == ct.EDGE_TYPE_ELBOW else ct.EDGE_LINE_STYLE_DOTTED
             line_style = ed.get("line_style", default_line_style)
             connection_mode = ed.get("connection_mode", None)
@@ -1358,7 +1392,7 @@ class FlowchartTool(tk.Tk):
             if fid in self.nodes and tid in self.nodes:
                 from_node_obj = self.nodes[fid]
                 to_node_obj = self.nodes[tid]
-                edge_obj = Edge(edge_type=edge_type, line_style=line_style, from_node_obj=from_node_obj, to_node_obj=to_node_obj, text=label, \
+                edge_obj = Edge(edge_type=edge_type, path_type=path_type, line_style=line_style, from_node_obj=from_node_obj, to_node_obj=to_node_obj, text=label, \
                                         connection_mode=connection_mode, \
                                         from_node_connection_point=from_connection_point, \
                                         to_node_connection_point=to_connection_point, \
@@ -2077,7 +2111,9 @@ class FlowchartTool(tk.Tk):
         self.icons["I/O"] = self.make_icon("I/O")
         self.icons["Storage"] = self.make_icon("Storage")
         self.icons["Document"] = self.make_icon("Document")
-        self.icons["Link_elbow"] = self.make_icon("Link_elbow")
+        self.icons["Link_elbow_vertical"] = self.make_icon("Link_elbow_vertical")
+        self.icons["Link_elbow_horizontal"] = self.make_icon("Link_elbow_horizontal")
+        self.icons["Link_elbow_tree"] = self.make_icon("Link_elbow_tree")
         self.icons["Link_straight"] = self.make_icon("Link_straight")
         self.icons["Delete"] = self.make_icon("Delete")
         self.icons["Grid"] = self.make_icon("Grid")
@@ -2139,22 +2175,29 @@ class FlowchartTool(tk.Tk):
             d.rectangle((x0+size//6, y0, x1-size//6, y1), outline=fg, width=4)
             d.line((x0+size//6, y0+size//8, x1-size//6, y0+size//8), fill=fg, width=4)
             d.line((x0+size//6, y1-size//8, x1-size//6, y1-size//8), fill=fg, width=4)
+            d.polygon([x1, y1, x1-24, y1, x1, y1-24], outline="gray", fill="gray", width=1)
         elif name == "Swimlane_horizontal":
             d.rectangle((x0, y0+size//6, x1, y1-size//6), outline=fg, width=4)
             d.line((x0+size//8, y0+size//6, x0+size//8, y1-size//6), fill=fg, width=4)
             d.line((x1-size//8, y0+size//6, x1-size//8, y1-size//6), fill=fg, width=4)
+            d.polygon([x1, y1, x1-24, y1, x1, y1-24], outline="gray", fill="gray", width=1)
 
         elif name == "Terminator":
             d.rounded_rectangle((x0, y0+size//5, x1, y1-size//5), radius=size//3, outline=fg, width=8)
+            d.polygon([x1, y1, x1-24, y1, x1, y1-24], outline="gray", fill="gray", width=1)
         elif name == "Terminator_small":
             d.rounded_rectangle((x0+size//8, y0+size//5, x1-size//8, y1-size//5.5), radius=size//3, outline=fg, width=8)
+            d.polygon([x1, y1, x1-24, y1, x1, y1-24], outline="gray", fill="gray", width=1)
 
         elif name == "Process_rectangle":
             d.rectangle((x0, y0+size//5, x1, y1-size//5), outline=fg, width=8)
+            d.polygon([x1, y1, x1-24, y1, x1, y1-24], outline="gray", fill="gray", width=1)
         elif name == "Process_corner_rounded_rectangle":
             d.rounded_rectangle((x0, y0+size//5, x1, y1-size//5), radius=size//8, outline=fg, width=8)
+            d.polygon([x1, y1, x1-24, y1, x1, y1-24], outline="gray", fill="gray", width=1)
         elif name == "Process_ellipse":
             d.ellipse((x0, y0+size//5, x1, y1-size//5), outline=fg, width=8)
+            d.polygon([x1, y1, x1-24, y1, x1, y1-24], outline="gray", fill="gray", width=1)
 
         elif name == "Decision":
             d.polygon([(size//2, y0+size//6), (x1, size//2), (size//2, y1-size//6), (x0, size//2)], outline=fg, fill=None, width=8)
@@ -2172,15 +2215,24 @@ class FlowchartTool(tk.Tk):
             d.arc((x0, y1-size*3//8-size//30, x0+size//2+size//20, y1-size//8-size//30), start=30, end=150, fill=fg, width=8)
             d.arc((x0+size//2-size//20, y1-size*3//8+size//20, x1, y1-size//8+size//20), start=210, end=330, fill=fg, width=8)
 
-        elif name == "Link_elbow":
+        elif name == "Link_elbow_vertical":
+            d.line((x0+size//3, y0+size//16, x0+size//3, y0+size//2, x1-size//3, y0+size//2, x1-size//3, y1-size//16), fill=fg, width=8, joint="curve")
+            d.line((x1-size//3, y1-size//16, x1-size//3+size//10, y1-size//5), fill=fg, width=8)
+            d.line((x1-size//3, y1-size//16, x1-size//3-size//10, y1-size//5), fill=fg, width=8)
+            d.polygon([x1, y1, x1-24, y1, x1, y1-24], outline="gray", fill="gray", width=1)
+        elif name == "Link_elbow_horizontal":
             d.line((x0+size//16, y1-size//3, x0+size//2, y1-size//3, x0+size//2, y0+size//3, x1-size//16, y0+size//3), fill=fg, width=8, joint="curve")
-
             d.line((x1-size//16, y0+size//3, x1-size//5, y0+size//3-size//10), fill=fg, width=8)
             d.line((x1-size//16, y0+size//3, x1-size//5, y0+size//3+size//10), fill=fg, width=8)
+            d.polygon([x1, y1, x1-24, y1, x1, y1-24], outline="gray", fill="gray", width=1)
+        elif name == "Link_elbow_tree":
+            d.line((x0+size//4, y0+size//4, x0+size//4, y1-size//3, x1-size//16, y1-size//3), fill=fg, width=8, joint="curve")
+            d.line((x1-size//16, y1-size//3, x1-size//5, y1-size//3+size//10), fill=fg, width=8)
+            d.line((x1-size//16, y1-size//3, x1-size//5, y1-size//3-size//10), fill=fg, width=8)
+            d.polygon([x1, y1, x1-24, y1, x1, y1-24], outline="gray", fill="gray", width=1)
+
         elif name == "Link_straight":
-
             d.line((x0+size//16, y1-size//3, x1-size//16, y0+size//3), fill=fg, width=8, joint="curve")
-
             d.line((x1-size//16, y0+size//3, x1-size//3.8, y0+size//3-size//40), fill=fg, width=8)
             d.line((x1-size//16, y0+size//3, x1-size//5, y0+size//3+size//6), fill=fg, width=8)
 

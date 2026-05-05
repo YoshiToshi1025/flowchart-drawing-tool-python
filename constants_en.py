@@ -201,7 +201,7 @@ EDGE_PARAMS = {
     "font_family": "Arial",
     "font_size": 9,
     "font_weight": font.NORMAL,
-    "tree_mode": False,
+    "path_type": "vertical"     # option: "vertical"(default), "horizontal", "tree"
 }
 
 # Decision Label Definitions
@@ -218,10 +218,11 @@ TERMINATOR_DEFAULT_UNKNOWN_TEXT = "???"
 EDGE_LABEL_OFFSET = {
     "center": (0, -8),
     "ne": (-8, 4),
-    "nw": (8, 6),
+    "nw": (8, 0),
     "se": (-8, 0),
     "sw": (8, 0),
     "nw_from_decision": (8, 0),
+    "sw_from_decision": (8, 0),
 }
 
 SWIMLANE_KIND_HORIZONTAL = "horizontal"

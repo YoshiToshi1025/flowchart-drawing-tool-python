@@ -165,6 +165,7 @@ This project provides a **“Simple Flowchart Drawing Tool (Python version)”**
 * 2026/04/27 : Verified operation with the latest AI models (GPT-5.5, Claude Opus 4.7) / Enabled detailed spec input when generating flows with AI / Added support for Mermaid format output
 * 2026/05/01 : Support for switching swimlane orientation (vertical/horizontal) via right-click on the toolbar icon, and updates to the online manual.
 * 2026/05/03 : Support for switching element shapes (terminator, process) via right-click on the toolbar icon, and improved handling of label line breaks.
+* 2026/05/06 : Support for switching between three elbow-style link routing types (vertical / horizontal / tree) via right-click on the toolbar icon.
 
 ## Notes (Additional)
 

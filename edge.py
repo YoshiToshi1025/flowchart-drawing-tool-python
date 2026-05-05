@@ -36,12 +36,17 @@ class Edge:
         PointPerPixel = 0.75  # 1 pixel = 0.75 points 
 
 
-    def __init__(self, edge_type:Literal["elbow", "line"]="elbow", line_style:Literal["solid", "dashed", "dotted"]="solid", \
+    def __init__(self, edge_type:Literal["elbow", "line"]="elbow", \
+                    path_type:Literal["vertical", "horizontal", "tree", None]=None, \
+                    line_style:Literal["solid", "dashed", "dotted"]="solid", \
                     from_node_obj=None, to_node_obj=None, points=None, text=None, \
                     connection_mode=None, from_node_connection_point=None, to_node_connection_point=None, edge_wrap_margin=None, \
                     label_x=None, label_y=None, canvas=None,\
                     label_position:Literal["auto", "p0se", "p0sw", "p0nw", "p0ne", "p1se", "p1sw", "p1nw", "p1ne", "p2se", "p2sw", "p2nw", "p2ne", "p3se", "p3sw", "p3nw", "p3ne", "p4se", "p4sw", "p4nw", "p4ne", "p5se", "p5sw", "p5nw", "p5ne"]="auto"):
         self.edge_type = edge_type
+        self.path_type = path_type
+        if self.edge_type == ct.EDGE_TYPE_ELBOW and self.path_type is None:
+            self.path_type = ct.EDGE_PARAMS.get("path_type", "vertical")
         self.line_style = line_style
         self.from_node_obj = from_node_obj
         self.to_node_obj = to_node_obj
@@ -137,7 +142,14 @@ class Edge:
         """直線またはかぎ線の頂点の座標とラベル位置を計算"""
         # 各ノードのアンカーとラベル位置を設定
         if self.edge_type == "elbow":
-            self.points, self.label_x, self.label_y, self.label_anchor, self.label_justify = self.rect_anchor(from_node_obj, to_node_obj)
+            if self.path_type == "vertical":
+                self.points, self.label_x, self.label_y, self.label_anchor, self.label_justify = self.rect_anchor_vertical(from_node_obj, to_node_obj)
+            elif self.path_type == "horizontal":
+                self.points, self.label_x, self.label_y, self.label_anchor, self.label_justify = self.rect_anchor_horizontal(from_node_obj, to_node_obj)
+            elif self.path_type == "tree":
+                self.points, self.label_x, self.label_y, self.label_anchor, self.label_justify = self.rect_anchor_tree(from_node_obj, to_node_obj)
+            else:
+                self.points, self.label_x, self.label_y, self.label_anchor, self.label_justify = self.rect_anchor_vertical(from_node_obj, to_node_obj)
         elif self.edge_type == "line":
             self.points, self.label_x, self.label_y, self.label_anchor, self.label_justify = self.line_anchor(from_node_obj, to_node_obj)
         else:
@@ -145,8 +157,8 @@ class Edge:
 
         return self.points, self.label_x, self.label_y, self.label_anchor, self.label_justify
 
-    # --- rectAnchor: 矩形の境界上にアンカーを取る ---
-    def rect_anchor(self, from_node_obj, to_node_obj):
+    # --- rectAnchor Vertical type: 矩形の境界上にアンカーを取る ---
+    def rect_anchor_vertical(self, from_node_obj, to_node_obj):
         coords = []
         if from_node_obj.x is None or from_node_obj.y is None or from_node_obj.h is None or from_node_obj.w is None:
             return coords, None, None, "center", "center"
@@ -240,37 +252,7 @@ class Edge:
                         label_justify = "right"
             else:
                 # from側がDecision以外のノードの場合
-                tree_mode = ct.EDGE_PARAMS.get("tree_mode", False)
-                if tree_mode and from_bottom_y < to_top_y:
-                    if to_bottom_x < from_bottom_x:
-                        coords = self.rect_anchor_bottom_to_right(from_node_obj, to_node_obj)
-                        if coords is not None and coords != []:
-                            label_x = coords[0] + ct.EDGE_LABEL_OFFSET["nw"][0]
-                            label_y = coords[1] + ct.EDGE_LABEL_OFFSET["nw"][1]
-                            self.from_node_connection_point = "bottom"
-                            self.to_node_connection_point = "right"
-                        label_anchor = "nw"
-                        label_justify = "left"
-                    elif from_bottom_x < to_bottom_x:
-                        coords = self.rect_anchor_bottom_to_left(from_node_obj, to_node_obj)
-                        if coords is not None and coords != []:
-                            label_x = coords[0] + ct.EDGE_LABEL_OFFSET["nw"][0]
-                            label_y = coords[1] + ct.EDGE_LABEL_OFFSET["nw"][1]
-                            self.from_node_connection_point = "bottom"
-                            self.to_node_connection_point = "left"
-                        label_anchor = "nw"
-                        label_justify = "left"
-
-                    else:
-                        coords = self.rect_anchor_bottom_to_top(from_node_obj, to_node_obj)
-                        if coords is not None and coords != []:
-                            label_x = coords[0] + ct.EDGE_LABEL_OFFSET["nw"][0]
-                            label_y = coords[1] + ct.EDGE_LABEL_OFFSET["nw"][1]
-                            self.from_node_connection_point = "bottom"
-                            self.to_node_connection_point = "top"
-                        label_anchor = "nw"
-                        label_justify = "left"
-                elif from_bottom_y < to_top_y <= from_bottom_y + ct.CANVAS_PARAMS["grid_spacing"] * 2:
+                if from_bottom_y < to_top_y <= from_bottom_y + ct.CANVAS_PARAMS["grid_spacing"] * 1:
                     if to_right_x < from_left_x:
                         coords = self.rect_anchor_bottom_to_right(from_node_obj, to_node_obj)
                         if coords is not None and coords != []:
@@ -353,6 +335,644 @@ class Edge:
                             self.to_node_connection_point = "left"
                         label_anchor = "ne"
                         label_justify = "right"
+        else:
+            # 明示的なアンカー指定あり
+            if self.from_node_connection_point == "top" and self.to_node_connection_point == "top":
+                coords = self.rect_anchor_top_to_top(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["sw"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                    self.from_node_connection_point = "top"
+                    self.to_node_connection_point = "top"
+                    label_anchor = "sw"
+                    label_justify = "left"
+            elif self.from_node_connection_point == "top" and self.to_node_connection_point == "right":
+                coords = self.rect_anchor_top_to_right(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["sw"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                    self.from_node_connection_point = "top"
+                    self.to_node_connection_point = "right"
+                    label_anchor = "sw"
+                    label_justify = "left"
+            elif self.from_node_connection_point == "top" and self.to_node_connection_point == "bottom":
+                coords = self.rect_anchor_top_to_bottom(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["sw"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                    self.from_node_connection_point = "top"
+                    self.to_node_connection_point = "bottom"
+                    label_anchor = "sw"
+                    label_justify = "left"
+            elif self.from_node_connection_point == "top" and self.to_node_connection_point == "left":
+                coords = self.rect_anchor_top_to_left(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["sw"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                    self.from_node_connection_point = "top"
+                    self.to_node_connection_point = "left"
+                    label_anchor = "sw"
+                    label_justify = "left"
+            elif self.from_node_connection_point == "right" and self.to_node_connection_point == "top":
+                coords = self.rect_anchor_right_to_top(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["sw"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                    self.from_node_connection_point = "right"
+                    self.to_node_connection_point = "top"
+                    label_anchor = "sw"
+                    label_justify = "left"
+            elif self.from_node_connection_point == "right" and self.to_node_connection_point == "right":
+                coords = self.rect_anchor_right_to_right(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    if from_right_y < to_right_y:
+                        label_x = coords[0] + ct.EDGE_LABEL_OFFSET["sw"][0]
+                        label_y = coords[1] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                        self.from_node_connection_point = "right"
+                        self.to_node_connection_point = "right"
+                        label_anchor = "sw"
+                        label_justify = "left"
+                    else:
+                        label_x = coords[0] + ct.EDGE_LABEL_OFFSET["nw"][0]
+                        label_y = coords[1] + ct.EDGE_LABEL_OFFSET["nw"][1]
+                        self.from_node_connection_point = "right"
+                        self.to_node_connection_point = "right"
+                        label_anchor = "nw"
+                        label_justify = "left"
+            elif self.from_node_connection_point == "right" and self.to_node_connection_point == "bottom":
+                coords = self.rect_anchor_right_to_bottom(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["sw"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                    self.from_node_connection_point = "right"
+                    self.to_node_connection_point = "bottom"
+                    label_anchor = "sw"
+                    label_justify = "left"
+            elif self.from_node_connection_point == "right" and self.to_node_connection_point == "left":
+                coords = self.rect_anchor_right_to_left(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["sw"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                    self.from_node_connection_point = "right"
+                    self.to_node_connection_point = "left"
+                    label_anchor = "sw"
+                    label_justify = "left"
+            elif self.from_node_connection_point == "bottom" and self.to_node_connection_point == "top":
+                coords = self.rect_anchor_bottom_to_top(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["nw"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["nw"][1]
+                    self.from_node_connection_point = "bottom"
+                    self.to_node_connection_point = "top"
+                    label_anchor = "nw"
+                    label_justify = "left"
+            elif self.from_node_connection_point == "bottom" and self.to_node_connection_point == "right":
+                coords = self.rect_anchor_bottom_to_right(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["nw"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["nw"][1]
+                    self.from_node_connection_point = "bottom"
+                    self.to_node_connection_point = "right"
+                    label_anchor = "nw"
+                    label_justify = "left"
+            elif self.from_node_connection_point == "bottom" and self.to_node_connection_point == "bottom":
+                coords = self.rect_anchor_bottom_to_bottom(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["nw"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["nw"][1]
+                    self.from_node_connection_point = "bottom"
+                    self.to_node_connection_point = "bottom"
+                    label_anchor = "nw"
+                    label_justify = "left"
+            elif self.from_node_connection_point == "bottom" and self.to_node_connection_point == "left":
+                coords = self.rect_anchor_bottom_to_left(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["nw"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["nw"][1]
+                    self.from_node_connection_point = "bottom"
+                    self.to_node_connection_point = "left"
+                    label_anchor = "nw"
+                    label_justify = "left"
+            elif self.from_node_connection_point == "left" and self.to_node_connection_point == "top":
+                coords = self.rect_anchor_left_to_top(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["se"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["se"][1]
+                    self.from_node_connection_point = "left"
+                    self.to_node_connection_point = "top"
+                    label_anchor = "se"
+                    label_justify = "right"
+            elif self.from_node_connection_point == "left" and self.to_node_connection_point == "right":
+                coords = self.rect_anchor_left_to_right(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["se"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["se"][1]
+                    self.from_node_connection_point = "left"
+                    self.to_node_connection_point = "right"
+                    label_anchor = "se"
+                    label_justify = "right"
+            elif self.from_node_connection_point == "left" and self.to_node_connection_point == "bottom":
+                coords = self.rect_anchor_left_to_bottom(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["se"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["se"][1]
+                    self.from_node_connection_point = "left"
+                    self.to_node_connection_point = "bottom"
+                    label_anchor = "se"
+                    label_justify = "right"
+            elif self.from_node_connection_point == "left" and self.to_node_connection_point == "left":
+                coords = self.rect_anchor_left_to_left(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    if from_left_y < to_left_y:
+                        label_x = coords[0] + ct.EDGE_LABEL_OFFSET["se"][0]
+                        label_y = coords[1] + ct.EDGE_LABEL_OFFSET["se"][1]
+                        self.from_node_connection_point = "left"
+                        self.to_node_connection_point = "left"
+                        label_anchor = "se"
+                        label_justify = "right"
+                    else:
+                        label_x = coords[0] + ct.EDGE_LABEL_OFFSET["ne"][0]
+                        label_y = coords[1] + ct.EDGE_LABEL_OFFSET["ne"][1]
+                        self.from_node_connection_point = "left"
+                        self.to_node_connection_point = "left"
+                        label_anchor = "ne"
+                        label_justify = "right"
+            else:
+                coords = []
+                print("Error: Invalid connection_point values")
+
+        if coords == [] or coords is None:
+            coords = self.simple_line_anchor(from_node_obj, to_node_obj)
+            # self.from_node_connection_point = None
+            # self.to_node_connection_point = None
+
+        if coords is not None and coords != [] and (label_x is None or label_y is None):
+            label_x = (coords[0] + coords[2]) / 2 + ct.EDGE_LABEL_OFFSET["center"][0]
+            label_y = (coords[1] + coords[3]) / 2 + ct.EDGE_LABEL_OFFSET["center"][1]
+            label_anchor = "center"
+            label_justify = "center"
+
+        return coords, label_x, label_y, label_anchor, label_justify
+
+    # --- rectAnchor Horizontal type: 矩形の境界上にアンカーを取る ---  #TODO
+    def rect_anchor_horizontal(self, from_node_obj, to_node_obj):
+        coords = []
+        if from_node_obj.x is None or from_node_obj.y is None or from_node_obj.h is None or from_node_obj.w is None:
+            return coords, None, None, "center", "center"
+        if to_node_obj.x is None or to_node_obj.y is None or to_node_obj.h is None or to_node_obj.w is None:
+            return coords, None, None, "center", "center"
+
+        from_center_x, from_center_y, from_width, from_height = from_node_obj.x, from_node_obj.y, from_node_obj.w, from_node_obj.h
+        from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
+        from_bottom_x, from_bottom_y = from_center_x, from_center_y + from_height / 2
+        from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
+        from_right_x, from_right_y = from_center_x + from_width / 2, from_center_y
+
+        to_center_x, to_center_y, to_width, to_height = to_node_obj.x, to_node_obj.y, to_node_obj.w, to_node_obj.h
+        to_top_x, to_top_y = to_center_x, to_center_y - to_height / 2
+        to_bottom_x, to_bottom_y = to_center_x, to_center_y + to_height / 2
+        to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
+        to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
+
+        from_type = from_node_obj.type
+        label_x = None
+        label_y = None
+        label_anchor = "center"
+        label_justify = "center"
+
+        if self.connection_mode == "auto":
+            if from_type == ct.NODE_DECISION_PARAMS["type"]:
+                # from側がDecisionノードの場合
+                if from_top_y <= to_left_y <= from_bottom_y and from_right_x < to_left_x:
+                    coords = self.rect_anchor_right_to_left(from_node_obj, to_node_obj)
+                    if coords is not None and coords != []:
+                        label_x = coords[0] + ct.EDGE_LABEL_OFFSET["sw_from_decision"][0]
+                        label_y = coords[1] + ct.EDGE_LABEL_OFFSET["sw_from_decision"][1]
+                        self.from_node_connection_point = "right"
+                        self.to_node_connection_point = "left"
+                    label_anchor = "sw"
+                    label_justify = "left"
+                elif from_bottom_y < to_top_y and to_left_x <= from_right_x:
+                    coords = self.rect_anchor_bottom_to_top(from_node_obj, to_node_obj)
+                    if coords is not None and coords != []:
+                        label_x = coords[0] + ct.EDGE_LABEL_OFFSET["nw"][0]
+                        label_y = coords[1] + ct.EDGE_LABEL_OFFSET["nw"][1]
+                        self.from_node_connection_point = "bottom"
+                        self.to_node_connection_point = "top"
+                    label_anchor = "nw"
+                    label_justify = "left"
+                elif from_bottom_y < to_left_y and from_bottom_x < to_top_x:
+                    coords = self.rect_anchor_bottom_to_left(from_node_obj, to_node_obj)
+                    if coords is not None and coords != []:
+                        label_x = coords[0] + ct.EDGE_LABEL_OFFSET["ne"][0]
+                        label_y = coords[1] + ct.EDGE_LABEL_OFFSET["ne"][1] 
+                        self.from_node_connection_point = "bottom"
+                        self.to_node_connection_point = "left"
+                    label_anchor= "ne"
+                    label_justify = "left"
+                elif to_bottom_y < from_top_y and to_left_x <= from_right_x:
+                    coords = self.rect_anchor_top_to_bottom(from_node_obj, to_node_obj)
+                    if coords is not None and coords != []:
+                        label_x = coords[0] + ct.EDGE_LABEL_OFFSET["se"][0]
+                        label_y = coords[1] + ct.EDGE_LABEL_OFFSET["se"][1]
+                        self.from_node_connection_point = "top"
+                        self.to_node_connection_point = "bottom"
+                    label_anchor = "se"
+                    label_justify = "right"
+                elif to_left_y < from_top_y and from_bottom_x < to_top_x:
+                    coords = self.rect_anchor_top_to_left(from_node_obj, to_node_obj)
+                    if coords is not None and coords != []:
+                        label_x = coords[0] + ct.EDGE_LABEL_OFFSET["se"][0]
+                        label_y = coords[1] + ct.EDGE_LABEL_OFFSET["se"][1]
+                        self.from_node_connection_point = "top"
+                        self.to_node_connection_point = "left"
+                    label_anchor = "se"
+                    label_justify = "right"
+                elif to_right_x <= from_left_x:
+                    if to_right_y < from_left_y:
+                        coords = self.rect_anchor_bottom_to_bottom(from_node_obj, to_node_obj)
+                        if coords is not None and coords != []:
+                            label_x = coords[0] + ct.EDGE_LABEL_OFFSET["nw"][0]
+                            label_y = coords[1] + ct.EDGE_LABEL_OFFSET["nw"][1]
+                            self.from_node_connection_point = "bottom"
+                            self.to_node_connection_point = "bottom"
+                        label_anchor = "nw"
+                        label_justify = "left"
+                    else:
+                        coords = self.rect_anchor_top_to_top(from_node_obj, to_node_obj)
+                        if coords is not None and coords != []:
+                            label_x = coords[0] + ct.EDGE_LABEL_OFFSET["se"][0]
+                            label_y = coords[1] + ct.EDGE_LABEL_OFFSET["se"][1]
+                            self.from_node_connection_point = "top"
+                            self.to_node_connection_point = "top"
+                        label_anchor = "se"
+                        label_justify = "right"
+            else:
+                # from側がDecision以外のノードの場合
+                if from_right_x < to_left_x <= from_right_x + ct.CANVAS_PARAMS["grid_spacing"] * 1:
+                    if to_bottom_y < from_top_y:
+                        coords = self.rect_anchor_right_to_bottom(from_node_obj, to_node_obj)
+                        if coords is not None and coords != []:
+                            label_x = coords[0] + ct.EDGE_LABEL_OFFSET["nw"][0]
+                            label_y = coords[1] + ct.EDGE_LABEL_OFFSET["nw"][1]
+                            self.from_node_connection_point = "right"
+                            self.to_node_connection_point = "bottom"
+                        label_anchor = "nw"
+                        label_justify = "left"
+                    elif from_bottom_y < to_top_y:
+                        coords = self.rect_anchor_right_to_top(from_node_obj, to_node_obj)
+                        if coords is not None and coords != []:
+                            label_x = coords[0] + ct.EDGE_LABEL_OFFSET["nw"][0]
+                            label_y = coords[1] + ct.EDGE_LABEL_OFFSET["nw"][1]
+                            self.from_node_connection_point = "right"
+                            self.to_node_connection_point = "top"
+                        label_anchor = "nw"
+                        label_justify = "left"
+                    else:
+                        coords = self.rect_anchor_right_to_left(from_node_obj, to_node_obj)
+                        if coords is not None and coords != []:
+                            label_x = coords[0] + ct.EDGE_LABEL_OFFSET["nw"][0]
+                            label_y = coords[1] + ct.EDGE_LABEL_OFFSET["nw"][1]
+                            self.from_node_connection_point = "right"
+                            self.to_node_connection_point = "left"
+                        label_anchor = "nw"
+                        label_justify = "left"
+                elif from_right_x < to_left_x:
+                    coords = self.rect_anchor_right_to_left(from_node_obj, to_node_obj)
+                    if coords is not None and coords != []:
+                        label_x = coords[0] + ct.EDGE_LABEL_OFFSET["nw"][0]
+                        label_y = coords[1] + ct.EDGE_LABEL_OFFSET["nw"][1]
+                        self.from_node_connection_point = "right"
+                        self.to_node_connection_point = "left"
+                    label_anchor = "nw"
+                    label_justify = "left"
+                elif from_bottom_y < to_top_y and from_left_x <= to_right_x and to_left_x <= from_right_x:
+                    coords = self.rect_anchor_bottom_to_top(from_node_obj, to_node_obj)
+                    if coords is not None and coords != []:
+                        label_x = coords[0] + ct.EDGE_LABEL_OFFSET["nw"][0]
+                        label_y = coords[1] + ct.EDGE_LABEL_OFFSET["nw"][1]
+                        self.from_node_connection_point = "bottom"
+                        self.to_node_connection_point = "top"
+                    label_anchor = "nw"
+                    label_justify = "left"
+                elif from_bottom_y + from_height/2 < to_top_y and to_right_x < from_left_x:
+                    coords = self.rect_anchor_bottom_to_top(from_node_obj, to_node_obj)
+                    if coords is not None and coords != []:
+                        label_x = coords[0] + ct.EDGE_LABEL_OFFSET["sw"][0]
+                        label_y = coords[1] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                        self.from_node_connection_point = "bottom"
+                        self.to_node_connection_point = "top"
+                    label_anchor = "sw"
+                    label_justify = "left"
+                elif to_bottom_y < from_top_y and from_left_x <= to_right_x and to_left_x <= from_right_x:
+                    coords = self.rect_anchor_top_to_bottom(from_node_obj, to_node_obj)
+                    if coords is not None and coords != []:
+                        label_x = coords[0] + ct.EDGE_LABEL_OFFSET["se"][0]
+                        label_y = coords[1] + ct.EDGE_LABEL_OFFSET["se"][1]
+                        self.from_node_connection_point = "top"
+                        self.to_node_connection_point = "bottom"
+                    label_anchor = "se"
+                    label_justify = "right"
+                elif to_right_x <= from_left_x:
+                    if to_right_y < from_left_y:
+                        coords = self.rect_anchor_bottom_to_bottom(from_node_obj, to_node_obj)
+                        if coords is not None and coords != []:
+                            label_x = coords[0] + ct.EDGE_LABEL_OFFSET["nw"][0]
+                            label_y = coords[1] + ct.EDGE_LABEL_OFFSET["nw"][1]
+                            self.from_node_connection_point = "bottom"
+                            self.to_node_connection_point = "bottom"
+                        label_anchor = "nw"
+                        label_justify = "left"
+                    else:
+                        coords = self.rect_anchor_top_to_top(from_node_obj, to_node_obj)
+                        if coords is not None and coords != []:
+                            label_x = coords[0] + ct.EDGE_LABEL_OFFSET["se"][0]
+                            label_y = coords[1] + ct.EDGE_LABEL_OFFSET["se"][1]
+                            self.from_node_connection_point = "top"
+                            self.to_node_connection_point = "top"
+                        label_anchor = "se"
+                        label_justify = "right"
+        else:
+            # 明示的なアンカー指定あり
+            if self.from_node_connection_point == "top" and self.to_node_connection_point == "top":
+                coords = self.rect_anchor_top_to_top(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["sw"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                    self.from_node_connection_point = "top"
+                    self.to_node_connection_point = "top"
+                    label_anchor = "sw"
+                    label_justify = "left"
+            elif self.from_node_connection_point == "top" and self.to_node_connection_point == "right":
+                coords = self.rect_anchor_top_to_right(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["sw"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                    self.from_node_connection_point = "top"
+                    self.to_node_connection_point = "right"
+                    label_anchor = "sw"
+                    label_justify = "left"
+            elif self.from_node_connection_point == "top" and self.to_node_connection_point == "bottom":
+                coords = self.rect_anchor_top_to_bottom(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["sw"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                    self.from_node_connection_point = "top"
+                    self.to_node_connection_point = "bottom"
+                    label_anchor = "sw"
+                    label_justify = "left"
+            elif self.from_node_connection_point == "top" and self.to_node_connection_point == "left":
+                coords = self.rect_anchor_top_to_left(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["sw"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                    self.from_node_connection_point = "top"
+                    self.to_node_connection_point = "left"
+                    label_anchor = "sw"
+                    label_justify = "left"
+            elif self.from_node_connection_point == "right" and self.to_node_connection_point == "top":
+                coords = self.rect_anchor_right_to_top(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["sw"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                    self.from_node_connection_point = "right"
+                    self.to_node_connection_point = "top"
+                    label_anchor = "sw"
+                    label_justify = "left"
+            elif self.from_node_connection_point == "right" and self.to_node_connection_point == "right":
+                coords = self.rect_anchor_right_to_right(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    if from_right_y < to_right_y:
+                        label_x = coords[0] + ct.EDGE_LABEL_OFFSET["sw"][0]
+                        label_y = coords[1] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                        self.from_node_connection_point = "right"
+                        self.to_node_connection_point = "right"
+                        label_anchor = "sw"
+                        label_justify = "left"
+                    else:
+                        label_x = coords[0] + ct.EDGE_LABEL_OFFSET["nw"][0]
+                        label_y = coords[1] + ct.EDGE_LABEL_OFFSET["nw"][1]
+                        self.from_node_connection_point = "right"
+                        self.to_node_connection_point = "right"
+                        label_anchor = "nw"
+                        label_justify = "left"
+            elif self.from_node_connection_point == "right" and self.to_node_connection_point == "bottom":
+                coords = self.rect_anchor_right_to_bottom(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["sw"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                    self.from_node_connection_point = "right"
+                    self.to_node_connection_point = "bottom"
+                    label_anchor = "sw"
+                    label_justify = "left"
+            elif self.from_node_connection_point == "right" and self.to_node_connection_point == "left":
+                coords = self.rect_anchor_right_to_left(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["sw"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                    self.from_node_connection_point = "right"
+                    self.to_node_connection_point = "left"
+                    label_anchor = "sw"
+                    label_justify = "left"
+            elif self.from_node_connection_point == "bottom" and self.to_node_connection_point == "top":
+                coords = self.rect_anchor_bottom_to_top(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["nw"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["nw"][1]
+                    self.from_node_connection_point = "bottom"
+                    self.to_node_connection_point = "top"
+                    label_anchor = "nw"
+                    label_justify = "left"
+            elif self.from_node_connection_point == "bottom" and self.to_node_connection_point == "right":
+                coords = self.rect_anchor_bottom_to_right(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["nw"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["nw"][1]
+                    self.from_node_connection_point = "bottom"
+                    self.to_node_connection_point = "right"
+                    label_anchor = "nw"
+                    label_justify = "left"
+            elif self.from_node_connection_point == "bottom" and self.to_node_connection_point == "bottom":
+                coords = self.rect_anchor_bottom_to_bottom(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["nw"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["nw"][1]
+                    self.from_node_connection_point = "bottom"
+                    self.to_node_connection_point = "bottom"
+                    label_anchor = "nw"
+                    label_justify = "left"
+            elif self.from_node_connection_point == "bottom" and self.to_node_connection_point == "left":
+                coords = self.rect_anchor_bottom_to_left(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["nw"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["nw"][1]
+                    self.from_node_connection_point = "bottom"
+                    self.to_node_connection_point = "left"
+                    label_anchor = "nw"
+                    label_justify = "left"
+            elif self.from_node_connection_point == "left" and self.to_node_connection_point == "top":
+                coords = self.rect_anchor_left_to_top(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["se"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["se"][1]
+                    self.from_node_connection_point = "left"
+                    self.to_node_connection_point = "top"
+                    label_anchor = "se"
+                    label_justify = "right"
+            elif self.from_node_connection_point == "left" and self.to_node_connection_point == "right":
+                coords = self.rect_anchor_left_to_right(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["se"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["se"][1]
+                    self.from_node_connection_point = "left"
+                    self.to_node_connection_point = "right"
+                    label_anchor = "se"
+                    label_justify = "right"
+            elif self.from_node_connection_point == "left" and self.to_node_connection_point == "bottom":
+                coords = self.rect_anchor_left_to_bottom(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    label_x = coords[0] + ct.EDGE_LABEL_OFFSET["se"][0]
+                    label_y = coords[1] + ct.EDGE_LABEL_OFFSET["se"][1]
+                    self.from_node_connection_point = "left"
+                    self.to_node_connection_point = "bottom"
+                    label_anchor = "se"
+                    label_justify = "right"
+            elif self.from_node_connection_point == "left" and self.to_node_connection_point == "left":
+                coords = self.rect_anchor_left_to_left(from_node_obj, to_node_obj)
+                if coords is not None and coords != []:
+                    if from_left_y < to_left_y:
+                        label_x = coords[0] + ct.EDGE_LABEL_OFFSET["se"][0]
+                        label_y = coords[1] + ct.EDGE_LABEL_OFFSET["se"][1]
+                        self.from_node_connection_point = "left"
+                        self.to_node_connection_point = "left"
+                        label_anchor = "se"
+                        label_justify = "right"
+                    else:
+                        label_x = coords[0] + ct.EDGE_LABEL_OFFSET["ne"][0]
+                        label_y = coords[1] + ct.EDGE_LABEL_OFFSET["ne"][1]
+                        self.from_node_connection_point = "left"
+                        self.to_node_connection_point = "left"
+                        label_anchor = "ne"
+                        label_justify = "right"
+            else:
+                coords = []
+                print("Error: Invalid connection_point values")
+
+        if coords == [] or coords is None:
+            coords = self.simple_line_anchor(from_node_obj, to_node_obj)
+            # self.from_node_connection_point = None
+            # self.to_node_connection_point = None
+
+        if coords is not None and coords != [] and (label_x is None or label_y is None):
+            label_x = (coords[0] + coords[2]) / 2 + ct.EDGE_LABEL_OFFSET["center"][0]
+            label_y = (coords[1] + coords[3]) / 2 + ct.EDGE_LABEL_OFFSET["center"][1]
+            label_anchor = "center"
+            label_justify = "center"
+
+        return coords, label_x, label_y, label_anchor, label_justify
+
+    # --- rectAnchor Tree type: 矩形の境界上にアンカーを取る ---
+    def rect_anchor_tree(self, from_node_obj, to_node_obj):
+        coords = []
+        if from_node_obj.x is None or from_node_obj.y is None or from_node_obj.h is None or from_node_obj.w is None:
+            return coords, None, None, "center", "center"
+        if to_node_obj.x is None or to_node_obj.y is None or to_node_obj.h is None or to_node_obj.w is None:
+            return coords, None, None, "center", "center"
+
+        from_center_x, from_center_y, from_width, from_height = from_node_obj.x, from_node_obj.y, from_node_obj.w, from_node_obj.h
+        from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
+        from_bottom_x, from_bottom_y = from_center_x, from_center_y + from_height / 2
+        from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
+        from_right_x, from_right_y = from_center_x + from_width / 2, from_center_y
+
+        to_center_x, to_center_y, to_width, to_height = to_node_obj.x, to_node_obj.y, to_node_obj.w, to_node_obj.h
+        to_top_x, to_top_y = to_center_x, to_center_y - to_height / 2
+        to_bottom_x, to_bottom_y = to_center_x, to_center_y + to_height / 2
+        to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
+        to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
+
+        from_type = from_node_obj.type
+        label_x = None
+        label_y = None
+        label_anchor = "center"
+        label_justify = "center"
+
+        if self.connection_mode == "auto":
+            if from_bottom_y < to_left_y:
+                if to_right_x < from_bottom_x:
+                    coords = self.rect_anchor_bottom_to_right(from_node_obj, to_node_obj)
+                    if coords is not None and coords != []:
+                        label_x = coords[2] + ct.EDGE_LABEL_OFFSET["se"][0]
+                        label_y = coords[3] + ct.EDGE_LABEL_OFFSET["se"][1]
+                        self.from_node_connection_point = "bottom"
+                        self.to_node_connection_point = "right"
+                    label_anchor = "se"
+                    label_justify = "right"
+                elif from_bottom_x < to_left_x:
+                    coords = self.rect_anchor_bottom_to_left(from_node_obj, to_node_obj)
+                    if coords is not None and coords != []:
+                        label_x = coords[2] + ct.EDGE_LABEL_OFFSET["sw"][0]
+                        label_y = coords[3] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                        self.from_node_connection_point = "bottom"
+                        self.to_node_connection_point = "left"
+                    label_anchor = "sw"
+                    label_justify = "left"
+                else:
+                    coords = self.rect_anchor_bottom_to_top(from_node_obj, to_node_obj)
+                    if coords is not None and coords != []:
+                        label_x = coords[2] + ct.EDGE_LABEL_OFFSET["sw"][0]
+                        label_y = coords[3] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                        self.from_node_connection_point = "bottom"
+                        self.to_node_connection_point = "top"
+                    label_anchor = "sw"
+                    label_justify = "left"
+            elif to_left_y < from_top_y:
+                if to_right_x < from_top_x:
+                    coords = self.rect_anchor_top_to_right(from_node_obj, to_node_obj)
+                    if coords is not None and coords != []:
+                        label_x = coords[2] + ct.EDGE_LABEL_OFFSET["se"][0]
+                        label_y = coords[3] + ct.EDGE_LABEL_OFFSET["se"][1]
+                        self.from_node_connection_point = "top"
+                        self.to_node_connection_point = "right"
+                    label_anchor = "se"
+                    label_justify = "right"
+                elif from_top_x < to_left_x:
+                    coords = self.rect_anchor_top_to_left(from_node_obj, to_node_obj)
+                    if coords is not None and coords != []:
+                        label_x = coords[2] + ct.EDGE_LABEL_OFFSET["sw"][0]
+                        label_y = coords[3] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                        self.from_node_connection_point = "top"
+                        self.to_node_connection_point = "left"
+                    label_anchor = "sw"
+                    label_justify = "left"
+                else:
+                    coords = self.rect_anchor_top_to_bottom(from_node_obj, to_node_obj)
+                    if coords is not None and coords != []:
+                        label_x = coords[2] + ct.EDGE_LABEL_OFFSET["nw"][0]
+                        label_y = coords[3] + ct.EDGE_LABEL_OFFSET["nw"][1]
+                        self.from_node_connection_point = "top"
+                        self.to_node_connection_point = "bottom"
+                    label_anchor = "nw"
+                    label_justify = "left"
+            else:
+                if to_right_x < from_left_x:
+                    coords = self.rect_anchor_left_to_right(from_node_obj, to_node_obj)
+                    if coords is not None and coords != []:
+                        label_x = coords[0] + ct.EDGE_LABEL_OFFSET["se"][0]
+                        label_y = coords[1] + ct.EDGE_LABEL_OFFSET["se"][1]
+                        self.from_node_connection_point = "left"
+                        self.to_node_connection_point = "right"
+                    label_anchor = "se"
+                    label_justify = "right"
+                elif from_right_x < to_left_x:
+                    coords = self.rect_anchor_right_to_left(from_node_obj, to_node_obj)
+                    if coords is not None and coords != []:
+                        label_x = coords[0] + ct.EDGE_LABEL_OFFSET["sw"][0]
+                        label_y = coords[1] + ct.EDGE_LABEL_OFFSET["sw"][1]
+                        self.from_node_connection_point = "right"
+                        self.to_node_connection_point = "left"
+                    label_anchor = "sw"
+                    label_justify = "left"
         else:
             # 明示的なアンカー指定あり
             if self.from_node_connection_point == "top" and self.to_node_connection_point == "top":
@@ -1977,7 +2597,6 @@ class Edge:
             item1_ratio = None
             item2_ratio = None
 
-        # print(f"get_edge_wrap_ratios: from_side={from_side}, to_side={to_side}, edge_wrap_margin={self.edge_wrap_margin} item1_ratio={item1_ratio}, item2_ratio={item2_ratio}")
         return item1_ratio, item2_ratio
 
     def to_dict(self):
@@ -1988,6 +2607,8 @@ class Edge:
         }
         if self.edge_type is not None:
             edge_data["edge_type"] = self.edge_type
+        if self.path_type is not None:
+            edge_data["path_type"] = self.path_type
         if self.line_style is not None:
             edge_data["line_style"] = self.line_style
 
