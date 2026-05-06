@@ -168,7 +168,12 @@ class Node:
             tags=("node", f"node-{self.id}", "node-shape")
         )
 
+    def reset_fill_color(self):
+        self.fill_color = None
+        return self.get_fill_color()
+
     def get_fill_color(self):
+        print("Get fill color")
         default_fill_color = ct.NODE_DEFAULT_PARAMS["fill_color"]
         default_active_fill_color = ct.NODE_DEFAULT_PARAMS.get("active_fill_color", default_fill_color)
         default_inactive_fill_color = ct.NODE_DEFAULT_PARAMS.get("inactive_fill_color", default_fill_color)
@@ -180,6 +185,7 @@ class Node:
                 fill_color = ct.NODE_PROCESS_PARAMS.get("inactive_fill_color", default_inactive_fill_color)
             else:
                 fill_color = ct.NODE_PROCESS_PARAMS.get("fill_color", default_fill_color) if self.fill_color is None else self.fill_color
+                print(f"A Node {self.id} fill_color for process determined as {fill_color}")
         elif self.type == ct.NODE_DECISION_PARAMS["type"]:     # 分岐
             if self.status == "active":
                 fill_color = ct.NODE_DECISION_PARAMS.get("active_fill_color", default_active_fill_color)
@@ -223,7 +229,7 @@ class Node:
             else:
                 fill_color = default_fill_color if self.fill_color is None else self.fill_color
 
-        # print(f"Node {self.id} fill_color determined as {fill_color}")
+        print(f"Node {self.id} fill_color determined as {fill_color}")
         return fill_color
 
     def get_outline_color(self):

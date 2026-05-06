@@ -2070,17 +2070,17 @@ class FlowchartTool(tk.Tk):
         self.push_history()
 
     def reset_node_fill_color(self):
-        # print("Reset node fill color")
+        print("Reset node fill color")
         #if self.selected_node_ids is None or len(self.selected_node_ids) == 0:
         #    return
         for selected_node_id in self.selected_node_ids:
             if selected_node_id in self.nodes:
                 node_obj = self.nodes[selected_node_id]
-                node_obj.fill_color = node_obj.get_fill_color()
+                node_obj.fill_color = node_obj.reset_fill_color()
                 self.canvas.itemconfig(node_obj.shape_id, fill=node_obj.fill_color)
 
         for selected_swimlane in self.selected_swimlanes:
-            selected_swimlane.fill_color = selected_swimlane.get_fill_color()
+            selected_swimlane.fill_color = selected_swimlane.reset_fill_color()
             self.canvas.itemconfig(selected_swimlane.top_id, fill=selected_swimlane.fill_color)
             self.canvas.itemconfig(selected_swimlane.bottom_id, fill=selected_swimlane.fill_color)
 

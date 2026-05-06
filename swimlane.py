@@ -242,6 +242,9 @@ class Swimlane:
                 self.height = max(ct.SWIMLANE_PARAMS["vertical_minimum_height"], self.height - ct.CANVAS_PARAMS["grid_spacing"])
         self.resize()
 
+    def reset_fill_color(self):
+        return self.get_fill_color()
+
     def get_fill_color(self):
         default_fill_color = ct.SWIMLANE_PARAMS["fill_color"]
         return default_fill_color
