@@ -2070,7 +2070,6 @@ class FlowchartTool(tk.Tk):
         self.push_history()
 
     def reset_node_fill_color(self):
-        print("Reset node fill color")
         #if self.selected_node_ids is None or len(self.selected_node_ids) == 0:
         #    return
         for selected_node_id in self.selected_node_ids:
