@@ -1,7 +1,7 @@
 Attribute VB_Name = "ExcelShapesDrawingWithJSON"
 ''
 ' Excel Shapes Drawing Program to active sheet with Flowchart JSON Data
-' Version 2026.04.07
+' Version 2026.05.11
 ' (c) Toshiki Yoshino - https://github.com/YoshiToshi1025/flowchart-drawing-tool-python
 '
 ' @author Toshiki Yoshino
@@ -66,6 +66,7 @@ Private Type SwimlaneData
     width     As Double   ' 本体幅(pt)
     height    As Double   ' 本体高さ(pt)
     groupName As String   ' グループシェイプ名（Z-order調整用）
+    fillColor As String   ' 塗りつぶし色 "#rrggbb"
 End Type
 
 ' ============================================================
@@ -552,6 +553,8 @@ Private Sub ParseSwimlaneObj(sw As SwimlaneData)
                 sw.width = CDbl(Val(JsonNum())) * 0.75
             Case "height"
                 sw.height = CDbl(Val(JsonNum())) * 0.75
+            Case "fill_color"
+                sw.fillColor = JsonStr()
             Case Else
                 Call JsonSkip
         End Select
@@ -775,18 +778,20 @@ Private Sub DrawSwimlane(ws As Worksheet, sw As SwimlaneData)
         .Line.ForeColor.RGB = RGB(0, 0, 0)
         .Line.Weight = 1 * 0.75
         .Line.DashStyle = msoLineSolid
-        .TextFrame.Characters.Text = ""
+        .TextFrame.Characters.text = ""
     End With
 
-    ' --- ヘッダー（ライトグレー塗りつぶし） ---
+    ' --- ヘッダー（塗りつぶし） ---
     Dim hdrShp As Shape
+    Dim fillColor As String
     Set hdrShp = ws.Shapes.AddShape(msoShapeRectangle, hdrL, hdrT, hdrW, hdrH)
-    Call ApplySwimlaneHeaderStyle(hdrShp, sw.title, isHoriz)
+    fillColor = sw.fillColor
+    Call ApplySwimlaneHeaderStyle(hdrShp, sw.title, isHoriz, fillColor)
 
     ' --- フッター（ヘッダーと同じスタイル） ---
     Dim ftrShp As Shape
     Set ftrShp = ws.Shapes.AddShape(msoShapeRectangle, ftrL, ftrT, ftrW, ftrH)
-    Call ApplySwimlaneHeaderStyle(ftrShp, sw.title, isHoriz)
+    Call ApplySwimlaneHeaderStyle(ftrShp, sw.title, isHoriz, fillColor)
 
     ' --- 3つの図形をグループ化 ---
     Dim grp As Shape
@@ -795,10 +800,14 @@ Private Sub DrawSwimlane(ws As Worksheet, sw As SwimlaneData)
 End Sub
 
 ' ヘッダー/フッター共通スタイル適用
-Private Sub ApplySwimlaneHeaderStyle(shp As Shape, title As String, isHoriz As Boolean)
+Private Sub ApplySwimlaneHeaderStyle(shp As Shape, title As String, isHoriz As Boolean, fillColor As String)
     With shp.Fill
         .Visible = msoTrue
-        .ForeColor.RGB = RGB(211, 211, 211)  ' ライトグレー
+        If fillColor = "" Then
+            .ForeColor.RGB = RGB(211, 211, 211)  ' ライトグレー
+        Else
+            .ForeColor.RGB = HexToRgb(fillColor)
+        End If
     End With
     With shp.Line
         .Visible = msoTrue
@@ -807,7 +816,7 @@ Private Sub ApplySwimlaneHeaderStyle(shp As Shape, title As String, isHoriz As B
         .DashStyle = msoLineSolid
     End With
     With shp.TextFrame
-        .Characters.Text = title
+        .Characters.text = title
         .HorizontalAlignment = xlHAlignCenter
         .VerticalAlignment = xlVAlignCenter
         .HorizontalOverflow = xlOartHorizontalOverflowOverflow
@@ -895,7 +904,7 @@ Private Sub DrawNode(ws As Worksheet, nd As NodeData)
 
     ' テキスト
     With shp.TextFrame
-        .Characters.Text = nd.cellText
+        .Characters.text = nd.cellText
         .HorizontalAlignment = xlHAlignCenter
         .VerticalAlignment = xlVAlignCenter
         .HorizontalOverflow = xlOartHorizontalOverflowOverflow
@@ -1096,7 +1105,7 @@ Private Sub DrawEdge(ws As Worksheet, ed As EdgeData, _
         End If
 
         With connLabel.TextFrame
-            .Characters.Text = ed.edgeLabel
+            .Characters.text = ed.edgeLabel
             If ed.labelJustify = "right" Then
                 .HorizontalAlignment = xlHAlignRight
             ElseIf ed.labelJustify = "left" Then

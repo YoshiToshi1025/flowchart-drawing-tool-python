@@ -13,6 +13,9 @@ class Edge:
     line_style:Literal["solid", "dashed", "dotted"] = "solid"  # "solid", "dashed", "dotted"のいずれか
     from_node_obj = None
     to_node_obj = None
+    to_x = None
+    to_y = None
+    color = ct.EDGE_PARAMS["color"]
     points = None  # List of (x, y) tuples
     label_id = None
     label_x = None
@@ -39,10 +42,11 @@ class Edge:
     def __init__(self, edge_type:Literal["elbow", "line"]="elbow", \
                     path_type:Literal["vertical", "horizontal", "tree", None]=None, \
                     line_style:Literal["solid", "dashed", "dotted"]="solid", \
-                    from_node_obj=None, to_node_obj=None, points=None, text=None, \
+                    from_node_obj=None, to_node_obj=None, color=None, points=None, text=None, \
                     connection_mode=None, from_node_connection_point=None, to_node_connection_point=None, edge_wrap_margin=None, \
                     label_x=None, label_y=None, canvas=None,\
                     label_position:Literal["auto", "p0se", "p0sw", "p0nw", "p0ne", "p1se", "p1sw", "p1nw", "p1ne", "p2se", "p2sw", "p2nw", "p2ne", "p3se", "p3sw", "p3nw", "p3ne", "p4se", "p4sw", "p4nw", "p4ne", "p5se", "p5sw", "p5nw", "p5ne"]="auto"):
+        self.line_id = None
         self.edge_type = edge_type
         self.path_type = path_type
         if self.edge_type == ct.EDGE_TYPE_ELBOW and self.path_type is None:
@@ -50,6 +54,7 @@ class Edge:
         self.line_style = line_style
         self.from_node_obj = from_node_obj
         self.to_node_obj = to_node_obj
+        self.color = color if color is not None else ct.EDGE_PARAMS["color"]
         self.label_text = text
         self.label_position = label_position
         if self.edge_type == ct.EDGE_TYPE_ELBOW:
@@ -93,6 +98,7 @@ class Edge:
             self.draw_label(canvas, from_node_obj)
 
     def draw_edge(self, canvas:tk.Canvas, from_node_obj, to_node_obj):
+        # print(f"**  Drawing edge from {from_node_obj.id if from_node_obj else None} to {to_node_obj.id if to_node_obj else None} with points: {self.points}")  # for DEBUG
         """エッジの描画"""
         arrow_kind = ct.EDGE_PARAMS.get("arrow_kind", tk.LAST)
         arrow_shape = ct.EDGE_PARAMS.get("arrow_shape", (8, 10, 3))
@@ -102,16 +108,18 @@ class Edge:
         if arrow_kind is None:
             self.line_id = canvas.create_line(
                 *self.points,
-                width=ct.EDGE_PARAMS["width"], fill=ct.EDGE_PARAMS["color"], dash=dash_pattern,
+                width=ct.EDGE_PARAMS["width"], fill=self.color, dash=dash_pattern,
                 tags=("edge")
             )
+            # print(f"**1    Created line with ID: {self.line_id}")  # for DEBUG
         else:
             self.line_id = canvas.create_line(
                 *self.points,
                 arrow=arrow_kind, arrowshape=arrow_shape,
-                width=ct.EDGE_PARAMS["width"], fill=ct.EDGE_PARAMS["color"], dash=dash_pattern,
+                width=ct.EDGE_PARAMS["width"], fill=self.color, dash=dash_pattern,
                 tags=("edge")
             )
+            # print(f"**2    Created line with ID: {self.line_id}")  # for DEBUG
         # エッジはノードの下に
         canvas.tag_lower(self.line_id, "node")
     
@@ -132,7 +140,7 @@ class Edge:
                 self.label_x, self.label_y,
                 text=self.label_text,
                 font=(ct.EDGE_PARAMS["font_family"], ct.EDGE_PARAMS["font_size"], ct.EDGE_PARAMS["font_weight"]), width=ct.EDGE_PARAMS["text_width"],
-                fill=ct.EDGE_PARAMS["text_color"], anchor = self.label_anchor, justify = self.label_justify,
+                fill=self.color, anchor = self.label_anchor, justify = self.label_justify,
                 tags=("edge-label",)
             )
             # ラベルもノードの下でOK（少し上に描かれるので視認性は保てる）

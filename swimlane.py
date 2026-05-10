@@ -19,6 +19,7 @@ class Swimlane:
     bottom_id: int|None = None
     top_text_id: int|None = None
     bottom_text_id: int|None = None
+    fill_color: str = ct.SWIMLANE_PARAMS["fill_color"]
 
     def __post_init__(self):
         self.kind = self.kind.replace("Swimlane_", "")  # "Swimlane_horizontal" -> "horizontal", "Swimlane_vertical" -> "vertical"
@@ -52,7 +53,7 @@ class Swimlane:
             self.top_id = self.canvas.create_rectangle(
                 self.top_left_x, self.top_left_y,
                 self.top_left_x + self.width, self.top_left_y + header_height,
-                fill= ct.SWIMLANE_PARAMS["fill_color"],
+                fill= self.fill_color,
                 outline= ct.SWIMLANE_PARAMS["outline_color"],
                 width= ct.SWIMLANE_PARAMS["outline_width"],
                 tags=("swimlane", ct.SWIMLANE_KIND_VERTICAL),
@@ -60,7 +61,7 @@ class Swimlane:
             self.bottom_id = self.canvas.create_rectangle(
                 self.top_left_x, self.top_left_y + self.height - header_height,
                 self.top_left_x + self.width, self.top_left_y + self.height,
-                fill= ct.SWIMLANE_PARAMS["fill_color"],
+                fill= self.fill_color,
                 outline= ct.SWIMLANE_PARAMS["outline_color"],
                 width= ct.SWIMLANE_PARAMS["outline_width"],
                 tags=("swimlane", ct.SWIMLANE_KIND_VERTICAL),
@@ -94,7 +95,7 @@ class Swimlane:
             self.top_id = self.canvas.create_rectangle(
                 self.top_left_x, self.top_left_y,
                 self.top_left_x + header_width, self.top_left_y + self.height,
-                fill= ct.SWIMLANE_PARAMS["fill_color"],
+                fill= self.fill_color,
                 outline= ct.SWIMLANE_PARAMS["outline_color"],
                 width= ct.SWIMLANE_PARAMS["outline_width"],
                 tags=("swimlane", ct.SWIMLANE_KIND_HORIZONTAL),
@@ -102,7 +103,7 @@ class Swimlane:
             self.bottom_id = self.canvas.create_rectangle(
                 self.top_left_x + self.width - header_width, self.top_left_y,
                 self.top_left_x + self.width, self.top_left_y + self.height,
-                fill= ct.SWIMLANE_PARAMS["fill_color"],
+                fill= self.fill_color,
                 outline= ct.SWIMLANE_PARAMS["outline_color"],
                 width= ct.SWIMLANE_PARAMS["outline_width"],
                 tags=("swimlane", ct.SWIMLANE_KIND_HORIZONTAL),
@@ -243,9 +244,10 @@ class Swimlane:
         self.resize()
 
     def reset_fill_color(self):
-        return self.get_fill_color()
+        self.fill_color = self.get_default_fill_color()
+        return self.fill_color
 
-    def get_fill_color(self):
+    def get_default_fill_color(self):
         default_fill_color = ct.SWIMLANE_PARAMS["fill_color"]
         return default_fill_color
 
@@ -257,6 +259,7 @@ class Swimlane:
             "header_center_y": self.header_center_y,
             "width": self.width,
             "height": self.height,
+            "fill_color": self.fill_color,
         }
 
         return swimlane_data

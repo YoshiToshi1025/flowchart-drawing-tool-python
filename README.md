@@ -166,6 +166,7 @@ This project provides a **“Simple Flowchart Drawing Tool (Python version)”**
 * 2026/05/01 : Support for switching swimlane orientation (vertical/horizontal) via right-click on the toolbar icon, and updates to the online manual.
 * 2026/05/03 : Support for switching element shapes (terminator, process) via right-click on the toolbar icon, and improved handling of label line breaks.
 * 2026/05/06 : Support for switching between three elbow-style link routing types (vertical / horizontal / tree) via right-click on the toolbar icon.
+* 2026/05/11 : Improved usability (multi-selection with Shift+Click, link connection via drag-and-drop, swimlane selection by area selection of header/footer sections, and swimlane color change with Ctrl+Number)
 
 ## Notes (Additional)
 
