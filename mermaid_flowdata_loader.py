@@ -184,12 +184,13 @@ def parse_mermaid_flowdata(text: str, canvas_width: int|None = None) -> Tuple[Di
 
     in_flowchart = False
     for raw_line in lines:
+        # print(f"DEBUG processing raw line: {raw_line}")
         line = raw_line.strip()
         if not line or line.startswith("%%"):
             continue
 
         # Detect block start (flexible)
-        if re.match(r"^flowchart\s+", line):
+        if re.match(r"^flowchart\s+", line) or re.match(r"^graph\s+", line):
             in_flowchart = True
             continue
         if not in_flowchart:
@@ -200,6 +201,7 @@ def parse_mermaid_flowdata(text: str, canvas_width: int|None = None) -> Tuple[Di
             continue
 
         # 1) Node line?
+        # print(f"DEBUG1 processing line: {line}")
         nm = NODE_RE.match(line)
         if nm:
             node_id = nm.group("id")
@@ -221,15 +223,17 @@ def parse_mermaid_flowdata(text: str, canvas_width: int|None = None) -> Tuple[Di
             continue
 
         # 2) Link line? (contains -->)
+        # print(f"DEBUG2 checking for link chain in line: {line}")
         if "-->" in line or ".->" in line:
-            links.extend(parse_link_chain_line(line))
+            links.extend(parse_link_chain_line(nodes, line))
             continue
 
         # otherwise ignore (can extend later)
 
     return nodes, links
 
-def parse_link_chain_line(line: str) -> List[Link]:
+def parse_link_chain_line(nodes: Dict[str, Node], line: str) -> List[Link]:
+    # print(f"DEBUG2-1 parse_link_chain_line: {line}")
     """
     Parse Mermaid link chains and extract label values.
 
@@ -241,13 +245,30 @@ def parse_link_chain_line(line: str) -> List[Link]:
     s = line.strip()
     links: List[Link] = []
 
-    node_pat = re.compile(r"\s*([A-Za-z][A-Za-z]*)\s*")
+    node_pat_id_only = re.compile(r"\s*(?P<id>[A-Za-z][A-Za-z]*)\s*") # node id (A, B, AA, ...)   ０文字以上の空白文字 + 一文字以上の大小アルファベット + ０文字以上の空白文字
+    node_pat_ex = re.compile(
+        r"""
+        \s*
+        (?P<id2>[A-Za-z][A-Za-z0-9_]*)
+        \s*
+        (
+                \(\[(?P<title2_paren>[^\)]*)\]\)  # terminator: ([title])
+            |  \[/(?P<title2_slash>[^\]]*)/\]    # io: [/title/]
+            |  \[(?P<title2_bracket1>[^\]]*)\]    # process: [title]
+            |  \((?P<title2_bracket2>[^\)]*)\)    # process: (title)
+            |  \{(?P<title2_brace>[^}]*)\}       # decision: {title}
+        )
+        \s*
+        """,
+        re.VERBOSE,)
+
     edge_pat_elbow = re.compile(
         r"""
         \s*
         (
-            -->                         # plain
-          | --\s*(?P<label>.*?)\s*-->   # labeled
+            -->\|(?P<label2>[^\\|\>]*?)\|
+          | -->
+          | --\s*(?P<label1>[^\\|\>]*?)\s*-->
         )
         \s*
         """,
@@ -257,9 +278,10 @@ def parse_link_chain_line(line: str) -> List[Link]:
         r"""
         \s*
         (
-            -\.->                        # dotted
-          | -\.\.->                       # dotted
-          | -\.\s*(?P<label>.*?)\s*\.->   # labeled
+            -->\|(?P<label2>[^\\|\>]*?)\|
+          | -\.->
+          | -\.\.->
+          | -\.\s*(?P<label1>[^\\|\>]*?)\s*\.->
         )
         \s*
         """,
@@ -267,34 +289,127 @@ def parse_link_chain_line(line: str) -> List[Link]:
     )
 
     # 最初のノード
-    m = node_pat.match(s)
-    if not m:
+    match_id_only = node_pat_id_only.match(s)
+    match_with_title = node_pat_ex.match(s)
+    node_id = None
+    title = None
+    node_type = None
+    if match_with_title:
+        cur = match_with_title.group('id2')
+        i = match_with_title.end()
+        node_id = match_with_title.group('id2')
+        title_paren = match_with_title.group('title2_paren')
+        title_bracket1 = match_with_title.group('title2_bracket1')
+        title_bracket2 = match_with_title.group('title2_bracket2')
+        title_brace = match_with_title.group('title2_brace')
+        title_slash = match_with_title.group('title2_slash')
+        if title_paren:
+            title = title_paren.strip()
+            node_type = "terminator"
+        elif title_bracket1:
+            title = title_bracket1.strip()
+            node_type = "process"
+        elif title_bracket2:
+            title = title_bracket2.strip()
+            node_type = "process"
+        elif title_brace:
+            title = title_brace.strip()
+            node_type = "decision"
+        elif title_slash:
+            title = title_slash.strip()
+            node_type = "io"
+        else:
+            title = ""
+            node_type = "process"
+        if node_id is not None and nodes.get(node_id) is None:
+            nodes[node_id] = Node(node_id=node_id, kind=node_type, title=title, raw=line)
+
+    elif match_id_only:
+        cur = match_id_only.group('id')
+        i = match_id_only.end()
+        node_id = match_id_only.group('id')
+        if node_id is not None and nodes.get(node_id) is None:
+            nodes[node_id] = Node(node_id=node_id, kind="process", title="", raw=line)
+    else:
+        # print(f"* DEBUG 0: No starting node found in line: {line}")
         return links
-    cur = m.group(1)
-    i = m.end()
+
+    # print(f"  Starting node found: {cur} at position {i}")
 
     while i < len(s):
+        label=""
         em_elbow = edge_pat_elbow.match(s, i)
         em_line = edge_pat_line.match(s, i)
         if not em_elbow and not em_line:
             break
         elif em_elbow:
-            label = em_elbow.group("label")
+            label1 = em_elbow.group("label1")
+            label2 = em_elbow.group("label2")
+            # print(f"DEBUG found elbow edge with label: '{label1}' or '{label2}'")
+            label = label2 if label1 is None else label1
             edge_type = ct.EDGE_TYPE_ELBOW
         else:
-            label = em_line.group("label")
+            label1 = em_line.group("label1")
+            label2 = em_line.group("label2")
+            # print(f"DEBUG found line edge with label: '{label1}' or '{label2}'")
+            label = label2 if label1 is None else label1
             edge_type = ct.EDGE_TYPE_LINE
         label = label.strip() if label is not None else None
         label = label.replace("\\n", "\n") if label is not None else None
         if label is not None and len(label) > 3 and label.startswith('"') and label.endswith('"'):
             label = label[1:-1].strip()  # remove surrounding quotes if present
         i = em_elbow.end() if em_elbow else em_line.end()
+        # print(f"  Found edge: {edge_type} with label: '{label}' at position {i}")
 
-        nm = node_pat.match(s, i)
-        if not nm:
+
+        node_id = None
+        title = None
+        node_type = None
+        nmatch_id_only = node_pat_id_only.match(s, i)
+        match_with_title = node_pat_ex.match(s, i)
+        if match_with_title:
+            node_id = match_with_title.group('id2')
+            title_paren = match_with_title.group('title2_paren')
+            title_bracket1 = match_with_title.group('title2_bracket1')
+            title_bracket2 = match_with_title.group('title2_bracket2')
+            title_brace = match_with_title.group('title2_brace')
+            title_slash = match_with_title.group('title2_slash')
+            if title_paren:
+                title = title_paren.strip()
+                node_type = "terminator"
+            elif title_bracket1:
+                title = title_bracket1.strip()
+                node_type = "process"
+            elif title_bracket2:
+                title = title_bracket2.strip()
+                node_type = "process"
+            elif title_brace:
+                title = title_brace.strip()
+                node_type = "decision"
+            elif title_slash:
+                title = title_slash.strip()
+                node_type = "io"
+            else:
+                title = ""
+                node_type = "process"
+            if node_id is not None and nodes.get(node_id) is None:
+                nodes[node_id] = Node(node_id=node_id, kind=node_type, title=title, raw=line)
+        elif nmatch_id_only:
+            node_id = nmatch_id_only.group('id')
+            if node_id is not None and nodes.get(node_id) is None:
+                nodes[node_id] = Node(node_id=node_id, kind="process", title="", raw=line)
+        else:
+            # print(f"* DEBUG {i}: No next node found after position {i} in line: {line}")
             break
-        nxt = nm.group(1)
-        i = nm.end()
+
+        if match_with_title:
+            nxt = match_with_title.group('id2')
+            i = match_with_title.end()
+        else:
+            nxt = nmatch_id_only.group('id')
+            i = nmatch_id_only.end()
+
+        # print(f"  Found node: {nxt} at position {i}")
 
         links.append(Link(src=cur, dst=nxt, label=label, edge_type=edge_type))
         cur = nxt
@@ -351,11 +466,11 @@ if __name__ == "__main__":
     ```"""
     nodes, links = parse_mermaid_flowdata(sample)
 
-    print("### Nodes (CSV lines)")
+    print("### Nodes1 (CSV lines)")
     for line in nodes_to_csv_lines(nodes):
         print(line)
 
-    print("\n### Links (CSV lines)")
+    print("\n### Links1 (CSV lines)")
     for line in links_to_csv_lines(links):
         print(line)
 
@@ -372,8 +487,8 @@ if __name__ == "__main__":
       H@{ shape: rounded, label: "資料に画像を添付", bx: 0, by: 6 }
       I@{ shape: stadium, label: "終了", bx: 0, by: 7 }
 
-      A --> B --> C -- "新規作成" --> D --> G --> H --> I
-      C -- "編集" --> E --> F --> G
+      A --> B --> C -->|新規作成| D --> G --> H --> I
+      C -->|編集| E --> F --> G
     ```"""
     nodes2, links2 = parse_mermaid_flowdata(sample2)
 
@@ -448,4 +563,64 @@ flowchart TD
 
     print("\n### Links3 (CSV lines)")
     for line in links_to_csv_lines(links3):
+        print(line)
+
+    sample4 = """```mermaid
+graph TD
+    A([目覚める]) --> B[ベッドから出る] --> C[顔を洗う]
+    C --> D[歯を磨く]
+    D --> E{時間に余裕があるか？}
+    E -- Yes --> F[コーヒーを飲む]
+    F --> G[/朝食を食べる/]
+    E -- No --> G
+    G --> H[服を着替える]
+    H --> I([家を出る])
+    I --> J(Morning Routine END)
+    J --> K
+```"""
+    nodes4, links4 = parse_mermaid_flowdata(sample4)
+
+    print("### Nodes4 (CSV lines)")
+    for line in nodes_to_csv_lines(nodes4):
+        print(line)
+
+    print("\n### Links4 (CSV lines)")
+    for line in links_to_csv_lines(links4):
+        print(line)
+
+
+    sample5 = """```mermaid
+graph TD
+    subgraph Preparation [準備フェーズ]
+        A([学習目標の設定]) --> B[教材/講師の選定]
+    end
+
+    subgraph Practice [実践フェーズ]
+        B --> C{レッスン開始}
+        C -->|インプット| D[単語/文法学習]
+        C -->|アウトプット| E[オンライン英会話]
+        D --> F[フレーズ暗記]
+        E --> G[フリートーク/教材]
+    end
+
+    subgraph Review [振り返りフェーズ]
+        F --> H[発音/文法チェック]
+        G --> H
+        H --> I{理解できたか?}
+        I -->|No| J[復習/再学習]
+        I -->|Yes| K[次のステップへ]
+        J --> C
+    end
+
+    K --> L([学習完了/END])
+```"""
+
+    nodes5, links5 = parse_mermaid_flowdata(sample5)
+
+    print("### Nodes5 (CSV lines)")
+    for line in nodes_to_csv_lines(nodes5):
+        print(line)
+
+    print("\n### Links5 (CSV lines)")
+    for line in links_to_csv_lines(links5):
         print(line)
