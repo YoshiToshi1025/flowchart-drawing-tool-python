@@ -5,7 +5,7 @@ OS_MAC = "Darwin"
 OS_LINUX = "Linux"
 
 # アプリケーション・タイトル
-APP_TITLE = "簡易フローチャート作図ツール(TKinter Canvas)"
+APP_TITLE = "簡易フローチャート作図ツール 颯(HAYATE)"
 
 # キャンバス・パラメータ
 CANVAS_PARAMS = {

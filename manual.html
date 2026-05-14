@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>簡易フローチャート作図ツール 操作マニュアル</title>
+<title>簡易フローチャート作図ツール 颯(HAYATE) 操作マニュアル</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -322,7 +322,7 @@
     <line x1="14" y1="13" x2="14" y2="15" stroke="white" stroke-width="2"/>
   </svg>
   <div>
-    <h1>簡易フローチャート作図ツール — 操作マニュアル</h1>
+    <h1>簡易フローチャート作図ツール, 颯(HAYATE) — 操作マニュアル</h1>
     <span>flowchart-drawing-tool-python</span>
   </div>
 </header>
@@ -356,7 +356,7 @@
 
   <div class="category">詳細操作</div>
   <a href="#" onclick="show('link-adjust')">リンク配線の手動調整</a>
-  <a href="#" onclick="show('node-color')">ノードの色変更</a>
+  <a href="#" onclick="show('node-color')">ノード/スイムレーンの色変更</a>
   <a href="#" onclick="show('node-status')">ノードのステータス</a>
 
   <div class="category">ファイル操作</div>
@@ -381,7 +381,7 @@
   <!-- ======= 概要 ======= -->
   <div class="page active" id="page-overview">
     <h2>概要・特徴</h2>
-    <p>「簡易フローチャート作図ツール(Python版)」は、業務フローや処理ロジックをすばやく図にまとめるためのデスクトップアプリケーションです。Python の <strong>Tkinter</strong> キャンバスで動作し、インストール不要でローカル環境ですぐに使えます。</p>
+    <p>「簡易フローチャート作図ツール, 颯(HAYATE)」は、業務フローや処理ロジックをすばやく図にまとめるためのデスクトップアプリケーションです。Python の <strong>Tkinter</strong> キャンバスで動作し、インストール不要でローカル環境ですぐに使えます。</p>
 
     <h3>主な特徴</h3>
     <ul>
@@ -393,9 +393,9 @@
       <li><strong>NEW</strong> ツールで作図したフローチャートデータをMermaid形式で保存して、バイブコーディングの添付資料として活用可能</li>
     </ul>
 
-    <h3>動作環境</h3
+    <h3>動作環境</h3>
     <ul>
-      <li>Python 実行可能な環境（Windows11 および macOS26.4にて動作確認）</li>
+      <li>Python 実行可能な環境（Windows11 および macOS26.5にて動作確認）</li>
       <li>Tkinter の Canvas が利用できること（Google Colaboratory など Web 環境は不可）</li>
       <li>Excelでのフローチャート作図機能は、Windows環境のみ対応（macOS用はベータ版公開中）</li>
     </ul>
@@ -447,7 +447,8 @@
     <h2>起動方法</h2>
 
     <h3>インストール手順</h3>
-    <div class="tip">前提条件：pythonとgitがインストールされていること。インストールされていない場合は、公式サイトからインストールしてください。</div>    
+    <div class="warn">前提条件：pythonとgitがインストールされていること。インストールされていない場合は、公式サイトからインストールしてください。</div>    
+    <div class="warn">前提条件：（生成AIでフローを自動生成する）生成AI連携機能を使用するには、利用したい生成AI(GPT、Gemini、または Claude)のAPI Keyが必要です。API Keyの取得方法は各生成AIの公式サイトを参照してください。</div>    
     <ol class="steps">
       <li>コマンドプロンプト（またはターミナル）を起動し、チェックアウトフォルダに移動します。</li>
       <li>以下のコマンドを実行し、プロジェクトのコードをチェックアウトします。<br><code>git clone https://github.com/YoshiToshi1025/flowchart-drawing-tool-python.git</code></li>
@@ -455,7 +456,7 @@
       <li>英語版で使いたい場合は <code>constants_en.py</code> を <code>constants.py</code> に上書きコピーします。</li>
       <li>AIによるフロー自動生成を行いたい場合は、チェックアウトフォルダ内の <code>.env</code> ファイルに連携したい生成AIのAPI KEYを記述し、設定ファイル(constants.py)内で生成AIモデル名を指定します。<br><br>
         <code>[.envファイル内]<br>OPENAI_API_KEY=(OpenAI GPT接続用API Key)<br>GEMINI_API_KEY=(Google Gemini接続用API Key)<br>ANTHROPIC_API_KEY=(Anthropic Claude接続用API Key)</code><br><br>
-        <code>[constants.pyファイル内]<br>AI_MODEL=使用する生成AIモデル名<br>  例) AI_MODEL="gpt-5.4"</code></li>
+        <code>[constants.pyファイル内]<br>AI_MODEL=使用する生成AIモデル名<br>  例) AI_MODEL="gpt-5.5"</code></li>
       <li><code>flowchart_tool.py</code> を実行します。</li>
     </ol>
     <div class="tip">git cloneでチェックアウトしたプロジェクトを最新にするには、<code>git pull</code> を実行します。</div>
@@ -480,7 +481,7 @@
       <li>ファイルダイアログで、 ExcelShapesDrawingWithJSON.bas を選択</li>
       <li>標準モジュールに ExcelShapesDrawingWithJSON が登録されていれば、登録完了です。</li>
     </ol>
-    <div class="tip">前提条件：VBAはWindows版のExcelで利用可能です。※macOS用のベータ版を公開しています（ファイルパスに日本語が使えません）。</div>
+    <div class="tip">前提条件：VBAはWindows版のExcelで利用可能です。※macOS用のベータ版を公開しています。（mac版の制限事項：ファイルパスに日本語が使えません）</div>
     <div class="tip">本VBA実行は単独で動作するため、他のライブラリや参照設定は不要です。</div>
 
     <h3>VBA実行</h3>
@@ -512,10 +513,10 @@
       <div class="shape-card">
         <svg width="90" height="40" viewBox="0 0 90 40">
           <rect x="5" y="5" width="80" height="30" rx="14" ry="14" fill="white" stroke="#334155" stroke-width="2"/>
-          <text x="45" y="24" text-anchor="middle" font-size="11" fill="#0f172a">終点/始点</text>
+          <text x="45" y="24" text-anchor="middle" font-size="11" fill="#0f172a">始点/終点</text>
         </svg>
         <div class="name">Terminator</div>
-        <div class="desc">始点・終点・サブルーチン</div>
+        <div class="desc">始点・終点・サブルーチン(横長・円の２種類から選択)</div>
       </div>
 
       <div class="shape-card">
@@ -524,7 +525,7 @@
           <text x="45" y="24" text-anchor="middle" font-size="11" fill="#0f172a">処理</text>
         </svg>
         <div class="name">Process</div>
-        <div class="desc">処理ボックス（角丸も選択可）</div>
+        <div class="desc">処理ボックス（四角・角丸・楕円の３種類から選択）</div>
       </div>
 
       <div class="shape-card">
@@ -565,6 +566,7 @@
 
     </div>
 
+    <div class="tip">端点(Terminator)と処理(Process)については、ツールバーのモードボタンの右クリックで、形状の切り替えが可能です。</div>
     <div class="tip">ツールバーのモードボタンにマウスを合わせると、ツールチップでモード名が表示されます。</div>
 
     <h3>右クリックメニューからの切り替え</h3>
@@ -621,14 +623,14 @@
     <h3>リンクの種類</h3>
     <div class="link-demo">
       <div class="link-card">
-        <div class="lc-title">Link_elbow（折れ線）</div>
+        <div class="lc-title">Link_elbow（かぎ線）</div>
         <svg width="120" height="50" viewBox="0 0 120 50">
           <rect x="2" y="10" width="36" height="22" rx="3" fill="white" stroke="#334155" stroke-width="2"/>
           <rect x="82" y="10" width="36" height="22" rx="3" fill="white" stroke="#334155" stroke-width="2"/>
           <polyline points="38,21 60,21 60,35 80,35" stroke="#0f172a" stroke-width="2" fill="none"/>
           <polygon points="80,32 86,35 80,38" fill="#0f172a"/>
         </svg>
-        <div class="lc-desc">直角に折れ曲がる配線。自動ルーティング対応</div>
+        <div class="lc-desc">直角に折れ曲がる配線。３種類の配線パターンから選択。自動ルーティング対応</div>
       </div>
       <div class="link-card">
         <div class="lc-title">Link_straight（直線）</div>
@@ -675,8 +677,11 @@
     </ol>
 
     <h3>改行の入力</h3>
-    <p>テキスト内に <code>\n</code> と入力すると、表示時に改行されます。</p>
-    <div class="tip">例: <code>データを\n確認する</code> と入力すると 2 行で表示されます。</div>
+    <ul>
+      <li>Windows環境の場合、テキスト内に <code>\n</code> と入力すると、表示時に改行されます。</li>
+      <li>macOS環境の場合、テキスト内に(<code>\n</code> ではなく)<code><span style="font-family: Arial;">\</span>n</code> を入力すると、表示時に改行されます。</li>
+    </ul>
+    <div class="tip">macOS環境で "<span style="font-family: Arial;">\</span>"（半角のバックスラッシュ）を入力するには、オプションキーを押しながら「¥」キーを押します。</div>
   </div>
 
   <!-- ======= 選択・移動 ======= -->
@@ -689,12 +694,17 @@
       <li>ノード・リンク・スイムレーンをクリックすると選択状態になります（青色のハイライト）。</li>
       <li><kbd>Escape</kbd> または別の空白エリアをクリックすると選択が解除されます。</li>
     </ol>
+    <div class="tip">スイムレーンを選択するには、スイムレーンのヘッダ部またはフッタ部をクリックします。</div>
 
     <h3>複数選択（矩形選択）</h3>
     <ol class="steps">
       <li>Select モードで、要素のない位置からドラッグすると点線の矩形が表示されます。</li>
       <li>矩形内に含まれるすべての要素が選択状態になります。</li>
     </ol>
+    <div class="tip">スイムレーンの場合は、ヘッダ部またはフッタ部が矩形範囲に含まれていると、そのスイムレーンが選択状態になります。</div>
+
+    <h3>特定要素の追加/除外選択</h3>
+    <p><kbd>Shift</kbd> + <kbd>クリック</kbd> で指定した要素を、追加選択または除外選択できます。</p>
 
     <h3>全選択</h3>
     <p><kbd>Ctrl</kbd> + <kbd>A</kbd> ですべての要素を選択します。</p>
@@ -830,10 +840,10 @@
       <tr><td><kbd>Ctrl</kbd> + <kbd>8</kbd></td><td style="background:#EEF4FF; border-left:4px solid #EEF4FF;">Light Indigo &nbsp; #EEF4FF</td></tr>
       <tr><td><kbd>Ctrl</kbd> + <kbd>9</kbd></td><td style="background:#F3EEFF; border-left:4px solid #F3EEFF;">Light Purple &nbsp; #F3EEFF</td></tr>
       <tr><td><kbd>Ctrl</kbd> + <kbd>0</kbd></td><td style="background:#F7F5F2; border-left:4px solid #F7F5F2;">Light Gray &nbsp; #F7F5F2</td></tr>
-      <tr><td><kbd>Ctrl</kbd> + <kbd>-</kbd></td><td>白（デフォルト色にリセット）</td></tr>
+      <tr><td><kbd>Ctrl</kbd> + <kbd>-</kbd></td><td>デフォルト色にリセット</td></tr>
     </table>
 
-    <div class="tip">複数のノードを選択した状態でショートカットを押すと、選択中のすべてのノードの色が一括変更されます。</div>
+    <div class="tip">複数のノードを選択した状態でショートカットを押すと、選択中のすべてのノード/スイムレーンの色が一括変更されます。</div>
     <div class="tip">各キーに割り当てる色は、<code>constants.py</code> の <code>NODE_FILL_COLORS</code> を変更することで変えられます。</div>
   </div>
 
@@ -928,8 +938,11 @@
       I@{ shape: stadium, label: "終了", bx: 0, by: 7 }
 
       A --> B --> C -- "新規作成" --> D --> G --> H --> I
-      C -- "編集" --> E --> F --> G</pre>
+      C -- "編集" --> E --> F --> G
+    ```</pre>
 
+    <div class="tip">Mermaid形式の読み込みでは、要素の種類、テキスト、リンク情報のみが取得できます。（源内AI等で生成される形式の）リンク行のみの形式にも対応しています。</div>
+    <div class="warn">Mermaid形式の読み込みでは、ファイル拡張子は".md"、先頭行は"```mermaid"、最終行は"```"である必要があります。これは、Mermaid Live Editor の仕様に準拠しています。</div>
     <div class="tip">Mermaid形式の保存では、要素の位置、リンク情報は保持されますが、詳細設定内容は保存されません。スイムレーンも保存されません。</div>
     <div class="tip">AI 自動生成機能でも同じ Mermaid 形式が出力されます。AI で生成した後に手動で微調整するワークフローでも利用できます。</div>
   </div>
@@ -964,7 +977,7 @@
     <div class="warn">AI 自動生成を実行するたびに 生成AIのAPI の利用料が発生します。</div>
 
     <h3>使用モデル</h3>
-    <p>デフォルトモデル: <code>gpt-5.4</code>（<code>constants.py</code> の <code>AI_MODEL</code> で変更可能）</p>
+    <p>デフォルトモデル: <code>gpt-5.5</code>（<code>constants.py</code> の <code>AI_MODEL</code> で変更可能）</p>
   </div>
 
   <!-- ======= ショートカット ======= -->
@@ -985,7 +998,7 @@
     <table>
       <tr><th>キー操作</th><th>機能</th></tr>
       <tr><td><kbd>Ctrl</kbd> + <kbd>1</kbd> ～ <kbd>0</kbd></td><td>塗りつぶし色を 10 色から変更</td></tr>
-      <tr><td><kbd>Ctrl</kbd> + <kbd>-</kbd></td><td>塗りつぶし色をデフォルト（白）にリセット</td></tr>
+      <tr><td><kbd>Ctrl</kbd> + <kbd>-</kbd></td><td>塗りつぶし色をデフォルトにリセット</td></tr>
     </table>
 
     <h3>リンク調整（リンク選択時）</h3>

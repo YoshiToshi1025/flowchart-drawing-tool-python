@@ -5,7 +5,7 @@ OS_MAC = "Darwin"
 OS_LINUX = "Linux"
 
 # App Application Title
-APP_TITLE = "Simple Flowchart Drawing Tool (TKinter Canvas)"
+APP_TITLE = "Simple Flowchart Drawing Tool, HAYATE(颯)"
 
 # Canvas Parameters
 CANVAS_PARAMS = {

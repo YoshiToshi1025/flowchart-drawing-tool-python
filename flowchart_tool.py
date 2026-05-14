@@ -278,6 +278,7 @@ class FlowchartTool(tk.Tk):
 
         self._draw_grid()   # 初期グリッド描画
 
+        self.app_start = True  # アプリ起動直後フラグ
         self.display_operation_info()  # 操作情報表示制御
 
         # ウィンドウ終了時の確認
@@ -323,6 +324,7 @@ class FlowchartTool(tk.Tk):
         # 情報フレーム
         info_frame = tk.Frame(self.ai_chat_frame, bg="#eeeeee")
         info_frame.pack(side=tk.TOP, fill=tk.X, padx=(4,4))
+
         # AIモデル表示
         tk.Label(info_frame, text=f"AI Model:", font=("Arial", 9), width=8, anchor=tk.E).pack(side=tk.LEFT)
         tk.Entry(info_frame, font=("Arial", 9), state="readonly", readonlybackground="#eeeeee", fg="black", textvariable=tk.StringVar(value=f" {self.ai_interface.ai_type}, {self.ai_interface.ai_model}")).pack(side=tk.LEFT, fill=tk.X, expand=True)
@@ -2219,12 +2221,31 @@ class FlowchartTool(tk.Tk):
         self.ai_chat_prompt.configure(state=state)
 
     def display_operation_info(self):
-        if self.nodes is not None and len(self.nodes) > 0:
-            self._hide_operation_info()
-        elif self.swimlanes is not None and len(self.swimlanes) > 0:
-            self._hide_operation_info()
+        if self.app_start:
+            self._show_app_start_panel()
+            self.app_start = False
         else:
-            self._show_operation_info()
+            if self.nodes is not None and len(self.nodes) > 0:
+                self._hide_operation_info()
+            elif self.swimlanes is not None and len(self.swimlanes) > 0:
+                self._hide_operation_info()
+            elif not self.app_start:
+                self._show_operation_info()
+
+    def _show_app_start_panel(self):
+        img = Image.open('HAYATE.png', 'r')
+        img = img.resize((400, 350), Image.Resampling.LANCZOS)
+        self.app_start_img = ImageTk.PhotoImage(img)
+        self.app_start_panel = self.canvas.create_image(self.canvas_width//2, self.canvas_height//2, anchor="center", image=self.app_start_img)
+        # 2500ms後に非表示
+        self.after(2500, self._hide_app_start_panel)
+
+    def _hide_app_start_panel(self):
+        if hasattr(self, "app_start_panel") and self.app_start_panel:
+            self.canvas.delete(self.app_start_panel)
+            self.app_start_panel = None
+        
+        self._show_operation_info()
 
     def _show_operation_info(self):
         if hasattr(self, "ope_info") and self.ope_info:
