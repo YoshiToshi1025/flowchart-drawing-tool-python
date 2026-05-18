@@ -1369,8 +1369,7 @@ class Edge:
 
     def rect_anchor_right_to_top(self, from_node_obj, to_node_obj):
         # right_to_top    2line or 4line
-        # 条件： toオブジェクトの上点がfromオブジェクトの右点より右下にある場合、2line
-        #    ： toオブジェクトの上点がfromオブジェクトの右点より右上にある場合、4line
+
         coords = []
         if from_node_obj.x is None or from_node_obj.y is None or from_node_obj.h is None or from_node_obj.w is None:
             return coords
@@ -1378,26 +1377,42 @@ class Edge:
             return coords
 
         from_center_x, from_center_y, from_width, from_height = from_node_obj.x, from_node_obj.y, from_node_obj.w, from_node_obj.h
-        # from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
-        # from_bottom_x, from_bottom_y = from_center_x, from_center_y + from_height / 2
-        # from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
+        from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
+        from_bottom_x, from_bottom_y = from_center_x, from_center_y + from_height / 2
+        from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
         from_right_x, from_right_y = from_center_x + from_width / 2, from_center_y
 
         to_center_x, to_center_y, to_width, to_height = to_node_obj.x, to_node_obj.y, to_node_obj.w, to_node_obj.h
         to_top_x, to_top_y = to_center_x, to_center_y - to_height / 2
         # to_bottom_x, to_bottom_y = to_center_x, to_center_y + to_height / 2
         to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
-        # to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
+        to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
 
-        if from_right_x < to_top_x and from_right_y < to_top_y:
+        if from_right_x < to_top_x and from_right_y < to_top_y: # toオブジェクトの上点がfromオブジェクトの右点より右下にある場合
             coords = [from_right_x, from_right_y, to_top_x, from_right_y, to_top_x, to_top_y]
-        elif from_right_x < to_top_x and to_top_y <= from_right_y:
+        elif to_top_x <= from_right_x and from_bottom_y + from_node_obj.h * 0.3 < to_top_y: # toオブジェクトの上点がfromオブジェクトの右点より右上にある場合
             if self.edge_wrap_margin is None:
-                margin_x = (from_right_x + to_left_x ) / 2
-                margin_y = to_top_y - from_node_obj.h * 0.5
+                margin_x = from_right_x + from_node_obj.w * 0.2
+                margin_y = (from_bottom_y + to_top_y) / 2
             else:
                 margin_x = from_right_x + self.edge_wrap_margin
-                margin_y = to_top_y - from_node_obj.h * 0.5
+                margin_y = (from_bottom_y + to_top_y) / 2
+            coords = [from_right_x, from_right_y, margin_x, from_right_y, margin_x, margin_y, to_top_x, margin_y, to_top_x, to_top_y]
+        elif from_right_x < to_left_x and to_top_y <= from_right_y: # toオブジェクトの上点がfromオブジェクトの右点より左下にある場合
+            if self.edge_wrap_margin is None:
+                margin_x = (from_right_x + to_left_x) / 2
+                margin_y = to_top_y - to_node_obj.h * 0.3
+            else:
+                margin_x = from_right_x + self.edge_wrap_margin
+                margin_y = to_top_y - to_node_obj.h * 0.3
+            coords = [from_right_x, from_right_y, margin_x, from_right_y, margin_x, margin_y, to_top_x, margin_y, to_top_x, to_top_y]
+        else: # toオブジェクトの上点がfromオブジェクトの右点より左上にある場合
+            if self.edge_wrap_margin is None:
+                margin_x = max(from_right_x + from_node_obj.w * 0.2, to_right_x + to_node_obj.w * 0.2)
+                margin_y = min(from_top_y - from_node_obj.h * 0.3, to_top_y - to_node_obj.h * 0.3)
+            else:
+                margin_x = from_right_x + self.edge_wrap_margin
+                margin_y = min(from_top_y - from_node_obj.h * 0.3, to_top_y - to_node_obj.h * 0.3)
             coords = [from_right_x, from_right_y, margin_x, from_right_y, margin_x, margin_y, to_top_x, margin_y, to_top_x, to_top_y]
 
         return coords
@@ -1510,8 +1525,8 @@ class Edge:
         return coords
 
     def rect_anchor_left_to_top(self, from_node_obj, to_node_obj):
-        # left_to_top     2line
-        # 条件： bottom点からのリンクが既にあり右点からのリンクが無い、toオブジェクトの上点がfromオブジェクトの右点より右下にある場合、2line
+        # left_to_top     2line or 4line
+
         coords = []
         if from_node_obj.x is None or from_node_obj.y is None or from_node_obj.h is None or from_node_obj.w is None:
             return coords
@@ -1519,19 +1534,43 @@ class Edge:
             return coords
 
         from_center_x, from_center_y, from_width, from_height = from_node_obj.x, from_node_obj.y, from_node_obj.w, from_node_obj.h
-        # from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
-        # from_bottom_x, from_bottom_y = from_center_x, from_center_y + from_height / 2
+        from_top_x, from_top_y = from_center_x, from_center_y - from_height / 2
+        from_bottom_x, from_bottom_y = from_center_x, from_center_y + from_height / 2
         from_left_x, from_left_y = from_center_x - from_width / 2, from_center_y
         # from_right_x, from_right_y = from_center_x + from_width / 2, from_center_y
 
         to_center_x, to_center_y, to_width, to_height = to_node_obj.x, to_node_obj.y, to_node_obj.w, to_node_obj.h
         to_top_x, to_top_y = to_center_x, to_center_y - to_height / 2
         # to_bottom_x, to_bottom_y = to_center_x, to_center_y + to_height / 2
-        # to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
-        # to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
+        to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
+        to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
 
-        if to_top_x < from_left_x and to_top_y > from_left_y:
+        if to_top_x < from_left_x and from_left_y < to_top_y:  # toオブジェクトの上点がfromオブジェクトの左点より左下にある場合
             coords = [from_left_x, from_left_y, to_top_x, from_left_y, to_top_x, to_top_y]
+        elif from_left_x <= to_top_x and from_bottom_y + from_node_obj.h * 0.3 < to_top_y: # toオブジェクトの上点がfromオブジェクトの左点より左上にある場合 
+            if self.edge_wrap_margin is None:
+                margin_x = from_left_x - from_node_obj.w * 0.2
+                margin_y = (from_bottom_y + to_top_y) / 2
+            else:
+                margin_x = from_left_x - self.edge_wrap_margin
+                margin_y = (from_bottom_y + to_top_y) / 2
+            coords = [from_left_x, from_left_y, margin_x, from_left_y, margin_x, margin_y, to_top_x, margin_y, to_top_x, to_top_y]
+        elif to_right_x < from_left_x and to_top_y <= from_left_y: # toオブジェクトの上点がfromオブジェクトの左点より右上にある場合
+            if self.edge_wrap_margin is None:
+                margin_x = (from_left_x + to_right_x) / 2
+                margin_y = to_top_y - to_node_obj.h * 0.3
+            else:
+                margin_x = from_left_x - self.edge_wrap_margin
+                margin_y = to_top_y - to_node_obj.h * 0.3
+            coords = [from_left_x, from_left_y, margin_x, from_left_y, margin_x, margin_y, to_top_x, margin_y, to_top_x, to_top_y]
+        else: # toオブジェクトの上点がfromオブジェクトの左点より左下にある場合
+            if self.edge_wrap_margin is None:
+                margin_x = min(from_left_x - from_node_obj.w * 0.2, to_left_x - to_node_obj.w * 0.2)
+                margin_y = min(from_top_y - from_node_obj.h * 0.3, to_top_y - to_node_obj.h * 0.3)
+            else:
+                margin_x = from_left_x - self.edge_wrap_margin
+                margin_y = min(from_top_y - from_node_obj.h * 0.3, to_top_y - to_node_obj.h * 0.3)
+            coords = [from_left_x, from_left_y, margin_x, from_left_y, margin_x, margin_y, to_top_x, margin_y, to_top_x, to_top_y]
 
         return coords
 
@@ -2259,6 +2298,40 @@ class Edge:
                     self.edge_wrap_margin = distance_to_from_node
                     vertex_x = from_x - self.edge_wrap_margin
                     self.points = [from_x, from_y, vertex_x, from_y, vertex_x, vertex3_y, to_x, vertex3_y, to_x, to_y]
+            elif vertex1_x < from_x and vertex2_x < to_x:
+                # horizontal left edge
+                distance_to_node = min(from_x - vertex1_x, to_x - vertex2_x)
+                if increase:
+                    distance_to_node += step_size
+                    if distance_to_node > step_size * 50:
+                        distance_to_node = step_size * 50
+                    self.edge_wrap_margin = distance_to_node
+                    vertex_x = min(from_x, to_x) - self.edge_wrap_margin
+                    self.points = [from_x, from_y, vertex_x, from_y, vertex_x, vertex3_y, to_x, vertex3_y, to_x, to_y]
+                else:
+                    distance_to_node -= step_size
+                    if distance_to_node < step_size:
+                        distance_to_node = step_size
+                    self.edge_wrap_margin = distance_to_node
+                    vertex_x = min(from_x, to_x) - self.edge_wrap_margin
+                    self.points = [from_x, from_y, vertex_x, from_y, vertex_x, vertex3_y, to_x, vertex3_y, to_x, to_y]
+            elif from_x < vertex1_x and to_x < vertex2_x:
+                # horizontal right edge
+                distance_to_node = min(vertex1_x - from_x, vertex2_x - to_x)
+                if increase:
+                    distance_to_node += step_size
+                    if distance_to_node > step_size * 50:
+                        distance_to_node = step_size * 50
+                    self.edge_wrap_margin = distance_to_node
+                    vertex_x = max(from_x, to_x) + self.edge_wrap_margin
+                    self.points = [from_x, from_y, vertex_x, from_y, vertex_x, vertex3_y, to_x, vertex3_y, to_x, to_y]
+                else:
+                    distance_to_node -= step_size
+                    if distance_to_node < step_size:
+                        distance_to_node = step_size
+                    self.edge_wrap_margin = distance_to_node
+                    vertex_x = max(from_x, to_x) + self.edge_wrap_margin
+                    self.points = [from_x, from_y, vertex_x, from_y, vertex_x, vertex3_y, to_x, vertex3_y, to_x, to_y]
 
         self.edge_wrap_ratio1, self.edge_wrap_ratio2 = self.get_edge_wrap_ratios()
 
@@ -2503,9 +2576,19 @@ class Edge:
                     item2_ratio = None
         elif from_side == "right" and to_side == "top":
             if point_num == 10:
-                mid_X = self.points[2]
-                item1_ratio = (mid_X - from_X) / (to_X - from_X)
-                item2_ratio = None
+                if to_X == from_X:    # 両端がプロセスでX座標が同じ場合は、Excelでのオフセット距離はポイント指定になる
+                    if self.from_node_obj.type == "io" and self.to_node_obj.type != "io" or self.from_node_obj.type != "io" and self.to_node_obj.type == "io":
+                        mid_X = self.points[2]
+                        item1_ratio = (mid_X - from_X) / 12
+                        item2_ratio = None
+                    else :
+                        mid_X = self.points[2]
+                        item1_ratio = (mid_X - from_X) * Edge.PointPerPixel    # このケースでX座標が同じ場合は、Excelでのオフセット距離はポイント指定になる
+                        item2_ratio = None                    
+                else:
+                    mid_X = self.points[2]
+                    item1_ratio = (mid_X - from_X) / (to_X - from_X)
+                    item2_ratio = None
         elif from_side == "right" and to_side == "right":
             if point_num == 8:
                 mid_X = self.points[2]
@@ -2537,6 +2620,21 @@ class Edge:
                 mid_X = self.points[2]
                 item1_ratio = (mid_X - from_X) / (to_X - from_X)
                 item2_ratio = None
+        elif from_side == "left" and to_side == "top":
+            if point_num == 10:
+                if to_X == from_X:    # 両端がプロセスでX座標が同じ場合は、Excelでのオフセット距離はポイント指定になる
+                    if self.from_node_obj.type == "io" and self.to_node_obj.type != "io" or self.from_node_obj.type != "io" and self.to_node_obj.type == "io":
+                        mid_X = self.points[2]
+                        item1_ratio = (mid_X - from_X) / 12
+                        item2_ratio = None
+                    else :
+                        mid_X = self.points[2]
+                        item1_ratio = (mid_X - from_X) * Edge.PointPerPixel    # このケースでX座標が同じ場合は、Excelでのオフセット距離はポイント指定になる
+                        item2_ratio = None                    
+                else:
+                    mid_X = self.points[2]
+                    item1_ratio = (mid_X - from_X) / (to_X - from_X)
+                    item2_ratio = None
         elif from_side == "left" and to_side == "right":
             if point_num == 8:
                 mid_X = self.points[2]

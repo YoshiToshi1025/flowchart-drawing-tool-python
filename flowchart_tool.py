@@ -222,6 +222,9 @@ class FlowchartTool(tk.Tk):
         self.canvas.bind("<Shift-MouseWheel>", self.on_mouse_wheel_shift)  # Shift+マウスホイールイベント
         self.canvas.bind("<Control-MouseWheel>", self.on_mouse_wheel_ctrl)  # Ctrl+マウスホイールイベント
         self.canvas.bind("<Control-Shift-MouseWheel>", self.on_mouse_wheel_ctrl_shift)  # Ctrl+Shift+マウスホイールイベント
+        self.canvas.bind("<ButtonPress-2>", self.on_drag_start_middle)
+        self.canvas.bind("<B2-Motion>", self.on_drag_move_middle)
+        self.canvas.bind("<ButtonRelease-2>", self.on_drag_end_middle)
 
         # キー操作定義
         self.bind_all("<Delete>", lambda e: self.delete_selected())
@@ -379,6 +382,147 @@ class FlowchartTool(tk.Tk):
             # self._draw_grid()   # グリッド再描画
             resize_flag = True
         return resize_flag
+
+    def get_minimum_canvas_area(self) -> Tuple[float, float, float, float]:
+        # 登録されているノードとリンクとスイムレーンの位置情報から、キャンバスの最小必要エリアの範囲を取得する
+        canvas_display_area = self.get_canvas_display_area()
+        # print(f"Canvas display area: {canvas_display_area}")
+        margin = ct.CANVAS_PARAMS["grid_spacing"]  # 表示エリアの外側にマージンを追加
+        data_area = self.get_data_area(margin)
+        # print(f"Data area: {data_area}")
+        if data_area is None:
+            return canvas_display_area
+        else:
+            x_min = min(canvas_display_area[0], data_area[0])
+            y_min = min(canvas_display_area[1], data_area[1])
+            x_max = max(canvas_display_area[2], data_area[2])
+            y_max = max(canvas_display_area[3], data_area[3])
+            return (x_min, y_min, x_max, y_max)
+
+    def get_canvas_display_area(self) -> Tuple[float, float, float, float]:
+        # キャンバスの表示エリアの左上座標と右下座標をタプルで返す
+        x0 = max(0, self.canvas.canvasx(0))  # 負の値にならないようにする
+        y0 = max(0, self.canvas.canvasy(0))  # 負の値にならないようにする
+        x1 = self.canvas.canvasx(self.canvas.winfo_width())-2
+        y1 = self.canvas.canvasy(self.canvas.winfo_height())-2
+        return (x0, y0, x1, y1)
+
+    def get_data_area(self, margin: float) -> Tuple[float, float, float, float] | None:
+        # 登録されているノードとリンクとスイムレーンの位置情報から、データが存在するエリアの範囲を取得する
+        node_min_x, node_max_x = None, None
+        node_min_y, node_max_y = None, None
+        if self.nodes is not None and len(self.nodes) > 0:
+            for node_obj in self.nodes.values():
+                if node_min_x is None:
+                    node_min_x = node_obj.x - node_obj.w/2
+                else:
+                    node_min_x = min(node_min_x, node_obj.x - node_obj.w/2)
+                if node_max_x is None:
+                    node_max_x = node_obj.x + node_obj.w/2
+                else:
+                    node_max_x = max(node_max_x, node_obj.x + node_obj.w/2)
+                if node_min_y is None:
+                    node_min_y = node_obj.y - node_obj.h/2
+                else:
+                    node_min_y = min(node_min_y, node_obj.y - node_obj.h/2)
+                if node_max_y is None:
+                    node_max_y = node_obj.y + node_obj.h/2
+                else:
+                    node_max_y = max(node_max_y, node_obj.y + node_obj.h/2)
+        # print(f"Node area: ({node_min_x}, {node_min_y}) - ({node_max_x}, {node_max_y})")
+
+        edge_min_x, edge_max_x = None, None
+        edge_min_y, edge_max_y = None, None
+        if self.edges is not None and len(self.edges) > 0:
+            for edge_obj in self.edges.values():
+                if edge_obj.points is not None and len(edge_obj.points) > 0:
+                    for i, value in enumerate(edge_obj.points):
+                        if i % 2 == 0:  # x座標
+                            x = value
+                            if edge_min_x is None:
+                                edge_min_x = x
+                            else:
+                                edge_min_x = min(edge_min_x, x)
+                            if edge_max_x is None:
+                                edge_max_x = x
+                            else:
+                                edge_max_x = max(edge_max_x, x)
+                        else:  # y座標
+                            y = value
+                            if edge_min_y is None:
+                                edge_min_y = y
+                            else:
+                                edge_min_y = min(edge_min_y, y)
+                            if edge_max_y is None:
+                                edge_max_y = y
+                            else:
+                                edge_max_y = max(edge_max_y, y)
+        # print(f"Edge area: ({edge_min_x}, {edge_min_y}) - ({edge_max_x}, {edge_max_y})")
+
+        swimlane_min_x, swimlane_max_x = None, None
+        swimlane_min_y, swimlane_max_y = None, None
+        for swimlane in self.swimlanes:
+            if swimlane_min_x is None:
+                swimlane_min_x = swimlane.top_left_x
+            else:
+                swimlane_min_x = min(swimlane_min_x, swimlane.top_left_x)
+            if swimlane_max_x is None:
+                swimlane_max_x = swimlane.top_left_x + swimlane.width
+            else:
+                swimlane_max_x = max(swimlane_max_x, swimlane.top_left_x + swimlane.width)
+            if swimlane_min_y is None:
+                swimlane_min_y = swimlane.top_left_y
+            else:
+                swimlane_min_y = min(swimlane_min_y, swimlane.top_left_y)
+            if swimlane_max_y is None:
+                swimlane_max_y = swimlane.top_left_y + swimlane.height
+            else:
+                swimlane_max_y = max(swimlane_max_y, swimlane.top_left_y + swimlane.height)
+        # print(f"Swimlane area: ({swimlane_min_x}, {swimlane_min_y}) - ({swimlane_max_x}, {swimlane_max_y})")
+
+        min_x = self.get_min(node_min_x, edge_min_x, swimlane_min_x)
+        max_x = self.get_max(node_max_x, edge_max_x, swimlane_max_x)
+        min_y = self.get_min(node_min_y, edge_min_y, swimlane_min_y)
+        max_y = self.get_max(node_max_y, edge_max_y, swimlane_max_y)
+
+        if min_x is None or min_y is None or max_x is None or max_y is None:
+            return None
+        else:
+            min_x -= margin
+            min_x = max(0, min_x)  # 負の値にならないようにする
+            min_y -= margin
+            min_y = max(0, min_y)  # 負の値にならないようにする
+            max_x += margin
+            max_y += margin
+            return (min_x, min_y, max_x, max_y)
+    
+    def get_min(self, value1, value2, value3):
+        min_value = value1
+        for value in [value2, value3]:
+            if value is not None:
+                if min_value is None or value < min_value:
+                    min_value = value
+        return min_value
+
+    def get_max(self, value1, value2, value3):
+        max_value = value1
+        for value in [value2, value3]:
+            if value is not None:
+                if max_value is None or value > max_value:
+                    max_value = value
+        return max_value
+
+    def canvas_resize_to_fit_data(self):
+        # print("Resizing canvas to fit data...")
+        minimum_canvas_area = self.get_minimum_canvas_area()
+        if minimum_canvas_area is not None:
+            x_min, y_min, x_max, y_max = minimum_canvas_area
+            self.canvas_width = int(x_max)
+            self.canvas_height = int(y_max)
+            self.canvas.config(scrollregion=(0, 0, self.canvas_width-1, self.canvas_height-1))
+            # self.canvas.config(width=self.canvas_width, height=self.canvas_height)
+            self._draw_grid()   # グリッド再描画
+        # print(f"Canvas resized to fit data: {self.canvas_width}x{self.canvas_height}")
 
     def add_mode_button(self, toolbar, text, value):
         if text == "Swimlane":
@@ -844,6 +988,43 @@ class FlowchartTool(tk.Tk):
 
         else:
             self.drag_data_init()
+
+    def on_drag_start_middle(self, event):
+        #print("Middle drag started")
+        self.drag_data["mode"] = "move_canvas"
+        self.drag_data["node_id"] = None
+        self.drag_data["shape_id"] = None
+        self.drag_data["drag_start_x"] = event.x
+        self.drag_data["drag_start_y"] = event.y
+        self.drag_data["drag_end_x"] = event.x
+        self.drag_data["drag_end_y"] = event.y
+
+    def on_drag_move_middle(self, event):
+        #print("Middle dragging...")
+        if self.drag_data["mode"] == "move_canvas":
+            self.drag_data["drag_end_x"] = event.x
+            self.drag_data["drag_end_y"] = event.y
+            drag_move_x = self.drag_data["drag_start_x"] - self.drag_data["drag_end_x"]
+            drag_move_y = self.drag_data["drag_start_y"] - self.drag_data["drag_end_y"]
+            #print(f"  drag_move_x: {drag_move_x}, drag_move_y: {drag_move_y}")
+            # キャンバスのスクロール位置を更新
+            delta_x = self.scrollbar_x.delta(drag_move_x, drag_move_y) if self.scrollbar_x else 0
+            delta_y = self.scrollbar_y.delta(drag_move_x, drag_move_y) if self.scrollbar_y else 0
+            #print(f"  delta_x: {delta_x}, delta_y: {delta_y}")
+            start_x, end_x = self.scrollbar_x.get() if self.scrollbar_x else (0, 1)  # スクロールバーの位置を取得（0.0～1.0）
+            start_y, end_y = self.scrollbar_y.get() if self.scrollbar_y else (0, 1)  # スクロールバーの位置を取得（0.0～1.0）
+            after_x = start_x + delta_x * self.scrollbar_x.winfo_width() / self.canvas_width
+            after_y = start_y + delta_y * self.scrollbar_y.winfo_height() / self.canvas_height 
+            #print(f"  before_x: {start_x}, before_y: {start_y}, after_x: {after_x}, after_y: {after_y}")
+            self.canvas.xview_moveto(after_x)
+            self.canvas.yview_moveto(after_y)
+            # ドラッグ開始位置を更新
+            self.drag_data["drag_start_x"] = self.drag_data["drag_end_x"]
+            self.drag_data["drag_start_y"] = self.drag_data["drag_end_y"]
+
+    def on_drag_end_middle(self, event):
+        #print("Middle drag ended")
+        self.drag_data_init()
 
     def on_canvas_double_click(self, event):
         # if self.mode.get() != "select":
@@ -1636,6 +1817,8 @@ class FlowchartTool(tk.Tk):
         self.canvas.tag_raise("edge")
         self.canvas.tag_raise("node")
 
+        self.canvas_resize_to_fit_data()
+
         if push_to_history:
             self.push_history()
         
@@ -2119,6 +2302,8 @@ class FlowchartTool(tk.Tk):
         # ノード最前面
         self.canvas.tag_raise("node")
 
+        self.canvas_resize_to_fit_data()
+
         self.push_history()
 
     def save_mermaid_flowdata(self):
@@ -2263,12 +2448,13 @@ class FlowchartTool(tk.Tk):
             "[Mouse Operations]\n"
             " Right Button: Show context menu\n"
             " Click Node/Edge/Swimlane: Select node/edge/swimlane\n"
-            " Shift-Click Node/Swimlane: Add to selection\n"
+            " Shift+Click Node/Swimlane: Add to selection\n"
             " Double-Click Node/Edge/Swimlane: Edit text\n"
             " Drag Area: Select nodes/swimlanes in area\n"
             " Drag Node: Move selected node(s)\n"
             " Drag Swimlane Header/Footer: Move swimlane(s)\n"
             " MouseWheel: Rotate menu selection\n"
+            " MouseWheel-Button-Drag: Scroll canvas\n"
             " Ctrl+MouseWheel: Change connection point or swimlane height\n"
             " Shift+MouseWheel: Change edge wrap margin or swimlane width\n"
             " Ctrl+Shift+MouseWheel: Change edge label position"

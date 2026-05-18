@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
+import constants as ct
 
 class ModalWindow(tk.Toplevel):
     def __init__(self, parent, title="Modal Window", width=400, height=300):
@@ -52,8 +53,11 @@ class ResizeCanvasModal(ModalWindow):
         ttk.Label(input_height_frame, text="px").pack(side=tk.LEFT, pady=(5,5))
 
         # Minimum width x height
-        minimum_canvas_width = int(parent.scrollbar_x.winfo_width())-4
-        minimum_canvas_height = int(parent.scrollbar_y.winfo_height())-4
+        minimum_canvas_area = parent.get_minimum_canvas_area() # データが存在するエリアの範囲を取得、ただし、データが存在しない場合はキャンバスの表示エリアの範囲を取得する
+        now_canvas_width = int(parent.scrollbar_x.winfo_width())-4
+        now_canvas_height = int(parent.scrollbar_y.winfo_height())-4
+        minimum_canvas_width = int(max(now_canvas_width, minimum_canvas_area[2] if minimum_canvas_area[2] is not None else now_canvas_width))
+        minimum_canvas_height = int(max(now_canvas_height, minimum_canvas_area[3] if minimum_canvas_area[3] is not None else now_canvas_height))
         mimimum_size_checkbox_var = tk.BooleanVar(value=False)
         minimum_size_checkbox = ttk.Checkbutton(input_frame,
                                                 text=f"Minimum Size : {minimum_canvas_width} px x {minimum_canvas_height} px",
@@ -89,7 +93,7 @@ class ResizeCanvasModal(ModalWindow):
 
         parent.canvas_width = new_width
         parent.canvas_height = new_height
-        parent.canvas.config(width=parent.canvas_width, height=parent.canvas_height)
+        parent.canvas.config(scrollregion=(0, 0, parent.canvas_width-1, parent.canvas_height-1))
         parent._draw_grid()
 
         self.destroy()
