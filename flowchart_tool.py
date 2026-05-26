@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 from pathlib import Path
 import re
 from PIL import Image, ImageDraw, ImageTk, ImageFont
-from typing import Literal, Tuple
+from typing import Dict, List, Optional, Tuple, Literal
 import webbrowser
 
 import mermaid_flowdata_loader as mfloader
@@ -23,6 +23,8 @@ import edge
 from edge import Edge
 import swimlane
 from swimlane import Swimlane
+import note
+from note import Note
 from modal_window import ModalWindow, ResizeCanvasModal
 import generative_ai_interface
 from generative_ai_interface import Generative_AI_interface
@@ -47,6 +49,7 @@ class FlowchartTool(tk.Tk):
         # 状態
         self.mode = tk.StringVar(value=ct.DEFAULT_MODE)  # 動作モード： select / add:process / add:decision / add:terminator / add:io / link_elbow / link_straight
         self.grid_on = tk.BooleanVar(value=True)  # グリッド表示ON/OFF
+        self.note_on = tk.BooleanVar(value=True)  # ノート表示ON/OFF
         self.ai_chat_window_on = tk.BooleanVar(value=False)  # チャットウィンドウ表示ON/OFF
 
         # 登録済みノード情報
@@ -62,6 +65,9 @@ class FlowchartTool(tk.Tk):
         # 登録済みスイムレーン情報
         self.swimlanes = [] # 登録済みスイムレーンオブジェクトリスト
         self.selected_swimlanes = [] # 選択中のスイムレーンオブジェクトリスト
+
+        # 登録済みノート情報
+        self.notes: dict[int, Note] = {}  # note_id -> Noteオブジェクト
 
         self.current_swimlane_kind = "Swimlane_" + ct.SWIMLANE_PARAMS["kind"]  # スイムレーンの種類（垂直 or 水平）
         self.current_terminator_kind = "Terminator"  # ターミネータの種類（通常 or 小さいやつ）
@@ -101,6 +107,7 @@ class FlowchartTool(tk.Tk):
         self.text_edit = None  # {"entry":..., "node_id":..., "window_id":...}
         self.edge_label_edit = None  # {"entry":..., "edge_obj":..., "window_id":...}
         self.swimlane_label_edit = None  # {"entry":..., "swimlane_obj":..., "window_id":...}
+        self.note_text_edit = None  # {"entry":..., "note_obj":..., "window_id":...}
 
         self._build_ui()    # UI構築
 
@@ -173,6 +180,11 @@ class FlowchartTool(tk.Tk):
         checkbutton_grid.pack(side=tk.LEFT, padx=1)
         ToolTip(checkbutton_grid, "Grid ON/OFF")
 
+        # Note表示/非表示ボタン定義
+        checkbutton_note = tk.Checkbutton(toolbar, text="Note", image=self.icons["Note"], compound="none", indicatoron=False, variable=self.note_on, command=self.display_note_toggle, width=30, height=30)
+        checkbutton_note.pack(side=tk.LEFT, padx=1)
+        ToolTip(checkbutton_note, "Note ON/OFF")
+
         # キャンバスリサイズボタン定義
         button_resize = tk.Button(toolbar, text="Resize Canvas", image=self.icons["Resize_Canvas"], compound="none", command=self.confirm_canvas_resize, width=30, height=30)
         button_resize.pack(side=tk.LEFT, padx=1)
@@ -225,6 +237,7 @@ class FlowchartTool(tk.Tk):
         self.canvas.bind("<ButtonPress-2>", self.on_drag_start_middle)
         self.canvas.bind("<B2-Motion>", self.on_drag_move_middle)
         self.canvas.bind("<ButtonRelease-2>", self.on_drag_end_middle)
+        self.canvas.bind("<Double-2>", self.add_note_to_node)
 
         # キー操作定義
         self.bind_all("<Delete>", lambda e: self.delete_selected())
@@ -263,6 +276,7 @@ class FlowchartTool(tk.Tk):
         self.popup_menu.add_command(label="Mode : Add Document", image=self.icons["Document"], compound="left", command=lambda: self.mode.set("add:document"))
         self.popup_menu.add_command(label="Mode : Link elbow arrow", image=self.icons["Link_elbow_" + self.current_link_elbow_path_type], compound="left", command=lambda: self.mode.set("link_elbow"))
         self.popup_menu.add_command(label="Mode : Link straight arrow", image=self.icons["Link_straight"], compound="left", command=lambda: self.mode.set("link_straight"))
+        self.popup_menu.add_command(label="Mode : Add note to a node", image=self.icons["Note"], compound="left", command=lambda: self.mode.set("add:note"))
         self.popup_menu.add_separator()
         self.popup_menu.add_command(label="Delete Selected", image=self.icons["Delete"], compound="left", command=self.delete_selected)
         self.popup_menu.add_separator()
@@ -558,6 +572,8 @@ class FlowchartTool(tk.Tk):
         elif text == "Link_elbow_vertical" or text == "Link_elbow_horizontal" or text == "Link_elbow_tree":
             b.pack(side=tk.LEFT, padx=(4,1))
             b.bind("<Button-3>", lambda event: self.change_current_link_elbow_path_type())  # リンクエルボの種類変更のための右クリックイベントをバインド
+        elif text == "Note":
+            b.pack(side=tk.LEFT, padx=(4,1))
         else:
             b.pack(side=tk.LEFT, padx=1)
 
@@ -592,6 +608,23 @@ class FlowchartTool(tk.Tk):
         # グリッドを最背面へ
         self.canvas.tag_lower("grid")
 
+    def display_note_toggle(self):
+        if self.note_text_edit is not None:
+            self.finish_note_text_edit(commit=True)
+
+        if self.note_on.get():
+            self.display_all_notes()
+        else:
+            self.hide_all_notes()
+
+    def display_all_notes(self):
+        for note_obj in self.notes.values():
+            note_obj.show(self.canvas)
+
+    def hide_all_notes(self):
+        for note_obj in self.notes.values():
+            note_obj.hidden(self.canvas)
+
     # ------------ イベント・ハンドラ定義 ------------
 
     def on_canvas_click(self, event):
@@ -605,6 +638,8 @@ class FlowchartTool(tk.Tk):
             self.finish_edge_label_edit(commit=True)
         if self.swimlane_label_edit is not None:
             self.finish_swimlane_label_edit(commit=True)
+        if self.note_text_edit is not None:
+            self.finish_note_text_edit(commit=True)
 
         # クリック位置のオブジェクトを取得
         selecting_node_id = self.node_at(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
@@ -612,14 +647,20 @@ class FlowchartTool(tk.Tk):
             selecting_edge = self.edge_at(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
             if selecting_edge is None:
                 selecting_swimlane = self.swimlane_at(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
+                if selecting_swimlane is None:
+                    selecting_note = self.note_at(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
+                else:
+                    selecting_note = None
             else:
                 selecting_swimlane = None
+                selecting_note = None
         else:
             selecting_edge = None
             selecting_swimlane = None
+            selecting_note = None
 
         # オブジェクトを選択していなくて、新規登録モードであれば、指定オブジェクトの新規作成を行う
-        if selecting_node_id is None and selecting_edge is None and selecting_swimlane is None:
+        if selecting_node_id is None and selecting_edge is None and selecting_swimlane is None and selecting_note is None:
             self.cancel_selection_node_and_edge_and_swimlane()
             if mode.startswith("add:"):
                 node_type = mode.split(":", 1)[1]
@@ -680,6 +721,8 @@ class FlowchartTool(tk.Tk):
             self.finish_edge_label_edit(commit=True)
         if self.swimlane_label_edit is not None:
             self.finish_swimlane_label_edit(commit=True)
+        if self.note_text_edit is not None:
+            self.finish_note_text_edit(commit=True)
 
         # クリック位置のオブジェクトを取得
         selecting_node_id = self.node_at(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
@@ -726,8 +769,10 @@ class FlowchartTool(tk.Tk):
         selected_node_id = self.node_at(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
         selected_edge_id = self.edge_at(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
         selected_swimlane = self.swimlane_at(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
+        selected_note = self.note_at(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
+        # print(f"Selected on drag start: node_id={selected_node_id}, edge_id={selected_edge_id}, swimlane={selected_swimlane}, note={selected_note}")
 
-        if selected_node_id is None and selected_edge_id is None and selected_swimlane is None:
+        if selected_node_id is None and selected_edge_id is None and selected_swimlane is None and selected_note is None:
             self.drag_data["mode"] = "select_area"
             self.drag_data["node_id"] = None
             self.drag_data["shape_id"] = None
@@ -744,7 +789,20 @@ class FlowchartTool(tk.Tk):
                 tags=("selection")
             )
             self.drag_data["shape_id"] = selection_frame_shape_id
+        elif selected_note is not None:
+            # print(f"Note selected for dragging: note_id={selected_note.shape_id}")
+            # self.select_note(selected_note)
+            self.drag_data["mode"] = "move_note"
+            self.drag_data["node_id"] = selected_note.base_node.id if selected_note.base_node is not None else None
+            self.drag_data["shape_id"] = selected_note.shape_id
+            self.drag_data["original_x"] = selected_note.x
+            self.drag_data["original_y"] = selected_note.y
+            self.drag_data["drag_start_x"] = self.canvas.canvasx(event.x)
+            self.drag_data["drag_start_y"] = self.canvas.canvasy(event.y)
+            self.drag_data["drag_end_x"] = self.canvas.canvasx(event.x)
+            self.drag_data["drag_end_y"] = self.canvas.canvasy(event.y)
         elif selected_node_id is not None:
+            # print(f"Node selected for dragging: node_id={selected_node_id}")
             mode = self.mode.get()
             if mode.startswith("link"):
                 self.temporary_data_init()
@@ -789,7 +847,7 @@ class FlowchartTool(tk.Tk):
         self.display_operation_info()  # 操作情報表示制御
 
     def on_drag_move(self, event):
-        # print(f"Dragging... mode: {self.drag_data['mode']}, self.link_start_node_id: {self.link_start_node_id}")
+        # print(f"Dragging... mode: {self.drag_data}, event: ({event.x}, {event.y})")
 
         mode = self.drag_data["mode"]
         self.drag_data["drag_end_x"] = self.canvas.canvasx(event.x)
@@ -860,6 +918,18 @@ class FlowchartTool(tk.Tk):
                         else:
                             self.temporary_edge.to_node_obj = self.nodes[selecting_node_id]
                         self._update_edge(self.temporary_edge)
+        elif mode == "move_note":
+            # print(f"Moving note... mode: {mode}, note shape_id: {self.drag_data['shape_id']}")
+            dragging_shape_id = self.drag_data["shape_id"]
+            for note_shape_id, note_obj in self.notes.items():
+                if note_shape_id is not None and note_shape_id == dragging_shape_id:
+                    drag_move_x = self.drag_data["drag_end_x"] - self.drag_data["drag_start_x"]
+                    drag_move_y = self.drag_data["drag_end_y"] - self.drag_data["drag_start_y"]
+                    move_to_x = self.drag_data["original_x"] + drag_move_x
+                    move_to_y = self.drag_data["original_y"] + drag_move_y
+                    adjusted_x, adjusted_y = self.adjusted_note_xy(dragging_shape_id, move_to_x, move_to_y)
+                    note_obj.move_to(adjusted_x, adjusted_y)
+                    # print(f"Note moved to ({adjusted_x}, {adjusted_y})")
 
     def on_drag_end(self, event):
         # print("Drag ended")
@@ -986,6 +1056,21 @@ class FlowchartTool(tk.Tk):
                     self.create_edge(self.link_start_node_id, selecting_node_id, ct.EDGE_TYPE_LINE)
                 self.cancel_selection_node_and_edge_and_swimlane()
 
+        elif mode == "move_note":
+            dragging_shape_id = self.drag_data["shape_id"]
+            for note_shape_id, note_obj in self.notes.items():
+                if note_shape_id is not None and note_shape_id == dragging_shape_id:
+                    drag_move_x = self.drag_data["drag_end_x"] - self.drag_data["drag_start_x"]
+                    drag_move_y = self.drag_data["drag_end_y"] - self.drag_data["drag_start_y"]
+                    move_to_x = self.drag_data["original_x"] + drag_move_x
+                    move_to_y = self.drag_data["original_y"] + drag_move_y
+                    adjusted_x, adjusted_y = self.adjusted_note_xy(dragging_shape_id, move_to_x, move_to_y)
+                    note_obj.move_to(adjusted_x, adjusted_y)
+                    break
+            
+            if dragging_shape_id is not None:
+                self.push_history()
+
         else:
             self.drag_data_init()
 
@@ -1042,6 +1127,47 @@ class FlowchartTool(tk.Tk):
                 selected_swimlane = self.swimlane_at(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
                 if selected_swimlane is not None:
                     self.start_swimlane_label_edit(selected_swimlane)
+                else:
+                    selected_note = self.note_at(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
+                    if selected_note is not None:
+                        self.start_note_text_edit(selected_note, event)
+
+    def add_note_to_node(self, event):
+        # クリック位置のオブジェクトを取得
+        selecting_node_id = self.node_at(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
+
+        # すでにノードに紐づくノートが存在していれば、ノートを編集モードで開く
+        existing_note = self.get_note_for_node(selecting_node_id)
+        if existing_note is not None:
+            self.start_note_text_edit(existing_note, event)
+            return
+
+        modify_flag = False
+        if selecting_node_id is not None:
+            note = self.create_note_for_node(selecting_node_id)
+            if note is not None and note.shape_id is not None:
+                self.notes[note.shape_id] = note
+                modify_flag = True
+
+        if modify_flag:
+            self.push_history()
+
+    def get_note_for_node(self, node_id):
+        for note in self.notes.values():
+            if note.base_node is not None and note.base_node.id == node_id:
+                return note
+        return None
+
+    def create_note_for_node(self, node_id):
+        node_obj = self.nodes.get(node_id)
+        if node_obj is not None:
+            note = self.create_note(canvas=self.canvas, base_node=node_obj)
+            return note
+        return None
+
+    def create_note(self, text: str = "", dx: Optional[int] = None, dy: Optional[int] = None, base_node: Optional[Node] = None, display_state="normal", canvas: Optional[tk.Canvas] = None):
+        self.note = Note(canvas, base_node=base_node, text=text, dx=dx, dy=dy, display_state=display_state)
+        return self.note
 
     def on_canvas_resize(self, event):
         self.canvas_resize(False)
@@ -1214,7 +1340,7 @@ class FlowchartTool(tk.Tk):
         
         self.display_operation_info()  # 操作情報表示制御
 
-    def _create_node_with_id(self, node_id, node_type, x, y, w=None, h=None, shape_type=None, fill_color=None, text=None, status=None):
+    def _create_node_with_id(self, node_id, node_type, x, y, w=None, h=None, shape_type=None, fill_color=None, text=None, status=None, details=None, note_data=None):
         adjusted_x, adjusted_y = self.adjusted_xy(node_id, x, y, node_type)
 
         auto_text = self.auto_node_text(node_type, text)
@@ -1223,11 +1349,17 @@ class FlowchartTool(tk.Tk):
             if self.current_terminator_kind == "Terminator_small":
                 w = ct.NODE_TERMINATOR_PARAMS["width"]  // 2
 
-        node_obj = Node(node_id, node_type, adjusted_x, adjusted_y, w=w, h=h, shape_type=shape_type, fill_color=fill_color, text=auto_text, status=status, canvas=self.canvas)
-
+        node_obj = Node(node_id, node_type, adjusted_x, adjusted_y, w=w, h=h, shape_type=shape_type, fill_color=fill_color, text=auto_text, status=status, details=details, canvas=self.canvas)
         self.nodes[node_id] = node_obj
+
+        if details is not None and note_data is not None:
+            note_obj = self.create_note(text=details, dx=note_data.get("dx"), dy=note_data.get("dy"), base_node=node_obj, display_state=note_data.get("display_state"), canvas=self.canvas)
+            if note_obj is not None and note_obj.shape_id is not None:
+                self.notes[note_obj.shape_id] = note_obj
+
         # ノードは常に最前面に
         self.canvas.tag_raise("node")
+        self.canvas.tag_raise("note")
 
     def auto_node_text(self, node_type, text):
         # Terminator ノードには自動で "Start"/"End" テキストを設定
@@ -1548,6 +1680,12 @@ class FlowchartTool(tk.Tk):
                 edges_to_keep[edge_line_id] = edge_obj
         self.edges = edges_to_keep
 
+        note_obj = self.get_note_for_node(node_obj.id)
+        if note_obj is not None:
+            note_obj.delete(self.canvas)
+            if note_obj.shape_id in self.notes:
+                del self.notes[note_obj.shape_id]
+
         del self.nodes[nid]
         self.selected_node_ids = []
         self.push_history()
@@ -1608,6 +1746,18 @@ class FlowchartTool(tk.Tk):
                 swimlane_bottom_id = swimlane_obj.bottom_id
                 if item == swimlane_top_id or item == swimlane_bottom_id:
                     return swimlane_obj
+        return None
+
+    def note_at(self, x, y):
+        """クリック位置からノートを逆引き"""
+        items = self.canvas.find_overlapping(x, y, x, y)
+        if not items:
+            return None
+        for item in reversed(items):
+            for shape_id, note_obj in self.notes.items():
+                note_text_id = note_obj.text_id
+                if item == shape_id or item == note_text_id:
+                    return note_obj
         return None
 
     @staticmethod
@@ -1720,6 +1870,10 @@ class FlowchartTool(tk.Tk):
         nodes_data = []
         for node_obj in self.nodes.values():
             node_data = node_obj.to_dict()  # Nodeクラスのto_dictメソッドを使用してノードデータを取得
+            note_obj = self.get_note_for_node(node_obj.id)  # ノードに紐づくノートを取得
+            if note_obj is not None:
+                node_data["note"] = note_obj.to_sub_dict()
+                # print(f"Node id {node_obj.id} Note data: {node_data['note']}")  # for DEBUG
             nodes_data.append(node_data)
 
         # エッジは、fromノードID、toノードID、接続位置、エッジの回り込み距離、ラベルテキスト、ラベル位置を保存
@@ -1741,11 +1895,12 @@ class FlowchartTool(tk.Tk):
         self.nodes.clear()
         self.edges.clear()
         self.swimlanes.clear()
+        self.notes.clear()
         self.selected_node_ids = []
         self.selected_edge_id = None
         self.link_start_node_id = None
         self.selected_swimlanes = []
-
+ 
         # グリッド
         self._draw_grid()
 
@@ -1768,7 +1923,11 @@ class FlowchartTool(tk.Tk):
             fill_color = nd.get("fill_color", None)
             text = nd.get("text", "")
             status = nd.get("status", None)
-            self._create_node_with_id(nid, node_type, x, y, w=w, h=h, shape_type=shape_type, fill_color=fill_color, text=text, status=status)
+            details = nd.get("details", None)
+            note_data = nd.get("note", None)
+            # print(f"Importing node id: {nid}, type: {node_type}, x: {x}, y: {y}, w: {w}, h: {h}, shape_type: {shape_type}, fill_color: {fill_color}, text: {text}, status: {status}, details: {details}, note_data: {note_data}")  # for DEBUG
+
+            self._create_node_with_id(nid, node_type, x, y, w=w, h=h, shape_type=shape_type, fill_color=fill_color, text=text, status=status, details=details, note_data=note_data)
             if nid > max_id:
                 max_id = nid
 
@@ -1816,6 +1975,7 @@ class FlowchartTool(tk.Tk):
         # ノード・エッジ・スイムレーン階層調整
         self.canvas.tag_raise("edge")
         self.canvas.tag_raise("node")
+        self.canvas.tag_raise("note")
 
         self.canvas_resize_to_fit_data()
 
@@ -1842,6 +2002,7 @@ class FlowchartTool(tk.Tk):
     # ------------ 編集履歴の記録（UNDO/REDO用） ------------
 
     def push_history(self):
+        # print(f"Pushing history at index: {self.history_index + 1}")  # for DEBUG
         """現在状態を履歴に追加（Undo/Redo用）"""
         state = self.export_model()
         if self.history_index < len(self.history) - 1:
@@ -1851,6 +2012,8 @@ class FlowchartTool(tk.Tk):
         if pre_snapshot != snapshot:
             self.history.append(snapshot)
             self.history_index += 1
+        # else:
+        #     print(f"  No changes detected, not pushing to history.")  # for DEBUG
 
     # ------------ JSON保存/読み込み ------------
 
@@ -1997,6 +2160,8 @@ class FlowchartTool(tk.Tk):
             self.finish_edge_label_edit(commit=False)
         if self.swimlane_label_edit is not None:
             self.finish_swimlane_label_edit(commit=False)
+        if self.note_text_edit is not None:
+            self.finish_note_text_edit(commit=False)
 
         if swimlane_obj is None:
             return
@@ -2044,6 +2209,28 @@ class FlowchartTool(tk.Tk):
 
         self.swimlane_label_edit = None
 
+    def start_note_text_edit(self, note_obj:Note, event:tk.Event):
+        # print(f"Starting note text edit for note_obj: {note_obj}")  # for DEBUG
+        note_obj.start_text_edit(event)
+        self.note_text_edit = {"entry": note_obj.editor, "note_obj": note_obj, "window_id": note_obj.shape_id}
+
+    def finish_note_text_edit(self, commit=True):
+        # print(f"Finishing note text edit, commit={commit}")  # for DEBUG
+        if self.note_text_edit is None:
+            return
+        note_obj = self.note_text_edit["note_obj"]
+        note_shape_id = note_obj.shape_id
+        note_obj.finish_text_edit(commit)
+
+        if note_obj.base_node.details is None:
+            del self.notes[note_shape_id]
+            print(f"Note for node id {note_obj.base_node.id} deleted because details is empty")  # for DEBUG
+
+        if commit:
+            self.push_history()
+
+        self.note_text_edit = None
+
     def adjusted_xy(self, node_id:int|None, x:int, y:int, node_type=ct.NODE_DEFAULT_PARAMS["type"]):
         if node_id is None:
             return x, y
@@ -2058,6 +2245,28 @@ class FlowchartTool(tk.Tk):
             else:   # 既存ノード移動時
                 w = node_obj.w if node_obj else 0
                 h = node_obj.h if node_obj else 0
+            adjusted_x = int(((x + grid_size/2 - w/2) // grid_size) * grid_size + w/2)
+            adjusted_y = int(((y + grid_size/2 - h/2) // grid_size) * grid_size + h/2)
+        else:
+            adjusted_x = x
+            adjusted_y = y
+
+        return adjusted_x, adjusted_y
+
+    def adjusted_note_xy(self, note_id:int|None, x:int, y:int):
+        if note_id is None:
+            return x, y
+
+        grid_size = ct.CANVAS_PARAMS["grid_spacing"]
+        note_obj = self.notes.get(note_id)
+
+        if self.grid_on.get():
+            if note_obj is None:     # 新規ノート作成時
+                w = ct.NOTE_PARAMS["width"]
+                h = ct.NOTE_PARAMS["height"]
+            else:   # 既存ノート移動時
+                w = note_obj.w if note_obj else 0
+                h = note_obj.h if note_obj else 0
             adjusted_x = int(((x + grid_size/2 - w/2) // grid_size) * grid_size + w/2)
             adjusted_y = int(((y + grid_size/2 - h/2) // grid_size) * grid_size + h/2)
         else:
@@ -2136,7 +2345,18 @@ class FlowchartTool(tk.Tk):
             self.canvas.coords(node_obj.text_id, x, y - h / 10)
         else:
             self.canvas.coords(node_obj.text_id, x, y)
+
+        self._update_notes_for_node(node_obj.id)
         self.canvas.tag_raise("node")
+        self.canvas.tag_raise("note")
+
+
+    def _update_notes_for_node(self, nid):
+        # print(f"Updating notes for node {nid}")  # for DEBUG
+        """ノード移動時に関連ノートを再レイアウト"""
+        for note_shape_id, note_obj in self.notes.items():
+            if note_obj.base_node and note_obj.base_node.id == nid:
+                note_obj.redraw()
 
     def _update_edges_for_node(self, nid):
         """ノード移動時に関連エッジとラベルを再レイアウト"""
@@ -2144,7 +2364,6 @@ class FlowchartTool(tk.Tk):
             if (edge_obj.from_node_obj and edge_obj.from_node_obj.id == nid) or (edge_obj.to_node_obj and edge_obj.to_node_obj.id == nid):
                 self._update_edge(edge_obj)
                 edge_obj.edge_wrap_ratio1, edge_obj.edge_wrap_ratio2 = edge_obj.get_edge_wrap_ratios()
-
 
         self.canvas.tag_lower("edge", "node")
     
@@ -2230,6 +2449,7 @@ class FlowchartTool(tk.Tk):
         self.nodes.clear()
         self.edges.clear()
         self.swimlanes.clear()
+        self.notes.clear()
         self.selected_node_ids = []
         self.selected_edge_id = None
         self.link_start_node_id = None
@@ -2280,7 +2500,8 @@ class FlowchartTool(tk.Tk):
             w = Node.get_width_of_type(node_type)
             h = Node.get_height_of_type(node_type)
             text = nd.title if hasattr(nd, "title") else ""
-            self._create_node_with_id(node_id, node_type, x, y, w=w, h=h, text=text)
+            details = nd.details if hasattr(nd, "details") else None
+            self._create_node_with_id(node_id, node_type, x, y, w=w, h=h, text=text, details=details)
             id_map[node_strid] = node_id
 
         for ed in mmd_links:
@@ -2449,12 +2670,13 @@ class FlowchartTool(tk.Tk):
             " Right Button: Show context menu\n"
             " Click Node/Edge/Swimlane: Select node/edge/swimlane\n"
             " Shift+Click Node/Swimlane: Add to selection\n"
-            " Double-Click Node/Edge/Swimlane: Edit text\n"
+            " Double-Click Node/Edge/Swimlane/Note: Edit text\n"
             " Drag Area: Select nodes/swimlanes in area\n"
             " Drag Node: Move selected node(s)\n"
             " Drag Swimlane Header/Footer: Move swimlane(s)\n"
             " MouseWheel: Rotate menu selection\n"
             " MouseWheel-Button-Drag: Scroll canvas\n"
+            " MouseWheel-Double-Click Node: Add note to node\n"
             " Ctrl+MouseWheel: Change connection point or swimlane height\n"
             " Shift+MouseWheel: Change edge wrap margin or swimlane width\n"
             " Ctrl+Shift+MouseWheel: Change edge label position"
@@ -2535,6 +2757,7 @@ class FlowchartTool(tk.Tk):
         self.icons["I/O"] = self.make_icon("I/O")
         self.icons["Storage"] = self.make_icon("Storage")
         self.icons["Document"] = self.make_icon("Document")
+        self.icons["Note"] = self.make_icon("Note")
         self.icons["Link_elbow_vertical"] = self.make_icon("Link_elbow_vertical")
         self.icons["Link_elbow_horizontal"] = self.make_icon("Link_elbow_horizontal")
         self.icons["Link_elbow_tree"] = self.make_icon("Link_elbow_tree")
@@ -2639,6 +2862,10 @@ class FlowchartTool(tk.Tk):
             d.arc((x0, y1-size*3//8-size//30, x0+size//2+size//20, y1-size//8-size//30), start=30, end=150, fill=fg, width=8)
             d.arc((x0+size//2-size//20, y1-size*3//8+size//20, x1, y1-size//8+size//20), start=210, end=330, fill=fg, width=8)
 
+        elif name == "Note":
+            d.polygon([(x0+size//8, y0+size//8), (x0+size//8, y1-size//8), (x1-size//3, y1-size//8), (x1-size//8, y1-size//3), (x1-size//8, y0+size//8)], outline="#D6B94D", fill="#FFF9CC", width=4)
+            d.polygon([(x1-size//3, y1-size//8), (x1-size//3, y1-size//3), (x1-size//8, y1-size//3)], outline="#D6B94D", fill="#A8A481", width=4)
+ 
         elif name == "Link_elbow_vertical":
             d.line((x0+size//3, y0+size//16, x0+size//3, y0+size//2, x1-size//3, y0+size//2, x1-size//3, y1-size//16), fill=fg, width=8, joint="curve")
             d.line((x1-size//3, y1-size//16, x1-size//3+size//10, y1-size//5), fill=fg, width=8)

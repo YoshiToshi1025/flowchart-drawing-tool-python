@@ -1,6 +1,10 @@
+from dataclasses import dataclass
+from typing import Dict, List, Optional, Tuple
 import tkinter as tk
+import tkinter.font as tkfont
 import constants as ct
 import math
+from math import inf
 
 class Node:
     id = None
@@ -10,11 +14,12 @@ class Node:
     w:int = 0
     h:int = 0
     text = None
+    details = None    # Note, Spec, Memoなどの詳細情報を格納する属性
+    status = "normal" # "normal", "active", "inactive"
     shape_id = None
     text_id = None
-    status = "normal" # "normal", "active", "inactive"
 
-    def __init__(self, node_id, node_type, x:int, y:int, w=None, h=None, shape_type=None, fill_color=None, text=None, status=None, canvas=None):
+    def __init__(self, node_id, node_type, x:int, y:int, w=None, h=None, shape_type=None, fill_color=None, text=None, details=None, status=None, canvas=None):
         # print(f"Creating Node: id={node_id}, type={node_type}, x={x}, y={y}, w={w}, h={h}, shape_type={shape_type}, fill_color={fill_color}, text={text}, status={status}")
         self.id = node_id
         self.type = node_type
@@ -22,7 +27,7 @@ class Node:
         self.y = y
         self.shape_type = shape_type if self.type == ct.NODE_PROCESS_PARAMS["type"] and shape_type is not None else ct.NODE_PROCESS_PARAMS["shape_type"]
         self.status = status if status is not None else ct.NODE_STATUS_NORMAL
-
+        self.details = details
 
         # print(f"create Node {self.id} initialized with type={self.type}, shape_type={self.shape_type}, status={self.status}")
 
@@ -692,6 +697,8 @@ class Node:
             node_data["fill_color"] = self.fill_color
         if self.status is not None and self.status != ct.NODE_STATUS_NORMAL:
             node_data["status"] = self.status
+        if self.details is not None:
+            node_data["details"] = self.details
 
         return node_data
 

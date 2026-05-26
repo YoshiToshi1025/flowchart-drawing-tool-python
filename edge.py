@@ -1259,8 +1259,8 @@ class Edge:
                 coords = [from_bottom_x, from_bottom_y, from_bottom_x, mid_y, to_top_x, mid_y, to_top_x, to_top_y]
         else:
             # 5line
-            margin_ya = from_bottom_y + from_node_obj.h * 0.5
-            margin_yb = to_top_y - to_node_obj.h * 0.5
+            margin_ya = from_bottom_y + from_node_obj.h * 0.3
+            margin_yb = to_top_y - to_node_obj.h * 0.3
             if self.edge_wrap_margin is None:
                 mid_x = (from_bottom_x + to_top_x) / 2
             else:

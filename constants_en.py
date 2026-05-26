@@ -181,6 +181,28 @@ NODE_DOCUMENT_PARAMS = {
     "font_weight": font.NORMAL,
 }
 
+# Note Parameters
+NOTE_PARAMS = {
+    "type": "note",
+    "text": "Note/Spec",
+    "dx": 180,
+    "dy": -60,
+    "width": 150,
+    "height": 135,
+    "state" : "normal",    # option: normal, hidden
+    "fill_color": "#FFF9CC", # Light Yellow
+    "outline_color": "#D6B94D", # Light Brown
+    "selected_outline_color": "#0ea5e9",  # Light Blue
+    "outline_width": 1,
+    "line_color": "#D6B94D", # Light Brown
+    "line_width": 1,
+    "text_width": 150,
+    "text_color": "#0f172a",  # Dark Blue
+    "font_family": ("Arial","Meiryo"),
+    "font_size": 8,
+    "font_weight": font.NORMAL,
+}
+
 # Edge Parameters
 EDGE_TYPE_ELBOW = "elbow"
 EDGE_TYPE_LINE = "line"
@@ -295,9 +317,9 @@ UNSUPPORTED_AI_MODEL_MESSAGE = "The specified AI model is not supported. Please 
 
 # AI Model to Use
 AI_MODEL = "gpt-5.5"
-# Example of available AI model names (as of 2026.3.28, for the latest types and versions, refer to each company's documentation)
-#  OpenAI (gpt-*): "gpt-5.5", "gpt-5.4-mini", "gpt-5.4-nano"
-#  GeminiAI (gemini-*): "gemini-3-flash-preview", "gemini-3.1-pro-preview", "gemini-3.1-flash-lite-preview", "gemini-pro-latest", "gemini-flash-lite-latest"
+# Example of available AI model names (as of 2026.5.26, for the latest types and versions, refer to each company's documentation)
+#  OpenAI (gpt-*): "gpt-5.5", "gpt-5.4", "gpt-5.4-mini"
+#  GeminiAI (gemini-*): "gemini-3.5-flash", "gemini-3.1-pro", "gemini-3.1-flash-lite", "gemini-pro-latest", "gemini-flash-lite-latest"
 #    ※For Gemini, if using the free tier, the pro version AI may not be available.
 #  AnthropicAI (claude-*): "claude-opus-4-7", "claude-sonnet-4-6", "claude-haiku-4-5"
     

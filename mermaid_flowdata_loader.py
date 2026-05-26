@@ -13,6 +13,7 @@ class Node:
     pos_tb: int|None = None
     pos_x: int|None = None
     pos_y: int|None = None
+    details: Optional[str] = None  # Mermaidのdetails属性を追加
 
 @dataclass(frozen=True)
 class Link:
@@ -47,12 +48,18 @@ NODE_RE = re.compile(
       | @\{\s*shape:\s*lean-r\s*,\s*label:\s*"(?P<title_slash4>[^"]+?)"\s*,\s*bx:\s*(?P<slash_pos_lr2>[-+]?[0-9]+?)\s*,\s*by:\s*(?P<slash_pos_tb2>[-+]?[0-9]+?)\s*\}         # @{ shape: lean-r, label: "title", bx: 999, by: 999 }
       | @\{\s*shape:\s*cyl\s*,\s*label:\s*"(?P<title_cyl4>[^"]+?)"\s*,\s*bx:\s*(?P<cyl_pos_lr2>[-+]?[0-9]+?)\s*,\s*by:\s*(?P<cyl_pos_tb2>[-+]?[0-9]+?)\s*\}                  # @{ shape: cyl, label: "title", bx: 999, by: 999 }
       | @\{\s*shape:\s*doc\s*,\s*label:\s*"(?P<title_doc4>[^"]+?)"\s*,\s*bx:\s*(?P<doc_pos_lr2>[-+]?[0-9]+?)\s*,\s*by:\s*(?P<doc_pos_tb2>[-+]?[0-9]+?)\s*\}                  # @{ shape: doc, label: "title", bx: 999, by: 999 }
-      | @\{\s*shape:\s*stadium\s*,\s*label:\s*"(?P<title_paren5>[^"]+?)"\s*,\s*x:\s*(?P<paren_pos_x>[-+]?[0-9]+?)\s*,\s*y:\s*(?P<paren_pos_y>[-+]?[0-9]+?)\s*\}        # @{ shape: statium, label: "title", bx: 999, by: 999 }
-      | @\{\s*shape:\s*rounded\s*,\s*label:\s*"(?P<title_bracket5>[^"]+?)"\s*,\s*x:\s*(?P<bracket_pos_x>[-+]?[0-9]+?)\s*,\s*y:\s*(?P<bracket_pos_y>[-+]?[0-9]+?)\s*\}  # @{ shape: rounded, label: "title", bx: 999, by: 999 }
-      | @\{\s*shape:\s*diamond\s*,\s*label:\s*"(?P<title_brace5>[^"]+?)"\s*,\s*x:\s*(?P<brace_pos_x>[-+]?[0-9]+?)\s*,\s*y:\s*(?P<brace_pos_y>[-+]?[0-9]+?)\s*\}        # @{ shape: diamond, label: "title", bx: 999, by: 999 }
-      | @\{\s*shape:\s*lean-r\s*,\s*label:\s*"(?P<title_slash5>[^"]+?)"\s*,\s*x:\s*(?P<slash_pos_x>[-+]?[0-9]+?)\s*,\s*y:\s*(?P<slash_pos_y>[-+]?[0-9]+?)\s*\}         # @{ shape: lean-r, label: "title", bx: 999, by: 999 }
-      | @\{\s*shape:\s*cyl\s*,\s*label:\s*"(?P<title_cyl5>[^"]+?)"\s*,\s*x:\s*(?P<cyl_pos_x>[-+]?[0-9]+?)\s*,\s*y:\s*(?P<cyl_pos_y>[-+]?[0-9]+?)\s*\}                  # @{ shape: cyl, label: "title", bx: 999, by: 999 }
-      | @\{\s*shape:\s*doc\s*,\s*label:\s*"(?P<title_doc5>[^"]+?)"\s*,\s*x:\s*(?P<doc_pos_x>[-+]?[0-9]+?)\s*,\s*y:\s*(?P<doc_pos_y>[-+]?[0-9]+?)\s*\}                  # @{ shape: doc, label: "title", bx: 999, by: 999 }
+      | @\{\s*shape:\s*stadium\s*,\s*label:\s*"(?P<title_paren5>[^"]+?)"\s*,\s*x:\s*(?P<paren_pos_x>[-+]?[0-9]+?)\s*,\s*y:\s*(?P<paren_pos_y>[-+]?[0-9]+?)\s*\}        # @{ shape: statium, label: "title", x: 999, y: 999 }
+      | @\{\s*shape:\s*rounded\s*,\s*label:\s*"(?P<title_bracket5>[^"]+?)"\s*,\s*x:\s*(?P<bracket_pos_x>[-+]?[0-9]+?)\s*,\s*y:\s*(?P<bracket_pos_y>[-+]?[0-9]+?)\s*\}  # @{ shape: rounded, label: "title", x: 999, y: 999 }
+      | @\{\s*shape:\s*diamond\s*,\s*label:\s*"(?P<title_brace5>[^"]+?)"\s*,\s*x:\s*(?P<brace_pos_x>[-+]?[0-9]+?)\s*,\s*y:\s*(?P<brace_pos_y>[-+]?[0-9]+?)\s*\}        # @{ shape: diamond, label: "title", x: 999, y: 999 }
+      | @\{\s*shape:\s*lean-r\s*,\s*label:\s*"(?P<title_slash5>[^"]+?)"\s*,\s*x:\s*(?P<slash_pos_x>[-+]?[0-9]+?)\s*,\s*y:\s*(?P<slash_pos_y>[-+]?[0-9]+?)\s*\}         # @{ shape: lean-r, label: "title", x: 999, y: 999 }
+      | @\{\s*shape:\s*cyl\s*,\s*label:\s*"(?P<title_cyl5>[^"]+?)"\s*,\s*x:\s*(?P<cyl_pos_x>[-+]?[0-9]+?)\s*,\s*y:\s*(?P<cyl_pos_y>[-+]?[0-9]+?)\s*\}                  # @{ shape: cyl, label: "title", x: 999, y: 999 }
+      | @\{\s*shape:\s*doc\s*,\s*label:\s*"(?P<title_doc5>[^"]+?)"\s*,\s*x:\s*(?P<doc_pos_x>[-+]?[0-9]+?)\s*,\s*y:\s*(?P<doc_pos_y>[-+]?[0-9]+?)\s*\}                  # @{ shape: doc, label: "title", x: 999, y: 999 }
+      | @\{\s*shape:\s*stadium\s*,\s*label:\s*"(?P<title_paren6>[^"]+?)"\s*,\s*x:\s*(?P<paren_pos_x6>[-+]?[0-9]+?)\s*,\s*y:\s*(?P<paren_pos_y6>[-+]?[0-9]+?)\s*,\s*details:\s*"(?P<details_paren6>[^"]+?)"\s*\}        # @{ shape: statium, label: "title", x: 999, y: 999, details: "details" }
+      | @\{\s*shape:\s*rounded\s*,\s*label:\s*"(?P<title_bracket6>[^"]+?)"\s*,\s*x:\s*(?P<bracket_pos_x6>[-+]?[0-9]+?)\s*,\s*y:\s*(?P<bracket_pos_y6>[-+]?[0-9]+?)\s*,\s*details:\s*"(?P<details_bracket6>[^"]+?)"\s*\}  # @{ shape: rounded, label: "title", x: 999, y: 999, details: "details" }
+      | @\{\s*shape:\s*diamond\s*,\s*label:\s*"(?P<title_brace6>[^"]+?)"\s*,\s*x:\s*(?P<brace_pos_x6>[-+]?[0-9]+?)\s*,\s*y:\s*(?P<brace_pos_y6>[-+]?[0-9]+?)\s*,\s*details:\s*"(?P<details_brace6>[^"]+?)"\s*\}        # @{ shape: diamond, label: "title", x: 999, y: 999, details: "details" }
+      | @\{\s*shape:\s*lean-r\s*,\s*label:\s*"(?P<title_slash6>[^"]+?)"\s*,\s*x:\s*(?P<slash_pos_x6>[-+]?[0-9]+?)\s*,\s*y:\s*(?P<slash_pos_y6>[-+]?[0-9]+?)\s*,\s*details:\s*"(?P<details_slash6>[^"]+?)"\s*\}         # @{ shape: lean-r, label: "title", x: 999, y: 999, details: "details" }
+      | @\{\s*shape:\s*cyl\s*,\s*label:\s*"(?P<title_cyl6>[^"]+?)"\s*,\s*x:\s*(?P<cyl_pos_x6>[-+]?[0-9]+?)\s*,\s*y:\s*(?P<cyl_pos_y6>[-+]?[0-9]+?)\s*,\s*details:\s*"(?P<details_cyl6>[^"]+?)"\s*\}                  # @{ shape: cyl, label: "title", x: 999, y: 999, details: "details" }
+      | @\{\s*shape:\s*doc\s*,\s*label:\s*"(?P<title_doc6>[^"]+?)"\s*,\s*x:\s*(?P<doc_pos_x6>[-+]?[0-9]+?)\s*,\s*y:\s*(?P<doc_pos_y6>[-+]?[0-9]+?)\s*,\s*details:\s*"(?P<details_doc6>[^"]+?)"\s*\}                  # @{ shape: doc, label: "title", x: 999, y: 999, details: "details" }
     )
     \s*$
     """,
@@ -117,9 +124,22 @@ def _node_kind_and_title(m: re.Match) -> Tuple[str, str]:
     if m.group("title_doc5") is not None:
         return "document", m.group("title_doc5").strip()
 
+    if m.group("title_paren6") is not None:
+        return "terminator", m.group("title_paren6").strip()
+    if m.group("title_bracket6") is not None:
+        return "process", m.group("title_bracket6").strip()
+    if m.group("title_brace6") is not None:
+        return "decision", m.group("title_brace6").strip()
+    if m.group("title_slash6") is not None:
+        return "io", m.group("title_slash6").strip()
+    if m.group("title_cyl6") is not None:
+        return "storage", m.group("title_cyl6").strip()
+    if m.group("title_doc6") is not None:
+        return "document", m.group("title_doc6").strip()
+
     return "unknown", ""
 
-def _node_kind_and_position_tblr(m: re.Match) -> Tuple[int|None, int|None]:
+def _node_position_tblr(m: re.Match) -> Tuple[int|None, int|None]:
     if m.group("title_paren2") is not None:
         return int(m.group("paren_pos_tb")), int(m.group("paren_pos_lr"))
     if m.group("title_bracket2") is not None:
@@ -142,7 +162,7 @@ def _node_kind_and_position_tblr(m: re.Match) -> Tuple[int|None, int|None]:
         return int(m.group("doc_pos_tb2")), int(m.group("doc_pos_lr2"))
     return None, None
 
-def _node_kind_and_position_xy(m: re.Match) -> Tuple[int|None, int|None]:
+def _node_position_xy(m: re.Match) -> Tuple[int|None, int|None]:
     if m.group("title_paren5") is not None:
         return int(m.group("paren_pos_x")), int(m.group("paren_pos_y"))
     if m.group("title_bracket5") is not None:
@@ -155,7 +175,37 @@ def _node_kind_and_position_xy(m: re.Match) -> Tuple[int|None, int|None]:
         return int(m.group("cyl_pos_x")), int(m.group("cyl_pos_y"))
     if m.group("title_doc5") is not None:
         return int(m.group("doc_pos_x")), int(m.group("doc_pos_y"))
+
+    if m.group("title_paren6") is not None:
+        return int(m.group("paren_pos_x6")), int(m.group("paren_pos_y6"))
+    if m.group("title_bracket6") is not None:
+        return int(m.group("bracket_pos_x6")), int(m.group("bracket_pos_y6"))
+    if m.group("title_brace6") is not None:
+        return int(m.group("brace_pos_x6")), int(m.group("brace_pos_y6"))
+    if m.group("title_slash6") is not None:
+        return int(m.group("slash_pos_x6")), int(m.group("slash_pos_y6"))
+    if m.group("title_cyl6") is not None:
+        return int(m.group("cyl_pos_x6")), int(m.group("cyl_pos_y6"))
+    if m.group("title_doc6") is not None:
+        return int(m.group("doc_pos_x6")), int(m.group("doc_pos_y6"))
+
     return None, None
+
+def _node_details(m: re.Match) -> Optional[str]:
+    if m.group("details_paren6") is not None:
+        return m.group("details_paren6").strip()
+    if m.group("details_bracket6") is not None:
+        return m.group("details_bracket6").strip()
+    if m.group("details_brace6") is not None:
+        return m.group("details_brace6").strip()
+    if m.group("details_slash6") is not None:
+        return m.group("details_slash6").strip()
+    if m.group("details_cyl6") is not None:
+        return m.group("details_cyl6").strip()
+    if m.group("details_doc6") is not None:
+        return m.group("details_doc6").strip()
+
+    return None
 
 def convert_pos_to_xy(pos_tb: int|None, pos_lr: int|None, start_x: int, start_y: int) -> Tuple[int|None, int|None]:
     if pos_tb is None or pos_lr is None:
@@ -207,9 +257,10 @@ def parse_mermaid_flowdata(text: str, canvas_width: int|None = None) -> Tuple[Di
             node_id = nm.group("id")
             kind, title = _node_kind_and_title(nm)
             title = title.replace("\\n", "\n") if title is not None else None  # Mermaid allows \n in labels for line breaks
-            pos_x, pos_y = _node_kind_and_position_xy(nm)
+            # print(f"DEBUG1-0 matched node line: id={node_id}, kind={kind}, title={title}")
+            pos_x, pos_y = _node_position_xy(nm)
             if pos_x is None or pos_y is None:
-                pos_tb, pos_lr = _node_kind_and_position_tblr(nm)
+                pos_tb, pos_lr = _node_position_tblr(nm)
                 if pos_tb is not None and pos_lr is not None:
                     if canvas_width is None:
                         start_x = int(ct.CANVAS_PARAMS["grid_spacing"] * 20 + ct.NODE_DEFAULT_PARAMS["width"] / 2)
@@ -219,7 +270,10 @@ def parse_mermaid_flowdata(text: str, canvas_width: int|None = None) -> Tuple[Di
                     pos_x, pos_y = convert_pos_to_xy(pos_tb, pos_lr, start_x=start_x, start_y=start_y)
             else:
                 pos_tb, pos_lr = None, None
-            nodes[node_id] = Node(node_id=node_id, kind=kind, title=title, raw=line, pos_tb=pos_tb, pos_lr=pos_lr, pos_x=pos_x, pos_y=pos_y)
+            details = _node_details(nm)
+            details = details.replace("\\n", "\n") if details is not None else None  # Mermaid allows \n in labels for line breaks
+            # print(f"DEBUG1-1 parsed node: id={node_id}, kind={kind}, title={title}, pos_tb={pos_tb}, pos_lr={pos_lr}, pos_x={pos_x}, pos_y={pos_y}, details={details}")
+            nodes[node_id] = Node(node_id=node_id, kind=kind, title=title, raw=line, pos_tb=pos_tb, pos_lr=pos_lr, pos_x=pos_x, pos_y=pos_y, details=details)
             continue
 
         # 2) Link line? (contains -->)
@@ -424,7 +478,7 @@ def nodes_to_csv_lines(nodes: Dict[str, Node]) -> List[str]:
     out = []
     for node_id in sorted(nodes.keys(), key=_mermaid_id_sort_key):
         n = nodes[node_id]
-        out.append(f"node_id:{n.node_id}, kind:{n.kind}, title:{n.title}, pos_x:{n.pos_x}, pos_y:{n.pos_y}, pos_tb:{n.pos_tb}, pos_lr:{n.pos_lr}")
+        out.append(f"node_id:{n.node_id}, kind:{n.kind}, title:{n.title}, pos_x:{n.pos_x}, pos_y:{n.pos_y}, pos_tb:{n.pos_tb}, pos_lr:{n.pos_lr}, details:{n.details}")
     return out
 
 def links_to_csv_lines(links: List[Link]) -> List[str]:
@@ -503,7 +557,7 @@ if __name__ == "__main__":
 
     sample3 = """```mermaid
 flowchart TD
-  A@{ shape: stadium, label: "開始", x: 600, y: 52 }
+  A@{ shape: stadium, label: "開始", x: 600, y: 52, details: "ゲーム開始時の初期化処理" }
   B@{ shape: rounded, label: "ゲーム初期化", x: 600, y: 112 }
   C@{ shape: lean-r, label: "ブロック・パドル・ボール配置", x: 600, y: 172 }
   D@{ shape: rounded, label: "残機・スコア初期化", x: 600, y: 232 }

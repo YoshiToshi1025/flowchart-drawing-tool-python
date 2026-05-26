@@ -48,20 +48,39 @@ def _get_mermaid_node_data(nodes: Dict[int, Node]) -> str:
     for node_id, node in nodes.items():
         mermaid_str_id = _get_mermaid_str_id(node_id)
         text = node.text.replace("\n", "\\n") if node.text is not None else ""
-        if node.type == ct.NODE_PROCESS_PARAMS["type"]:             # 処理
-            mermaid_node_data += f'  {mermaid_str_id}@{{ shape: rounded, label: "{text}", x: {node.x}, y: {node.y} }}\n'
-        elif node.type == ct.NODE_DECISION_PARAMS["type"]:          # 分岐
-            mermaid_node_data += f'  {mermaid_str_id}@{{ shape: diamond, label: "{text}", x: {node.x}, y: {node.y} }}\n'
-        elif node.type == ct.NODE_TERMINATOR_PARAMS["type"]:        # 端点
-            mermaid_node_data += f'  {mermaid_str_id}@{{ shape: stadium, label: "{text}", x: {node.x}, y: {node.y} }}\n'
-        elif node.type == ct.NODE_IO_PARAMS["type"]:                # 入出力
-            mermaid_node_data += f'  {mermaid_str_id}@{{ shape: lean-r, label: "{text}", x: {node.x}, y: {node.y} }}\n'
-        elif node.type == ct.NODE_STORAGE_PARAMS["type"]:           # ストレージ
-            mermaid_node_data += f'  {mermaid_str_id}@{{ shape: cyl, label: "{text}", x: {node.x}, y: {node.y} }}\n'
-        elif node.type == ct.NODE_DOCUMENT_PARAMS["type"]:          # ドキュメント
-            mermaid_node_data += f'  {mermaid_str_id}@{{ shape: doc, label: "{text}", x: {node.x}, y: {node.y} }}\n'
-        else:                                                       # その他（未定義）
-            mermaid_node_data += f'  {mermaid_str_id}@{{ shape: rect, label: "{text}", x: {node.x}, y: {node.y} }}\n'
+        details_text = node.details.replace("\n", "\\n") if node.details is not None else None
+
+        if details_text is not None and details_text != "":
+            if node.type == ct.NODE_PROCESS_PARAMS["type"]:             # 処理
+                mermaid_node_data += f'  {mermaid_str_id}@{{ shape: rounded, label: "{text}", x: {node.x}, y: {node.y}, details: "{details_text}" }}\n'
+            elif node.type == ct.NODE_DECISION_PARAMS["type"]:          # 分岐
+                mermaid_node_data += f'  {mermaid_str_id}@{{ shape: diamond, label: "{text}", x: {node.x}, y: {node.y}, details: "{details_text}" }}\n'
+            elif node.type == ct.NODE_TERMINATOR_PARAMS["type"]:        # 端点
+                mermaid_node_data += f'  {mermaid_str_id}@{{ shape: stadium, label: "{text}", x: {node.x}, y: {node.y}, details: "{details_text}" }}\n'
+            elif node.type == ct.NODE_IO_PARAMS["type"]:                # 入出力
+                mermaid_node_data += f'  {mermaid_str_id}@{{ shape: lean-r, label: "{text}", x: {node.x}, y: {node.y}, details: "{details_text}" }}\n'
+            elif node.type == ct.NODE_STORAGE_PARAMS["type"]:           # ストレージ
+                mermaid_node_data += f'  {mermaid_str_id}@{{ shape: cyl, label: "{text}", x: {node.x}, y: {node.y}, details: "{details_text}" }}\n'
+            elif node.type == ct.NODE_DOCUMENT_PARAMS["type"]:          # ドキュメント
+                mermaid_node_data += f'  {mermaid_str_id}@{{ shape: doc, label: "{text}", x: {node.x}, y: {node.y}, details: "{details_text}" }}\n'
+            else:                                                       # その他（未定義）
+                mermaid_node_data += f'  {mermaid_str_id}@{{ shape: rect, label: "{text}", x: {node.x}, y: {node.y}, details: "{details_text}" }}\n'
+        else:
+            if node.type == ct.NODE_PROCESS_PARAMS["type"]:             # 処理
+                mermaid_node_data += f'  {mermaid_str_id}@{{ shape: rounded, label: "{text}", x: {node.x}, y: {node.y} }}\n'
+            elif node.type == ct.NODE_DECISION_PARAMS["type"]:          # 分岐
+                mermaid_node_data += f'  {mermaid_str_id}@{{ shape: diamond, label: "{text}", x: {node.x}, y: {node.y} }}\n'
+            elif node.type == ct.NODE_TERMINATOR_PARAMS["type"]:        # 端点
+                mermaid_node_data += f'  {mermaid_str_id}@{{ shape: stadium, label: "{text}", x: {node.x}, y: {node.y} }}\n'
+            elif node.type == ct.NODE_IO_PARAMS["type"]:                # 入出力
+                mermaid_node_data += f'  {mermaid_str_id}@{{ shape: lean-r, label: "{text}", x: {node.x}, y: {node.y} }}\n'
+            elif node.type == ct.NODE_STORAGE_PARAMS["type"]:           # ストレージ
+                mermaid_node_data += f'  {mermaid_str_id}@{{ shape: cyl, label: "{text}", x: {node.x}, y: {node.y} }}\n'
+            elif node.type == ct.NODE_DOCUMENT_PARAMS["type"]:          # ドキュメント
+                mermaid_node_data += f'  {mermaid_str_id}@{{ shape: doc, label: "{text}", x: {node.x}, y: {node.y} }}\n'
+            else:                                                       # その他（未定義）
+                mermaid_node_data += f'  {mermaid_str_id}@{{ shape: rect, label: "{text}", x: {node.x}, y: {node.y} }}\n'
+
     mermaid_node_data += "\n"
 
     return mermaid_node_data
