@@ -42,18 +42,28 @@ NODE_RE = re.compile(
       | @\{\s*shape:\s*lean-r\s*,\s*label:\s*"(?P<title_slash3>[^"]+?)"\s*\}     # @{ shape: lean-r, label: "title" }
       | @\{\s*shape:\s*cyl\s*,\s*label:\s*"(?P<title_cyl3>[^"]+?)"\s*\}     # @{ shape: cyl, label: "title" }
       | @\{\s*shape:\s*doc\s*,\s*label:\s*"(?P<title_doc3>[^"]+?)"\s*\}     # @{ shape: doc, label: "title" }
+
       | @\{\s*shape:\s*stadium\s*,\s*label:\s*"(?P<title_paren4>[^"]+?)"\s*,\s*bx:\s*(?P<paren_pos_lr2>[-+]?[0-9]+?)\s*,\s*by:\s*(?P<paren_pos_tb2>[-+]?[0-9]+?)\s*\}        # @{ shape: statium, label: "title", bx: 999, by: 999 }
       | @\{\s*shape:\s*rounded\s*,\s*label:\s*"(?P<title_bracket4>[^"]+?)"\s*,\s*bx:\s*(?P<bracket_pos_lr2>[-+]?[0-9]+?)\s*,\s*by:\s*(?P<bracket_pos_tb2>[-+]?[0-9]+?)\s*\}  # @{ shape: rounded, label: "title", bx: 999, by: 999 }
       | @\{\s*shape:\s*diamond\s*,\s*label:\s*"(?P<title_brace4>[^"]+?)"\s*,\s*bx:\s*(?P<brace_pos_lr2>[-+]?[0-9]+?)\s*,\s*by:\s*(?P<brace_pos_tb2>[-+]?[0-9]+?)\s*\}        # @{ shape: diamond, label: "title", bx: 999, by: 999 }
       | @\{\s*shape:\s*lean-r\s*,\s*label:\s*"(?P<title_slash4>[^"]+?)"\s*,\s*bx:\s*(?P<slash_pos_lr2>[-+]?[0-9]+?)\s*,\s*by:\s*(?P<slash_pos_tb2>[-+]?[0-9]+?)\s*\}         # @{ shape: lean-r, label: "title", bx: 999, by: 999 }
       | @\{\s*shape:\s*cyl\s*,\s*label:\s*"(?P<title_cyl4>[^"]+?)"\s*,\s*bx:\s*(?P<cyl_pos_lr2>[-+]?[0-9]+?)\s*,\s*by:\s*(?P<cyl_pos_tb2>[-+]?[0-9]+?)\s*\}                  # @{ shape: cyl, label: "title", bx: 999, by: 999 }
       | @\{\s*shape:\s*doc\s*,\s*label:\s*"(?P<title_doc4>[^"]+?)"\s*,\s*bx:\s*(?P<doc_pos_lr2>[-+]?[0-9]+?)\s*,\s*by:\s*(?P<doc_pos_tb2>[-+]?[0-9]+?)\s*\}                  # @{ shape: doc, label: "title", bx: 999, by: 999 }
+
+      | @\{\s*shape:\s*stadium\s*,\s*label:\s*"(?P<title_paren7>[^"]+?)"\s*,\s*bx:\s*(?P<paren_pos_lr7>[-+]?[0-9]+?)\s*,\s*by:\s*(?P<paren_pos_tb7>[-+]?[0-9]+?)\s*,\s*details:\s*"(?P<details_paren7>[^"]+?)"\s*\}        # @{ shape: statium, label: "title", bx: 999, by: 999, details: "details" }
+      | @\{\s*shape:\s*rounded\s*,\s*label:\s*"(?P<title_bracket7>[^"]+?)"\s*,\s*bx:\s*(?P<bracket_pos_lr7>[-+]?[0-9]+?)\s*,\s*by:\s*(?P<bracket_pos_tb7>[-+]?[0-9]+?)\s*,\s*details:\s*"(?P<details_bracket7>[^"]+?)"\s*\}  # @{ shape: rounded, label: "title", bx: 999, by: 999, details: "details" }
+      | @\{\s*shape:\s*diamond\s*,\s*label:\s*"(?P<title_brace7>[^"]+?)"\s*,\s*bx:\s*(?P<brace_pos_lr7>[-+]?[0-9]+?)\s*,\s*by:\s*(?P<brace_pos_tb7>[-+]?[0-9]+?)\s*,\s*details:\s*"(?P<details_brace7>[^"]+?)"\s*\}        # @{ shape: diamond, label: "title", bx: 999, by: 999, details: "details" }
+      | @\{\s*shape:\s*lean-r\s*,\s*label:\s*"(?P<title_slash7>[^"]+?)"\s*,\s*bx:\s*(?P<slash_pos_lr7>[-+]?[0-9]+?)\s*,\s*by:\s*(?P<slash_pos_tb7>[-+]?[0-9]+?)\s*,\s*details:\s*"(?P<details_slash7>[^"]+?)"\s*\}         # @{ shape: lean-r, label: "title", bx: 999, by: 999, details: "details" }
+      | @\{\s*shape:\s*cyl\s*,\s*label:\s*"(?P<title_cyl7>[^"]+?)"\s*,\s*bx:\s*(?P<cyl_pos_lr7>[-+]?[0-9]+?)\s*,\s*by:\s*(?P<cyl_pos_tb7>[-+]?[0-9]+?)\s*,\s*details:\s*"(?P<details_cyl7>[^"]+?)"\s*\}                  # @{ shape: cyl, label: "title", bx: 999, by: 999, details: "details" }
+      | @\{\s*shape:\s*doc\s*,\s*label:\s*"(?P<title_doc7>[^"]+?)"\s*,\s*bx:\s*(?P<doc_pos_lr7>[-+]?[0-9]+?)\s*,\s*by:\s*(?P<doc_pos_tb7>[-+]?[0-9]+?)\s*,\s*details:\s*"(?P<details_doc7>[^"]+?)"\s*\}                  # @{ shape: doc, label: "title", bx: 999, by: 999, details: "details" }
+      
       | @\{\s*shape:\s*stadium\s*,\s*label:\s*"(?P<title_paren5>[^"]+?)"\s*,\s*x:\s*(?P<paren_pos_x>[-+]?[0-9]+?)\s*,\s*y:\s*(?P<paren_pos_y>[-+]?[0-9]+?)\s*\}        # @{ shape: statium, label: "title", x: 999, y: 999 }
       | @\{\s*shape:\s*rounded\s*,\s*label:\s*"(?P<title_bracket5>[^"]+?)"\s*,\s*x:\s*(?P<bracket_pos_x>[-+]?[0-9]+?)\s*,\s*y:\s*(?P<bracket_pos_y>[-+]?[0-9]+?)\s*\}  # @{ shape: rounded, label: "title", x: 999, y: 999 }
       | @\{\s*shape:\s*diamond\s*,\s*label:\s*"(?P<title_brace5>[^"]+?)"\s*,\s*x:\s*(?P<brace_pos_x>[-+]?[0-9]+?)\s*,\s*y:\s*(?P<brace_pos_y>[-+]?[0-9]+?)\s*\}        # @{ shape: diamond, label: "title", x: 999, y: 999 }
       | @\{\s*shape:\s*lean-r\s*,\s*label:\s*"(?P<title_slash5>[^"]+?)"\s*,\s*x:\s*(?P<slash_pos_x>[-+]?[0-9]+?)\s*,\s*y:\s*(?P<slash_pos_y>[-+]?[0-9]+?)\s*\}         # @{ shape: lean-r, label: "title", x: 999, y: 999 }
       | @\{\s*shape:\s*cyl\s*,\s*label:\s*"(?P<title_cyl5>[^"]+?)"\s*,\s*x:\s*(?P<cyl_pos_x>[-+]?[0-9]+?)\s*,\s*y:\s*(?P<cyl_pos_y>[-+]?[0-9]+?)\s*\}                  # @{ shape: cyl, label: "title", x: 999, y: 999 }
       | @\{\s*shape:\s*doc\s*,\s*label:\s*"(?P<title_doc5>[^"]+?)"\s*,\s*x:\s*(?P<doc_pos_x>[-+]?[0-9]+?)\s*,\s*y:\s*(?P<doc_pos_y>[-+]?[0-9]+?)\s*\}                  # @{ shape: doc, label: "title", x: 999, y: 999 }
+
       | @\{\s*shape:\s*stadium\s*,\s*label:\s*"(?P<title_paren6>[^"]+?)"\s*,\s*x:\s*(?P<paren_pos_x6>[-+]?[0-9]+?)\s*,\s*y:\s*(?P<paren_pos_y6>[-+]?[0-9]+?)\s*,\s*details:\s*"(?P<details_paren6>[^"]+?)"\s*\}        # @{ shape: statium, label: "title", x: 999, y: 999, details: "details" }
       | @\{\s*shape:\s*rounded\s*,\s*label:\s*"(?P<title_bracket6>[^"]+?)"\s*,\s*x:\s*(?P<bracket_pos_x6>[-+]?[0-9]+?)\s*,\s*y:\s*(?P<bracket_pos_y6>[-+]?[0-9]+?)\s*,\s*details:\s*"(?P<details_bracket6>[^"]+?)"\s*\}  # @{ shape: rounded, label: "title", x: 999, y: 999, details: "details" }
       | @\{\s*shape:\s*diamond\s*,\s*label:\s*"(?P<title_brace6>[^"]+?)"\s*,\s*x:\s*(?P<brace_pos_x6>[-+]?[0-9]+?)\s*,\s*y:\s*(?P<brace_pos_y6>[-+]?[0-9]+?)\s*,\s*details:\s*"(?P<details_brace6>[^"]+?)"\s*\}        # @{ shape: diamond, label: "title", x: 999, y: 999, details: "details" }
@@ -137,6 +147,19 @@ def _node_kind_and_title(m: re.Match) -> Tuple[str, str]:
     if m.group("title_doc6") is not None:
         return "document", m.group("title_doc6").strip()
 
+    if m.group("title_paren7") is not None:
+        return "terminator", m.group("title_paren7").strip()
+    if m.group("title_bracket7") is not None:
+        return "process", m.group("title_bracket7").strip()
+    if m.group("title_brace7") is not None:
+        return "decision", m.group("title_brace7").strip()
+    if m.group("title_slash7") is not None:
+        return "io", m.group("title_slash7").strip()
+    if m.group("title_cyl7") is not None:
+        return "storage", m.group("title_cyl7").strip()
+    if m.group("title_doc7") is not None:
+        return "document", m.group("title_doc7").strip()
+
     return "unknown", ""
 
 def _node_position_tblr(m: re.Match) -> Tuple[int|None, int|None]:
@@ -148,6 +171,7 @@ def _node_position_tblr(m: re.Match) -> Tuple[int|None, int|None]:
         return int(m.group("brace_pos_tb")), int(m.group("brace_pos_lr"))
     if m.group("title_slash2") is not None:
         return int(m.group("slash_pos_tb")), int(m.group("slash_pos_lr"))
+
     if m.group("title_paren4") is not None:
         return int(m.group("paren_pos_tb2")), int(m.group("paren_pos_lr2"))
     if m.group("title_bracket4") is not None:
@@ -160,6 +184,19 @@ def _node_position_tblr(m: re.Match) -> Tuple[int|None, int|None]:
         return int(m.group("cyl_pos_tb2")), int(m.group("cyl_pos_lr2"))
     if m.group("title_doc4") is not None:
         return int(m.group("doc_pos_tb2")), int(m.group("doc_pos_lr2"))
+
+    if m.group("title_paren7") is not None:
+        return int(m.group("paren_pos_tb7")), int(m.group("paren_pos_lr7"))
+    if m.group("title_bracket7") is not None:
+        return int(m.group("bracket_pos_tb7")), int(m.group("bracket_pos_lr7"))
+    if m.group("title_brace7") is not None:
+        return int(m.group("brace_pos_tb7")), int(m.group("brace_pos_lr7"))
+    if m.group("title_slash7") is not None:
+        return int(m.group("slash_pos_tb7")), int(m.group("slash_pos_lr7"))
+    if m.group("title_cyl7") is not None:
+        return int(m.group("cyl_pos_tb7")), int(m.group("cyl_pos_lr7"))
+    if m.group("title_doc7") is not None:
+        return int(m.group("doc_pos_tb7")), int(m.group("doc_pos_lr7"))
     return None, None
 
 def _node_position_xy(m: re.Match) -> Tuple[int|None, int|None]:
@@ -204,6 +241,19 @@ def _node_details(m: re.Match) -> Optional[str]:
         return m.group("details_cyl6").strip()
     if m.group("details_doc6") is not None:
         return m.group("details_doc6").strip()
+
+    if m.group("details_paren7") is not None:
+        return m.group("details_paren7").strip()
+    if m.group("details_bracket7") is not None:
+        return m.group("details_bracket7").strip()
+    if m.group("details_brace7") is not None:
+        return m.group("details_brace7").strip()
+    if m.group("details_slash7") is not None:
+        return m.group("details_slash7").strip()
+    if m.group("details_cyl7") is not None:
+        return m.group("details_cyl7").strip()
+    if m.group("details_doc7") is not None:
+        return m.group("details_doc7").strip()
 
     return None
 
@@ -531,7 +581,7 @@ if __name__ == "__main__":
 
     sample2 = """```mermaid
     flowchart TD
-      A@{ shape: stadium, label: 開始, bx: 0, by: 0 }
+      A@{ shape: stadium, label: "開始", bx: 0, by: 0, details: "ゲーム開始時の初期化処理" }
       B@{ shape: rounded, label: "ツールの起動", bx: 0, by: 1 }
       C@{ shape: diamond, label: "新規作成or編集?", bx: 0, by: 2 }
       D@{ shape: rounded, label: "作図", bx: -1, by: 3 }

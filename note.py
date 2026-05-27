@@ -21,6 +21,10 @@ class Note:
     dx: Optional[int] = None
     dy: Optional[int] = None
     display_state: Optional[str] = "normal"
+    x: Optional[int] = None
+    y: Optional[int] = None
+    w: Optional[int] = None
+    h: Optional[int] = None
 
     editor: Optional[tk.Text] = None
     editor_window_id: Optional[int] = None
@@ -317,7 +321,7 @@ class Note:
         return "\n".join(lines)
 
     def hidden(self, canvas: tk.Canvas):
-        print(f"Hiding note with base_node.id='{self.base_node.id}', text='{self.text}', dx={self.dx}, dy={self.dy}, display_state='{self.display_state}'")
+        # print(f"Hiding note with base_node.id='{self.base_node.id}', text='{self.text}', dx={self.dx}, dy={self.dy}, display_state='{self.display_state}'")
         self.display_state = "hidden"
         if self.shape_id is not None:
             canvas.itemconfigure(self.shape_id, state="hidden")
@@ -327,7 +331,7 @@ class Note:
             canvas.itemconfigure(self.line_id, state="hidden")
 
     def show(self, canvas: tk.Canvas):
-        print(f"Showing note with base_node.id='{self.base_node.id}', text='{self.text}', dx={self.dx}, dy={self.dy}, display_state='{self.display_state}'")
+        # print(f"Showing note with base_node.id='{self.base_node.id}', text='{self.text}', dx={self.dx}, dy={self.dy}, display_state='{self.display_state}'")
         self.display_state = "normal"
         if self.shape_id is not None:
             canvas.itemconfigure(self.shape_id, state="normal")

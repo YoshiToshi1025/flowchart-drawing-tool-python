@@ -494,10 +494,32 @@ class FlowchartTool(tk.Tk):
                 swimlane_max_y = max(swimlane_max_y, swimlane.top_left_y + swimlane.height)
         # print(f"Swimlane area: ({swimlane_min_x}, {swimlane_min_y}) - ({swimlane_max_x}, {swimlane_max_y})")
 
-        min_x = self.get_min(node_min_x, edge_min_x, swimlane_min_x)
-        max_x = self.get_max(node_max_x, edge_max_x, swimlane_max_x)
-        min_y = self.get_min(node_min_y, edge_min_y, swimlane_min_y)
-        max_y = self.get_max(node_max_y, edge_max_y, swimlane_max_y)
+        note_min_x, note_max_x = None, None
+        note_min_y, note_max_y = None, None
+        for note_obj in self.notes.values():
+            # print(f"Note x: {note_obj.x}, y: {note_obj.y}, w: {note_obj.w}, h: {note_obj.h}")
+            if note_min_x is None:
+                note_min_x = note_obj.x - note_obj.w / 2
+            else:
+                note_min_x = min(note_min_x, note_obj.x - note_obj.w / 2)
+            if note_max_x is None:
+                note_max_x = note_obj.x + note_obj.w / 2
+            else:
+                note_max_x = max(note_max_x, note_obj.x + note_obj.w / 2)
+            if note_min_y is None:
+                note_min_y = note_obj.y - note_obj.h / 2
+            else:
+                note_min_y = min(note_min_y, note_obj.y - note_obj.h / 2)
+            if note_max_y is None:
+                note_max_y = note_obj.y + note_obj.h / 2
+            else:
+                note_max_y = max(note_max_y, note_obj.y + note_obj.h / 2)
+        # print(f"Note area: ({note_min_x}, {note_min_y}) - ({note_max_x}, {note_max_y})")
+
+        min_x = self.get_min(node_min_x, edge_min_x, swimlane_min_x, note_min_x)
+        max_x = self.get_max(node_max_x, edge_max_x, swimlane_max_x, note_max_x)
+        min_y = self.get_min(node_min_y, edge_min_y, swimlane_min_y, note_min_y)
+        max_y = self.get_max(node_max_y, edge_max_y, swimlane_max_y, note_max_y)
 
         if min_x is None or min_y is None or max_x is None or max_y is None:
             return None
@@ -510,7 +532,7 @@ class FlowchartTool(tk.Tk):
             max_y += margin
             return (min_x, min_y, max_x, max_y)
     
-    def get_min(self, value1, value2, value3):
+    def get_min(self, value1, value2, value3, value4):
         min_value = value1
         for value in [value2, value3]:
             if value is not None:
@@ -518,9 +540,9 @@ class FlowchartTool(tk.Tk):
                     min_value = value
         return min_value
 
-    def get_max(self, value1, value2, value3):
+    def get_max(self, value1, value2, value3, value4):
         max_value = value1
-        for value in [value2, value3]:
+        for value in [value2, value3, value4]:
             if value is not None:
                 if max_value is None or value > max_value:
                     max_value = value
@@ -919,7 +941,7 @@ class FlowchartTool(tk.Tk):
                             self.temporary_edge.to_node_obj = self.nodes[selecting_node_id]
                         self._update_edge(self.temporary_edge)
         elif mode == "move_note":
-            # print(f"Moving note... mode: {mode}, note shape_id: {self.drag_data['shape_id']}")
+            # print(f"  Moving note... mode: {mode}, note shape_id: {self.drag_data['shape_id']}")
             dragging_shape_id = self.drag_data["shape_id"]
             for note_shape_id, note_obj in self.notes.items():
                 if note_shape_id is not None and note_shape_id == dragging_shape_id:
@@ -1070,7 +1092,7 @@ class FlowchartTool(tk.Tk):
             
             if dragging_shape_id is not None:
                 self.push_history()
-
+            self.drag_data_init()
         else:
             self.drag_data_init()
 
@@ -1352,7 +1374,9 @@ class FlowchartTool(tk.Tk):
         node_obj = Node(node_id, node_type, adjusted_x, adjusted_y, w=w, h=h, shape_type=shape_type, fill_color=fill_color, text=auto_text, status=status, details=details, canvas=self.canvas)
         self.nodes[node_id] = node_obj
 
-        if details is not None and note_data is not None:
+        if details is not None:
+            if note_data is None:
+                note_data = {"dx": None, "dy": None, "display_state": "normal"}
             note_obj = self.create_note(text=details, dx=note_data.get("dx"), dy=note_data.get("dy"), base_node=node_obj, display_state=note_data.get("display_state"), canvas=self.canvas)
             if note_obj is not None and note_obj.shape_id is not None:
                 self.notes[note_obj.shape_id] = note_obj

@@ -170,6 +170,7 @@ This project provides a **“Simple Flowchart Drawing Tool 颯(HAYATE)”** that
 * 2026/05/14 : Finalized the tool name as "Hayate, 颯" and updated the online manual.
 * 2026/05/18 : Support for canvas scrolling via wheel-button drag operations, and adjustment of the canvas scroll range when loading data.
 * 2026/05/26 : Added a sticky note feature to display and edit detailed descriptions for elements. Sticky notes can be added by double-clicking the mouse wheel on an element. Note: Excel drawing integration has not been implemented yet.
+* 2026/05/28 : Fixed minor issues in the sticky note feature, and revised the README and manual.
 
 ## Notes (Additional)
 
