@@ -283,10 +283,22 @@ def parse_mermaid_flowdata(text: str, canvas_width: int|None = None) -> Tuple[Di
     lines = text.splitlines()
 
     in_flowchart = False
+
+    # 未処理の文字列行
+    pending_pre_line = None
+
     for raw_line in lines:
         # print(f"DEBUG processing raw line: {raw_line}")
-        line = raw_line.strip()
+        if pending_pre_line is not None:
+            raw_line = pending_pre_line + raw_line
+            pending_pre_line = None
+
+        line = raw_line.strip() 
         if not line or line.startswith("%%"):
+            continue
+
+        if "{" in line and "details" in line and not line.endswith("}"):
+            pending_pre_line = line + "\n"
             continue
 
         # Detect block start (flexible)
@@ -581,7 +593,8 @@ if __name__ == "__main__":
 
     sample2 = """```mermaid
     flowchart TD
-      A@{ shape: stadium, label: "開始", bx: 0, by: 0, details: "ゲーム開始時の初期化処理" }
+      A@{ shape: stadium, label: "開始", bx: 0, by: 0, details: "ゲーム開始時の
+初期化処理" }
       B@{ shape: rounded, label: "ツールの起動", bx: 0, by: 1 }
       C@{ shape: diamond, label: "新規作成or編集?", bx: 0, by: 2 }
       D@{ shape: rounded, label: "作図", bx: -1, by: 3 }

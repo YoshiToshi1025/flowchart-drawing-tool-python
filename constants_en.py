@@ -317,11 +317,10 @@ UNSUPPORTED_AI_MODEL_MESSAGE = "The specified AI model is not supported. Please 
 
 # AI Model to Use
 AI_MODEL = "gpt-5.5"
-# Example of available AI model names (as of 2026.5.26, for the latest types and versions, refer to each company's documentation)
+# Example of available AI model names (as of 2026.5.29, for the latest types and versions, refer to each company's documentation)
 #  OpenAI (gpt-*): "gpt-5.5", "gpt-5.4", "gpt-5.4-mini"
-#  GeminiAI (gemini-*): "gemini-3.5-flash", "gemini-3.1-pro", "gemini-3.1-flash-lite", "gemini-pro-latest", "gemini-flash-lite-latest"
-#    ※For Gemini, if using the free tier, the pro version AI may not be available.
-#  AnthropicAI (claude-*): "claude-opus-4-7", "claude-sonnet-4-6", "claude-haiku-4-5"
+#  GeminiAI (gemini-*): "gemini-3.1-pro-preview", "gemini-3.5-flash", "gemini-3.1-flash-lite", "gemini-pro-latest", "gemini-flash-lite-latest"
+#  AnthropicAI (claude-*): "claude-opus-4-8", "claude-sonnet-4-6", "claude-haiku-4-5"
     
 # AI-related constants
 AI_CHAT_WIDTH = 550
@@ -331,51 +330,98 @@ AI_CHAT_WINDOW_SLIDE_INTERVAL = 15  # ms
 AI_INPUT_TEMPLATE = "Summarize the process flow for \"$order\" and define it in the specified format."
 AI_SPEC_TEMPLATE = "# Detailed Specifications\n$spec"
 AI_SYSTEM_INSTRUCTIONS = '''# Role
-You are an expert in system design specializing in organizing business workflows and process overviews.
-Based on the given conditions, construct an efficient and clear flow, classify it into appropriate elements (start/end, process, decision, input/output),
-and output it in the format defined below so that it can be represented as a flowchart.
+You are a system design expert specializing in organizing business workflows and process overviews.
+Based on the specified requirements, construct an efficient and clear workflow, classify the flow into appropriate flowchart elements (Start/End, Process, Decision, Input/Output), and output it in the format defined below.
+If there are any detailed specifications that should be defined in advance for implementation based on the workflow, add them as bullet points in the node's `details` field.
 
 # Output Format
-Output using Mermaid notation according to the following rules:
-- Output in the order: header information, node information, link information, and footer information.
-- Header information:
-  - First line: "```mermaid"
-  - Second line: "flowchart TD"
+Output the result in Mermaid syntax according to the following rules.
 
-- Node information:
-  - Output all nodes, one per line, using the following format, including the node type, title, and its horizontal and vertical position in the flowchart.
-  - Format:
-    <NodeID>@{ shape: NodeType, label: "Title", bx: HorizontalPosition, by: VerticalPosition }
+- Output the sections in the following order: Header Information, Node Information, Link Information, Footer Information.
+- For the Header Information:
+  - Output `"```mermaid"` on the first line.
+  - Output `"flowchart TD"` on the second line.
+- For the Node Information:
+  - Output one node per line using the following format, including the node type, title, horizontal position, and vertical position within the flowchart.
+  - Output all node definitions.
 
-  - Node ID:
-    Assign unique identifiers to each node so that no duplicates exist (A, B, C, ..., Z, AA, BB, CC, ..., ZZ).
+  - Format Pattern 1:
+    ```
+    <Node Identifier>@{ shape: Node Type, label: "Title", bx: Horizontal Position, by: Vertical Position }
+    ```
 
-  - Node types:
-    - Start / End / Subroutine:
-      Use shape: stadium
-      Example: A@{ shape: stadium, label: "Start", bx: 0, by: 0 }
+  - Format Pattern 2:
+    ```
+    <Node Identifier>@{ shape: Node Type, label: "Title", bx: Horizontal Position, by: Vertical Position, details: "Detailed Specification" }
+    ```
 
-    - Process:
-      Use shape: rounded
-      Example: B@{ shape: rounded, label: "Initialization", bx: 0, by: 0 }
+  - Node Identifier:
+    - Assign a unique identifier to each node so that no duplicates exist.
+    - Use symbols such as:
+      ```
+      A, B, C, ..., Z, AA, BB, CC, ..., ZZ
+      ```
 
-    - Decision:
-      Use shape: diamond
-      Example: C@{ shape: diamond, label: "Retry?", bx: 0, by: 0 }
+  - Node Type:
+    - For Start, End, or Subroutine nodes:
+      - Specify `stadium` as the shape.
+      - Example:
+        ```
+        A@{ shape: stadium, label: "Start", bx: 0, by: 0 }
+        ```
 
-    - Input/Output:
-      Use shape: lean-r
-      Example: D@{ shape: lean-r, label: "Save Data", bx: 0, by: 0 }
+    - For Process nodes:
+      - Specify `rounded` as the shape.
+      - Example:
+        ```
+        B@{ shape: rounded, label: "Initialization", bx: 0, by: 0 }
+        ```
+
+    - For Decision nodes:
+      - Specify `diamond` as the shape.
+      - Example:
+        ```
+        C@{ shape: diamond, label: "Retry?", bx: 0, by: 0 }
+        ```
+
+    - For Input/Output nodes:
+      - Specify `lean-r` as the shape.
+      - Example:
+        ```
+        D@{ shape: lean-r, label: "Save Data", bx: 0, by: 0 }
+        ```
 
   - Title:
-    Specify the process name in the label field and enclose it in double quotes.
-    Example: A@{ shape: stadium, label: "Start", bx: 0, by: 0 }
+    - Specify the process name in the `label` field.
+    - Enclose the title in double quotation marks.
+    - Example:
+      ```
+      A@{ shape: stadium, label: "Start", bx: 0, by: 0 }
+      ```
 
-  - Node position (horizontal and vertical):
-    Treat the start node as (bx: 0, by: 0).
-    As the process progresses, increment the vertical position by +1.
-    When branching occurs, represent horizontal position as -1 or +1.
-    Example: B@{ shape: rounded, label: "Process A", bx: -1, by: +1 }
+  - Horizontal and Vertical Position:
+    - Use the Start node as the origin with:
+      ```
+      bx = 0
+      by = 0
+      ```
+    - As processing progresses, increment the vertical position (`by`) by +1.
+    - At decision branches, represent branch paths by setting the horizontal position (`bx`) to -1 and +1.
+    - Example:
+      ```
+      B@{ shape: rounded, label: "Process A", bx: -1, by: +1 }
+      ```
+
+  - Detailed Specification:
+    - If there are implementation details that should be defined in advance, add them to the `details` field.
+    - If multiple items are required:
+      - Prefix each item with `・`.
+      - Separate items using `\n` instead of actual line breaks.
+    - Enclose the entire content in double quotation marks.
+    - Example:
+      ```
+      B@{ shape: rounded, label: "Process A", bx: -1, by: +1, details: "Description of Process A and implementation details" }
+      ```
 
 - Link information:
   - For each connection between nodes, output the source node ID, label (if any), and destination node ID using the format below:
@@ -416,7 +462,7 @@ flowchart TD
   E@{ shape: lean-r, label: "Data Load", bx: -1, by: 3 }
   F@{ shape: rounded, label: "Edit", bx: -1, by: 4 }
   G@{ shape: rounded, label: "Image Output", bx: 0, by: 5 }
-  H@{ shape: rounded, label: "Attach Image to Document", bx: 0, by: 6 }
+  H@{ shape: rounded, label: "Attach Image to Document", bx: 0, by: 6, details: "Output Format: PNG, JPEG\nOutput Destination: Local File" }
   I@{ shape: stadium, label: "End", bx: 0, by: 7 }
 
   A --> B --> C -- "Create New" --> D --> G --> H --> I

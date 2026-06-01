@@ -31,9 +31,18 @@ This project provides a **“Simple Flowchart Drawing Tool 颯(HAYATE)”** that
 
 * Quickly create, save, and re-edit simple flowcharts
 * Automatic routing of links when connecting elements or moving nodes, with manual adjustment support
-* Integration with generative AI (OpenAI GPT, Google Gemini, Anthropic Claude) for automatic flowchart generation (with manual editing available afterward)
 * Supports both vertical and horizontal swimlanes
+* Integration with generative AI (OpenAI GPT, Google Gemini, Anthropic Claude) for automatic flowchart generation (with manual editing available afterward)
+
+<div style="text-align: center;">
+<img width="75%" src="example/Login Authentication Requirements_gpt-5.5.png" />
+</div>
+
 * **New Feature (2026.04.07)**: Released VBA for importing flowchart JSON data into Excel and rendering editable flowcharts → significantly reduces Excel diagramming workload
+
+<div style="text-align: center;">
+<img width="75%" src="example/Login Authentication Requirements_gpt-5.5_to_Excel.png" />
+</div>
 
 ## Installation
 
@@ -171,6 +180,7 @@ This project provides a **“Simple Flowchart Drawing Tool 颯(HAYATE)”** that
 * 2026/05/18 : Support for canvas scrolling via wheel-button drag operations, and adjustment of the canvas scroll range when loading data.
 * 2026/05/26 : Added a sticky note feature to display and edit detailed descriptions for elements. Sticky notes can be added by double-clicking the mouse wheel on an element. Note: Excel drawing integration has not been implemented yet.
 * 2026/05/28 : Fixed minor issues in the sticky note feature, and revised the README and manual.
+* 2026/01/01 : Added support for generating standard specifications for each flowchart element during AI-based flow creation and displaying them as sticky notes.
 
 ## Notes (Additional)
 
