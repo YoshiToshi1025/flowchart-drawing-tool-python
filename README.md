@@ -7,8 +7,7 @@
   	</thead>
 </table>
 
-# flowchart-drawing-tool-python
-## Simple Flowchart Drawing Tool, HAYATE
+# Simple Flowchart Drawing Tool, HAYATE
 
 ## Overview
 
@@ -55,42 +54,49 @@ This project provides a **“Simple Flowchart Drawing Tool 颯(HAYATE)”** that
 
 ### Installation Steps
 
-1. Open Command Prompt (or Terminator) and prepare a folder for checkout.
+  1. Start Command Prompt (or Terminal) and prepare a folder for checkout.<br>
 
-2. Move to the folder and clone the repository:
+  2. Move to the checkout folder and check out the project code from GitHub.<br>
 
-   ```
-   git clone https://github.com/YoshiToshi1025/flowchart-drawing-tool-python.git
-   ```
+     ```
+      > git clone https://github.com/YoshiToshi1025/flowchart-drawing-tool-python.git
+     ```
 
-3. Install required packages:
+  3. In the checkout folder, run the following command to install the required packages.<br>
 
-   ```
-   pip install -r requirements.txt
-   ```
+     ```
+      > pip install -r requirements.txt
+     ```
 
-4. If you want to use English, overwrite `constants.py` with `constants_en.py`.
+  4. To display the tool in English, add the line `i18n_lang="en"` to the `.env` file in the checkout folder.<br>
 
-5. To use AI-based flow generation:
+     ```
+       [.env] *Create the .env file if it does not exist.
+         i18n_lang="en"
+     ```
 
-   * Set API keys in the `.env` file
-   * Specify the AI model name in `constants.py`
+  5. To use AI-based automatic flow generation, write the API key for the generative AI service you want to connect to in the `.env` file, and specify the generative AI model name in the settings file (`constants.py`).<br>
+     *Even if you do not set an API key, you can still use the manual flowchart drawing features without any problem.<br>
 
-   ```
-   [.env]
-   OPENAI_API_KEY=(OpenAI GPT API Key)
-   GEMINI_API_KEY=(Google Gemini API Key)
-   ANTHROPIC_API_KEY=(Anthropic Claude API Key)
-   ```
+     ```
+       [.env] *Create the .env file if it does not exist.
+         OPENAI_API_KEY=(API key for connecting to OpenAI GPT)
+         GEMINI_API_KEY=(API key for connecting to Google Gemini)
+         ANTHROPIC_API_KEY=(API key for connecting to Anthropic Claude)
+     ```
 
-   ```
-   [constants.py]
-   AI_MODEL="gpt-5.5"
-   ```
+     ```
+       [constants.py]
+         AI_MODEL="(Name of the generative AI model to use)"
+         Example: AI_MODEL="gpt-5.5"
+     ```
 
-   *Note: Manual flowchart creation works without API keys.*
+  6. Run `flowchart_tool.py` to display the flowchart drawing tool screen.<br>
 
-6. Run `flowchart_tool.py` to launch the application.
+     ```
+      > python flowchart_tool.py
+     ```
+
 
 ## Usage
 
@@ -180,7 +186,8 @@ This project provides a **“Simple Flowchart Drawing Tool 颯(HAYATE)”** that
 * 2026/05/18 : Support for canvas scrolling via wheel-button drag operations, and adjustment of the canvas scroll range when loading data.
 * 2026/05/26 : Added a sticky note feature to display and edit detailed descriptions for elements. Sticky notes can be added by double-clicking the mouse wheel on an element. Note: Excel drawing integration has not been implemented yet.
 * 2026/05/28 : Fixed minor issues in the sticky note feature, and revised the README and manual.
-* 2026/01/01 : Added support for generating standard specifications for each flowchart element during AI-based flow creation and displaying them as sticky notes.
+* 2026/06/01 : Added support for generating standard specifications for each flowchart element during AI-based flow creation and displaying them as sticky notes.
+* 2026/06/05 : Added support for creating sticky notes from the popup menu. Changed the language switching mechanism to allow language selection (en/ja) via the .env file.
 
 ## Notes (Additional)
 

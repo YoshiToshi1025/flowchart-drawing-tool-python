@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 from pathlib import Path
 import re
 from PIL import Image, ImageDraw, ImageTk, ImageFont
+import sys
 from typing import Dict, List, Optional, Tuple, Literal
 import webbrowser
 
@@ -276,8 +277,8 @@ class FlowchartTool(tk.Tk):
         self.popup_menu.add_command(label="Mode : Add Document", image=self.icons["Document"], compound="left", command=lambda: self.mode.set("add:document"))
         self.popup_menu.add_command(label="Mode : Link elbow arrow", image=self.icons["Link_elbow_" + self.current_link_elbow_path_type], compound="left", command=lambda: self.mode.set("link_elbow"))
         self.popup_menu.add_command(label="Mode : Link straight arrow", image=self.icons["Link_straight"], compound="left", command=lambda: self.mode.set("link_straight"))
-        self.popup_menu.add_command(label="Mode : Add note to a node", image=self.icons["Note"], compound="left", command=lambda: self.mode.set("add:note"))
         self.popup_menu.add_separator()
+        self.popup_menu.add_command(label="Add note to selected nodes", image=self.icons["Note"], compound="left", command=self.add_note_to_node)
         self.popup_menu.add_command(label="Delete Selected", image=self.icons["Delete"], compound="left", command=self.delete_selected)
         self.popup_menu.add_separator()
         self.popup_menu.add_command(label="Undo", image=self.icons["Undo"], compound="left", command=self.undo)
@@ -1154,22 +1155,37 @@ class FlowchartTool(tk.Tk):
                     if selected_note is not None:
                         self.start_note_text_edit(selected_note, event)
 
-    def add_note_to_node(self, event):
-        # クリック位置のオブジェクトを取得
-        selecting_node_id = self.node_at(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
+    def add_note_to_node(self, event=None):
+        # クリック位置のオブジェクトを取得,ノードが選択されていなければ、選択済みのノードのうちの1つを対象とする
 
-        # すでにノードに紐づくノートが存在していれば、ノートを編集モードで開く
-        existing_note = self.get_note_for_node(selecting_node_id)
-        if existing_note is not None:
-            self.start_note_text_edit(existing_note, event)
-            return
+        if event is None:
+            modify_flag = False
+            for selecting_node_id in self.selected_node_ids:
+                # すでにノードに紐づくノートが存在していれば、ノートを追加しない
+                existing_note = self.get_note_for_node(selecting_node_id)
+                if existing_note is not None:
+                    continue
 
-        modify_flag = False
-        if selecting_node_id is not None:
-            note = self.create_note_for_node(selecting_node_id)
-            if note is not None and note.shape_id is not None:
-                self.notes[note.shape_id] = note
-                modify_flag = True
+                if selecting_node_id is not None:
+                    note = self.create_note_for_node(selecting_node_id)
+                    if note is not None and note.shape_id is not None:
+                        self.notes[note.shape_id] = note
+                        modify_flag = True
+        else:
+            selecting_node_id = self.node_at(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
+
+            # すでにノードに紐づくノートが存在していれば、ノートを編集モードで開く
+            existing_note = self.get_note_for_node(selecting_node_id)
+            if existing_note is not None:
+                self.start_note_text_edit(existing_note, event)
+                return
+
+            modify_flag = False
+            if selecting_node_id is not None:
+                note = self.create_note_for_node(selecting_node_id)
+                if note is not None and note.shape_id is not None:
+                    self.notes[note.shape_id] = note
+                    modify_flag = True
 
         if modify_flag:
             self.push_history()
@@ -2233,7 +2249,7 @@ class FlowchartTool(tk.Tk):
 
         self.swimlane_label_edit = None
 
-    def start_note_text_edit(self, note_obj:Note, event:tk.Event):
+    def start_note_text_edit(self, note_obj:Note, event:tk.Event=None):
         # print(f"Starting note text edit for note_obj: {note_obj}")  # for DEBUG
         note_obj.start_text_edit(event)
         self.note_text_edit = {"entry": note_obj.editor, "note_obj": note_obj, "window_id": note_obj.shape_id}

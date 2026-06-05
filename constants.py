@@ -1,13 +1,29 @@
 from tkinter import font
+import os
+from dotenv import load_dotenv
+from constants_i18n import get_i18n_ui_text, get_i18n_message, get_i18n_ai_prompt_template
 
+# Application Language Setting / アプリケーションの言語設定
+#   You can change the language by setting the "i18n_lang" variable to "en" for English or "ja" for Japanese.
+#   "i18n_lang"変数を"en"に設定すると英語、"ja"に設定すると日本語になります。
+
+load_dotenv()  # Load environment variables from .env file
+
+if "i18n_lang" in os.environ and os.environ["i18n_lang"] in ["en", "ja"]:
+    i18n_lang = os.environ["i18n_lang"]
+else:
+    print("Since i18n_lang is not defined in the .env file, the tool will be displayed in Japanese (ja).\nAdd the line i18n_lang=\"en\" to the .env file to display the tool in English.")  # .envファイルに i18n_lang="en" を定義しておけば、表示言語を英語にできます。
+    i18n_lang = "ja"  # "en":English, "ja":Japanese / 日本語
+
+# Operating System Detection / OS検出
 OS_WINDOWS = "Windows"
 OS_MAC = "Darwin"
-OS_LINUX = "Linux"
+OS_LINUX = "Linux" # Linux has not been tested.
 
-# アプリケーション・タイトル
-APP_TITLE = "簡易フローチャート作図ツール 颯(HAYATE)"
+# Application Title / アプリケーション・タイトル
+APP_TITLE = get_i18n_ui_text("APP_TITLE", lang=i18n_lang)
 
-# キャンバス・パラメータ
+# Canvas Parameters / キャンバス・パラメータ
 CANVAS_PARAMS = {
     "size": "1200x800",
     "bg_color": "white",
@@ -15,7 +31,7 @@ CANVAS_PARAMS = {
     "grid_spacing": 15,
 }
 
-# モード辞書
+# Mode Dictionary / モード辞書
 MODE_DICT = {
     "Select" : "select",
     "Swimlane" : "add:swimlane",
@@ -29,10 +45,10 @@ MODE_DICT = {
     "Link_straight" : "link_straight",
 }
 
-# デフォルトモード設定
+# Default Mode Setting / デフォルトモード設定
 DEFAULT_MODE = MODE_DICT["Select"]
 
-# ノード・背景色リスト
+# Node Fill Colors / ノード・背景色リスト
 NODE_FILL_COLORS = [
     "#FDECEF",  # Light Pink
     "#FFEFF2",  # Light Orange
@@ -50,7 +66,7 @@ NODE_STATUS_NORMAL = "normal"
 NODE_STATUS_ACTIVE = "active"
 NODE_STATUS_INACTIVE = "inactive"
 
-# ノード・デフォルト・パラメータ
+# Node Default Parameters / ノード・デフォルト・パラメータ
 NODE_DEFAULT_PARAMS = {
     "type": "default",
     "text": "Undefined",
@@ -77,10 +93,10 @@ NODE_DEFAULT_PARAMS = {
     "inactive_font_weight": font.NORMAL,
 }
 
-# ノード・処理・パラメータ
+# Node Process Parameters / ノード・処理・パラメータ
 NODE_PROCESS_PARAMS = {
     "type": "process",
-    "text": "処理",
+    "text": get_i18n_ui_text("NODE_PROCESS_PARAMS_TEXT", lang=i18n_lang),
     "width": 120,
     "height": 45,
     "fill_color": "#FFFFFF", # 
@@ -95,10 +111,10 @@ NODE_PROCESS_PARAMS = {
     "shape_type": "corner_rounded_rectangle",   # option: "rectangle", "corner_rounded_rectangle", "ellipse"
 }
 
-# ノード・分岐・パラメータ
+# Node Decision Parameters / ノード・分岐・パラメータ
 NODE_DECISION_PARAMS = {
     "type": "decision",
-    "text": "分岐?",
+    "text": get_i18n_ui_text("NODE_DECISION_PARAMS_TEXT", lang=i18n_lang),
     "width": 120,
     "height": 45,
     "fill_color": "#FFFFFF", # White
@@ -112,10 +128,10 @@ NODE_DECISION_PARAMS = {
     "font_weight": font.NORMAL,
 }
 
-# ノード・端点・パラメータ
+# Node Terminator Parameters / ノード・端点・パラメータ
 NODE_TERMINATOR_PARAMS = {
     "type": "terminator",
-    "text": "端点",
+    "text": get_i18n_ui_text("NODE_TERMINATOR_PARAMS_TEXT", lang=i18n_lang),
     "width": 120,
     "height": 45,
     "fill_color": "#e0e0e0", # Light Gray 
@@ -129,10 +145,10 @@ NODE_TERMINATOR_PARAMS = {
     "font_weight": font.NORMAL,
 }
 
-# ノード・入出力・パラメータ
+# Node I/O Parameters / ノード・入出力・パラメータ
 NODE_IO_PARAMS = {
     "type": "io",
-    "text": "入出力",
+    "text": get_i18n_ui_text("NODE_IO_PARAMS_TEXT", lang=i18n_lang),
     "width": 120,
     "height": 45,
     "skew": 15,
@@ -147,10 +163,10 @@ NODE_IO_PARAMS = {
     "font_weight": font.NORMAL,
 }
 
-# ノード・ストレージ・パラメータ
+# Node Storage Parameters / ノード・ストレージ・パラメータ
 NODE_STORAGE_PARAMS = {
     "type": "storage",
-    "text": "ストレージ",
+    "text": get_i18n_ui_text("NODE_STORAGE_PARAMS_TEXT", lang=i18n_lang),
     "width": 120,
     "height": 75,
     "fill_color": "#FFFFFF", # White
@@ -164,10 +180,10 @@ NODE_STORAGE_PARAMS = {
     "font_weight": font.NORMAL,
 }
 
-# ノード・文書・パラメータ
+# Node Document Parameters / ノード・文書・パラメータ
 NODE_DOCUMENT_PARAMS = {
     "type": "document",
-    "text": "文書",
+    "text": get_i18n_ui_text("NODE_DOCUMENT_PARAMS_TEXT", lang=i18n_lang),
     "width": 120,
     "height": 75,
     "fill_color": "#FFFFFF", # White
@@ -181,15 +197,15 @@ NODE_DOCUMENT_PARAMS = {
     "font_weight": font.NORMAL,
 }
 
-# ノート・パラメータ
+# Note Parameters / ノート・パラメータ
 NOTE_PARAMS = {
     "type": "note",
-    "text": "Note/Spec",
+    "text": get_i18n_ui_text("NOTE_PARAMS_TEXT", lang=i18n_lang),
     "dx": 180,
     "dy": -60,
     "width": 150,
     "height": 135,
-    "state" : "normal",    # 表示・非表示設定 option: normal, hidden
+    "state" : "normal",    # option: normal, hidden
     "fill_color": "#FFF9CC", # Light Yellow
     "outline_color": "#D6B94D", # Light Brown
     "selected_outline_color": "#0ea5e9",  # Light Blue
@@ -203,7 +219,7 @@ NOTE_PARAMS = {
     "font_weight": font.NORMAL,
 }
 
-# エッジ・パラメータ
+# Edge Parameters / エッジ・パラメータ
 EDGE_TYPE_ELBOW = "elbow"
 EDGE_TYPE_LINE = "line"
 EDGE_LINE_STYLE_SOLID = "solid"
@@ -223,20 +239,20 @@ EDGE_PARAMS = {
     "font_family": "Arial",
     "font_size": 9,
     "font_weight": font.NORMAL,
-    "path_type": "vertical"     # カギ型リンクの経路の種類（タイプがelbowの場合に有効）　option: "vertical"(垂直型), "horizontal"(水平型), "tree"(ツリー型)
+    "path_type": "vertical"     # option(only elbow type): "vertical"(垂直型), "horizontal"(水平型), "tree"(ツリー型)
 }
 
-# 分岐ラベル定義
-DECISION_YES = "Yes"
-DECISION_NO = "No"
-DECISION_UNKNOWN = "?"
+# Decision Label Definitions / 分岐ラベル定義
+DECISION_YES = get_i18n_ui_text("DECISION_YES", lang=i18n_lang)
+DECISION_NO = get_i18n_ui_text("DECISION_NO", lang=i18n_lang)
+DECISION_UNKNOWN = get_i18n_ui_text("DECISION_UNKNOWN", lang=i18n_lang)
 
-# 端点ラベル定義
-TERMINATOR_DEFAULT_START_TEXT = "開始"
-TERMINATOR_DEFAULT_END_TEXT = "終了"
-TERMINATOR_DEFAULT_UNKNOWN_TEXT = "（未定義）"
+# Terminator Label Definitions / 端点ラベル定義
+TERMINATOR_DEFAULT_START_TEXT = get_i18n_ui_text("TERMINATOR_DEFAULT_START_TEXT", lang=i18n_lang)
+TERMINATOR_DEFAULT_END_TEXT = get_i18n_ui_text("TERMINATOR_DEFAULT_END_TEXT", lang=i18n_lang)
+TERMINATOR_DEFAULT_UNKNOWN_TEXT = get_i18n_ui_text("TERMINATOR_DEFAULT_UNKNOWN_TEXT", lang=i18n_lang)
 
-# エッジラベル位置補正定義
+# Edge Label Offset Definitions / エッジラベル位置補正定義
 EDGE_LABEL_OFFSET = {
     "center": (0, -8),
     "ne": (-8, 4),
@@ -250,7 +266,7 @@ EDGE_LABEL_OFFSET = {
 SWIMLANE_KIND_HORIZONTAL = "horizontal"
 SWIMLANE_KIND_VERTICAL = "vertical"
 
-# スイムレーン・パラメータ
+# Swimlane Parameters / スイムレーン・パラメータ
 SWIMLANE_PARAMS = {
     "kind": SWIMLANE_KIND_VERTICAL,  # SWIMLANE_KIND_HORIZONTAL(横型レーン) or SWIMLANE_KIND_VERTICAL(縦型レーン)
     "title": "Swimlane",
@@ -278,14 +294,14 @@ SWIMLANE_PARAMS = {
     "font_weight": font.NORMAL,
 }
 
-# 選択範囲パラメータ
+# Selection Area Parameters / 選択範囲パラメータ
 SELECTION_AREA_PARAMS = {
     "outline_color": "#808080",
     "outline_width": 1,
     "outline_dash": (4, 2),
 }
 
-# スイムレーン・背景色リスト
+# Swimlane Fill Colors / スイムレーン・背景色リスト
 SWIMLANE_FILL_COLORS = [
     "#FDECEF",  # Light Pink
     "#FFEFF2",  # Light Orange
@@ -299,93 +315,37 @@ SWIMLANE_FILL_COLORS = [
     "#F7F5F2",  # Light Gray
 ]
 
-# メッセージ定義一覧
-WINDOW_CLOSE_DIALOG_TITLE = "終了確認"
-WINDOW_CLOSE_DIALOG_MESSAGE = "本ツールを終了します。編集内容を保存しましたか？"
+# Message Definitions / メッセージ定義一覧
+WINDOW_CLOSE_DIALOG_TITLE = get_i18n_message("WINDOW_CLOSE_DIALOG_TITLE", lang=i18n_lang)
+WINDOW_CLOSE_DIALOG_MESSAGE = get_i18n_message("WINDOW_CLOSE_DIALOG_MESSAGE", lang=i18n_lang)
 
-SAVE_FAILED_MESSAGE = "保存に失敗しました"
-LOAD_FAILED_MESSAGE = "読み込みに失敗しました"
+SAVE_FAILED_MESSAGE = get_i18n_message("SAVE_FAILED_MESSAGE", lang=i18n_lang)
+LOAD_FAILED_MESSAGE = get_i18n_message("LOAD_FAILED_MESSAGE", lang=i18n_lang)
 
-AI_GENERATED_MESSAGE1 = "AI生成された処理フローデータを保存しました。今すぐ読み込みますか？"
-AI_GENERATED_MESSAGE2 = "今すぐ読み込みますか？"
+AI_GENERATED_MESSAGE1 = get_i18n_message("AI_GENERATED_MESSAGE1", lang=i18n_lang)
+AI_GENERATED_MESSAGE2 = get_i18n_message("AI_GENERATED_MESSAGE2", lang=i18n_lang)
 
-OPENAI_API_KEY_NOT_SET_MESSAGE = ".envファイルで OPENAI_API_KEY が未設定です。.envファイルにAPIキーを定義してください。"
-GEMINI_API_KEY_NOT_SET_MESSAGE = ".envファイルで GEMINI_API_KEY が未設定です。.envファイルにAPIキーを定義してください。"
-ANTHROPIC_API_KEY_NOT_SET_MESSAGE = ".envファイルで ANTHROPIC_API_KEY が未設定です。.envファイルにAPIキーを定義してください。"
+OPENAI_API_KEY_NOT_SET_MESSAGE = get_i18n_message("OPENAI_API_KEY_NOT_SET_MESSAGE", lang=i18n_lang)
+GEMINI_API_KEY_NOT_SET_MESSAGE = get_i18n_message("GEMINI_API_KEY_NOT_SET_MESSAGE", lang=i18n_lang)
+ANTHROPIC_API_KEY_NOT_SET_MESSAGE = get_i18n_message("ANTHROPIC_API_KEY_NOT_SET_MESSAGE", lang=i18n_lang)
 
-UNSUPPORTED_AI_MODEL_MESSAGE = "未対応のAIモデルが指定されています。constants.pyのAI_MODEL欄を確認してください。"
+UNSUPPORTED_AI_MODEL_MESSAGE = get_i18n_message("UNSUPPORTED_AI_MODEL_MESSAGE", lang=i18n_lang)
 
-# 使用する生成AIモデル
+# AI Model Selection / 使用する生成AIモデル
 AI_MODEL = "gpt-5.5"
-# 指定可能な生成AIモデル名例（2026.5.29時点、種類やバージョンの最新は各社のドキュメントを参照のこと）
-#  OpenAI (gpt-*): "gpt-5.5", "gpt-5.4", "gpt-5.4-mini"
-#  GeminiAI (gemini-*): "gemini-3.1-pro-preview", "gemini-3.5-flash", "gemini-3.1-flash-lite", "gemini-pro-latest", "gemini-flash-lite-latest"
-#  AnthropicAI (claude-*): "claude-opus-4-8", "claude-sonnet-4-6", "claude-haiku-4-5"
+# Example of available AI model names / 指定可能な生成AIモデル名例 (as of 2026.5.29)
+#   OpenAI (gpt-*): "gpt-5.5", "gpt-5.4", "gpt-5.4-mini"
+#   GeminiAI (gemini-*): "gemini-3.1-pro-preview", "gemini-3.5-flash", "gemini-3.1-flash-lite", "gemini-pro-latest", "gemini-flash-lite-latest"
+#   AnthropicAI (claude-*): "claude-opus-4-8", "claude-sonnet-4-6", "claude-haiku-4-5"
 
-# AI関連定数
+# AI Related Constants / AI関連定数
 AI_CHAT_WIDTH = 550
 AI_CHAT_WINDOW_SLIDE_STEP = 20
 AI_CHAT_WINDOW_SLIDE_INTERVAL = 15  # ms
 
+AI_INPUT_TEMPLATE = get_i18n_ai_prompt_template("AI_INPUT_TEMPLATE", lang=i18n_lang)
+AI_SPEC_TEMPLATE = get_i18n_ai_prompt_template("AI_SPEC_TEMPLATE", lang=i18n_lang)
+AI_SYSTEM_INSTRUCTIONS = get_i18n_ai_prompt_template("AI_SYSTEM_INSTRUCTIONS", lang=i18n_lang)
 
-AI_INPUT_TEMPLATE = "「 $order 」の処理フローをまとめて、指定された形式で定義してください。"
-AI_SPEC_TEMPLATE = "# 詳細仕様\n$spec"
-AI_SYSTEM_INSTRUCTIONS = '''# 役割
-あなたは、業務フローや処理概要を整理するシステム構築の専門家です。
-指定された条件にしたがって効率の良い明快なフローを組み立て、フローチャートで定義できるようフローを適度な要素（端点、処理、分岐、入出力）に分類して、
-以下に規定された出力形式で出力してください。フローに基づいて実装するにあたり、あらかじめ定義しておくべき詳細仕様があれば、ノードのdetails項目に箇条書きで追加してください。
-
-# 出力形式
-以下のルールにのっとったMermaid記法で出力する。
-- ヘッダー情報、ノード情報、リンク情報、フッター情報の順に出力する。
-- ヘッダー情報は、１行目に"```mermaid"、2行目に"flowchart TD"を出力する。
-- ノード情報では、以下のフォーマットで、1行に1ノードを「ノードの種類」と「タイトル」と フローチャート上での当該ノードの「左右位置」と「上下位置」を出力し、すべてのノード情報を出力する。
-  - フォーマット パターン１:   <ノード識別子]>@{ shape: ノードの種類, label: "タイトル", bx: 左右位置, by: 上下位置 }
-  - フォーマット パターン２:   <ノード識別子]>@{ shape: ノードの種類, label: "タイトル", bx: 左右位置, by: 上下位置, details: "詳細仕様" }
-  - ノード識別子：各ノードが重複しないようユニークな記号(A,B,C,...,Z,AA,BB,CC,...,ZZ)を付与する。
-  - ノードの種類：
-    - 始点・終点・サブルーチンの場合：shapeにstadiumを指定する。  出力例: A@{ shape: stadium, label: "開始", bx: 0, by: 0 }
-    - 処理の場合：shapeにroundedを指定する。  出力例: B@{ shape: rounded, label: "初期化処理", bx: 0, by: 0 }
-    - 分岐の場合：shapeにdiamondを指定する。  出力例: C@{ shape: diamond, label: "リトライ?", bx: 0, by: 0 }
-    - 入出力の場合：shapeにlean-rを指定する。  出力例: D@{ shape: lean-r, label: "データの保存", bx: 0, by: 0 }
-  - タイトル：labelに処理名を指定する。タイトルの前後にダブルクォートを付ける。    出力例: A@{ shape: stadium, label: "開始", bx: 0, by: 0 }
-  - フローチャート上での当該ノードの左右位置と上下位置：始点の位置を上下:0,左右:0として、処理が進むごとに上下位置を+1、分岐があると左右位置を-1,+1として数値で表現する。    出力例: B@{ shape: rounded, label: "処理A", bx: -1, by: +1 }
-  - 詳細仕様：当該項目の実装にあたり、あらかじめ定義しておくべき詳細仕様があれば、detailsに箇条書きで追加する。なお、複数項目となる場合は、文章の先頭に'・'を付け、項目を改行コードの代わりに'\n'で区切ること。内容の前後にはダブルクォートを付ける。    出力例: B@{ shape: rounded, label: "処理A", bx: -1, by: +1, details: "処理Aの説明や詳細仕様" }
-- リンク情報は、接続する2つのノードを、以下のフォーマットで、「接続元ノード識別子」、「ラベル（ある場合）」、「接続先ノード識別子」を出力する。
-  - フォーマット: 
-        ラベルがある場合：  接続元ノード識別子-- "ラベル値" -->接続先ノード識別子
-        ラベルがない場合：  接続元ノード識別子-->接続先ノード識別子
-  - 接続元ノード識別子：ノード情報で定義した接続元ノード識別子を指定する。
-  - 接続先ノード識別子：ノード情報で定義した接続先ノード識別子を指定する。
-  - リンク識別子：リンクにラベルが無い場合は --> とし、ラベルがある場合は -- "ラベル値" --> で表現する。  例1: A --> B    例2: A -- "Yes" --> B
-  - なお、リンクが連続して接続されている場合は、複数のリンクを1行に記載できる。  例: A --> B --> C
-- フッター情報は、最後の行に"```"を出力する。
-
-## 出力例
------
-```mermaid
-flowchart TD
-  A@{ shape: stadium, label: "開始", bx: 0, by: 0 }
-  B@{ shape: rounded, label: "ツールの起動", bx: 0, by: 1 }
-  C@{ shape: diamond, label: "新規作成or編集?", bx: 0, by: 2 }
-  D@{ shape: rounded, label: "作図", bx: 1, by: 3 }
-  E@{ shape: lean-r, label: "データ読込", bx: -1, by: 3 }
-  F@{ shape: rounded, label: "編集", bx: -1, by: 4 }
-  G@{ shape: rounded, label: "画像出力", bx: 0, by: 5, details: "出力形式: PNG, JPEG\n出力先: ローカルファイル" }
-  H@{ shape: rounded, label: "資料に画像を添付", bx: 0, by: 6 }
-  I@{ shape: stadium, label: "終了", bx: 0, by: 7 }
-
-  A --> B --> C -- "新規作成" --> D --> G --> H --> I
-  C -- "編集" --> E --> F --> G
-```
------
-
-# 出力フォーマット
-テキスト形式
-
-# 出力言語
-日本語
-'''
-
-# 保存先（実行フォルダ直下の work/test.txt）
+# Work Directory / 作業フォルダ
 WORK_DIR_NAME = "work"
