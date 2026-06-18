@@ -1,7 +1,7 @@
 Attribute VB_Name = "ExcelShapesDrawingWithJSON"
 ''
 ' Excel Shapes Drawing Program to active sheet with Flowchart JSON Data
-' Version 2026.05.11
+' Version 2026.06.18
 ' (c) Toshiki Yoshino - https://github.com/YoshiToshi1025/flowchart-drawing-tool-python
 '
 ' @author Toshiki Yoshino
@@ -22,6 +22,13 @@ Option Explicit
 ' データ構造定義
 ' ============================================================
 
+' ノート(付箋)情報
+private Type NoteData
+    dx    As Double ' ラベルのx座標(pt)（ノード中心からの相対位置）
+    dy    As Double ' ラベルのy座標(pt)（ノード中心からの相対位置）
+    displayState As String ' 表示状態: normal/hidden(マクロでは、表示状態に関係なく常に表示とする)
+End Type
+
 ' ノード（要素）情報
 Private Type NodeData
     id        As Long     ' 要素ID
@@ -35,6 +42,10 @@ Private Type NodeData
     shapeType As String   ' 形状 connector/terminator/rectangle/corner_rounded_rectangle/rounded_rectangle
     shapeName As String   ' Excelシェイプ名（エッジ接続用）
     status    As String   ' ステータス normal/active/inactive
+    details   As String   ' 詳細情報
+    note      As NoteData ' ノート情報
+    noteShapeName As String ' ノートシェイプ名（最前面への移動用）
+    noteConnName As String ' ノートへのリンク名（最前面への移動用）
 End Type
 
 ' エッジ（リンク）情報
@@ -336,6 +347,10 @@ Private Sub ParseNodeObj(nd As NodeData)
                 nd.shapeType = JsonStr()
             Case "status"
                 nd.status = JsonStr()
+            Case "details"
+                nd.details = JsonStr()
+            Case "note"
+                Call ParseNoteObj(nd.note)
             Case Else
                 Call JsonSkip
         End Select
@@ -355,6 +370,56 @@ Private Sub ParseNodeObj(nd As NodeData)
                 nd.shapeType = ""
         End Select
     End If
+End Sub
+
+Private Sub ParseNoteObj(note As NoteData)
+    Dim key As String
+    Dim c   As String
+
+    ' デフォルト値
+    note.dx = 0
+    note.dy = 0
+    note.displayState = "normal"
+
+    ExpectCh "{"
+    SkipWS
+
+    Do While gPos <= Len(gJson)
+        SkipWS
+        If gPos > Len(gJson) Then Exit Do
+        c = Mid(gJson, gPos, 1)
+        If c = "}" Then
+            gPos = gPos + 1
+            Exit Do
+        End If
+        If c = "," Then
+            gPos = gPos + 1
+            SkipWS
+        End If
+        If gPos > Len(gJson) Then Exit Do
+        c = Mid(gJson, gPos, 1)
+        If c = "}" Then
+            gPos = gPos + 1
+            Exit Do
+        End If
+        If c <> """" Then Exit Do
+
+        key = JsonStr()
+        SkipWS
+        ExpectCh ":"
+        SkipWS
+
+        Select Case key
+            Case "dx"
+                note.dx = CDbl(Val(JsonNum())) * 0.75
+            Case "dy"
+                note.dy = CDbl(Val(JsonNum())) * 0.75
+            Case "display_state"
+                note.displayState = JsonStr()
+            Case Else
+                Call JsonSkip
+        End Select
+    Loop
 End Sub
 
 ' ============================================================
@@ -931,8 +996,19 @@ Private Sub DrawNode(ws As Worksheet, nd As NodeData)
     End With
 
     ' エッジ接続用に一意の名前を設定
-    shp.Name = "FlowNode_" & CStr(nd.id)
+    ' shp.Name = "FlowNode_" & CStr(nd.id)
     nd.shapeName = shp.Name
+
+    ' detailsがある場合は、ノートを描画して接続線を引く
+    if nd.details <> "" and (nd.note.dx <> 0 or nd.note.dy <> 0) Then
+        Dim noteShpName As String
+        noteShpName = DrawNote(ws, nd, nd.note)
+        nd.noteShapeName = noteShpName
+
+        Dim noteConnName As String
+        noteConnName = DrawLinkToNote(ws, nd)
+        nd.noteConnName = noteConnName
+    End If
 End Sub
 
 ' ノードタイプとシェイプタイプからExcelシェイプ種類を返す
@@ -952,6 +1028,8 @@ Private Function GetNodeShapeType(nodeType As String, shapeType As String) As Ms
                     GetNodeShapeType = msoShapeFlowchartAlternateProcess  ' 代替処理
                 Case "rounded_rectangle"
                     GetNodeShapeType = msoShapeFlowchartTerminator        ' 端子（丸角矩形）
+                Case "ellipse"
+                    GetNodeShapeType = msoShapeOval                        ' 楕円
                 Case Else  ' "rectangle" またはデフォルト
                     GetNodeShapeType = msoShapeFlowchartProcess           ' 処理（矩形）
             End Select
@@ -971,6 +1049,57 @@ Private Function GetNodeShapeType(nodeType As String, shapeType As String) As Ms
         Case Else
             GetNodeShapeType = msoShapeFlowchartProcess        ' フォールバック
     End Select
+End Function
+
+Private Function DrawNote(ws As Worksheet, baseNode As NodeData, note As NoteData)
+    Dim noteShp As Shape
+    Dim note_with As Double, note_height As Double
+    Dim note_x As Double, note_y As Double
+
+    note_with = 150 * 0.75
+    note_height = 135 * 0.75
+    note_x = baseNode.x + note.dx - note_with / 2
+    note_y = baseNode.y + note.dy - note_height / 2
+
+    Set noteShp = ws.Shapes.AddShape(msoShapeRectangle, note_x, note_y, note_with, note_height)
+
+    With noteShp.Fill
+        .Visible = msoTrue
+        .ForeColor.RGB = RGB(255, 249, 204)
+    End With
+    With noteShp.Line
+        .Visible = msoTrue
+        .ForeColor.RGB = RGB(214, 185, 77)
+        .Weight = 1 * 0.75
+        .DashStyle = msoLineSolid
+    End With
+    With noteShp.TextFrame
+        .Characters.text = baseNode.details
+        .HorizontalAlignment = xlHAlignLeft
+        .VerticalAlignment = xlVAlignTop
+        .HorizontalOverflow = xlOartHorizontalOverflowClip
+        .VerticalOverflow = xlOartVerticalOverflowEllipsis
+        .Characters.Font.Color = RGB(15, 23, 42)
+        .Characters.Font.Size = 11 * 0.75
+        .MarginTop = 3.78 * 0.75
+        .MarginBottom = 3.78 * 0.75
+        .MarginLeft = 3.78 * 0.75
+        .MarginRight = 3.78 * 0.75
+    End With
+    With noteShp.TextFrame2
+        .WordWrap = msoTrue
+        With .TextRange.Characters.ParagraphFormat
+            .LineRuleWithin = msoTriStateToggle
+            .SpaceWithin = 12 * 0.75
+        End With
+    End With
+
+    ' 表示状態が "hidden" の場合はノートを非表示にする
+    If LCase(note.displayState) = "hidden" Then
+        noteShp.Visible = msoFalse
+    End If
+
+    DrawNote = noteShp.Name
 End Function
 
 ' ============================================================
@@ -1153,6 +1282,12 @@ Private Function GetConnSite(cpStr As String, nIdx As Long, otherIdx As Long, _
                     Else
                         GetConnSite = 1
                     End If
+                Case "process"
+                     If LCase(Trim(nodes(nIdx).shapeType)) = "ellipse" Then
+                        GetConnSite = 1
+                    Else
+                        GetConnSite = 1
+                    End If                   
                 Case Else
                     GetConnSite = 1
                 End Select
@@ -1168,6 +1303,12 @@ Private Function GetConnSite(cpStr As String, nIdx As Long, otherIdx As Long, _
                     Else
                         GetConnSite = 4
                     End If
+                Case "process"
+                     If LCase(Trim(nodes(nIdx).shapeType)) = "ellipse" Then
+                        GetConnSite = 7
+                    Else
+                        GetConnSite = 4
+                    End If                   
                 Case Else
                     GetConnSite = 4
                 End Select
@@ -1183,6 +1324,12 @@ Private Function GetConnSite(cpStr As String, nIdx As Long, otherIdx As Long, _
                     Else
                         GetConnSite = 3
                     End If
+                Case "process"
+                     If LCase(Trim(nodes(nIdx).shapeType)) = "ellipse" Then
+                        GetConnSite = 5
+                    Else
+                        GetConnSite = 3
+                    End If
                 Case Else
                     GetConnSite = 3
                 End Select
@@ -1194,6 +1341,12 @@ Private Function GetConnSite(cpStr As String, nIdx As Long, otherIdx As Long, _
                     GetConnSite = 3
                 Case "terminator"
                     If LCase(Trim(nodes(nIdx).shapeType)) = "connector" Then
+                        GetConnSite = 3
+                    Else
+                        GetConnSite = 2
+                    End If
+                Case "process"
+                     If LCase(Trim(nodes(nIdx).shapeType)) = "ellipse" Then
                         GetConnSite = 3
                     Else
                         GetConnSite = 2
@@ -1233,6 +1386,20 @@ Private Function GetConnSite(cpStr As String, nIdx As Long, otherIdx As Long, _
                             GetConnSite = IIf(dy >= 0, 3, 1)  ' 下 or 上
                         End If
                     End If
+                Case "process"
+                    If LCase(Trim(nodes(nIdx).shapeType)) = "ellipse" Then
+                        If Abs(dx) >= Abs(dy) Then
+                            GetConnSite = IIf(dx >= 0, 7, 3)  ' 右 or 左 1->1, 2->3, 3->5, 4->7
+                        Else
+                            GetConnSite = IIf(dy >= 0, 5, 1)  ' 下 or 上
+                        End If
+                    Else
+                        If Abs(dx) >= Abs(dy) Then
+                            GetConnSite = IIf(dx >= 0, 4, 2)  ' 右 or 左
+                        Else
+                            GetConnSite = IIf(dy >= 0, 3, 1)  ' 下 or 上
+                        End If
+                    End If
                 Case Else
                     If Abs(dx) >= Abs(dy) Then
                         GetConnSite = IIf(dx >= 0, 4, 2)  ' 右 or 左
@@ -1241,6 +1408,142 @@ Private Function GetConnSite(cpStr As String, nIdx As Long, otherIdx As Long, _
                     End If
             End Select
     End Select
+End Function
+
+' ============================================================
+' 描画: NodeからNoteへの直線リンク
+' ============================================================
+
+Private Function DrawLinkToNote(ws As Worksheet, baseNode As NodeData)
+
+    Dim note As NoteData
+    note = baseNode.note
+
+    If baseNode.shapeName = "" Or baseNode.noteShapeName = "" Then
+        DrawLinkToNote = ""
+        Exit Function
+    End If
+
+    ' Shape参照取得
+    Dim fromShp As Shape, toShp As Shape
+    On Error Resume Next
+    Set fromShp = ws.Shapes(baseNode.shapeName)
+    Set toShp = ws.Shapes(baseNode.noteShapeName)
+    On Error GoTo 0
+    If fromShp Is Nothing Or toShp Is Nothing Then
+        DrawLinkToNote = ""
+        Exit Function
+    End If
+
+    ' コネクタ種類
+    Dim ct As MsoConnectorType
+    ct = msoConnectorStraight   ' 直線矢印
+
+    ' コネクタを作成（初期位置: fromノード中心 → toノード中心）
+    Dim conn As Shape
+    Set conn = ws.Shapes.AddConnector(ct, _
+        baseNode.x, baseNode.y, baseNode.x + note.dx, baseNode.y + note.dy)
+
+    ' 接続点を設定
+    Dim fromSite As Long, toSite As Long
+    fromSite = GetConnSiteOfNodeToNote(baseNode)
+    toSite = GetConnSiteOfNoteFromNode(baseNode)
+
+    conn.ConnectorFormat.BeginConnect fromShp, fromSite
+    conn.ConnectorFormat.EndConnect toShp, toSite
+    
+    ' 線スタイル（太さ 1pt、矢印なし）
+    With conn.Line
+        .Weight = 1 * 0.75
+        .ForeColor.RGB = RGB(214, 185, 77)
+        .DashStyle = msoLineSolid
+        .BeginArrowheadStyle = msoArrowheadNone
+        .EndArrowheadStyle = msoArrowheadNone
+    End With
+
+    DrawLinkToNote = conn.Name
+ End Function
+
+Private Function GetConnSiteOfNodeToNote(baseNode As NodeData) As Long
+    Dim note As NoteData
+    note = baseNode.note
+
+    ' 自動: 相手ノードの方向（dx/dy の大きい方）から判定
+    Dim dx As Double, dy As Double
+    dx = note.dx
+    dy = note.dy
+
+    Dim nodeType As String, nodeShapeType As String, noteType As String, noteShapeType As String
+    nodeType = baseNode.nodeType
+    nodeShapeType = baseNode.shapeType
+    noteType = "note"
+    noteShapeType = "rectangle" ' ノートは常に矩形
+
+    Select Case LCase(nodeType)
+        Case "io"
+            If Abs(dx) >= Abs(dy) Then
+                GetConnSiteOfNodetoNote = IIf(dx >= 0, 6, 3) ' 右 or 左  1->2, 2->3, 3->5, 4->6
+            Else
+                GetConnSiteOfNodetoNote = IIf(dy >= 0, 5, 2) ' 下 or 上
+            End If
+        Case "storage"
+            If Abs(dx) >= Abs(dy) Then
+                GetConnSiteOfNodetoNote = IIf(dx >= 0, 5, 3)  ' 右 or 左 1->2, 2->3, 3->4, 4->5
+            Else
+                GetConnSiteOfNodetoNote = IIf(dy >= 0, 4, 2)  ' 下 or 上
+            End If
+        Case "terminator"
+            If LCase(nodeShapeType) = "connector" Then
+                If Abs(dx) >= Abs(dy) Then
+                    GetConnSiteOfNodetoNote = IIf(dx >= 0, 7, 3)  ' 右 or 左 1->1, 2->3, 3->5, 4->7
+                Else
+                    GetConnSiteOfNodetoNote = IIf(dy >= 0, 5, 1)  ' 下 or 上
+                End If
+            Else
+                If Abs(dx) >= Abs(dy) Then
+                    GetConnSiteOfNodetoNote = IIf(dx >= 0, 4, 2)  ' 右 or 左
+                Else
+                    GetConnSiteOfNodetoNote = IIf(dy >= 0, 3, 1)  ' 下 or 上
+                End If
+            End If
+        Case "process"
+            If LCase(nodeShapeType) = "ellipse" Then
+                If Abs(dx) >= Abs(dy) Then
+                    GetConnSiteOfNodetoNote = IIf(dx >= 0, 7, 3)  ' 右 or 左 1->1, 2->3, 3->5, 4->7
+                Else
+                    GetConnSiteOfNodetoNote = IIf(dy >= 0, 5, 1)  ' 下 or 上
+                End If
+            Else
+                If Abs(dx) >= Abs(dy) Then
+                    GetConnSiteOfNodetoNote = IIf(dx >= 0, 4, 2)  ' 右 or 左
+                Else
+                    GetConnSiteOfNodetoNote = IIf(dy >= 0, 3, 1)  ' 下 or 上
+                End If
+            End If
+        Case Else
+            If Abs(dx) >= Abs(dy) Then
+                GetConnSiteOfNodetoNote = IIf(dx >= 0, 4, 2)  ' 右 or 左
+            Else
+                GetConnSiteOfNodetoNote = IIf(dy >= 0, 3, 1)  ' 下 or 上
+            End If
+    End Select
+End Function
+
+Private Function GetConnSiteOfNoteFromNode(baseNode As NodeData) As Long
+    Dim note As NoteData
+    note = baseNode.note
+
+    ' 自動: 相手ノードの方向（dx/dy の大きい方）から判定
+    Dim dx As Double, dy As Double
+    dx = -note.dx
+    dy = -note.dy
+
+    If Abs(dx) >= Abs(dy) Then
+        GetConnSiteOfNoteFromNode = IIf(dx >= 0, 4, 2)  ' 右 or 左
+    Else
+        GetConnSiteOfNoteFromNode = IIf(dy >= 0, 3, 1)  ' 下 or 上
+    End If
+
 End Function
 
 ' ============================================================
@@ -1253,7 +1556,7 @@ Private Sub AdjustZOrder(ws As Worksheet, nodes() As NodeData, nCount As Long, _
     swimlanes() As SwimlaneData, sCount As Long)
 
     Dim i   As Long
-    Dim shp As Shape
+    Dim shp, conn As Shape
 
     ' 1. スイムレーングループを最背面へ送る
     For i = 0 To sCount - 1
@@ -1276,6 +1579,20 @@ Private Sub AdjustZOrder(ws As Worksheet, nodes() As NodeData, nCount As Long, _
             If Not shp Is Nothing Then shp.ZOrder msoBringToFront
         End If
     Next i
+
+    ' 3. ノートとノートへのリンクを最前面へ持ってくる
+    For i = 0 To nCount - 1
+        If nodes(i).noteShapeName <> "" Then
+            Set shp = Nothing
+            On Error Resume Next
+            Set shp = ws.Shapes(nodes(i).noteShapeName)
+            Set conn = ws.Shapes(nodes(i).noteConnName)
+            On Error GoTo 0
+            If Not shp Is Nothing Then shp.ZOrder msoBringToFront
+            If Not conn Is Nothing Then conn.ZOrder msoBringToFront
+        End If
+    Next i
+
 End Sub
 
 ' ============================================================

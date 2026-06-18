@@ -290,11 +290,11 @@ class Note:
                     current_line = temp_line
                 else:
                     if current_line:
-                        lines.append(current_line)
+                        lines.append(current_line.rstrip())
                     current_line = char
 
         if current_line:
-            lines.append(current_line)
+            lines.append(current_line.rstrip())
 
         return lines
 

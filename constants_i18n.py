@@ -170,7 +170,7 @@ Output the result in Mermaid syntax according to the following rules.
   - Detailed Specification:
     - If there are implementation details that should be defined in advance, add them to the `details` field.
     - If multiple items are required:
-      - Prefix each item with `・`.
+      - Prefix each item with `- `.
       - Separate items using `\n` instead of actual line breaks.
     - Enclose the entire content in double quotation marks.
     - Example:

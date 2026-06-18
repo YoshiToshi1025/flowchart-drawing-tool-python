@@ -37,7 +37,7 @@ This project provides a **“Simple Flowchart Drawing Tool 颯(HAYATE)”** that
 <img width="75%" src="example/Login Authentication Requirements_gpt-5.5.png" />
 </div>
 
-* **New Feature (2026.04.07)**: Released VBA for importing flowchart JSON data into Excel and rendering editable flowcharts → significantly reduces Excel diagramming workload
+* Released VBA for importing flowchart JSON data into Excel and rendering editable flowcharts → significantly reduces Excel diagramming workload
 
 <div style="text-align: center;">
 <img width="75%" src="example/Login Authentication Requirements_gpt-5.5_to_Excel.png" />
@@ -188,6 +188,7 @@ This project provides a **“Simple Flowchart Drawing Tool 颯(HAYATE)”** that
 * 2026/05/28 : Fixed minor issues in the sticky note feature, and revised the README and manual.
 * 2026/06/01 : Added support for generating standard specifications for each flowchart element during AI-based flow creation and displaying them as sticky notes.
 * 2026/06/05 : Added support for creating sticky notes from the popup menu. Changed the language switching mechanism to allow language selection (en/ja) via the .env file.
+* 2026/06/18 : Added support for ellipse elements and sticky note display in the Excel Import VBA, and fixed issues related to sticky note display.
 
 ## Notes (Additional)
 

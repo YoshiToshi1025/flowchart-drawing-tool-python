@@ -208,3 +208,6 @@ __marimo__/
 
 # program temporary workspace
 work/
+
+# macOS specific files
+.DS_Store
