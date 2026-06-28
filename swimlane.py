@@ -196,6 +196,8 @@ class Swimlane:
             self.canvas.move(self.frame_id, dx, dy)
             self.header_center_x += dx
             self.header_center_y += dy
+            self.top_left_x += dx
+            self.top_left_y += dy
             if self.top_id is not None:
                 self.canvas.move(self.top_id, dx, dy)
             if self.bottom_id is not None:

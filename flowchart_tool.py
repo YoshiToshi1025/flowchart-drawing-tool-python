@@ -223,24 +223,40 @@ class FlowchartTool(tk.Tk):
         self.canvas.config(xscrollcommand=self.scrollbar_x.set, yscrollcommand=self.scrollbar_y.set)
 
         # マウス操作定義
+        # Mouse Button-1 definition
         self.canvas.bind("<Button-1>", self.on_canvas_click)
         self.canvas.bind("<Shift-Button-1>", self.on_canvas_shift_click)
+        self.canvas.bind("<Double-1>", self.on_canvas_double_click)
+
         self.canvas.bind("<ButtonPress-1>", self.on_drag_start, add="+")
         self.canvas.bind("<B1-Motion>", self.on_drag_move)
         self.canvas.bind("<ButtonRelease-1>", self.on_drag_end)
-        self.canvas.bind("<Configure>", self.on_canvas_resize)
-        self.canvas.bind("<Double-1>", self.on_canvas_double_click)
-        self.canvas.bind("<Button-3>", lambda event: self.popup_menu.tk_popup(event.x_root, event.y_root))  # 右クリックメニュー表示
+
+        self.canvas.bind("<Control-ButtonPress-1>", self.on_drag_start_ctrl, add="+")
+        self.canvas.bind("<Control-B1-Motion>", self.on_drag_move_ctrl)
+        self.canvas.bind("<Control-ButtonRelease-1>", self.on_drag_end_ctrl)
+
+        # Mouse Button-2 definition
+        self.canvas.bind("<Double-2>", self.add_note_to_node)
+
+        self.canvas.bind("<ButtonPress-2>", self.on_drag_start_middle)
+        self.canvas.bind("<B2-Motion>", self.on_drag_move_middle)
+        self.canvas.bind("<ButtonRelease-2>", self.on_drag_end_middle)
+
         self.canvas.bind("<MouseWheel>", self.on_mouse_wheel)  # マウスホイールイベント
         self.canvas.bind("<Shift-MouseWheel>", self.on_mouse_wheel_shift)  # Shift+マウスホイールイベント
         self.canvas.bind("<Control-MouseWheel>", self.on_mouse_wheel_ctrl)  # Ctrl+マウスホイールイベント
         self.canvas.bind("<Control-Shift-MouseWheel>", self.on_mouse_wheel_ctrl_shift)  # Ctrl+Shift+マウスホイールイベント
-        self.canvas.bind("<ButtonPress-2>", self.on_drag_start_middle)
-        self.canvas.bind("<B2-Motion>", self.on_drag_move_middle)
-        self.canvas.bind("<ButtonRelease-2>", self.on_drag_end_middle)
-        self.canvas.bind("<Double-2>", self.add_note_to_node)
+
+        # Mouse Button-3 definition
+        self.canvas.bind("<Button-3>", lambda event: self.popup_menu.tk_popup(event.x_root, event.y_root))  # 右クリックメニュー表示
+
+        # キャンバスリサイズ時の処理
+        self.canvas.bind("<Configure>", self.on_canvas_resize)
+
 
         # キー操作定義
+        self.bind_all("<BackSpace>", lambda e: self.delete_selected())
         self.bind_all("<Delete>", lambda e: self.delete_selected())
         self.bind_all("<Escape>", lambda e: self.cancel_selection_node_and_edge_and_swimlane())
         self.bind_all("<Control-Key-a>", lambda e: self.select_all())
@@ -521,6 +537,7 @@ class FlowchartTool(tk.Tk):
         max_x = self.get_max(node_max_x, edge_max_x, swimlane_max_x, note_max_x)
         min_y = self.get_min(node_min_y, edge_min_y, swimlane_min_y, note_min_y)
         max_y = self.get_max(node_max_y, edge_max_y, swimlane_max_y, note_max_y)
+        # print(f"Data area (combined): ({min_x}, {min_y}) - ({max_x}, {max_y})")
 
         if min_x is None or min_y is None or max_x is None or max_y is None:
             return None
@@ -535,7 +552,7 @@ class FlowchartTool(tk.Tk):
     
     def get_min(self, value1, value2, value3, value4):
         min_value = value1
-        for value in [value2, value3]:
+        for value in [value2, value3, value4]:
             if value is not None:
                 if min_value is None or value < min_value:
                     min_value = value
@@ -550,7 +567,7 @@ class FlowchartTool(tk.Tk):
         return max_value
 
     def canvas_resize_to_fit_data(self):
-        # print("Resizing canvas to fit data...")
+      # print("Resizing canvas to fit data...")
         minimum_canvas_area = self.get_minimum_canvas_area()
         if minimum_canvas_area is not None:
             x_min, y_min, x_max, y_max = minimum_canvas_area
@@ -559,7 +576,7 @@ class FlowchartTool(tk.Tk):
             self.canvas.config(scrollregion=(0, 0, self.canvas_width-1, self.canvas_height-1))
             # self.canvas.config(width=self.canvas_width, height=self.canvas_height)
             self._draw_grid()   # グリッド再描画
-        # print(f"Canvas resized to fit data: {self.canvas_width}x{self.canvas_height}")
+      # print(f"Canvas resized to fit data: {self.canvas_width}x{self.canvas_height}")
 
     def add_mode_button(self, toolbar, text, value):
         if text == "Swimlane":
@@ -970,17 +987,16 @@ class FlowchartTool(tk.Tk):
             selected_shape_ids = self.canvas.find_enclosed(left, top, right, bottom)
             nodes_in_selection_frame = []
             swimlanes_in_selection_frame = []
+
             for item_shape_id in selected_shape_ids:
                 for nid, node_obj in self.nodes.items():
                     if item_shape_id == node_obj.shape_id:
                         nodes_in_selection_frame.append(nid)
                 for swimlane_obj in self.swimlanes:
-                    if item_shape_id == swimlane_obj.frame_id:
-                        swimlanes_in_selection_frame.append(swimlane_obj)
-                    elif item_shape_id == swimlane_obj.top_id:
-                        swimlanes_in_selection_frame.append(swimlane_obj)
-                    elif item_shape_id == swimlane_obj.bottom_id:
-                        swimlanes_in_selection_frame.append(swimlane_obj)
+                    if item_shape_id == swimlane_obj.frame_id or item_shape_id == swimlane_obj.top_id or item_shape_id == swimlane_obj.bottom_id:
+                        selecting_swimlane_frame_ids = [swimlane_obj.frame_id for swimlane_obj in swimlanes_in_selection_frame]
+                        if swimlane_obj.frame_id not in selecting_swimlane_frame_ids:
+                            swimlanes_in_selection_frame.append(swimlane_obj)
             self.select_nodes(nodes_in_selection_frame)
             self.select_swimlanes(swimlanes_in_selection_frame)
             # 選択範囲枠を削除
@@ -1022,6 +1038,8 @@ class FlowchartTool(tk.Tk):
                         adjusted_x, adjusted_y = self.adjusted_swimlane_xy(selected_swimlane, move_to_x, move_to_y)
                         selected_swimlane.move_to(adjusted_x, adjusted_y)
 
+            self.canvas_resize_to_fit_data()
+
             if nid is not None:
                 self.push_history()
             self.drag_data_init()
@@ -1029,6 +1047,7 @@ class FlowchartTool(tk.Tk):
         elif mode == "move_swimlane":
             drag_move_x = self.drag_data["drag_end_x"] - self.drag_data["drag_start_x"]
             drag_move_y = self.drag_data["drag_end_y"] - self.drag_data["drag_start_y"]
+            # print(f"  Moving swimlane... mode: {mode}, drag_move_x: {drag_move_x}, drag_move_y: {drag_move_y}, selected_swimlanes: {self.selected_swimlanes}")
 
             # ドラッグ中のシェイプIDを取得
             shape_id = self.drag_data["shape_id"]
@@ -1040,10 +1059,12 @@ class FlowchartTool(tk.Tk):
                         # ドラッグ中のデータはドラッグ途中で移動しているのでドラッグ前の位置からの移動量で移動
                         move_to_x = self.drag_data["original_x"] + drag_move_x
                         move_to_y = self.drag_data["original_y"] + drag_move_y
+                        # print(f"  Moving selected swimlane (dragged): {selected_swimlane}, move_to_x: {move_to_x}, move_to_y: {move_to_y}")
                     else:
                         # ドラッグ中以外の選択データは移動していないので現在の位置からの移動量で移動
                         move_to_x = selected_swimlane.header_center_x + drag_move_x
                         move_to_y = selected_swimlane.header_center_y + drag_move_y
+                        # print(f"  Moving selected swimlane (not dragged): {selected_swimlane}, move_to_x: {move_to_x}, move_to_y: {move_to_y}")
                     # グリッド指定を考慮して、指定位置に移動
                     if abs(drag_move_x) > 2 or abs(drag_move_y) > 2:  # ダブルクリック時のノードのズレを防止
                         adjusted_x, adjusted_y = self.adjusted_swimlane_xy(selected_swimlane, move_to_x, move_to_y)
@@ -1058,6 +1079,8 @@ class FlowchartTool(tk.Tk):
                     selected_node_obj.x, selected_node_obj.y = self.adjusted_xy(selected_node_id, move_to_x, move_to_y)
                     self._move_node_graphics(selected_node_obj)
                     self._update_edges_for_node(selected_node_id)
+
+            self.canvas_resize_to_fit_data()
 
             if shape_id is not None:
                 self.push_history()
@@ -1079,6 +1102,8 @@ class FlowchartTool(tk.Tk):
                     self.create_edge(self.link_start_node_id, selecting_node_id, ct.EDGE_TYPE_LINE)
                 self.cancel_selection_node_and_edge_and_swimlane()
 
+            self.canvas_resize_to_fit_data()
+
         elif mode == "move_note":
             dragging_shape_id = self.drag_data["shape_id"]
             for note_shape_id, note_obj in self.notes.items():
@@ -1090,12 +1115,227 @@ class FlowchartTool(tk.Tk):
                     adjusted_x, adjusted_y = self.adjusted_note_xy(dragging_shape_id, move_to_x, move_to_y)
                     note_obj.move_to(adjusted_x, adjusted_y)
                     break
-            
+
+            self.canvas_resize_to_fit_data()
+
             if dragging_shape_id is not None:
                 self.push_history()
             self.drag_data_init()
         else:
             self.drag_data_init()
+
+    def on_drag_start_ctrl(self, event):
+        # print("Control-Drag started.")
+
+        # TODO ドラッグした要素を複製し、ドラッグ情報を記録する、複製したものを選択中にして複製元は選択から外す
+
+        selected_node_id = self.node_at(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
+        selected_edge_id = self.edge_at(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
+        selected_swimlane = self.swimlane_at(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
+        selected_note = self.note_at(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
+        # print(f"Selected on drag start: node_id={selected_node_id}, edge_id={selected_edge_id}, swimlane={selected_swimlane}, note={selected_note}")
+
+        if selected_node_id is not None:
+            # print(f"Node selected for dragging: node_id={selected_node_id}")
+            mode = self.mode.get()
+            if not mode.startswith("link"):
+                selected_node_obj = self.nodes[selected_node_id]
+                guide_node_id = self.duplicate_node(selected_node_obj)
+                guide_node_obj = self.nodes[guide_node_id]
+
+                self.drag_data["mode"] = "move_node"
+                self.drag_data["node_id"] = guide_node_id
+                self.drag_data["shape_id"] = guide_node_obj.shape_id
+                self.drag_data["original_x"] = selected_node_obj.x
+                self.drag_data["original_y"] = selected_node_obj.y
+                self.drag_data["drag_start_x"] = self.canvas.canvasx(event.x)
+                self.drag_data["drag_start_y"] = self.canvas.canvasy(event.y)
+                self.drag_data["drag_end_x"] = self.canvas.canvasx(event.x)
+                self.drag_data["drag_end_y"] = self.canvas.canvasy(event.y)
+        elif selected_swimlane is not None:
+            guide_swimlane = self.duplicate_swimlane(selected_swimlane)
+
+            self.drag_data["mode"] = "move_swimlane"
+            self.drag_data["node_id"] = None
+            self.drag_data["shape_id"] = guide_swimlane.frame_id
+            self.drag_data["original_x"] = selected_swimlane.header_center_x
+            self.drag_data["original_y"] = selected_swimlane.header_center_y
+            self.drag_data["drag_start_x"] = self.canvas.canvasx(event.x)
+            self.drag_data["drag_start_y"] = self.canvas.canvasy(event.y)
+            self.drag_data["drag_end_x"] = self.canvas.canvasx(event.x)
+            self.drag_data["drag_end_y"] = self.canvas.canvasy(event.y)
+
+        # self.display_operation_info()  # 操作情報表示制御
+
+    def on_drag_move_ctrl(self, event):
+        # print("Control-Dragging...")
+
+        # TODO ドラッグ中の要素またはスイムレーンの移動を継続する
+
+        mode = self.drag_data["mode"]
+        self.drag_data["drag_end_x"] = self.canvas.canvasx(event.x)
+        self.drag_data["drag_end_y"] = self.canvas.canvasy(event.y)
+
+        if mode == "move_node":
+            nid = self.drag_data["node_id"]
+            shape_id = self.drag_data["shape_id"]
+            if nid is None:
+                return
+            node_obj = self.nodes[nid]
+            drag_move_x = self.drag_data["drag_end_x"] - self.drag_data["drag_start_x"]
+            drag_move_y = self.drag_data["drag_end_y"] - self.drag_data["drag_start_y"]
+            move_to_x = self.drag_data["original_x"] + drag_move_x
+            move_to_y = self.drag_data["original_y"] + drag_move_y
+            node_obj.x, node_obj.y = self.adjusted_xy(nid, move_to_x, move_to_y)
+            self._move_node_graphics(node_obj)
+            self._update_edges_for_node(nid)
+        elif mode == "move_swimlane":
+            shape_id = self.drag_data["shape_id"]
+            for selected_swimlane in self.swimlanes:
+                if selected_swimlane.frame_id is not None and selected_swimlane.frame_id == shape_id:
+                    drag_move_x = self.drag_data["drag_end_x"] - self.drag_data["drag_start_x"]
+                    drag_move_y = self.drag_data["drag_end_y"] - self.drag_data["drag_start_y"]
+                    move_to_x = self.drag_data["original_x"] + drag_move_x
+                    move_to_y = self.drag_data["original_y"] + drag_move_y
+                    adjusted_x, adjusted_y = self.adjusted_swimlane_xy(selected_swimlane, move_to_x, move_to_y)
+                    selected_swimlane.move_to(adjusted_x, adjusted_y)
+
+    def on_drag_end_ctrl(self, event):
+        # print("Control-Drag ended.")
+
+        # TODO 選択中の要素とスイムレーンと選択中要素同士を結ぶリンクを複製しD&Dで移動した量だけ移動させる、複製したものを選択中にして複製元は選択から外す
+        mode = self.drag_data["mode"]
+        self.drag_data["drag_end_x"] = self.canvas.canvasx(event.x)
+        self.drag_data["drag_end_y"] = self.canvas.canvasy(event.y)
+
+        if mode == "move_node":
+            drag_move_x = self.drag_data["drag_end_x"] - self.drag_data["drag_start_x"]
+            drag_move_y = self.drag_data["drag_end_y"] - self.drag_data["drag_start_y"]
+
+            # ドラッグ中のノードとシェイプIDを取得
+            guide_nid = self.drag_data["node_id"]
+            guide_shape_id = self.drag_data["shape_id"]
+            self.delete_selected_node(guide_nid)
+
+            # ドラッグデータの移動量に合わせて、選択中のノードとリンクを複製・移動させる（複数選択している場合）
+            duplicate_nid_pairs = []
+            for selected_node_id in self.selected_node_ids:
+                if selected_node_id is not None:
+                    selected_node_obj = self.nodes[selected_node_id]
+                    if selected_node_obj is not None and (abs(drag_move_x) > 2 or abs(drag_move_y) > 2):  # ダブルクリック時のノードのズレを防止
+                        move_to_x = selected_node_obj.x + drag_move_x
+                        move_to_y = selected_node_obj.y + drag_move_y
+                        adjusted_x, adjusted_y = self.adjusted_xy(selected_node_id, move_to_x, move_to_y)
+                        clone_node_id = self.duplicate_node(selected_node_obj)
+                        duplicate_nid_pairs.append((selected_node_id, clone_node_id))
+                        clone_node = self.nodes[clone_node_id]
+                        clone_node.x, clone_node.y = adjusted_x, adjusted_y
+                        self._move_node_graphics(clone_node)
+                        # self._update_edges_for_node(selected_node_id)
+            for original_node_id, clone_node_id in duplicate_nid_pairs:
+                self.deselect_node(original_node_id)
+                self.additional_select_node(clone_node_id)
+            self.duplicate_edges(duplicate_nid_pairs)
+
+            # ドラッグデータの移動量に合わせて、選択中のスイムレーンを複製・移動させる（複数選択している場合）
+            duplicate_swimlane_pairs = []
+            for selected_swimlane in self.selected_swimlanes:
+                if selected_swimlane.frame_id is not None:
+                    move_to_x = selected_swimlane.header_center_x + drag_move_x
+                    move_to_y = selected_swimlane.header_center_y + drag_move_y
+                    if abs(drag_move_x) > 2 or abs(drag_move_y) > 2:  # ダブルクリック時のノードのズレを防止
+                        adjusted_x, adjusted_y = self.adjusted_swimlane_xy(selected_swimlane, move_to_x, move_to_y)
+                        clone_swimlane = self.duplicate_swimlane(selected_swimlane)
+                        clone_swimlane.move_to(adjusted_x, adjusted_y)
+                        duplicate_swimlane_pairs.append((selected_swimlane, clone_swimlane))
+            for original_swimlane, clone_swimlane in duplicate_swimlane_pairs:
+                self.deselect_swimlane(original_swimlane)
+                self.additional_select_swimlane(clone_swimlane)
+
+            self.canvas_resize_to_fit_data()
+
+            if guide_nid is not None:
+                self.push_history()
+            self.drag_data_init()
+
+        elif mode == "move_swimlane":
+            drag_move_x = self.drag_data["drag_end_x"] - self.drag_data["drag_start_x"]
+            drag_move_y = self.drag_data["drag_end_y"] - self.drag_data["drag_start_y"]
+
+            # ドラッグ中のシェイプIDを取得
+            guide_shape_id = self.drag_data["shape_id"]
+            self.delete_selected_swimlane(guide_shape_id)
+
+            # ドラッグデータの移動量に合わせて、選択中のスイムレーンを複製・移動させる（複数選択している場合）
+            duplicate_swimlane_pairs = []
+            for selected_swimlane in self.selected_swimlanes:
+                if selected_swimlane.frame_id is not None:
+                    if abs(drag_move_x) > 2 or abs(drag_move_y) > 2:  # ダブルクリック時のノードのズレを防止
+                        move_to_x = selected_swimlane.header_center_x + drag_move_x
+                        move_to_y = selected_swimlane.header_center_y + drag_move_y
+                        adjusted_x, adjusted_y = self.adjusted_swimlane_xy(selected_swimlane, move_to_x, move_to_y)
+                        clone_swimlane = self.duplicate_swimlane(selected_swimlane)                        
+                        clone_swimlane.move_to(adjusted_x, adjusted_y)
+                        duplicate_swimlane_pairs.append((selected_swimlane, clone_swimlane))
+            for original_swimlane, clone_swimlane in duplicate_swimlane_pairs:
+                self.deselect_swimlane(original_swimlane)
+                self.additional_select_swimlane(clone_swimlane)
+
+            # ドラッグデータの移動量に合わせて、選択中のノードとリンクを複製・移動させる（複数選択している場合）
+            duplicate_nid_pairs = []
+            for selected_node_id in self.selected_node_ids:
+                selected_node_obj = self.nodes[selected_node_id]
+                if selected_node_obj is not None and (abs(drag_move_x) > 2 or abs(drag_move_y) > 2):  # ダブルクリック時のノードのズレを防止
+                    move_to_x = selected_node_obj.x + drag_move_x
+                    move_to_y = selected_node_obj.y + drag_move_y
+                    adjusted_x, adjusted_y = self.adjusted_xy(selected_node_id, move_to_x, move_to_y)
+                    clone_node_id = self.duplicate_node(selected_node_obj)
+                    duplicate_nid_pairs.append((selected_node_id, clone_node_id))
+                    clone_node = self.nodes[clone_node_id]
+                    clone_node.x, clone_node.y = adjusted_x, adjusted_y
+                    self._move_node_graphics(clone_node)
+                    # self._update_edges_for_node(clone_node.id)
+            for original_node_id, clone_node_id in duplicate_nid_pairs:
+                self.deselect_node(original_node_id)
+                self.additional_select_node(clone_node_id)
+            self.duplicate_edges(duplicate_nid_pairs)
+
+            self.canvas_resize_to_fit_data()
+
+            if guide_shape_id is not None:
+                self.push_history()
+            self.drag_data_init()
+
+        else:
+            self.drag_data_init()
+
+    def duplicate_edges(self, duplicate_nid_pairs):
+        # 選択中のノード間のリンクを複製する
+        for original_from_node_id, clone_from_node_id in duplicate_nid_pairs:
+            clone_from_node_obj = self.nodes[clone_from_node_id]
+            for original_to_node_id, clone_to_node_id in duplicate_nid_pairs:
+                clone_to_node_obj = self.nodes[clone_to_node_id]
+                if original_from_node_id != original_to_node_id:
+                    original_edge_obj = self.get_edge_between_nodes(original_from_node_id, original_to_node_id)
+                    if original_edge_obj is not None:
+                        clone_edge_obj = Edge(edge_type=original_edge_obj.edge_type, path_type=original_edge_obj.path_type, line_style=original_edge_obj.line_style,
+                                                from_node_obj=clone_from_node_obj, to_node_obj=clone_to_node_obj, text=original_edge_obj.label_text, \
+                                                connection_mode=original_edge_obj.connection_mode, \
+                                                from_node_connection_point=original_edge_obj.from_node_connection_point, \
+                                                to_node_connection_point=original_edge_obj.to_node_connection_point, \
+                                                edge_wrap_margin=original_edge_obj.edge_wrap_margin, \
+                                                canvas=self.canvas, \
+                                                label_position=original_edge_obj.label_position)
+                        if clone_edge_obj is not None and clone_edge_obj.line_id is not None:
+                            self.edges[clone_edge_obj.line_id] = clone_edge_obj
+
+    def get_edge_between_nodes(self, from_node_id, to_node_id):
+        original_edge_obj = None
+        for edge_obj in self.edges.values():
+            if edge_obj.from_node_obj.id == from_node_id and edge_obj.to_node_obj.id == to_node_id:
+                original_edge_obj = edge_obj
+                break
+        return original_edge_obj
 
     def on_drag_start_middle(self, event):
         #print("Middle drag started")
@@ -1401,6 +1641,36 @@ class FlowchartTool(tk.Tk):
         self.canvas.tag_raise("node")
         self.canvas.tag_raise("note")
 
+    def duplicate_node(self, original_node):
+        # print(f"Duplicating node id: {original_node.id}")
+        new_node_id = next(self._id_counter)
+        self._duplicate_node_with_id(new_node_id, original_node)
+        #self.select_node(new_node_id)
+        # self.push_history()
+        
+        return new_node_id
+
+    def _duplicate_node_with_id(self, new_node_id, original_node):
+        # print(f"Duplicating node id: {original_node.id} to new node id: {new_node_id}")
+        adjusted_x, adjusted_y = self.adjusted_xy(new_node_id, original_node.x, original_node.y, original_node.type)
+
+        duplicated_node_obj = Node(new_node_id, original_node.type, adjusted_x, adjusted_y, w=original_node.w, h=original_node.h, shape_type=original_node.shape_type, fill_color=original_node.fill_color, text=original_node.text, status=original_node.status, details=original_node.details, canvas=self.canvas)
+        self.nodes[new_node_id] = duplicated_node_obj
+
+        if original_node.details is not None:
+            note_obj = self.get_note_for_node(original_node.id)  # ノードに紐づくノートを取得
+            if note_obj is not None:
+                note_dx = note_obj.dx
+                note_dy = note_obj.dy
+                note_display_state = note_obj.display_state
+                duplicated_note_obj = self.create_note(text=duplicated_node_obj.details, dx=note_dx, dy=note_dy, base_node=duplicated_node_obj, display_state=note_display_state, canvas=self.canvas)
+                if duplicated_note_obj is not None and duplicated_note_obj.shape_id is not None:
+                    self.notes[duplicated_note_obj.shape_id] = duplicated_note_obj
+
+        # ノードは常に最前面に
+        self.canvas.tag_raise("node")
+        self.canvas.tag_raise("note")
+
     def auto_node_text(self, node_type, text):
         # Terminator ノードには自動で "Start"/"End" テキストを設定
         if node_type == ct.NODE_TERMINATOR_PARAMS["type"] and text is None:
@@ -1444,7 +1714,6 @@ class FlowchartTool(tk.Tk):
             self._reset_node_to_original_outline_color(self.nodes[node_id])
 
     def select_nodes(self, node_ids):
-
         if node_ids is not None and len(node_ids) == 1:
             node_id = node_ids[0]
             if node_id in self.selected_node_ids:
@@ -1570,8 +1839,10 @@ class FlowchartTool(tk.Tk):
         if swimlane_obj is not None and swimlane_obj.frame_id is not None:
             if self.selected_swimlanes is None:
                 self.selected_swimlanes = []
+            # print(f"selected_swimpales before addition: {self.selected_swimlanes}")  # for DEBUG
             if swimlane_obj not in self.selected_swimlanes:
                 self.selected_swimlanes.append(swimlane_obj)
+                # print(f"selected_swimpales after addition: {self.selected_swimlanes}")  # for DEBUG
                 swimlane_obj.select()
 
     def deselect_swimlane(self, swimlane_obj):
@@ -1685,12 +1956,14 @@ class FlowchartTool(tk.Tk):
         self.link_elbow_toolbar_tooltip.modify_label("Link_elbow_" + self.current_link_elbow_path_type)  # ツールチップのテキストも更新
 
     def delete_selected(self):
-        nids = self.selected_node_ids
+        nids = self.selected_node_ids.copy()
+        # print(f"Deleting selected nodes: {nids}, self.nodes: {self.nodes}")  # for DEBUG
         line_id = self.selected_edge_id
         swimlanes = self.selected_swimlanes
         if nids and len(nids) > 0:
             for nid in nids:
                 if nid in self.nodes:
+                    # print(f"Deleting node id: {nid}")  # for DEBUG
                     self.delete_selected_node(nid)
         if line_id:
             self.delete_selected_edge(line_id)
@@ -1727,7 +2000,8 @@ class FlowchartTool(tk.Tk):
                 del self.notes[note_obj.shape_id]
 
         del self.nodes[nid]
-        self.selected_node_ids = []
+        if nid in self.selected_node_ids:
+            self.selected_node_ids.remove(nid)
         self.push_history()
 
     def delete_selected_edge(self, line_id):
@@ -1751,6 +2025,17 @@ class FlowchartTool(tk.Tk):
                     new_swimlanes.append(swimlane_obj)
             self.swimlanes = new_swimlanes  
         self.selected_swimlanes = []
+        self.push_history()
+
+    def delete_selected_swimlane(self, shape_id):
+        new_swimlanes = []
+        for swimlane_obj in self.swimlanes:
+            if swimlane_obj.frame_id == shape_id:
+                swimlane_obj.delete()
+            else:
+                new_swimlanes.append(swimlane_obj)
+        self.swimlanes = new_swimlanes  
+
         self.push_history()
 
     def node_at(self, x, y):
@@ -1820,7 +2105,9 @@ class FlowchartTool(tk.Tk):
         line_style = ct.EDGE_PARAMS["line_style"] if edge_type == ct.EDGE_TYPE_ELBOW else ct.EDGE_LINE_STYLE_DOTTED
 
         auto_text = self.auto_edge_label(None, from_node_obj)
-        edge_obj = Edge(edge_type=edge_type, path_type=path_type, line_style=line_style, from_node_obj=from_node_obj, to_node_obj=to_node_obj, text=auto_text, canvas=self.canvas)
+        edge_obj = Edge(edge_type=edge_type, path_type=path_type, line_style=line_style,
+                        from_node_obj=from_node_obj, to_node_obj=to_node_obj,
+                        text=auto_text, canvas=self.canvas)
 
         if edge_obj is not None and edge_obj.line_id is not None:
             self.edges[edge_obj.line_id] = edge_obj
@@ -1863,7 +2150,9 @@ class FlowchartTool(tk.Tk):
         line_style = ct.EDGE_PARAMS["line_style"] if edge_type == ct.EDGE_TYPE_ELBOW else ct.EDGE_LINE_STYLE_DOTTED
 
         # print(f"* From node obj: {from_node_obj}, To node obj: {to_node_obj}")  # for DEBUG
-        temporary_edge = Edge(edge_type=edge_type, path_type=path_type, line_style=line_style, from_node_obj=from_node_obj, to_node_obj=to_node_obj, color="#0ea5e9", text="", canvas=self.canvas)
+        temporary_edge = Edge(edge_type=edge_type, path_type=path_type, line_style=line_style,
+                                from_node_obj=from_node_obj, to_node_obj=to_node_obj,
+                                color="#0ea5e9", text="", canvas=self.canvas)
         # print(f"** Temporary edge created: {temporary_edge}")  # for DEBUG
         return temporary_edge
 
@@ -1898,9 +2187,21 @@ class FlowchartTool(tk.Tk):
     # スイムレーンの作成
     def create_swimlane(self, x, y):
         adjusted_x, adjusted_y = self.adjusted_swimlane_xy(None, x, y)
-        swimlane_obj = Swimlane(canvas=self.canvas, kind=self.current_swimlane_kind, title=ct.SWIMLANE_PARAMS["title"], header_center_x=adjusted_x, header_center_y=adjusted_y)
+        swimlane_obj = Swimlane(canvas=self.canvas, kind=self.current_swimlane_kind, title=ct.SWIMLANE_PARAMS["title"],
+                                 header_center_x=adjusted_x, header_center_y=adjusted_y)
         self.swimlanes.append(swimlane_obj)
         self.push_history()
+
+    def duplicate_swimlane(self, original_swimlane):
+        adjusted_x, adjusted_y = self.adjusted_swimlane_xy(None, original_swimlane.header_center_x, original_swimlane.header_center_y)
+        clone_swimlane_obj = Swimlane(canvas=self.canvas, kind=original_swimlane.kind, title=original_swimlane.title,
+                                        header_center_x=adjusted_x, header_center_y=adjusted_y,
+                                        width=original_swimlane.width, height=original_swimlane.height,
+                                        fill_color=original_swimlane.fill_color)
+        self.swimlanes.append(clone_swimlane_obj)
+        # self.push_history()
+
+        return clone_swimlane_obj
 
     # ------------ Undo/Redo用 モデル入出力 ------------
 
@@ -2102,7 +2403,7 @@ class FlowchartTool(tk.Tk):
 
         entry = ttk.Entry(self.canvas)
         if x is not None and y is not None and node_obj.text is not None:
-            entry.insert(0, node_obj.text.replace("\n", "\\n"))
+            entry.insert(0, node_obj.text.replace("\n", "\\n").replace("¥n", "\\n"))
             window_id = self.canvas.create_window(
                 x, y,
                 window=entry
@@ -2128,7 +2429,7 @@ class FlowchartTool(tk.Tk):
         nid = self.text_edit["node_id"]
         window_id = self.text_edit["window_id"]
 
-        new_text = entry.get().replace("\\n", "\n")
+        new_text = entry.get().replace("¥n", "\n").replace("\\n", "\n")
         self.canvas.delete(window_id)
         entry.destroy()
 
@@ -2152,7 +2453,7 @@ class FlowchartTool(tk.Tk):
 
         entry = ttk.Entry(self.canvas)
         if edge_obj.label_text:
-            entry.insert(0, edge_obj.label_text.replace("\n", "\\n"))
+            entry.insert(0, edge_obj.label_text.replace("\n", "\\n").replace("¥n", "\\n"))
         window_id = self.canvas.create_window(
             edge_obj.label_x, edge_obj.label_y,
             window=entry
@@ -2178,7 +2479,7 @@ class FlowchartTool(tk.Tk):
         edge_obj = self.edge_label_edit["edge_obj"]
         window_id = self.edge_label_edit["window_id"]
 
-        new_text = entry.get().replace("\\n", "\n")
+        new_text = entry.get().replace("¥n", "\n").replace("\\n", "\n")
         self.canvas.delete(window_id)
         entry.destroy()
 
@@ -2209,7 +2510,7 @@ class FlowchartTool(tk.Tk):
 
         entry = ttk.Entry(self.canvas)
         if x is not None and y is not None and swimlane_obj.title is not None:
-            entry.insert(0, swimlane_obj.title.replace("\n", "\\n"))
+            entry.insert(0, swimlane_obj.title.replace("\n", "\\n").replace("¥n", "\\n"))
             window_id = self.canvas.create_window(
                 x, y,
                 window=entry
@@ -2235,7 +2536,7 @@ class FlowchartTool(tk.Tk):
         swimlane_obj = self.swimlane_label_edit["swimlane_obj"]
         window_id = self.swimlane_label_edit["window_id"]
 
-        new_text = entry.get().replace("\\n", "\n")
+        new_text = entry.get().replace("¥n", "\n").replace("\\n", "\n")
         self.canvas.delete(window_id)
         entry.destroy()
 
@@ -2264,7 +2565,7 @@ class FlowchartTool(tk.Tk):
 
         if note_obj.base_node.details is None:
             del self.notes[note_shape_id]
-            print(f"Note for node id {note_obj.base_node.id} deleted because details is empty")  # for DEBUG
+            # print(f"Note for node id {note_obj.base_node.id} deleted because details is empty")  # for DEBUG
 
         if commit:
             self.push_history()
@@ -2698,7 +2999,7 @@ class FlowchartTool(tk.Tk):
             return
         self.ope_info = tk.Label(self.canvas, justify="left", font=("Consolas", 9), fg="#0f172a", text=
             "[Key Operations]\n"
-            " DEL: Delete selected node/edge/swimlane\n"
+            " DEL/BS: Delete selected node/edge/swimlane\n"
             " ESC: Cancel selection\n"
             " Ctrl-a: Select all nodes/swimlanes\n"
             " Ctrl-z: Undo\n"
@@ -2714,6 +3015,7 @@ class FlowchartTool(tk.Tk):
             " Drag Area: Select nodes/swimlanes in area\n"
             " Drag Node: Move selected node(s)\n"
             " Drag Swimlane Header/Footer: Move swimlane(s)\n"
+            " Ctrl+Drag Node/Swimlane: Duplicate selected nodes/swimlanes\n"
             " MouseWheel: Rotate menu selection\n"
             " MouseWheel-Button-Drag: Scroll canvas\n"
             " MouseWheel-Double-Click Node: Add note to node\n"

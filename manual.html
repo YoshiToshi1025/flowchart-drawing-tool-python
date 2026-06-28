@@ -346,7 +346,7 @@
 
   <div class="category">基本操作</div>
   <a href="#" onclick="show('text-edit')">テキスト編集</a>
-  <a href="#" onclick="show('select-move')">選択・移動</a>
+  <a href="#" onclick="show('select-move')">選択・移動・複製</a>
   <a href="#" onclick="show('delete')">削除</a>
   <a href="#" onclick="show('undo-redo')">Undo / Redo</a>
 
@@ -683,12 +683,13 @@
     <h3>改行の入力</h3>
     <ul>
       <li>Windows環境の場合、テキスト内に <code>\n</code> と入力すると、表示時に改行されます。</li>
-      <li>macOS環境の場合、テキスト内に(<code>\n</code> ではなく)<code><span style="font-family: Arial;">\</span>n</code> を入力すると、表示時に改行されます。</li>
+      <li>macOS環境の場合、テキスト内に<code><span style="font-family: Arial;">\</span>n</code> を入力すると、表示時に改行されます。</li>
     </ul>
     <div class="tip">macOS環境で "<span style="font-family: Arial;">\</span>"（半角のバックスラッシュ）を入力するには、オプションキーを押しながら「¥」キーを押します。</div>
+    <div class="tip">macOS環境で \nを指定しても改行されるよう対応しました。(2026/06/28)</div>
   </div>
 
-  <!-- ======= 選択・移動 ======= -->
+  <!-- ======= 選択・移動・複製 ======= -->
   <div class="page" id="page-select-move">
     <h2>選択・移動操作</h2>
 
@@ -721,6 +722,13 @@
     </ol>
 
     <div class="tip">スイムレーン内のノードを移動する場合も同様の操作で行えます。</div>
+ 
+     <h3>要素の複製</h3>
+    <ol class="steps">
+      <li>Select モードで複製したいノードを選択します。</li>
+      <li><kbd>Ctrl</kbd> + マウスドラッグ＆ドロップ操作で、選択中の要素/スイムレーンと選択中要素間のリンクがドロップ位置に複製されます。</li>
+      <li>複製された要素は元の要素の近くに配置されます。</li>
+    </ol>
   </div>
 
   <!-- ======= 削除 ======= -->
@@ -732,7 +740,7 @@
     <table>
       <tr><th>操作</th><th>説明</th></tr>
       <tr><td>ツールバーの「Delete」ボタンをクリック</td><td>選択中の要素を削除します</td></tr>
-      <tr><td><kbd>Delete</kbd> キー</td><td>選択中の要素を削除します（キーボードショートカット）</td></tr>
+      <tr><td><kbd>Delete</kbd>キー、または、<kbd>BackSpace</kbd> キー</td><td>選択中の要素を削除します（キーボードショートカット）</td></tr>
       <tr><td>右クリックメニュー → 「Delete Selected」</td><td>同上</td></tr>
     </table>
 

@@ -189,6 +189,7 @@ This project provides a **“Simple Flowchart Drawing Tool 颯(HAYATE)”** that
 * 2026/06/01 : Added support for generating standard specifications for each flowchart element during AI-based flow creation and displaying them as sticky notes.
 * 2026/06/05 : Added support for creating sticky notes from the popup menu. Changed the language switching mechanism to allow language selection (en/ja) via the .env file.
 * 2026/06/18 : Added support for ellipse elements and sticky note display in the Excel Import VBA, and fixed issues related to sticky note display.
+* 2026/06/28 : Added support for duplicating selected elements/swimlanes and links between selected elements using Ctrl+Drag, improved operations on macOS (deletion with Backspace and line breaks with ￥n), and fixed a bug in the swimlane move process.
 
 ## Notes (Additional)
 
