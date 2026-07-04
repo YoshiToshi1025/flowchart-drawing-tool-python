@@ -1956,6 +1956,8 @@ class FlowchartTool(tk.Tk):
         self.link_elbow_toolbar_tooltip.modify_label("Link_elbow_" + self.current_link_elbow_path_type)  # ツールチップのテキストも更新
 
     def delete_selected(self):
+        if self.swimlane_label_edit is not None or self.edge_label_edit is not None or self.text_edit is not None or self.note_text_edit is not None:
+            return  # 編集中は削除しない
         nids = self.selected_node_ids.copy()
         # print(f"Deleting selected nodes: {nids}, self.nodes: {self.nodes}")  # for DEBUG
         line_id = self.selected_edge_id
