@@ -18,6 +18,19 @@ class Generative_AI_interface:
         elif self.ai_type == "Anthropic":
             from anthropic import Anthropic
             self.anthropic_client = Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+        elif self.ai_type == "LMStudio":
+            from openai import OpenAI
+            self.openai_client = OpenAI(base_url=ct.LMSTUDIO_BASE_URL, api_key="not-needed")
+
+        if self.ai_type == "OpenAI" and self.defined_openai_api_key():
+            openai_ai_models = self.get_openai_ai_models()
+            print(f"Available OpenAI models: {openai_ai_models}")
+        elif self.ai_type == "Gemini" and self.defined_gemini_api_key():
+            gemini_ai_models = self.get_gemini_ai_models()
+            print(f"Available Gemini models: {gemini_ai_models}")
+        elif self.ai_type == "Anthropic" and self.defined_anthropic_api_key():
+            anthropic_ai_models = self.get_anthropic_ai_models()
+            print(f"Available Anthropic models: {anthropic_ai_models}")
 
     def get_specified_AI_type_and_model(self):
         ai_model = ct.AI_MODEL
@@ -27,6 +40,8 @@ class Generative_AI_interface:
             ai_type = "Gemini"
         elif ai_model is not None and ai_model.startswith("claude-") and self.defined_anthropic_api_key():
             ai_type = "Anthropic"
+        elif ai_model is not None and ai_model=="lmstudio" and ct.LMSTUDIO_BASE_URL is not None:
+            ai_type = "LMStudio"
         else:
             print(ct.UNSUPPORTED_AI_MODEL_MESSAGE)
             ai_type = None
@@ -55,6 +70,55 @@ class Generative_AI_interface:
             print(ct.ANTHROPIC_API_KEY_NOT_SET_MESSAGE)
             return False
 
+    def get_openai_ai_models(self):
+        if not self.defined_openai_api_key():
+            return []
+        try:
+            models = self.openai_client.models.list()
+            model_names = []
+            for model in models.data:
+                if model.id.startswith("gpt-") and "image" not in model.id and "codex" not in model.id \
+                        and "audio" not in model.id and "realtime" not in model.id and "tts" not in model.id \
+                        and "whisper" not in model.id and "transcribe" not in model.id:
+                    model_names.append(model.id)
+            model_names.sort(reverse=True)
+            return model_names
+        except Exception as e:
+            print(f"Error fetching OpenAI models: {e}")
+            return []
+
+    def get_gemini_ai_models(self):
+        if not self.defined_gemini_api_key():
+            return []
+        try:
+            from google import genai
+            models = self.gemini_client.models.list()
+            model_names = []
+            for model in models:
+               model_name = model.name.removeprefix("models/")
+               if model_name.startswith("gemini-") and "audio" not in model_name and "translate" not in model_name \
+                       and "embedding" not in model_name and "robotics" not in model_name and "omni" not in model_name \
+                       and "image" not in model_name and "tts" not in model_name and "live" not in model_name \
+                       and "computer-use" not in model_name and "customtools" not in model_name:
+                   model_names.append(model_name)
+            model_names.sort(reverse=True)
+            return model_names
+        except Exception as e:
+            print(f"Error fetching Gemini models: {e}")
+            return []
+
+    def get_anthropic_ai_models(self):
+        if not self.defined_anthropic_api_key():
+            return []
+        try:
+            from anthropic import Anthropic
+            models = self.anthropic_client.models.list()
+            model_names = [model.id for model in models]
+            return model_names
+        except Exception as e:
+            print(f"Error fetching Anthropic models: {e}")
+            return []
+
     def send_message_to_ai(self, user_msg: str, spec_msg: str|None = None):
         # print(f"send_message_to_ai called with user_msg: {user_msg}")
         if not user_msg:
@@ -76,6 +140,9 @@ class Generative_AI_interface:
         elif self.ai_type == "Anthropic":
             # print("Calling Anthropic API...")
             thread = Thread(target=self.call_anthropic_ai, args=(args, return_values), daemon=True)
+        elif self.ai_type == "LMStudio":
+            # print("Calling LMStudio API...")
+            thread = Thread(target=self.call_openai_ai, args=(args, return_values), daemon=True)
         else:
             print(ct.UNSUPPORTED_AI_MODEL_MESSAGE)
             return_text = ct.UNSUPPORTED_AI_MODEL_MESSAGE
@@ -103,7 +170,7 @@ class Generative_AI_interface:
             return_values[1] = mmd_filepath
             # print(f"OpenAI API call successful. assistant_text: {assistant_text}, mmd_filepath: {mmd_filepath}, return_values: {return_values}")
         except Exception as e:
-            # print(e)
+            print(e)
             return_values[0] = "OpenAI API Error"
             return_values[1] = None
 
@@ -135,15 +202,20 @@ class Generative_AI_interface:
                 temperature=1,
                 system=ct.AI_SYSTEM_INSTRUCTIONS,
                 messages=[{"role": "user", "content": [{"type": "text", "text": user_input_msg}]}],
-                thinking={"type": "disabled"},
-                output_config={"effort":"high"}
+                # thinking={"type": "adaptive"},
+                # output_config={"effort":"max"}     # "effort": "low", "medium", "high", "xhigh", "max"
             )
-            assistant_text = response.content[0].text or ""
+            # print(response)
+            assistant_text = ""
+            for message in response.content:
+                if message.type == "text":
+                    assistant_text = message.text or ""
+                    break
             success_flag, mmd_filepath = self.save_mmd_to_file(filename, assistant_text)
             return_values[0] = assistant_text
             return_values[1] = mmd_filepath
         except Exception as e:
-            # print(e)
+            print(e)
             return_values[0] = "Anthropic API Error"
             return_values[1] = None
 

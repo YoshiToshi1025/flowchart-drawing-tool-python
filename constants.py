@@ -332,11 +332,15 @@ ANTHROPIC_API_KEY_NOT_SET_MESSAGE = get_i18n_message("ANTHROPIC_API_KEY_NOT_SET_
 UNSUPPORTED_AI_MODEL_MESSAGE = get_i18n_message("UNSUPPORTED_AI_MODEL_MESSAGE", lang=i18n_lang)
 
 # AI Model Selection / 使用する生成AIモデル
-AI_MODEL = "gpt-5.5"
-# Example of available AI model names / 指定可能な生成AIモデル名例 (as of 2026.5.29)
-#   OpenAI (gpt-*): "gpt-5.5", "gpt-5.4", "gpt-5.4-mini"
+AI_MODEL = "gpt-5.6-sol"
+# Example of available AI model names / 指定可能な生成AIモデル名例 (as of 2026.7.11)
+#   OpenAI (gpt-*): "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "gpt-5.5", "gpt-5.4", "gpt-5.4-mini"
 #   GeminiAI (gemini-*): "gemini-3.1-pro-preview", "gemini-3.5-flash", "gemini-3.1-flash-lite", "gemini-3-flash-preview", "gemini-pro-latest", "gemini-flash-lite-latest"
-#   AnthropicAI (claude-*): "claude-opus-4-8", "claude-sonnet-4-6", "claude-haiku-4-5"
+#   AnthropicAI (claude-*): "claude-fable-5", "claude-opus-4-8", "claude-sonnet-5", "claude-haiku-4-5"
+#   LMStudio (lmstudio): "lmstudio" (LMStudio is a local model_URL)
+
+# LMStudio Base URL
+LMSTUDIO_BASE_URL = "http://127.0.0.1:1234/v1"  # LMStudio local model URL (if using LMStudio, set the base URL here)
 
 # AI Related Constants / AI関連定数
 AI_CHAT_WIDTH = 550

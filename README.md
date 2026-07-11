@@ -191,6 +191,7 @@ This project provides a **“Simple Flowchart Drawing Tool 颯(HAYATE)”** that
 * 2026/06/18 : Added support for ellipse elements and sticky note display in the Excel Import VBA, and fixed issues related to sticky note display.
 * 2026/06/28 : Added support for duplicating selected elements/swimlanes and links between selected elements using Ctrl+Drag, improved operations on macOS (deletion with Backspace and line breaks with ￥n), and fixed a bug in the swimlane move process.
 * 2026/07/04 : Fixed a bug in Backspace handling while editing text.
+* 2026/07/11 : Added support for new generative AI models (OpenAI gtp-5.6-sol/terra/luna and Anthropic claude-fable-5) and integration with LM Studio.
 
 ## Notes (Additional)
 
