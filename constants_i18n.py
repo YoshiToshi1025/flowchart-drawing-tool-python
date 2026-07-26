@@ -71,6 +71,8 @@ I18N_MESSAGE_DICT = {
     "GEMINI_API_KEY_NOT_SET_MESSAGE.ja" : ".envファイルで GEMINI_API_KEY が未設定です。.envファイルにAPIキーを定義してください。",
     "ANTHROPIC_API_KEY_NOT_SET_MESSAGE.en" : "ANTHROPIC_API_KEY is not set in the .env file. Please define the API key in the .env file.",
     "ANTHROPIC_API_KEY_NOT_SET_MESSAGE.ja" : ".envファイルで ANTHROPIC_API_KEY が未設定です。.envファイルにAPIキーを定義してください。",
+    "MOONSHOT_API_KEY_NOT_SET_MESSAGE.en" : "MOONSHOT_API_KEY is not set in the .env file. Please define the API key in the .env file.",
+    "MOONSHOT_API_KEY_NOT_SET_MESSAGE.ja" : ".envファイルで MOONSHOT_API_KEY が未設定です。.envファイルにAPIキーを定義してください。",
 
     "UNSUPPORTED_AI_MODEL_MESSAGE.en" : "Unsupported AI model specified. Please check the AI_MODEL section in constants.py.",
     "UNSUPPORTED_AI_MODEL_MESSAGE.ja" : "未対応のAIモデルが指定されています。constants.pyのAI_MODEL欄を確認してください。",

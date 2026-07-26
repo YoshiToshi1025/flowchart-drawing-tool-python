@@ -89,6 +89,7 @@
         OPENAI_API_KEY=(OpenAI GPT接続用API Key)
         GEMINI_API_KEY=(Google Gemini接続用API Key)
         ANTHROPIC_API_KEY=(Anthropic Claude接続用API Key)
+        MOONSHOT_API_KEY=(Moonshot AI接続用API Key)  
       ```
       ```
         [constants.pyファイル内]
@@ -186,7 +187,8 @@
 * 2026/06/18 : Excel読込VBAで楕円要素と付箋表示に対応、付箋表示不具合の修正
 * 2026/06/28 : Ctrl+Drag操作で選択中の要素/スイムレーンと選択中要素間のリンクの複製に対応、macOSでの操作の改善(BackSpaceで削除,￥nで改行)、不具合対応（スイムレーンの移動処理）
 * 2026/07/04 : 文字列編集時のBackSpace処理の不具合対応
-* 2026/07/11 : 新しい生成AIへの対応(OpenAI gtp-5.6-sol/terra/luna, Anthropic claude-fable-5)、LM Studioとの接続対応
+* 2026/07/11 : 新しい生成AIへの対応(GPT 5.6 Sol/Terra/Luna, Claude Fable 5)、LM Studioとの接続対応
+* 2026/07/27 : 新しい生成AIへの対応(Gemini 3.6 Flash, Claude Opus 5, Kimi K3)、生成AIデータ読み込み時の不具合対応
 
 ## 補足1
 * パッケージエラーが発生する場合は、以下のコマンドでパッケージを一括インストールしてみてください。

@@ -18,6 +18,9 @@ class Generative_AI_interface:
         elif self.ai_type == "Anthropic":
             from anthropic import Anthropic
             self.anthropic_client = Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+        elif self.ai_type == "MoonshotAI":
+            from openai import OpenAI
+            self.moonshot_client = OpenAI(base_url=ct.MOONSHOT_BASE_URL, api_key=os.environ["MOONSHOT_API_KEY"])
         elif self.ai_type == "LMStudio":
             from openai import OpenAI
             self.openai_client = OpenAI(base_url=ct.LMSTUDIO_BASE_URL, api_key="not-needed")
@@ -31,6 +34,9 @@ class Generative_AI_interface:
         elif self.ai_type == "Anthropic" and self.defined_anthropic_api_key():
             anthropic_ai_models = self.get_anthropic_ai_models()
             print(f"Available Anthropic models: {anthropic_ai_models}")
+        elif self.ai_type == "MoonshotAI" and self.defined_moonshot_api_key():
+            moonshot_ai_models = self.get_moonshot_ai_models()
+            print(f"Available MoonshotAI models: {moonshot_ai_models}")
 
     def get_specified_AI_type_and_model(self):
         ai_model = ct.AI_MODEL
@@ -40,6 +46,8 @@ class Generative_AI_interface:
             ai_type = "Gemini"
         elif ai_model is not None and ai_model.startswith("claude-") and self.defined_anthropic_api_key():
             ai_type = "Anthropic"
+        elif ai_model is not None and ai_model.startswith("kimi-") and self.defined_moonshot_api_key():
+            ai_type = "MoonshotAI"
         elif ai_model is not None and ai_model=="lmstudio" and ct.LMSTUDIO_BASE_URL is not None:
             ai_type = "LMStudio"
         else:
@@ -68,6 +76,13 @@ class Generative_AI_interface:
             return True
         else:
             print(ct.ANTHROPIC_API_KEY_NOT_SET_MESSAGE)
+            return False
+
+    def defined_moonshot_api_key(self):
+        if "MOONSHOT_API_KEY" in os.environ and len(os.environ["MOONSHOT_API_KEY"].strip()) > 0:
+            return True
+        else:
+            print(ct.MOONSHOT_API_KEY_NOT_SET_MESSAGE)
             return False
 
     def get_openai_ai_models(self):
@@ -119,6 +134,21 @@ class Generative_AI_interface:
             print(f"Error fetching Anthropic models: {e}")
             return []
 
+    def get_moonshot_ai_models(self):
+        if not self.defined_moonshot_api_key():
+            return []
+        try:
+            models = self.moonshot_client.models.list()
+            model_names = []
+            for model in models.data:
+                if model.id.startswith("kimi-") and "code" not in model.id:
+                    model_names.append(model.id)
+            model_names.sort(reverse=True)
+            return model_names
+        except Exception as e:
+            print(f"Error fetching MoonshotAI models: {e}")
+            return []
+
     def send_message_to_ai(self, user_msg: str, spec_msg: str|None = None):
         # print(f"send_message_to_ai called with user_msg: {user_msg}")
         if not user_msg:
@@ -140,6 +170,9 @@ class Generative_AI_interface:
         elif self.ai_type == "Anthropic":
             # print("Calling Anthropic API...")
             thread = Thread(target=self.call_anthropic_ai, args=(args, return_values), daemon=True)
+        elif self.ai_type == "MoonshotAI":
+            # print("Calling MoonshotAI API...")
+            thread = Thread(target=self.call_moonshot_ai, args=(args, return_values), daemon=True)
         elif self.ai_type == "LMStudio":
             # print("Calling LMStudio API...")
             thread = Thread(target=self.call_openai_ai, args=(args, return_values), daemon=True)
@@ -217,6 +250,26 @@ class Generative_AI_interface:
         except Exception as e:
             print(e)
             return_values[0] = "Anthropic API Error"
+            return_values[1] = None
+
+    def call_moonshot_ai(self, args, return_values):
+        user_input_msg, filename = args
+        try:
+            resp = self.moonshot_client.chat.completions.create(
+                model=ct.AI_MODEL,
+                messages=[
+                    {"role": "system", "content": ct.AI_SYSTEM_INSTRUCTIONS},
+                    {"role": "user", "content": user_input_msg}
+                ],
+            )
+            assistant_text = resp.choices[0].message.content or ""
+            success_flag, mmd_filepath = self.save_mmd_to_file(filename, assistant_text)
+            return_values[0] = assistant_text
+            return_values[1] = mmd_filepath
+            # print(f"Moonshot API call successful. assistant_text: {assistant_text}, mmd_filepath: {mmd_filepath}, return_values: {return_values}")
+        except Exception as e:
+            print(e)
+            return_values[0] = "Moonshot API Error"
             return_values[1] = None
 
     # -----------------------------

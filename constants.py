@@ -328,6 +328,7 @@ AI_GENERATED_MESSAGE2 = get_i18n_message("AI_GENERATED_MESSAGE2", lang=i18n_lang
 OPENAI_API_KEY_NOT_SET_MESSAGE = get_i18n_message("OPENAI_API_KEY_NOT_SET_MESSAGE", lang=i18n_lang)
 GEMINI_API_KEY_NOT_SET_MESSAGE = get_i18n_message("GEMINI_API_KEY_NOT_SET_MESSAGE", lang=i18n_lang)
 ANTHROPIC_API_KEY_NOT_SET_MESSAGE = get_i18n_message("ANTHROPIC_API_KEY_NOT_SET_MESSAGE", lang=i18n_lang)
+MOONSHOT_API_KEY_NOT_SET_MESSAGE = get_i18n_message("MOONSHOT_API_KEY_NOT_SET_MESSAGE", lang=i18n_lang)
 
 UNSUPPORTED_AI_MODEL_MESSAGE = get_i18n_message("UNSUPPORTED_AI_MODEL_MESSAGE", lang=i18n_lang)
 
@@ -337,9 +338,13 @@ AI_MODEL = "gpt-5.6-sol"
 #   OpenAI (gpt-*): "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "gpt-5.5", "gpt-5.4", "gpt-5.4-mini"
 #   GeminiAI (gemini-*): "gemini-3.1-pro-preview", "gemini-3.5-flash", "gemini-3.1-flash-lite", "gemini-3-flash-preview", "gemini-pro-latest", "gemini-flash-lite-latest"
 #   AnthropicAI (claude-*): "claude-fable-5", "claude-opus-4-8", "claude-sonnet-5", "claude-haiku-4-5"
+#   MoonshotAI (kimi-*): "kimi-k3"
 #   LMStudio (lmstudio): "lmstudio" (LMStudio is a local model_URL)
 
-# LMStudio Base URL
+# MoonshotAI Base URL / MoonshotAIのベースURL
+MOONSHOT_BASE_URL = "https://api.moonshot.ai/v1"  # MoonshotAI model URL (if using MoonshotAI, set the base URL here)
+
+# LMStudio Base URL / LMStudioのベースURL
 LMSTUDIO_BASE_URL = "http://127.0.0.1:1234/v1"  # LMStudio local model URL (if using LMStudio, set the base URL here)
 
 # AI Related Constants / AI関連定数
