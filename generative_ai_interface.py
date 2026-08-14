@@ -21,6 +21,9 @@ class Generative_AI_interface:
         elif self.ai_type == "MoonshotAI":
             from openai import OpenAI
             self.moonshot_client = OpenAI(base_url=ct.MOONSHOT_BASE_URL, api_key=os.environ["MOONSHOT_API_KEY"])
+        elif self.ai_type == "SpaceXAI":
+            from openai import OpenAI
+            self.openai_client = OpenAI(base_url=ct.XAI_BASE_URL, api_key=os.environ["XAI_API_KEY"])
         elif self.ai_type == "LMStudio":
             from openai import OpenAI
             self.openai_client = OpenAI(base_url=ct.LMSTUDIO_BASE_URL, api_key="not-needed")
@@ -37,6 +40,10 @@ class Generative_AI_interface:
         elif self.ai_type == "MoonshotAI" and self.defined_moonshot_api_key():
             moonshot_ai_models = self.get_moonshot_ai_models()
             print(f"Available MoonshotAI models: {moonshot_ai_models}")
+        elif self.ai_type == "SpaceXAI" and self.defined_spacexai_api_key():
+            spacexai_ai_models = self.get_spacexai_ai_models()
+            print(f"Available SpaceXAI models: {spacexai_ai_models}")
+
 
     def get_specified_AI_type_and_model(self):
         ai_model = ct.AI_MODEL
@@ -48,6 +55,8 @@ class Generative_AI_interface:
             ai_type = "Anthropic"
         elif ai_model is not None and ai_model.startswith("kimi-") and self.defined_moonshot_api_key():
             ai_type = "MoonshotAI"
+        elif ai_model is not None and ai_model.startswith("grok-") and self.defined_spacexai_api_key():
+            ai_type = "SpaceXAI"
         elif ai_model is not None and ai_model=="lmstudio" and ct.LMSTUDIO_BASE_URL is not None:
             ai_type = "LMStudio"
         else:
@@ -83,6 +92,13 @@ class Generative_AI_interface:
             return True
         else:
             print(ct.MOONSHOT_API_KEY_NOT_SET_MESSAGE)
+            return False
+
+    def defined_spacexai_api_key(self):
+        if "XAI_API_KEY" in os.environ and len(os.environ["XAI_API_KEY"].strip()) > 0:
+            return True
+        else:
+            print(ct.SPACEXAI_API_KEY_NOT_SET_MESSAGE)
             return False
 
     def get_openai_ai_models(self):
@@ -149,6 +165,23 @@ class Generative_AI_interface:
             print(f"Error fetching MoonshotAI models: {e}")
             return []
 
+    def get_spacexai_ai_models(self):
+        if not self.defined_spacexai_api_key():
+            return []
+        try:
+            models = self.openai_client.models.list()
+            model_names = []
+            for model in models.data:
+                if model.id.startswith("grok-") and "image" not in model.id and "video" not in model.id \
+                        and "agent" not in model.id and "reasoning" not in model.id and "build" not in model.id:
+                    model_names.append(model.id)
+            model_names.sort(reverse=True)
+            return model_names
+        except Exception as e:
+            print(f"Error fetching SpaceXAI models: {e}")
+            return []
+
+
     def send_message_to_ai(self, user_msg: str, spec_msg: str|None = None):
         # print(f"send_message_to_ai called with user_msg: {user_msg}")
         if not user_msg:
@@ -173,6 +206,9 @@ class Generative_AI_interface:
         elif self.ai_type == "MoonshotAI":
             # print("Calling MoonshotAI API...")
             thread = Thread(target=self.call_moonshot_ai, args=(args, return_values), daemon=True)
+        elif self.ai_type == "SpaceXAI":
+            # print("Calling SpaceXAI API...")
+            thread = Thread(target=self.call_openai_ai, args=(args, return_values), daemon=True)
         elif self.ai_type == "LMStudio":
             # print("Calling LMStudio API...")
             thread = Thread(target=self.call_openai_ai, args=(args, return_values), daemon=True)

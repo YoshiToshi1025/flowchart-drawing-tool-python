@@ -25,7 +25,22 @@ class Node:
         self.type = node_type
         self.x = x
         self.y = y
-        self.shape_type = shape_type if self.type == ct.NODE_PROCESS_PARAMS["type"] and shape_type is not None else ct.NODE_PROCESS_PARAMS["shape_type"]
+
+        if self.type == ct.NODE_PROCESS_PARAMS["type"]:
+            if shape_type is not None:
+                self.shape_type = shape_type
+            else:
+                self.shape_type = ct.NODE_PROCESS_PARAMS["shape_type"]
+        elif self.type == ct.NODE_TERMINATOR_PARAMS["type"]:
+            if shape_type is not None:
+                self.shape_type = shape_type
+            elif w is not None and w == ct.NODE_TERMINATOR_PARAMS["width"]  // 2:
+                    self.shape_type = "small"
+            else:
+                self.shape_type = "normal"
+        else:
+            self.shape_type = self.type
+
         self.status = status if status is not None else ct.NODE_STATUS_NORMAL
         self.details = details
 
@@ -682,6 +697,138 @@ class Node:
 
         return coords
 
+    def change_node(self, increase=True):
+        if increase:
+            self.type, self.shape_type = self.get_next_type(self.type, self.shape_type, increase=True)
+
+        else:
+            self.type, self.shape_type = self.get_next_type(self.type, self.shape_type, increase=False)
+
+        self.w = {
+            ct.NODE_PROCESS_PARAMS["type"] : ct.NODE_PROCESS_PARAMS["width"],
+            ct.NODE_DECISION_PARAMS["type"] : ct.NODE_DECISION_PARAMS["width"],
+            ct.NODE_TERMINATOR_PARAMS["type"] : ct.NODE_TERMINATOR_PARAMS["width"],
+            ct.NODE_IO_PARAMS["type"] : ct.NODE_IO_PARAMS["width"],
+            ct.NODE_IO_PARAMS["type"] : ct.NODE_IO_PARAMS["width"],
+            ct.NODE_STORAGE_PARAMS["type"] : ct.NODE_STORAGE_PARAMS["width"],
+            ct.NODE_DOCUMENT_PARAMS["type"] : ct.NODE_DOCUMENT_PARAMS["width"],
+        }.get(self.type, ct.NODE_DEFAULT_PARAMS["width"])
+
+        if self.type == ct.NODE_TERMINATOR_PARAMS["type"] and self.shape_type == "small":
+            self.w = self.w // 2
+
+        self.h = {
+            ct.NODE_PROCESS_PARAMS["type"] : ct.NODE_PROCESS_PARAMS["height"],
+            ct.NODE_DECISION_PARAMS["type"] : ct.NODE_DECISION_PARAMS["height"],
+            ct.NODE_TERMINATOR_PARAMS["type"] : ct.NODE_TERMINATOR_PARAMS["height"],
+            ct.NODE_IO_PARAMS["type"] : ct.NODE_IO_PARAMS["height"],
+            ct.NODE_STORAGE_PARAMS["type"] : ct.NODE_STORAGE_PARAMS["height"],
+            ct.NODE_DOCUMENT_PARAMS["type"] : ct.NODE_DOCUMENT_PARAMS["height"],
+        }.get(self.type, ct.NODE_DEFAULT_PARAMS["height"])
+
+    def get_next_type(self, current_type, current_shape_type, increase=True):
+        if increase:
+            if current_type == "terminator" and current_shape_type == "normal":
+                next_type = "terminator"
+                next_shape_type = "small"
+            elif current_type == "terminator" and current_shape_type == "small":
+                next_type = "process"
+                next_shape_type = "rectangle"
+            elif current_type == "process" and current_shape_type == "rectangle":
+                next_type = "process"
+                next_shape_type = "corner_rounded_rectangle"
+            elif current_type == "process" and current_shape_type == "corner_rounded_rectangle":
+                next_type = "process"
+                next_shape_type = "ellipse"
+            elif current_type == "process" and current_shape_type == "ellipse":
+                next_type = "decision"
+                next_shape_type = "decision"
+            elif current_type == "decision":
+                next_type = "io"
+                next_shape_type = "io"
+            elif current_type == "io":
+                next_type = "storage"
+                next_shape_type = "storage"
+            elif current_type == "storage":
+                next_type = "document"
+                next_shape_type = "document"
+            elif current_type == "document":
+                next_type = "terminator"
+                next_shape_type = "normal"
+            else:
+                next_type = "process"
+                next_shape_type = "corner_rounded_rectangle"
+        else:
+            if current_type == "terminator":
+                next_type = "document"
+                next_shape_type = "document"
+            elif current_type == "document":
+                next_type = "storage"
+                next_shape_type = "storage"
+            elif current_type == "storage":
+                next_type = "io"
+                next_shape_type = "io"
+            elif current_type == "io":
+                next_type = "decision"
+                next_shape_type = "decision"
+            elif current_type == "decision":
+                next_type = "process"
+                next_shape_type = "ellipse"
+            elif current_type == "process" and current_shape_type == "ellipse":
+                next_type = "process"
+                next_shape_type = "corner_rounded_rectangle"
+            elif current_type == "process" and current_shape_type == "corner_rounded_rectangle":
+                next_type = "process"
+                next_shape_type = "rectangle"
+            elif current_type == "process" and current_shape_type == "rectangle":
+                next_type = "terminator"
+                next_shape_type = "small"
+            elif current_type == "terminator" and current_shape_type == "small":
+                next_type = "terminator"
+                next_shape_type = "normal"
+            else:
+                next_type = "process"
+                next_shape_type = "corner_rounded_rectangle"
+
+        return next_type, next_shape_type
+
+    def _move_node_graphics(self, canvas):
+        x, y = self.x, self.y
+        w, h = self.w, self.h
+        left, top, right, bottom = x - w/2, y - h/2, x + w/2, y + h/2
+
+        shape_id = self.shape_id
+        node_type = self.type
+
+        if node_type == ct.NODE_PROCESS_PARAMS["type"]:    # 処理
+            points = self.get_process_points()
+            canvas.coords(shape_id, *points)
+        elif node_type == ct.NODE_DECISION_PARAMS["type"]:    # 分岐
+            points = self.get_decision_points()
+            canvas.coords(shape_id, *points)
+        elif node_type == ct.NODE_TERMINATOR_PARAMS["type"]:   # 端点
+            points = self.get_terminator_points()
+            canvas.coords(shape_id, *points)
+        elif node_type == ct.NODE_IO_PARAMS["type"]:    # 入出力  
+            points = self.get_io_points()
+            canvas.coords(shape_id, *points)
+        elif node_type == ct.NODE_STORAGE_PARAMS["type"]:      # ストレージ
+            points = self.get_storage_points()
+            canvas.coords(shape_id, *points)
+        elif node_type == ct.NODE_DOCUMENT_PARAMS["type"]:     # ドキュメント
+            points = self.get_document_points()
+            canvas.coords(shape_id, *points)
+        else:
+            points = self.get_default_points()
+            canvas.coords(shape_id, *points)
+
+        if self.type == ct.NODE_STORAGE_PARAMS["type"]:
+            canvas.coords(self.text_id, x, y + h / 10)
+        elif self.type == ct.NODE_DOCUMENT_PARAMS["type"]:
+            canvas.coords(self.text_id, x, y - h / 10)
+        else:
+            canvas.coords(self.text_id, x, y)
+
     def to_dict(self):
         node_data = {
             "id": self.id,
@@ -690,9 +837,10 @@ class Node:
             "y": self.y,
             "w": self.w,
             "h": self.h,
-            "shape_type": self.shape_type,
             "text": self.text,
         }
+        if self.shape_type is not None:
+            node_data["shape_type"] = self.shape_type
         if self.fill_color is not None:
             node_data["fill_color"] = self.fill_color
         if self.status is not None and self.status != ct.NODE_STATUS_NORMAL:

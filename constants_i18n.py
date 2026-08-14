@@ -45,6 +45,104 @@ I18N_UI_TEXT_DICT = {
 
     "TERMINATOR_DEFAULT_UNKNOWN_TEXT.en" : "???",
     "TERMINATOR_DEFAULT_UNKNOWN_TEXT.ja" : "（未定義）",
+
+    "OPERATION_INFO_TEXT.en" : 
+        "\n"
+        "[Keyboard Shortcut Definitions]\n"
+        " DEL/BS   : Delete selected node/edge/swimlane\n"
+        " ESC      : Cancel selection\n"
+        " Ctrl-a   : Select all nodes/swimlanes\n"
+        " Ctrl-z   : Undo\n"
+        " Ctrl-y   : Redo\n"
+        " Ctrl-0~9 : Change selected node/swimlane fill color\n"
+        " Ctrl-'-' : Reset selected node/swimlane fill color\n"
+        "\n"
+        "-------------------------------------------------------\n"
+        "\n"
+        "[Canvas Operations]\n"
+        " Area Selection (Drag) : Select nodes/swimlanes within the area\n"
+        " Mouse Wheel           : Rotate toolbar menu selection\n"
+        " Drag with Mouse_Wheel_Button : Scroll canvas\n"
+        " Right Button          : Show context menu\n"
+        "\n"
+        "[Swimlane Operations]\n"
+        " Click Header/Footer         : Select swimlane\n"
+        " Shift + Click Header/Footer : Add to selection\n"
+        " Drag Header/Footer          : Move swimlane\n"
+        " Ctrl + Mouse_Wheel on Header/Footer  : Change swimlane height\n"
+        " Shift + Mouse_Wheel on Header/Footer : Change swimlane width\n"
+        " Double-Click Header/Footer  : Edit header and footer text\n"
+        " Ctrl + Drag Header/Footer   : Duplicate selected nodes/swimlanes\n"
+        "\n"
+        "[Node Operations]\n"
+        " Click            : Select node\n"
+        " Shift + Click    : Add to selection\n"
+        " Drag             : Move selected node and related notes\n"
+        " Double-Click     : Edit text\n"
+        " Ctrl+Mouse_Wheel : Change node type\n"
+        " Ctrl+Drag        : Duplicate selected nodes/swimlanes\n"
+        " Double-Click Mouse_Wheel_Button : Show node notes\n"
+        "\n"
+        "[Edge Operations]\n"
+        " Click               : Select edge\n"
+        " Double-Click        : Edit label\n"
+        " Ctrl + Mouse_Wheel  : Change connection points\n"
+        " Shift + Mouse_Wheel : Change edge bend distance\n"
+        " Ctrl + Shift+Mouse_Wheel : Change label position\n"
+        "\n"
+        "[Note Operations]\n"
+        " Drag         : Move specified note\n"
+        " Double-Click : Edit text\n"
+        " Clear text   : Delete note field\n",
+
+    "OPERATION_INFO_TEXT.ja" : 
+        "\n"
+        "[ショートカットキー定義]\n"
+        " DEL/BS  : 選択中のノード/リンク/スイムレーンを削除\n"
+        " ESC     : 選択をキャンセル\n"
+        " Ctrl-a  : すべてのノード/スイムレーンを選択\n"
+        " Ctrl-z  : 元に戻す(UNDO)\n"
+        " Ctrl-y  : やり直し(REDO)\n"
+        " Ctrl-0~9: 選択中のノード/スイムレーンの塗りつぶし色を変更\n"
+        " Ctrl-'-': 選択中のノード/スイムレーンの塗りつぶし色をリセット\n"
+        "\n"
+        "-------------------------------------------------------\n"
+        "\n"
+        "[キャンバス操作]\n"
+        " 範囲選択(ドラッグ)         : 範囲内のノード/スイムレーンを選択\n"
+        " マウスホイール            : ツールバーのメニュー選択を回転\n"
+        " マウスホイールボタンでドラッグ : キャンバスをスクロール\n"
+        " 右ボタン                 : コンテキストメニューを表示\n"
+        "\n"
+        "[スイムレーン操作]\n"
+        " ヘッダ/フッタを クリック       : スイムレーンを選択\n"
+        " ヘッダ/フッタを Shift+クリック : スイムレーンを追加選択\n"
+        " ヘッダ/フッタを ドラッグ       : スイムレーンを移動\n"
+        " ヘッダ/フッタを Ctrl+マウスホイール  : スイムレーンの高さを変更\n"
+        " ヘッダ/フッタを Shift+マウスホイール : スイムレーンの幅を変更\n"
+        " ヘッダ/フッタを ダブルクリック  : ヘッダとフッタのテキストを編集\n"
+        " ヘッダ/フッタを Ctrl+ドラッグ  : 選択中のノード/スイムレーンを複製\n"
+        "\n"
+        "[ノード操作]\n"
+        " クリック           : 指定ノードを選択\n"
+        " Shift+クリック     : 指定ノードを追加選択\n"
+        " ドラッグ           : 選択中のノードと関連ノートを移動\n"
+        " ダブルクリック      : テキストを編集\n"
+        " Ctrl+マウスホイール : 指定ノードの種類を変更\n"
+        " Ctrl+ドラッグ      : 選択中のノード/スイムレーンを複製\n"
+        " マウスホイールボタンをダブルクリック : ノードのノート欄を表示\n"
+        "\n"
+        "[リンク操作]\n"
+        " クリック            : 指定リンクを選択\n"
+        " ダブルクリック       : ラベルを編集\n"
+        " Ctrl+マウスホイール  : 接続ポイントを変更\n"
+        " Shift+マウスホイール : リンクの折り返し距離を変更\n"
+        " Ctrl+Shift+マウスホイール : ラベルの位置を変更\n"
+        "\n"
+        "[ノート操作]\n"
+        " ドラッグ         : 指定ノートを移動\n"
+        " ダブルクリック    : テキストを編集\n"
+        " テキストを空にする : ノート欄を削除\n",
 }
 
 # Message Dictionary
@@ -73,7 +171,10 @@ I18N_MESSAGE_DICT = {
     "ANTHROPIC_API_KEY_NOT_SET_MESSAGE.ja" : ".envファイルで ANTHROPIC_API_KEY が未設定です。.envファイルにAPIキーを定義してください。",
     "MOONSHOT_API_KEY_NOT_SET_MESSAGE.en" : "MOONSHOT_API_KEY is not set in the .env file. Please define the API key in the .env file.",
     "MOONSHOT_API_KEY_NOT_SET_MESSAGE.ja" : ".envファイルで MOONSHOT_API_KEY が未設定です。.envファイルにAPIキーを定義してください。",
-
+    "MOONSHOT_API_KEY_NOT_SET_MESSAGE.en" : "MOONSHOT_API_KEY is not set in the .env file. Please define the API key in the .env file.",
+    "MOONSHOT_API_KEY_NOT_SET_MESSAGE.ja" : ".envファイルで MOONSHOT_API_KEY が未設定です。.envファイルにAPIキーを定義してください。",
+    "SPACEXAI_API_KEY_NOT_SET_MESSAGE.en" : "XAI_API_KEY is not set in the .env file. Please define the API key in the .env file.",
+    "SPACEXAI_API_KEY_NOT_SET_MESSAGE.ja" : ".envファイルで XAI_API_KEY が未設定です。.envファイルにAPIキーを定義してください。",
     "UNSUPPORTED_AI_MODEL_MESSAGE.en" : "Unsupported AI model specified. Please check the AI_MODEL section in constants.py.",
     "UNSUPPORTED_AI_MODEL_MESSAGE.ja" : "未対応のAIモデルが指定されています。constants.pyのAI_MODEL欄を確認してください。",
 }

@@ -252,6 +252,9 @@ TERMINATOR_DEFAULT_START_TEXT = get_i18n_ui_text("TERMINATOR_DEFAULT_START_TEXT"
 TERMINATOR_DEFAULT_END_TEXT = get_i18n_ui_text("TERMINATOR_DEFAULT_END_TEXT", lang=i18n_lang)
 TERMINATOR_DEFAULT_UNKNOWN_TEXT = get_i18n_ui_text("TERMINATOR_DEFAULT_UNKNOWN_TEXT", lang=i18n_lang)
 
+# Operation Info Text / 操作情報テキスト
+OPERATION_INFO_TEXT = get_i18n_ui_text("OPERATION_INFO_TEXT", lang=i18n_lang)
+
 # Edge Label Offset Definitions / エッジラベル位置補正定義
 EDGE_LABEL_OFFSET = {
     "center": (0, -8),
@@ -329,20 +332,25 @@ OPENAI_API_KEY_NOT_SET_MESSAGE = get_i18n_message("OPENAI_API_KEY_NOT_SET_MESSAG
 GEMINI_API_KEY_NOT_SET_MESSAGE = get_i18n_message("GEMINI_API_KEY_NOT_SET_MESSAGE", lang=i18n_lang)
 ANTHROPIC_API_KEY_NOT_SET_MESSAGE = get_i18n_message("ANTHROPIC_API_KEY_NOT_SET_MESSAGE", lang=i18n_lang)
 MOONSHOT_API_KEY_NOT_SET_MESSAGE = get_i18n_message("MOONSHOT_API_KEY_NOT_SET_MESSAGE", lang=i18n_lang)
+SPACEXAI_API_KEY_NOT_SET_MESSAGE = get_i18n_message("SPACEXAI_API_KEY_NOT_SET_MESSAGE", lang=i18n_lang)
 
 UNSUPPORTED_AI_MODEL_MESSAGE = get_i18n_message("UNSUPPORTED_AI_MODEL_MESSAGE", lang=i18n_lang)
 
 # AI Model Selection / 使用する生成AIモデル
-AI_MODEL = "gpt-5.6-sol"
+AI_MODEL = "grok-4.6"  # Specify the AI model to use for generating flowcharts.
 # Example of available AI model names / 指定可能な生成AIモデル名例 (as of 2026.7.11)
 #   OpenAI (gpt-*): "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "gpt-5.5", "gpt-5.4", "gpt-5.4-mini"
-#   GeminiAI (gemini-*): "gemini-3.1-pro-preview", "gemini-3.5-flash", "gemini-3.1-flash-lite", "gemini-3-flash-preview", "gemini-pro-latest", "gemini-flash-lite-latest"
+#   GeminiAI (gemini-*): "gemini-3.7-flash", "gemini-3.6-flash", "gemini-3.1-pro-preview", "gemini-3.1-flash-lite", "gemini-3-flash-preview", "gemini-pro-latest", "gemini-flash-lite-latest"
 #   AnthropicAI (claude-*): "claude-fable-5", "claude-opus-4-8", "claude-sonnet-5", "claude-haiku-4-5"
 #   MoonshotAI (kimi-*): "kimi-k3"
+#   SpaceXAI (grok-*): "grok-4.6"
 #   LMStudio (lmstudio): "lmstudio" (LMStudio is a local model_URL)
 
 # MoonshotAI Base URL / MoonshotAIのベースURL
 MOONSHOT_BASE_URL = "https://api.moonshot.ai/v1"  # MoonshotAI model URL (if using MoonshotAI, set the base URL here)
+
+# XAI Base URL / XAIのベースURL
+XAI_BASE_URL = "https://api.x.ai/v1"  # XAI
 
 # LMStudio Base URL / LMStudioのベースURL
 LMSTUDIO_BASE_URL = "http://127.0.0.1:1234/v1"  # LMStudio local model URL (if using LMStudio, set the base URL here)

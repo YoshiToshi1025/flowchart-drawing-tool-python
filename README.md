@@ -83,13 +83,14 @@ This project provides a **“Simple Flowchart Drawing Tool 颯(HAYATE)”** that
          OPENAI_API_KEY=(API key for connecting to OpenAI GPT)
          GEMINI_API_KEY=(API key for connecting to Google Gemini)
          ANTHROPIC_API_KEY=(API key for connecting to Anthropic Claude)
-         MOONSHOT_API_KEY=(API key for connecting to Moonshot AI) 
+         MOONSHOT_API_KEY=(API key for connecting to MoonshotAI Kimi) 
+         XAI_API_KEY=(API key for connecting to SpaceXAI Grok) 
      ```
 
      ```
        [constants.py]
          AI_MODEL="(Name of the generative AI model to use)"
-         Example: AI_MODEL="gpt-5.5"
+         Example: AI_MODEL="gpt-5.6-sol"
      ```
 
   6. Run `flowchart_tool.py` to display the flowchart drawing tool screen.<br>
@@ -194,6 +195,7 @@ This project provides a **“Simple Flowchart Drawing Tool 颯(HAYATE)”** that
 * 2026/07/04 : Fixed a bug in Backspace handling while editing text.
 * 2026/07/11 : Added support for new generative AI models (GPT 5.6 Sol/Terra/Luna and Claude Fable 5) and integration with LM Studio.
 * 2026/07/27 : Added support for new generative AI models (Gemini 3.6 Flash, Claude Opus 5, and Kimi K3), and fixed issues when loading generative AI data.
+* 2026/08/15 : Added support for new generative AI models (Grok 4.6, Gemini 3.7 Flash), added support for changing node types with Ctrl + Mouse Wheel, and updated the mouse and keyboard controls reference table.
 
 ## Notes (Additional)
 

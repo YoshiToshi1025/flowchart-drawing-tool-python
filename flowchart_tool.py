@@ -1534,6 +1534,18 @@ class FlowchartTool(tk.Tk):
                 else:
                     swimlane.change_height(increase=False)
                 modify_flag = True
+        if self.selected_node_ids is not None and len(self.selected_node_ids) == 1:
+            for node_id in self.selected_node_ids:
+                node_obj = self.nodes.get(node_id)
+                if node_obj is not None:
+                    if delta > 0:
+                        node_obj.change_node(increase=True)
+                    else:
+                        node_obj.change_node(increase=False)
+                    modify_flag = True
+                if modify_flag:
+                    self._move_node_graphics(node_obj)
+                    self._update_edges_for_node(node_id)
 
         if modify_flag:
             self.push_history()
@@ -2999,32 +3011,7 @@ class FlowchartTool(tk.Tk):
     def _show_operation_info(self):
         if hasattr(self, "ope_info") and self.ope_info:
             return
-        self.ope_info = tk.Label(self.canvas, justify="left", font=("Consolas", 9), fg="#0f172a", text=
-            "[Key Operations]\n"
-            " DEL/BS: Delete selected node/edge/swimlane\n"
-            " ESC: Cancel selection\n"
-            " Ctrl-a: Select all nodes/swimlanes\n"
-            " Ctrl-z: Undo\n"
-            " Ctrl-y: Redo\n"
-            " Ctrl-0~9: Change selected node/swimlane fill color\n"
-            " Ctrl-'-': Reset selected node/swimlane fill color\n"
-            "\n"
-            "[Mouse Operations]\n"
-            " Right Button: Show context menu\n"
-            " Click Node/Edge/Swimlane: Select node/edge/swimlane\n"
-            " Shift+Click Node/Swimlane: Add to selection\n"
-            " Double-Click Node/Edge/Swimlane/Note: Edit text\n"
-            " Drag Area: Select nodes/swimlanes in area\n"
-            " Drag Node: Move selected node(s)\n"
-            " Drag Swimlane Header/Footer: Move swimlane(s)\n"
-            " Ctrl+Drag Node/Swimlane: Duplicate selected nodes/swimlanes\n"
-            " MouseWheel: Rotate menu selection\n"
-            " MouseWheel-Button-Drag: Scroll canvas\n"
-            " MouseWheel-Double-Click Node: Add note to node\n"
-            " Ctrl+MouseWheel: Change connection point or swimlane height\n"
-            " Shift+MouseWheel: Change edge wrap margin or swimlane width\n"
-            " Ctrl+Shift+MouseWheel: Change edge label position"
-            )
+        self.ope_info = tk.Label(self.canvas, justify="left", font=("Consolas", 9), fg="#0f172a", text=ct.OPERATION_INFO_TEXT)
         self.ope_info.pack(padx=8, pady=8, anchor="ne")
     
     def _hide_operation_info(self):

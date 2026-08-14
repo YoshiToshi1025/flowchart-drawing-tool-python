@@ -723,11 +723,17 @@
 
     <div class="tip">スイムレーン内のノードを移動する場合も同様の操作で行えます。</div>
  
-     <h3>要素の複製</h3>
+    <h3>要素の複製</h3>
     <ol class="steps">
       <li>Select モードで複製したいノードを選択します。</li>
       <li><kbd>Ctrl</kbd> + マウスドラッグ＆ドロップ操作で、選択中の要素/スイムレーンと選択中要素間のリンクがドロップ位置に複製されます。</li>
       <li>複製された要素は元の要素の近くに配置されます。</li>
+    </ol>
+ 
+    <h3>要素の種類の変更</h3>
+    <ol class="steps">
+      <li>Select モードで複製したいノードを１つ選択します。</li>
+      <li><kbd>Ctrl</kbd> + マウスホイール操作で、選択中の要素の種類が変更されます。</li>
     </ol>
   </div>
 
@@ -966,7 +972,7 @@
 
     <h3>事前準備</h3>
     <p>チェックアウトフォルダに <code>.env</code> ファイルを作成し、利用したい生成AIサービスの API KEY を記述し、設定ファイル <code>constants.py</code> に使用する生成AIモデルを指定してください。</p>
-    <pre>[.envファイル内]<br>OPENAI_API_KEY=(OpenAI GPT接続用API Key)<br>GEMINI_API_KEY=(Google Gemini接続用API Key)<br>ANTHROPIC_API_KEY=(Anthropic Claude接続用API Key)<br>MOONSHOT_API_KEY=(Moonshot AI接続用API Key)</pre>
+    <pre>[.envファイル内]<br>OPENAI_API_KEY=(OpenAI GPT接続用API Key)<br>GEMINI_API_KEY=(Google Gemini接続用API Key)<br>ANTHROPIC_API_KEY=(Anthropic Claude接続用API Key)<br>MOONSHOT_API_KEY=(MoonshotAI Kimi接続用API Key)<br>XAI_API_KEY=(SpaceXAI Grok接続用API Key)</pre>
     <pre>[constants.pyファイル内]<br>AI_MODEL=使用する生成AIモデル名<br>  例) AI_MODEL="gpt-5.5"</pre>
 
     <div class="tip">API Key の取得方法は、利用したい生成AIサービスの公式ドキュメントを参照ください。</div>

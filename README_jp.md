@@ -89,7 +89,8 @@
         OPENAI_API_KEY=(OpenAI GPT接続用API Key)
         GEMINI_API_KEY=(Google Gemini接続用API Key)
         ANTHROPIC_API_KEY=(Anthropic Claude接続用API Key)
-        MOONSHOT_API_KEY=(Moonshot AI接続用API Key)  
+        MOONSHOT_API_KEY=(MoonshotAI Kimi接続用API Key) 
+        XAI_API_KEY=(SpaceXAI Grok接続用API Key) 
       ```
       ```
         [constants.pyファイル内]
@@ -189,6 +190,7 @@
 * 2026/07/04 : 文字列編集時のBackSpace処理の不具合対応
 * 2026/07/11 : 新しい生成AIへの対応(GPT 5.6 Sol/Terra/Luna, Claude Fable 5)、LM Studioとの接続対応
 * 2026/07/27 : 新しい生成AIへの対応(Gemini 3.6 Flash, Claude Opus 5, Kimi K3)、生成AIデータ読み込み時の不具合対応
+* 2026/08/15 : 新しい生成AIへの対応(Grok 4.6, Gemini 3.7 Flash)、Ctrl+Wheel操作でノードの種類変更に対応、マウスとキーの定義一覧表の内容を更新
 
 ## 補足1
 * パッケージエラーが発生する場合は、以下のコマンドでパッケージを一括インストールしてみてください。
