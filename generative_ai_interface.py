@@ -27,6 +27,9 @@ class Generative_AI_interface:
         elif self.ai_type == "LMStudio":
             from openai import OpenAI
             self.openai_client = OpenAI(base_url=ct.LMSTUDIO_BASE_URL, api_key="not-needed")
+        elif self.ai_type == "Unsloth":
+            from openai import OpenAI
+            self.openai_client = OpenAI(base_url=ct.UNSLOTH_BASE_URL, api_key=os.environ["UNSLOTH_API_KEY"])
 
         if self.ai_type == "OpenAI" and self.defined_openai_api_key():
             openai_ai_models = self.get_openai_ai_models()
@@ -43,7 +46,12 @@ class Generative_AI_interface:
         elif self.ai_type == "SpaceXAI" and self.defined_spacexai_api_key():
             spacexai_ai_models = self.get_spacexai_ai_models()
             print(f"Available SpaceXAI models: {spacexai_ai_models}")
-
+        elif self.ai_type == "LMStudio" and ct.LMSTUDIO_BASE_URL is not None:
+            lmstudio_ai_models = self.get_lmstudio_ai_models()
+            print(f"Available LMStudio models: {lmstudio_ai_models}")
+        elif self.ai_type == "Unsloth" and ct.UNSLOTH_BASE_URL is not None:
+            unsloth_ai_models = self.get_unsloth_ai_models()
+            print(f"Available Unsloth models: {unsloth_ai_models}")
 
     def get_specified_AI_type_and_model(self):
         ai_model = ct.AI_MODEL
@@ -59,6 +67,8 @@ class Generative_AI_interface:
             ai_type = "SpaceXAI"
         elif ai_model is not None and ai_model=="lmstudio" and ct.LMSTUDIO_BASE_URL is not None:
             ai_type = "LMStudio"
+        elif ai_model is not None and ai_model=="unsloth" and self.defined_unsloth_api_key() and ct.UNSLOTH_BASE_URL is not None:
+            ai_type = "Unsloth"
         else:
             print(ct.UNSUPPORTED_AI_MODEL_MESSAGE)
             ai_type = None
@@ -99,6 +109,13 @@ class Generative_AI_interface:
             return True
         else:
             print(ct.SPACEXAI_API_KEY_NOT_SET_MESSAGE)
+            return False
+
+    def defined_unsloth_api_key(self):
+        if "UNSLOTH_API_KEY" in os.environ and len(os.environ["UNSLOTH_API_KEY"].strip()) > 0:
+            return True
+        else:
+            print(ct.UNSLOTH_API_KEY_NOT_SET_MESSAGE)
             return False
 
     def get_openai_ai_models(self):
@@ -181,6 +198,34 @@ class Generative_AI_interface:
             print(f"Error fetching SpaceXAI models: {e}")
             return []
 
+    def get_lmstudio_ai_models(self):
+        if not self.defined_openai_api_key():
+            return []
+        try:
+            models = self.openai_client.models.list()
+            model_names = []
+            for model in models.data:
+                if "embedding" not in model.id:
+                    model_names.append(model.id)
+            model_names.sort(reverse=True)
+            return model_names
+        except Exception as e:
+            print(f"Error fetching OpenAI models: {e}")
+            return []
+
+    def get_unsloth_ai_models(self):
+        if not self.defined_openai_api_key():
+            return []
+        try:
+            models = self.openai_client.models.list()
+            model_names = []
+            for model in models.data:
+                model_names.append(model.id)
+            model_names.sort(reverse=True)
+            return model_names
+        except Exception as e:
+            print(f"Error fetching Unsloth models: {e}")
+            return []
 
     def send_message_to_ai(self, user_msg: str, spec_msg: str|None = None):
         # print(f"send_message_to_ai called with user_msg: {user_msg}")
@@ -211,6 +256,9 @@ class Generative_AI_interface:
             thread = Thread(target=self.call_openai_ai, args=(args, return_values), daemon=True)
         elif self.ai_type == "LMStudio":
             # print("Calling LMStudio API...")
+            thread = Thread(target=self.call_openai_ai, args=(args, return_values), daemon=True)
+        elif self.ai_type == "Unsloth":
+            # print("Calling Unsloth API...")
             thread = Thread(target=self.call_openai_ai, args=(args, return_values), daemon=True)
         else:
             print(ct.UNSUPPORTED_AI_MODEL_MESSAGE)

@@ -222,14 +222,14 @@ class Swimlane:
     def change_width(self, increase: bool):
         if increase:
             if self.kind == ct.SWIMLANE_KIND_HORIZONTAL:
-                self.width = min(ct.SWIMLANE_PARAMS["horizontal_max_width"], self.width + ct.CANVAS_PARAMS["grid_spacing"]*2)
+                self.width = min(ct.SWIMLANE_PARAMS["horizontal_max_width"], self.width + ct.CANVAS_PARAMS["grid_spacing"])
             else:
-                self.width = min(ct.SWIMLANE_PARAMS["vertical_max_width"], self.width + ct.CANVAS_PARAMS["grid_spacing"]*2)
+                self.width = min(ct.SWIMLANE_PARAMS["vertical_max_width"], self.width + ct.CANVAS_PARAMS["grid_spacing"])
         else:
             if self.kind == ct.SWIMLANE_KIND_HORIZONTAL:
-                self.width = max(ct.SWIMLANE_PARAMS["horizontal_minimum_width"], self.width - ct.CANVAS_PARAMS["grid_spacing"]*2)
+                self.width = max(ct.SWIMLANE_PARAMS["horizontal_minimum_width"], self.width - ct.CANVAS_PARAMS["grid_spacing"])
             else:
-                self.width = max(ct.SWIMLANE_PARAMS["vertical_minimum_width"], self.width - ct.CANVAS_PARAMS["grid_spacing"]*2)
+                self.width = max(ct.SWIMLANE_PARAMS["vertical_minimum_width"], self.width - ct.CANVAS_PARAMS["grid_spacing"])
         self.resize()
 
     def change_height(self, increase: bool):

@@ -275,6 +275,11 @@ class FlowchartTool(tk.Tk):
         self.bind_all("<Control-Key-0>", lambda e: self.change_node_fill_color(9))
         self.bind_all("<Control-Key-->", lambda e: self.reset_node_fill_color())
 
+        self.bind_all("<Control-Key-w>", lambda e: self.change_node_width(increase=True))
+        self.bind_all("<Control-Key-W>", lambda e: self.change_node_width(increase=False))
+        self.bind_all("<Control-Key-h>", lambda e: self.change_node_height(increase=True))
+        self.bind_all("<Control-Key-H>", lambda e: self.change_node_height(increase=False))
+
         # モード変更でラベル更新
         self.mode.trace_add("write", lambda *args: self.update_status())
 
@@ -1497,7 +1502,18 @@ class FlowchartTool(tk.Tk):
                 else:
                     swimlane.change_width(increase=False)
                 modify_flag = True
-
+        if self.selected_node_ids is not None and len(self.selected_node_ids) == 1:
+            for node_id in self.selected_node_ids:
+                node_obj = self.nodes.get(node_id)
+                if node_obj is not None:
+                    if delta > 0:
+                        node_obj.change_width(self.canvas, increase=True)
+                    else:
+                        node_obj.change_width(self.canvas, increase=False)
+                    modify_flag = True
+                if modify_flag:
+                    self._move_node_graphics(node_obj)
+                    self._update_edges_for_node(node_id)
         if modify_flag:
             self.push_history()
 
@@ -1539,9 +1555,9 @@ class FlowchartTool(tk.Tk):
                 node_obj = self.nodes.get(node_id)
                 if node_obj is not None:
                     if delta > 0:
-                        node_obj.change_node(increase=True)
+                        node_obj.change_height(self.canvas, increase=True)
                     else:
-                        node_obj.change_node(increase=False)
+                        node_obj.change_height(self.canvas, increase=False)
                     modify_flag = True
                 if modify_flag:
                     self._move_node_graphics(node_obj)
@@ -1554,10 +1570,23 @@ class FlowchartTool(tk.Tk):
         # print("Ctrl + Shift + Mouse Wheel detected")
 
         delta = event.delta
-        if delta > 0:
-            self.rotate_edge_label_position(increase=True)
-        else:
-            self.rotate_edge_label_position(increase=False) 
+        if self.selected_edge_id is not None:
+            if delta > 0:
+                self.rotate_edge_label_position(increase=True)
+            else:
+                self.rotate_edge_label_position(increase=False) 
+        if self.selected_node_ids is not None and len(self.selected_node_ids) >= 1:
+            for node_id in self.selected_node_ids:
+                node_obj = self.nodes.get(node_id)
+                if node_obj is not None:
+                    if delta > 0:
+                        node_obj.change_node(increase=True)
+                    else:
+                        node_obj.change_node(increase=False)
+                    modify_flag = True
+                if modify_flag:
+                    self._move_node_graphics(node_obj)
+                    self._update_edges_for_node(node_id)
 
     def change_edge_connection_points_in_sequence(self, increase=True):
         # エッジ選択中の場合、FromノードとToノードの接続位置を調整
@@ -2255,9 +2284,13 @@ class FlowchartTool(tk.Tk):
         self.selected_edge_id = None
         self.link_start_node_id = None
         self.selected_swimlanes = []
- 
-        # グリッド
-        self._draw_grid()
+
+        # グリッド有効な場合、データロード時の位置ずれを回避するために、一時的に無効化する
+        if self.grid_on.get():
+            temp_grid_on_flag = True
+            self.grid_on.set(False)
+        else:
+            temp_grid_on_flag = False
 
         nodes_data = data.get("nodes", [])
         edges_data = data.get("edges", [])
@@ -2327,11 +2360,20 @@ class FlowchartTool(tk.Tk):
             swimlane_obj = Swimlane(canvas=self.canvas, kind=kind, title=title, header_center_x=header_center_x, header_center_y=header_center_y, width=width, height=height, fill_color=fill_color)
             self.swimlanes.append(swimlane_obj)
 
+        # グリッド状態の復元とグリッド描画
+        if temp_grid_on_flag:
+            self.grid_on.set(True)
+        self._draw_grid()
+
+        # ノート表示状態の復元
+        self.display_note_toggle()
+
         # ノード・エッジ・スイムレーン階層調整
         self.canvas.tag_raise("edge")
         self.canvas.tag_raise("node")
         self.canvas.tag_raise("note")
 
+        # キャンバスエリアの調整
         self.canvas_resize_to_fit_data()
 
         if push_to_history:
@@ -2400,6 +2442,9 @@ class FlowchartTool(tk.Tk):
         except Exception as e:
             messagebox.showerror("Error", f"{ct.LOAD_FAILED_MESSAGE}: {e}")
             return
+
+        self.note_on.set(True)  # ノート表示を有効化
+
         self.import_model(data, push_to_history=True)
 
     # ------------ テキスト編集（ダブルクリック） ------------
@@ -2419,7 +2464,7 @@ class FlowchartTool(tk.Tk):
         if x is not None and y is not None and node_obj.text is not None:
             entry.insert(0, node_obj.text.replace("\n", "\\n").replace("¥n", "\\n"))
             window_id = self.canvas.create_window(
-                x, y,
+                x, y, width=node_obj.w-8, height=node_obj.h-8,
                 window=entry
             )
             self.text_edit = {"entry": entry, "node_id": node_id, "window_id": window_id}
@@ -2586,7 +2631,7 @@ class FlowchartTool(tk.Tk):
 
         self.note_text_edit = None
 
-    def adjusted_xy(self, node_id:int|None, x:int, y:int, node_type=ct.NODE_DEFAULT_PARAMS["type"]):
+    def adjusted_xy(self, node_id:int|None, x:int, y:int, w=None, h=None, node_type=ct.NODE_DEFAULT_PARAMS["type"]):
         if node_id is None:
             return x, y
 
@@ -2594,12 +2639,13 @@ class FlowchartTool(tk.Tk):
         node_obj = self.nodes.get(node_id)
 
         if self.grid_on.get():
-            if node_obj is None:     # 新規ノード作成時
-                w = Node.get_width_of_type(node_type)
-                h = Node.get_height_of_type(node_type)
-            else:   # 既存ノード移動時
-                w = node_obj.w if node_obj else 0
-                h = node_obj.h if node_obj else 0
+            if w is None or h is None:
+                if node_obj is None:     # 新規ノード作成時
+                    w = Node.get_width_of_type(node_type)
+                    h = Node.get_height_of_type(node_type)
+                else:   # 既存ノード移動時
+                    w = node_obj.w if node_obj else 0
+                    h = node_obj.h if node_obj else 0
             adjusted_x = int(((x + grid_size/2 - w/2) // grid_size) * grid_size + w/2)
             adjusted_y = int(((y + grid_size/2 - h/2) // grid_size) * grid_size + h/2)
         else:
@@ -2795,7 +2841,9 @@ class FlowchartTool(tk.Tk):
             messagebox.showinfo("Loaded", f"Loaded Mermaid flowchart from:\n{path}")
         except Exception as e:
             messagebox.showerror("Error", str(e))
-        
+
+        self.note_on.set(True)  # ノート表示ON
+
         self.display_operation_info()  # 操作情報表示制御
 
     def create_mermaid_flowdata(self, mmd_nodes, mmd_links):
@@ -3062,6 +3110,36 @@ class FlowchartTool(tk.Tk):
             self.canvas.itemconfig(selected_swimlane.bottom_id, fill=selected_swimlane.fill_color)
 
         self.push_history()
+
+    def change_node_width(self, increase=True):
+        for selected_node_id in self.selected_node_ids:
+            if selected_node_id in self.nodes:
+                node_obj = self.nodes[selected_node_id]
+                node_obj.change_width(self.canvas, increase=increase)
+                self._move_node_graphics(node_obj)
+                self._update_edges_for_node(selected_node_id)
+
+        for selected_swimlane in self.selected_swimlanes:
+            selected_swimlane.change_width(increase=increase)
+            selected_swimlane.redraw()
+
+
+        self.push_history()
+
+    def change_node_height(self, increase=True):
+        for selected_node_id in self.selected_node_ids:
+            if selected_node_id in self.nodes:
+                node_obj = self.nodes[selected_node_id]
+                node_obj.change_height(self.canvas, increase=increase)
+                self._move_node_graphics(node_obj)
+                self._update_edges_for_node(selected_node_id)
+
+        for selected_swimlane in self.selected_swimlanes:
+            selected_swimlane.change_height(increase=increase)
+            selected_swimlane.redraw()
+
+        self.push_history()
+
 
     def isSelectedObject(self, selecting_node_id=None, selecting_swimlane=None):
         isSelected_node = False

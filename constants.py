@@ -333,11 +333,12 @@ GEMINI_API_KEY_NOT_SET_MESSAGE = get_i18n_message("GEMINI_API_KEY_NOT_SET_MESSAG
 ANTHROPIC_API_KEY_NOT_SET_MESSAGE = get_i18n_message("ANTHROPIC_API_KEY_NOT_SET_MESSAGE", lang=i18n_lang)
 MOONSHOT_API_KEY_NOT_SET_MESSAGE = get_i18n_message("MOONSHOT_API_KEY_NOT_SET_MESSAGE", lang=i18n_lang)
 SPACEXAI_API_KEY_NOT_SET_MESSAGE = get_i18n_message("SPACEXAI_API_KEY_NOT_SET_MESSAGE", lang=i18n_lang)
+UNSLOTH_API_KEY_NOT_SET_MESSAGE = get_i18n_message("UNSLOTH_API_KEY_NOT_SET_MESSAGE", lang=i18n_lang)
 
 UNSUPPORTED_AI_MODEL_MESSAGE = get_i18n_message("UNSUPPORTED_AI_MODEL_MESSAGE", lang=i18n_lang)
 
 # AI Model Selection / 使用する生成AIモデル
-AI_MODEL = "grok-4.6"  # Specify the AI model to use for generating flowcharts.
+AI_MODEL = "gpt-5.6-sol"  # Specify the AI model to use for generating flowcharts.
 # Example of available AI model names / 指定可能な生成AIモデル名例 (as of 2026.7.11)
 #   OpenAI (gpt-*): "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "gpt-5.5", "gpt-5.4", "gpt-5.4-mini"
 #   GeminiAI (gemini-*): "gemini-3.7-flash", "gemini-3.6-flash", "gemini-3.1-pro-preview", "gemini-3.1-flash-lite", "gemini-3-flash-preview", "gemini-pro-latest", "gemini-flash-lite-latest"
@@ -345,6 +346,7 @@ AI_MODEL = "grok-4.6"  # Specify the AI model to use for generating flowcharts.
 #   MoonshotAI (kimi-*): "kimi-k3"
 #   SpaceXAI (grok-*): "grok-4.6"
 #   LMStudio (lmstudio): "lmstudio" (LMStudio is a local model_URL)
+#   Unsloth (unsloth): "unsloth" (Unsloth is a local model_URL)
 
 # MoonshotAI Base URL / MoonshotAIのベースURL
 MOONSHOT_BASE_URL = "https://api.moonshot.ai/v1"  # MoonshotAI model URL (if using MoonshotAI, set the base URL here)
@@ -354,6 +356,9 @@ XAI_BASE_URL = "https://api.x.ai/v1"  # XAI
 
 # LMStudio Base URL / LMStudioのベースURL
 LMSTUDIO_BASE_URL = "http://127.0.0.1:1234/v1"  # LMStudio local model URL (if using LMStudio, set the base URL here)
+
+# Unsloth Base URL / UnslothのベースURL
+UNSLOTH_BASE_URL = "http://127.0.0.1:8888/v1"  # Unsloth local model URL (if using Unsloth, set the base URL here)
 
 # AI Related Constants / AI関連定数
 AI_CHAT_WIDTH = 550

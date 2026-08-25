@@ -456,8 +456,8 @@
       <li>チェックアウトフォルダで以下を実行して依存パッケージをインストールします。<br><code>pip install -r requirements.txt</code></li>
       <li>英語版で使いたい場合は <code>constants_en.py</code> を <code>constants.py</code> に上書きコピーします。</li>
       <li>AIによるフロー自動生成を行いたい場合は、チェックアウトフォルダ内の <code>.env</code> ファイルに連携したい生成AIのAPI KEYを記述し、設定ファイル(constants.py)内で生成AIモデル名を指定します。<br><br>
-        <code>[.envファイル内]<br>OPENAI_API_KEY=(OpenAI GPT接続用API Key)<br>GEMINI_API_KEY=(Google Gemini接続用API Key)<br>ANTHROPIC_API_KEY=(Anthropic Claude接続用API Key)<br>MOONSHOT_API_KEY=(Moonshot AI接続用API Key)</code><br><br>
-        <code>[constants.pyファイル内]<br>AI_MODEL=使用する生成AIモデル名<br>  例) AI_MODEL="gpt-5.5"</code></li>
+        <code>[.envファイル内]<br>OPENAI_API_KEY=(OpenAI GPT接続用API Key)<br>GEMINI_API_KEY=(Google Gemini接続用API Key)<br>ANTHROPIC_API_KEY=(Anthropic Claude接続用API Key)<br>MOONSHOT_API_KEY=(Moonshot AI接続用API Key)<br>XAI_API_KEY=(XAI接続用API Key)<br>UNSLOTH_API_KEY=(Unsloth接続用API Key)</code><br><br>
+        <code>[constants.pyファイル内]<br>AI_MODEL=使用する生成AIモデル名<br>  例) AI_MODEL="gpt-5.6-sol"</code></li>
       <li><code>flowchart_tool.py</code> を実行します。</li>
     </ol>
     <div class="tip">git cloneでチェックアウトしたプロジェクトを最新にするには、<code>git pull</code> を実行します。</div>
@@ -972,7 +972,7 @@
 
     <h3>事前準備</h3>
     <p>チェックアウトフォルダに <code>.env</code> ファイルを作成し、利用したい生成AIサービスの API KEY を記述し、設定ファイル <code>constants.py</code> に使用する生成AIモデルを指定してください。</p>
-    <pre>[.envファイル内]<br>OPENAI_API_KEY=(OpenAI GPT接続用API Key)<br>GEMINI_API_KEY=(Google Gemini接続用API Key)<br>ANTHROPIC_API_KEY=(Anthropic Claude接続用API Key)<br>MOONSHOT_API_KEY=(MoonshotAI Kimi接続用API Key)<br>XAI_API_KEY=(SpaceXAI Grok接続用API Key)</pre>
+    <pre>[.envファイル内]<br>OPENAI_API_KEY=(OpenAI GPT接続用API Key)<br>GEMINI_API_KEY=(Google Gemini接続用API Key)<br>ANTHROPIC_API_KEY=(Anthropic Claude接続用API Key)<br>MOONSHOT_API_KEY=(MoonshotAI Kimi接続用API Key)<br>XAI_API_KEY=(SpaceXAI Grok接続用API Key)<br>UNSLOTH_API_KEY=(Unsloth接続用API Key)</pre>
     <pre>[constants.pyファイル内]<br>AI_MODEL=使用する生成AIモデル名<br>  例) AI_MODEL="gpt-5.5"</pre>
 
     <div class="tip">API Key の取得方法は、利用したい生成AIサービスの公式ドキュメントを参照ください。</div>

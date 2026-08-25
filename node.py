@@ -557,7 +557,8 @@ class Node:
                     fill=text_color,
                     tags=("node", f"node-{self.id}", "node-text")
                 )
-    
+        self.change_textarea_width(canvas)
+
     def _get_text_params(self):
         if self.type == ct.NODE_PROCESS_PARAMS["type"]:        # 処理
             font_family, font_size, text_width  = ct.NODE_PROCESS_PARAMS["font_family"], ct.NODE_PROCESS_PARAMS["font_size"], ct.NODE_PROCESS_PARAMS["text_width"]
@@ -800,35 +801,80 @@ class Node:
         shape_id = self.shape_id
         node_type = self.type
 
-        if node_type == ct.NODE_PROCESS_PARAMS["type"]:    # 処理
+        if node_type == ct.NODE_PROCESS_PARAMS["type"]:      # 処理
             points = self.get_process_points()
             canvas.coords(shape_id, *points)
-        elif node_type == ct.NODE_DECISION_PARAMS["type"]:    # 分岐
+        elif node_type == ct.NODE_DECISION_PARAMS["type"]:   # 分岐
             points = self.get_decision_points()
             canvas.coords(shape_id, *points)
-        elif node_type == ct.NODE_TERMINATOR_PARAMS["type"]:   # 端点
+        elif node_type == ct.NODE_TERMINATOR_PARAMS["type"]: # 端点
             points = self.get_terminator_points()
             canvas.coords(shape_id, *points)
-        elif node_type == ct.NODE_IO_PARAMS["type"]:    # 入出力  
+        elif node_type == ct.NODE_IO_PARAMS["type"]:         # 入出力  
             points = self.get_io_points()
             canvas.coords(shape_id, *points)
-        elif node_type == ct.NODE_STORAGE_PARAMS["type"]:      # ストレージ
+        elif node_type == ct.NODE_STORAGE_PARAMS["type"]:    # ストレージ
             points = self.get_storage_points()
             canvas.coords(shape_id, *points)
-        elif node_type == ct.NODE_DOCUMENT_PARAMS["type"]:     # ドキュメント
+        elif node_type == ct.NODE_DOCUMENT_PARAMS["type"]:   # ドキュメント
             points = self.get_document_points()
             canvas.coords(shape_id, *points)
-        else:
+        else:                                                # その他
             points = self.get_default_points()
             canvas.coords(shape_id, *points)
 
-        if self.type == ct.NODE_STORAGE_PARAMS["type"]:
+        if self.type == ct.NODE_STORAGE_PARAMS["type"]:      # ストレージ
             canvas.coords(self.text_id, x, y + h / 10)
-        elif self.type == ct.NODE_DOCUMENT_PARAMS["type"]:
+        elif self.type == ct.NODE_DOCUMENT_PARAMS["type"]:   # ドキュメント
             canvas.coords(self.text_id, x, y - h / 10)
-        else:
+        else:                                                # その他
             canvas.coords(self.text_id, x, y)
 
+    def change_width(self, canvas: tk.Canvas, increase=True):
+        width_step = ct.CANVAS_PARAMS["grid_spacing"]
+        if increase:
+            self.w += width_step
+        else:
+            self.w -= width_step
+            if self.w < width_step * 2:
+                self.w = width_step * 2
+        self.change_textarea_width(canvas)
+
+    def change_height(self, canvas: tk.Canvas, increase=True):
+        height_step = ct.CANVAS_PARAMS["grid_spacing"]
+        if increase:
+            self.h += height_step
+        else:
+            self.h -= height_step
+            if self.h < height_step * 2:
+                self.h = height_step * 2
+
+    def change_textarea_width(self, canvas: tk.Canvas):
+        if self.text_id:
+            default_node_width = {
+                ct.NODE_PROCESS_PARAMS["type"] : ct.NODE_PROCESS_PARAMS["width"],
+                ct.NODE_DECISION_PARAMS["type"] : ct.NODE_DECISION_PARAMS["width"],
+                ct.NODE_TERMINATOR_PARAMS["type"] : ct.NODE_TERMINATOR_PARAMS["width"],
+                ct.NODE_IO_PARAMS["type"] : ct.NODE_IO_PARAMS["width"],
+                ct.NODE_IO_PARAMS["type"] : ct.NODE_IO_PARAMS["width"],
+                ct.NODE_STORAGE_PARAMS["type"] : ct.NODE_STORAGE_PARAMS["width"],
+                ct.NODE_DOCUMENT_PARAMS["type"] : ct.NODE_DOCUMENT_PARAMS["width"],
+            }.get(self.type, ct.NODE_DEFAULT_PARAMS["width"])
+
+            default_text_width = {
+                ct.NODE_PROCESS_PARAMS["type"] : ct.NODE_PROCESS_PARAMS["text_width"],
+                ct.NODE_DECISION_PARAMS["type"] : ct.NODE_DECISION_PARAMS["text_width"],
+                ct.NODE_TERMINATOR_PARAMS["type"] : ct.NODE_TERMINATOR_PARAMS["text_width"],
+                ct.NODE_IO_PARAMS["type"] : ct.NODE_IO_PARAMS["text_width"],
+                ct.NODE_IO_PARAMS["type"] : ct.NODE_IO_PARAMS["text_width"],
+                ct.NODE_STORAGE_PARAMS["type"] : ct.NODE_STORAGE_PARAMS["text_width"],
+                ct.NODE_DOCUMENT_PARAMS["type"] : ct.NODE_DOCUMENT_PARAMS["text_width"],
+            }.get(self.type, ct.NODE_DEFAULT_PARAMS["text_width"])
+
+            if self.w > default_node_width:
+                new_text_width = self.w - (default_node_width - default_text_width)
+                canvas.itemconfig(self.text_id, width=new_text_width)
+   
     def to_dict(self):
         node_data = {
             "id": self.id,
