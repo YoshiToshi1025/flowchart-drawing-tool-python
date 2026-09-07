@@ -193,6 +193,333 @@ I18N_MESSAGE_DICT = {
     "UNSUPPORTED_AI_MODEL_MESSAGE.ja" : "未対応のAIモデルが指定されています。constants.pyのAI_MODEL欄を確認してください。",
 }
 
+I18N_KEY_MOUSE_TEXT_DICT = {
+    "KEY_MOUSE_DEFINITIONS_TITLE.en" : "Key & Mouse Operations",
+    "KEY_MOUSE_DEFINITIONS_TITLE.ja" : "キー＆マウス操作",
+
+    "SHORTCUT_KEY_TITLE.en" : "Shortcut Keys",
+    "SHORTCUT_KEY_TITLE.ja" : "ショートカットキー",
+    "SHORTCUT_KEY_COLUMN_1_TITLE.en" : "Key",
+    "SHORTCUT_KEY_COLUMN_1_TITLE.ja" : "キー",
+    "SHORTCUT_KEY_COLUMN_2_TITLE.en" : "Definition",
+    "SHORTCUT_KEY_COLUMN_2_TITLE.ja" : "定義内容",
+
+    "MOUSE_ACTION_FOR_CANVAS_TITLE.en" : "Canvas",
+    "MOUSE_ACTION_FOR_CANVAS_TITLE.ja" : "キャンバス",
+    "MOUSE_ACTION_FOR_CANVAS_COLUMN_1_TITLE.en" : "Mouse Action",
+    "MOUSE_ACTION_FOR_CANVAS_COLUMN_1_TITLE.ja" : "マウス操作",
+    "MOUSE_ACTION_FOR_CANVAS_COLUMN_2_TITLE.en" : "Definition",
+    "MOUSE_ACTION_FOR_CANVAS_COLUMN_2_TITLE.ja" : "定義内容",
+
+    "MOUSE_ACTION_FOR_SWIMLANE_TITLE.en" : "Swimlane",
+    "MOUSE_ACTION_FOR_SWIMLANE_TITLE.ja" : "スイムレーン",
+    "MOUSE_ACTION_FOR_SWIMLANE_COLUMN_1_TITLE.en" : "Mouse Action",
+    "MOUSE_ACTION_FOR_SWIMLANE_COLUMN_1_TITLE.ja" : "マウス操作",
+    "MOUSE_ACTION_FOR_SWIMLANE_COLUMN_2_TITLE.en" : "Definition",
+    "MOUSE_ACTION_FOR_SWIMLANE_COLUMN_2_TITLE.ja" : "定義内容",
+
+    "MOUSE_ACTION_FOR_NODE_TITLE.en" : "Node",
+    "MOUSE_ACTION_FOR_NODE_TITLE.ja" : "ノード",
+    "MOUSE_ACTION_FOR_NODE_COLUMN_1_TITLE.en" : "Mouse Action",
+    "MOUSE_ACTION_FOR_NODE_COLUMN_1_TITLE.ja" : "マウス操作",
+    "MOUSE_ACTION_FOR_NODE_COLUMN_2_TITLE.en" : "Definition",
+    "MOUSE_ACTION_FOR_NODE_COLUMN_2_TITLE.ja" : "定義内容",
+
+    "MOUSE_ACTION_FOR_LINK_TITLE.en" : "Link",
+    "MOUSE_ACTION_FOR_LINK_TITLE.ja" : "リンク",
+    "MOUSE_ACTION_FOR_LINK_COLUMN_1_TITLE.en" : "Mouse Action",
+    "MOUSE_ACTION_FOR_LINK_COLUMN_1_TITLE.ja" : "マウス操作",
+    "MOUSE_ACTION_FOR_LINK_COLUMN_2_TITLE.en" : "Definition",
+    "MOUSE_ACTION_FOR_LINK_COLUMN_2_TITLE.ja" : "定義内容",
+
+    "MOUSE_ACTION_FOR_NOTE_TITLE.en" : "Note",
+    "MOUSE_ACTION_FOR_NOTE_TITLE.ja" : "ノート",
+    "MOUSE_ACTION_FOR_NOTE_COLUMN_1_TITLE.en" : "Mouse Action",
+    "MOUSE_ACTION_FOR_NOTE_COLUMN_1_TITLE.ja" : "マウス操作",
+    "MOUSE_ACTION_FOR_NOTE_COLUMN_2_TITLE.en" : "Definition",
+    "MOUSE_ACTION_FOR_NOTE_COLUMN_2_TITLE.ja" : "定義内容",
+}
+
+I18N_KEY_MOUSE_LIST_DICT = {
+    "SHORTCUT_KEY_LIST.ja" : [
+            ("DEL/BS", "選択中のノード/リンク/スイムレーンを削除"),
+            ("ESC", "選択をキャンセル"),
+            ("Ctrl-a", "すべてのノード/スイムレーンを選択"),
+            ("Ctrl-z", "元に戻す(UNDO)"),
+            ("Ctrl-y", "やり直し(REDO)"),
+            ("Ctrl-0~9", "選択中のノード/スイムレーンの塗りつぶし色を変更"),
+            ("Ctrl-'-'", "選択中のノード/スイムレーンの塗りつぶし色をリセット"),
+            ("Ctrl-w", "選択中のノード/スイムレーンの幅を増加"),
+            ("Ctrl-W", "選択中のノード/スイムレーンの幅を減少"),
+            ("Ctrl-h", "選択中のノード/スイムレーンの高さを増加"),
+            ("Ctrl-H", "選択中のノード/スイムレーンの高さを減少"),
+        ],
+    "SHORTCUT_KEY_LIST.en" : [
+            ("DEL/BS", "Delete the selected node/link/swimlane"),
+            ("ESC", "Cancel selection"),
+            ("Ctrl-a", "Select all nodes/swimlanes"),
+            ("Ctrl-z", "Undo the previous action"),
+            ("Ctrl-y", "Redo the previously undone action"),
+            ("Ctrl-0~9", "Change the fill color of the selected node/swimlane"),
+            ("Ctrl-'-'", "Reset the fill color of the selected node/swimlane"),
+            ("Ctrl-w", "Increase the width of the selected node/swimlane"),
+            ("Ctrl-W", "Decrease the width of the selected node/swimlane"),
+            ("Ctrl-h", "Increase the height of the selected node/swimlane"),
+            ("Ctrl-H", "Decrease the height of the selected node/swimlane"),
+        ],
+    "MOUSE_ACTION_FOR_CANVAS_LIST.ja" : [
+            ("範囲選択(ドラッグ)", "範囲内のノード/スイムレーンを選択"),
+            ("マウスホイール", "ツールバーのメニュー選択を回転"),
+            ("マウスホイールボタンでドラッグ", "キャンバスをスクロール"),
+            ("右ボタン", "コンテキストメニューを表示"),
+        ],
+    "MOUSE_ACTION_FOR_CANVAS_LIST.en" : [
+            ("Range Select (Drag)", "Select nodes/swimlanes within the area"),
+            ("Mouse Wheel", "Rotate the toolbar menu selection"),
+            ("Drag with Mouse Wheel Button", "Scroll the canvas"),
+            ("Right Button", "Show context menu"),
+        ],
+    "MOUSE_ACTION_FOR_SWIMLANE_LIST.ja" : [
+            ("ヘッダ/フッタを クリック", "スイムレーンを選択"),
+            ("ヘッダ/フッタを Shift+クリック", "スイムレーンを追加選択"),
+            ("ヘッダ/フッタを ドラッグ", "スイムレーンを移動"),
+            ("ヘッダ/フッタを Shift+マウスホイール", "スイムレーンの幅を変更"),
+            ("ヘッダ/フッタを Ctrl+マウスホイール", "スイムレーンの高さを変更"),
+            ("ヘッダ/フッタを ダブルクリック", "ヘッダとフッタのテキストを編集"),
+            ("ヘッダ/フッタを Ctrl+ドラッグ", "選択中のノード/スイムレーンを複製"),
+        ],
+    "MOUSE_ACTION_FOR_SWIMLANE_LIST.en" : [
+            ("Click Header/Footer", "Select swimlane"),
+            ("Shift + Click Header/Footer", "Add to selection"),
+            ("Drag Header/Footer", "Move swimlane"),
+            ("Shift + Mouse Wheel on Header/Footer", "Change swimlane width"),
+            ("Ctrl + Mouse Wheel on Header/Footer", "Change swimlane height"),
+            ("Double-Click Header/Footer", "Edit header and footer text"),
+            ("Ctrl + Drag Header/Footer", "Duplicate selected nodes/swimlanes"),
+        ],
+    "MOUSE_ACTION_FOR_NODE_LIST.ja" : [
+            ("クリック", "指定ノードを選択"),
+            ("Shift+クリック", "指定ノードを追加選択"),
+            ("ドラッグ", "選択中のノードと関連ノートを移動"),
+            ("ダブルクリック", "テキストを編集"),
+            ("Shift+マウスホイール", "指定ノードの幅を変更"),
+            ("Ctrl+マウスホイール", "指定ノードの高さを変更"),
+            ("Ctrl+Shift+マウスホイール", "指定ノードの種類を変更"),
+            ("Ctrl+ドラッグ", "選択中のノード/スイムレーンを複製"),
+            ("マウスホイールボタンをダブルクリック", "ノードのノート欄を表示"),
+        ],
+    "MOUSE_ACTION_FOR_NODE_LIST.en" : [
+            ("Click", "Select the specified node"),
+            ("Shift + Click", "Add to selection"),
+            ("Drag", "Move selected node and related notes"),
+            ("Double-Click", "Edit text"),
+            ("Shift + Mouse Wheel", "Change selected node width"),
+            ("Ctrl + Mouse Wheel", "Change selected node height"),
+            ("Ctrl + Shift + Mouse Wheel", "Change node type"),
+            ("Ctrl + Drag", "Duplicate selected nodes/swimlanes"),
+            ("Double-Click Mouse Wheel Button", "Show node notes"),
+        ],
+    "MOUSE_ACTION_FOR_LINK_LIST.ja" : [
+            ("クリック", "指定リンクを選択"),
+            ("ダブルクリック", "ラベルを編集"),
+            ("Ctrl+マウスホイール", "接続ポイントを変更"),
+            ("Shift+マウスホイール", "リンクの折り返し距離を変更"),
+            ("Ctrl+Shift+マウスホイール", "ラベルの位置を変更"),
+        ],
+    "MOUSE_ACTION_FOR_LINK_LIST.en" : [
+            ("Click", "Select the specified link"),
+            ("Double-Click", "Edit the label"),
+            ("Ctrl+Mouse Wheel", "Change the connection point"),
+            ("Shift+Mouse Wheel", "Change the link wrap distance"),
+            ("Ctrl+Shift+Mouse Wheel", "Change the label position"),
+        ],
+    "MOUSE_ACTION_FOR_NOTE_LIST.ja" : [
+            ("ドラッグ", "指定ノートを移動"),
+            ("ダブルクリック", "テキストを編集"),
+            ("テキストを空にする", "ノート欄を削除"),
+        ],
+    "MOUSE_ACTION_FOR_NOTE_LIST.en" : [
+            ("Drag", "Move the specified note"),
+            ("Double-Click", "Edit text"),
+            ("Clear text", "Delete the note field"),
+        ],
+}
+
+
+I18N_HELP_TEXT_DICT = {
+    "BASIC_HELP_TITLE.en" : "Basic Guide",
+    "BASIC_HELP_TITLE.ja" : "簡易ガイド",
+
+    "BASIC_HELP_TEXT.en" : """Basic Flowchart Drawing Operations
+
+# Placing Nodes
+(1) Select the node type you want to place from the toolbar.
+(2) Click the desired position on the canvas.
+→ A node will be created at the specified position.
+(3) Drag the node to fine-tune its position.
+(4) Double-click the node to enter text.
+
+# Connecting Links
+(1) Select Link from the toolbar.
+(2) Click and hold the source node, drag to the destination node, and release the mouse button.
+→ A link will be created between the two nodes.
+(3) To change the link connection path (routing), use Ctrl+Wheel.
+(4) To add a label to a link, double-click the link and enter text.
+
+# Moving Nodes
+(1) Select the Select icon from the toolbar.
+(2) Select the nodes you want to move using the mouse.
+・Click: Select a node
+・Shift+Click: Add a node to the current selection
+・Drag on the canvas to select an area: Select all nodes within the specified area
+(3) Click one of the selected nodes and drag it to the desired position.
+→ All selected nodes will move together to the specified position.
+
+# Deleting Nodes / UNDO / REDO
+・Click the Delete icon
+→ Deletes the currently selected nodes.
+・Click the Undo icon
+→ Undoes the previous editing operation.
+・Click the Redo icon
+→ Redoes the previously undone operation.
+
+# Editing Nodes
+・Double-click a node
+→ Edit the node text.
+・Select a node and press Ctrl+w/W/h/H
+→ Increase or decrease the node width/height.
+・Select a node and use Ctrl+Wheel
+→ Change the node type.
+・Select a node and press Ctrl+0~9
+→ Change the node fill color.
+
+# Saving / Loading a Flowchart
+・Click the Save JSON icon
+→ Saves the current flowchart data in JSON format.
+・Click the Load JSON icon
+→ Loads saved flowchart data onto the canvas.
+""",
+    "BASIC_HELP_TEXT.ja" :"""フローチャート作図の基本操作
+
+■ノードの配置
+ (1)配置したいノードをツールバーで選択
+ (2)キャンバス内で、配置したい位置をクリック
+        → 指定位置にノードが作図される
+ (3)ノードのドラッグ操作で位置を微調整
+ (4)ノードをダブルクリックしてテキストを入力
+
+■リンクの接続
+ (1)ツールバーでリンクを選択
+ (2)接続元のノードをクリックしたまま、接続先のノードで離す
+        → 2つのノード間のリンクが作図される
+ (3)リンクの接続位置（回り込み）の変更は、Ctrl+Wheelで調整できる
+ (4)リンクにラベルを付けるには、リンクをダブルクリックして文字入力
+
+■ノードの移動
+ (1)ツールバーで Select アイコンを選択
+ (2)移動したいノードをマウス操作で選択
+    ・クリック：ノード選択
+    ・Shift+クリック：追加選択
+    ・キャンバスをドラッグ操作で範囲選択：指定範囲内のノードを選択
+ (3)選択したノードの１つをクリックして、ドラッグ操作で移動先を指定
+        → 選択中のノードすべてが指定位置に移動される
+
+■ノードの削除/UNDO/REDO
+ ・Delete アイコンをクリック → 選択中のノードが削除される
+ ・Undo アイコンをクリック → 編集操作が１回戻る
+ ・Redo アイコンをクリック → 取消操作が１回戻る
+
+■ノードの編集
+ ・ノードをダブルクリック → テキストの編集ができる
+ ・ノードを選択して Ctrl+w/W/h/H → ノードの幅/高さを増減できる
+ ・ノードを選択して Ctrl+Wheel → ノードの種類を変更できる
+ ・ノードを選択して Ctrl-0～9 → ノードの塗りつぶし色を変更できる
+
+■作図したフローチャートの保存/読込
+ ・Save JSON アイコンを選択クリック
+        → 作図中のデータがJSON形式で保存される
+ ・Load JSON アイコンを選択クリック
+        → 保存済のフローチャートデータがキャンバスに読み込まれる
+""",
+}
+
+I18N_RELEASE_NOTE_DICT = {
+  "RELEASE_NOTE_TITLE.en" : "Release Notes",
+  "RELEASE_NOTE_TITLE.ja" : "リリースノート",
+
+  "RELEASE_NOTE_TEXT.en" : """Release Notes
+
+[ 2026/08/29 ]
+- Fixed a display issue that occurred when resizing nodes.
+- Fixed an issue with loading node information through the generative AI integration.
+
+[ 2026/08/25 ]
+- Added support for connecting to Unsloth through the generative AI integration.
+- Added support for changing node width and height using mouse operations (Shift/Ctrl + Wheel) or keyboard shortcuts (Ctrl + w/W/h/H).
+- Changed the keyboard shortcut for changing the node type from Ctrl + Wheel to Ctrl + Shift + Wheel due to the above feature enhancement.
+
+[ 2026/08/15 ]
+- Added support for new generative AI models (Grok 4.6, Gemini 3.7 Flash) in the generative AI integration.
+- Added support for changing the node type using Ctrl + Wheel.
+- Reorganized the list of keyboard shortcuts and mouse operations displayed on the initial screen.
+
+[ 2026/07/27 ]
+- Added support for new generative AI models (Gemini 3.6 Flash, Claude Opus 5, Kimi K3) in the generative AI integration.
+- Fixed an issue when loading generative AI data, including support for escape characters in the note field.
+
+[ 2026/07/11 ]
+- Added support for new generative AI models (GPT 5.6 Sol/Terra/Luna, Claude Fable 5) in the generative AI integration.
+- Added support for connecting to LM Studio through the generative AI integration.
+
+[ 2026/07/04 ]
+- Fixed an issue with Backspace handling during text editing, where deleting text could also delete elements at the same time.
+
+[ 2026/06/28 ]
+- Added support for duplicating selected nodes/swimlanes and links between selected elements using Ctrl + Drag.
+- Improved usability on macOS:
+  - Added support for deleting nodes and other elements using the Backspace key in addition to the Delete key.
+  - Added support for specifying line breaks with \n during text editing.
+- Fixed an issue with swimlane movement.
+""",
+  "RELEASE_NOTE_TEXT.ja" : """リリースノート
+
+[ 2026/09/07 ]
+・キー定義、簡易操作ガイド、リリースノートを、右スライドで表示可能に
+・生成AI連携用スライドの幅を可変に
+・生成AI連携機能における最新生成AI(gpt-6-astra, claude-fable-5-1, gemini-3.8-flash)の動作確認
+・ノードのサイズ変更に伴う表示不具合への対応
+・生成AI連携でのノード情報読み込み不具合への対応
+
+[ 2026/08/25 ]
+・生成AI連携機能で、Unslothとの接続に対応
+・マウス操作(Shift/Ctrl+Wheel)またはキー操作(Ctrl-w/W/h/H)でノードの幅と高さの変更を可能に
+・上記機能拡張に伴い、ノードの種類変更のキー割当を変更（Ctrl+Wheel → Ctrl+Shift+Wheel）
+
+[ 2026/08/15 ]
+・生成AI連携機能で、新しい生成AIへの対応(Grok 4.6, Gemini 3.7 Flash)
+・Ctrl+Wheel操作で、ノードの種類変更に対応
+・初期画面に表示するショートカットキーとマウス操作の定義一覧の表示内容を整理
+
+[ 2026/07/27 ]
+・生成AI連携機能で、新しい生成AIへの対応(Gemini 3.6 Flash, Claude Opus 5, Kimi K3)
+・生成AIデータ読み込み時の不具合に対応（note欄でのエスケープ文字の読込対応）
+
+[ 2026/07/11 ]
+・生成AI連携機能で、新しい生成AIへの対応(GPT 5.6 Sol/Terra/Luna, Claude Fable 5)
+・生成AI連携機能で、LM Studioとの接続対応
+
+[ 2026/07/04 ]
+・文字列編集時のBackSpace処理の不具合対応(文字列削除時に同時に要素などが削除されていた事象に対応)
+
+[ 2026/06/28 ]
+・Ctrl+Drag操作で、選択中のノード/スイムレーンと選択中要素間のリンクの複製に対応
+・macOSでの操作の改善
+  ・DeleteキーだけでなくBackSpaceキーでもノードなどの削除を可能に
+  ・テキスト編集で ￥n でも改行指定を可能に
+・不具合対応（スイムレーンの移動処理）
+""",
+}
+
 # Generative AI Prompt Template
 I18N_AI_PROMPT_TEMPLATE_DICT = {
     "AI_INPUT_TEMPLATE.en" : "Summarize the process flow for \"$order\" and define it in the specified format.",
@@ -454,6 +781,62 @@ def get_i18n_message(key, lang=default_i18n_lang):
 
     if i18n_text == i18n_key:
         print(f"Warning: Message text for key '{key}' and language '{lang}' not found.")
+
+    return i18n_text
+
+def get_i18n_key_mouse_text(key, lang=default_i18n_lang):
+    if key is None:
+        return None
+    if lang is None:
+        lang=default_i18n_lang
+
+    i18n_key = f"{key}.{lang}"
+    i18n_text = I18N_KEY_MOUSE_TEXT_DICT.get(i18n_key, i18n_key)
+
+    if i18n_text == i18n_key:
+        print(f"Warning: Key/mouse text for key '{key}' and language '{lang}' not found.")
+
+    return i18n_text
+
+def get_i18n_key_mouse_list(key, lang=default_i18n_lang):
+    if key is None:
+        return None
+    if lang is None:
+        lang=default_i18n_lang
+
+    i18n_key = f"{key}.{lang}"
+    i18n_list = I18N_KEY_MOUSE_LIST_DICT.get(i18n_key, i18n_key)
+
+    if i18n_list == i18n_key:
+        print(f"Warning: Key/mouse list for key '{key}' and language '{lang}' not found.")
+
+    return i18n_list
+
+def get_i18n_help_text(key, lang=default_i18n_lang):
+    if key is None:
+        return None
+    if lang is None:
+        lang=default_i18n_lang
+
+    i18n_key = f"{key}.{lang}"
+    i18n_text = I18N_HELP_TEXT_DICT.get(i18n_key, i18n_key)
+
+    if i18n_text == i18n_key:
+        print(f"Warning: Help text for key '{key}' and language '{lang}' not found.")
+
+    return i18n_text
+
+def get_i18n_release_note(key, lang=default_i18n_lang):
+    if key is None:
+        return None
+    if lang is None:
+        lang=default_i18n_lang
+
+    i18n_key = f"{key}.{lang}"
+    i18n_text = I18N_RELEASE_NOTE_DICT.get(i18n_key, i18n_key)
+
+    if i18n_text == i18n_key:
+        print(f"Warning: Release note for key '{key}' and language '{lang}' not found.")
 
     return i18n_text
 

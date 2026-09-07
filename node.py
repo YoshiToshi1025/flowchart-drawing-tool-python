@@ -606,7 +606,11 @@ class Node:
         return coords
 
     def get_corner_rounded_rectangle_coords(self, left, top, right, bottom):
-        r = self.round_half_up(self.h / 5)
+        if min(self.h, self.w) < 10:
+            r = self.round_half_up(self.h / 5)
+        else:
+            r = 10
+
         if r < 0 or r > min((right - left)/2, (bottom - top)/2):
             return [left, top, right, top, right, bottom, left, bottom]
 

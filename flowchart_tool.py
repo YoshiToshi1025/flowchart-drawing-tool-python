@@ -18,17 +18,14 @@ import webbrowser
 import mermaid_flowdata_loader as mfloader
 import mermaid_flowdata_saver as mfsaver
 import constants as ct
-import node
 from node import Node
-import edge
 from edge import Edge
-import swimlane
 from swimlane import Swimlane
-import note
 from note import Note
 from modal_window import ModalWindow, ResizeCanvasModal
-import generative_ai_interface
 from generative_ai_interface import Generative_AI_interface
+from info_panel import InfoPanel
+from slide_panel import SlidePanel
 
 import platform
 if platform.system() == "Windows":
@@ -51,6 +48,7 @@ class FlowchartTool(tk.Tk):
         self.mode = tk.StringVar(value=ct.DEFAULT_MODE)  # 動作モード： select / add:process / add:decision / add:terminator / add:io / link_elbow / link_straight
         self.grid_on = tk.BooleanVar(value=True)  # グリッド表示ON/OFF
         self.note_on = tk.BooleanVar(value=True)  # ノート表示ON/OFF
+        self.info_on = tk.BooleanVar(value=False)  # 情報パネル表示ON/OFF
         self.ai_chat_window_on = tk.BooleanVar(value=False)  # チャットウィンドウ表示ON/OFF
 
         # 登録済みノード情報
@@ -196,6 +194,11 @@ class FlowchartTool(tk.Tk):
         button_manual.pack(side=tk.LEFT, padx=(4,1))
         ToolTip(button_manual, "Open Manual in Browser")
 
+        # インフォメーション表示ボタン
+        button_info = tk.Checkbutton(toolbar, text="Info", image=self.icons["Info"], compound="none", indicatoron=False, variable=self.info_on, command=self.show_info, width=30, height=30)
+        button_info.pack(side=tk.LEFT, padx=(4,1))
+        ToolTip(button_info, "Show Info Panel")  # 右サイドに情報パネルを表示
+
         ttk.Separator(toolbar, orient=tk.VERTICAL).pack(side=tk.LEFT, fill=tk.Y, padx=(8,8))
 
         # 状態ラベル表示
@@ -327,15 +330,25 @@ class FlowchartTool(tk.Tk):
         self.ai_interface = Generative_AI_interface()
 
         # -------------------------
+        # 情報パネル（InfoPanel）
+        # -------------------------
+        self.info_panel = SlidePanel(self.main_panel,
+                width=ct.INFO_PANEL_WIDTH, min_width=ct.INFO_PANEL_WIDTH_MIN, max_width=ct.INFO_PANEL_WIDTH_MAX,
+                height=self.canvas_height, side="right", bg="#eeeeee")
+        self.info_panel.pack_propagate(False)  # サイズ固定
+
+        # 入力フレーム
+        input_frame = tk.Frame(self.info_panel, bg="#eeeeee")
+        input_frame.pack(side=tk.TOP, fill=tk.X, padx=(4,4), pady=(4,4))
+
+        InfoPanel(panel_frame=self.info_panel)  # 情報パネルの初期化 
+
+        # -------------------------
         # チャットパネル（Frame）
         # -------------------------
-        # ---- state ----
-        self.ai_chat_visible = False
-        self.ai_chat_animating = False
-        self.ai_chat_x = 0
-
-        self.ai_chat_frame = tk.Frame(self.main_panel, bg="#eeeeee")
-        self.ai_chat_frame.pack_propagate(False)  # サイズ固定
+        self.ai_chat_frame = SlidePanel(self.main_panel, 
+            width=ct.AI_CHAT_WIDTH, min_width=ct.AI_CHAT_WIDTH_MIN, max_width=ct.AI_CHAT_WIDTH_MAX,
+            height=self.canvas_height, side="right", bg="#eeeeee")
 
         # 入力フレーム
         input_frame = tk.Frame(self.ai_chat_frame, bg="#eeeeee")
@@ -361,12 +374,12 @@ class FlowchartTool(tk.Tk):
         # self.ai_spec_prompt.bind("<Return>", lambda e: self.on_send_to_ai())
 
         # 情報フレーム
-        info_frame = tk.Frame(self.ai_chat_frame, bg="#eeeeee")
-        info_frame.pack(side=tk.TOP, fill=tk.X, padx=(4,4))
+        ai_info_frame = tk.Frame(self.ai_chat_frame, bg="#eeeeee")
+        ai_info_frame.pack(side=tk.TOP, fill=tk.X, padx=(4,4))
 
         # AIモデル表示
-        tk.Label(info_frame, text=f"AI Model:", font=("Arial", 9), width=8, anchor=tk.E).pack(side=tk.LEFT)
-        tk.Entry(info_frame, font=("Arial", 9), state="readonly", readonlybackground="#eeeeee", fg="black", textvariable=tk.StringVar(value=f" {self.ai_interface.ai_type}, {self.ai_interface.ai_model}")).pack(side=tk.LEFT, fill=tk.X, expand=True)
+        tk.Label(ai_info_frame, text=f"AI Model:", font=("Arial", 9), width=8, anchor=tk.E).pack(side=tk.LEFT)
+        tk.Entry(ai_info_frame, font=("Arial", 9), state="readonly", readonlybackground="#eeeeee", fg="black", textvariable=tk.StringVar(value=f" {self.ai_interface.ai_type}, {self.ai_interface.ai_model}")).pack(side=tk.LEFT, fill=tk.X, expand=True)
 
         # チャット内容表示欄
         self.ai_chat_text = tk.Text(self.ai_chat_frame, wrap="word")
@@ -379,15 +392,15 @@ class FlowchartTool(tk.Tk):
             checkbutton_ai.pack(side=tk.LEFT, padx=1)
             ToolTip(checkbutton_ai, "AI-generation")
 
-        # リサイズ追従
-        self.bind("<Configure>", self.on_resize)
-
-        # 起動直後に配置確定
-        self.after(0, self.on_resize_simple)
-
     def show_manual(self):
         manual_abs_path = os.path.abspath("manual.html")
         webbrowser.open(f"file://{manual_abs_path}")
+
+    def show_info(self):
+        if self.info_on.get():
+            self.info_panel.open()
+        else:
+            self.info_panel.close()
 
     # キャンバスのリサイズ確認を行う（必要に応じてリサイズを実行）
     def confirm_canvas_resize(self):
@@ -1604,34 +1617,6 @@ class FlowchartTool(tk.Tk):
             if edge_obj is None:
                 return
             edge_obj.rotate_label_position(increase=increase, canvas=self.canvas)
-
-    # -----------------------------
-    # リサイズ時：チャット位置を必ず補正（非表示なら必ず右外）
-    # -----------------------------
-    def on_resize(self, event):
-        # ここは event.width/height を使わず、winfo_* を使う方が安定する環境があります
-        self.on_resize_simple()
-
-    def on_resize_simple(self):
-        w = max(1, self.main_panel.winfo_width())-4
-        h = max(1, self.main_panel.winfo_height())-4
-        # print(f"Resize detected: main_panel w={w}, h={h}")  # for DEBUG
-
-        # canvasも念のため全面維持（containerは rel で追従してるので通常不要だが安全）
-        # self.canvas.place_configure(x=0, y=0, width=self.canvas_width, height=self.canvas_height)
-
-
-        # アニメ中は高さだけ追従（位置はアニメ側に任せる）
-        if self.ai_chat_animating:
-            self.ai_chat_frame.place_configure(y=0, height=h, width=ct.AI_CHAT_WIDTH)
-            return
-
-        if self.ai_chat_visible:
-            self.ai_chat_x = max(0, w - ct.AI_CHAT_WIDTH)
-        else:
-            self.ai_chat_x = w  # ★常に右外へ退避
-
-        self.ai_chat_frame.place_configure(x=self.ai_chat_x, y=0, height=h, width=ct.AI_CHAT_WIDTH)
 
     def drag_data_init(self):
         self.drag_data = {"mode": None, "node_id": None, "shape_id": None, "drag_start_x": 0, "drag_start_y": 0, "drag_pre_x": 0, "drag_pre_y": 0, "drag_end_x": 0, "drag_end_y": 0}
@@ -2938,64 +2923,10 @@ class FlowchartTool(tk.Tk):
     # UI: チャット表示切替
     # -----------------------------
     def on_ai_chat_window_toggle(self):
-        if self.ai_chat_animating:
-            return
         if self.ai_chat_window_on.get():
-            self.slide_in_ai_chat_window()
+            self.ai_chat_frame.open()
         else:
-            self.slide_out_ai_chat_window()
-
-    def slide_in_ai_chat_window(self):
-        self.ai_chat_animating = True
-
-        # ★必ず前面へ（ちらついて消える対策の本命）
-        self.ai_chat_frame.lift()
-
-        def animate():
-            w = max(1, self.main_panel.winfo_width())-4
-            h = max(1, self.main_panel.winfo_height())-4
-            target_x = max(0, w - ct.AI_CHAT_WIDTH)  # 常に現在幅基準
-
-            if self.ai_chat_x > target_x:
-                self.ai_chat_x = max(target_x, self.ai_chat_x - ct.AI_CHAT_WINDOW_SLIDE_STEP)
-                self.ai_chat_frame.place_configure(x=self.ai_chat_x, y=0, height=h, width=ct.AI_CHAT_WIDTH)
-                self.after(ct.AI_CHAT_WINDOW_SLIDE_INTERVAL, animate)
-            else:
-                self.ai_chat_x = target_x
-                self.ai_chat_frame.place_configure(x=self.ai_chat_x, y=0, height=h, width=ct.AI_CHAT_WIDTH)
-                self.ai_chat_visible = True
-                self.ai_chat_animating = False
-
-        # スタート地点を「現在の右外」に強制（リサイズ後でも確実）
-        w0 = max(1, self.main_panel.winfo_width())-4
-        h0 = max(1, self.main_panel.winfo_height())-4
-        self.ai_chat_x = w0
-        self.ai_chat_frame.place_configure(x=self.ai_chat_x, y=0, height=h0, width=ct.AI_CHAT_WIDTH)
-
-        animate()
-
-    def slide_out_ai_chat_window(self):
-        self.ai_chat_animating = True
-
-        # 前面は維持（アニメ中に裏回りしない）
-        self.ai_chat_frame.lift()
-
-        def animate():
-            w = max(1, self.main_panel.winfo_width())-4
-            h = max(1, self.main_panel.winfo_height())-4
-            target_x = w  # 現在幅の右外
-
-            if self.ai_chat_x < target_x:
-                self.ai_chat_x = min(target_x, self.ai_chat_x + ct.AI_CHAT_WINDOW_SLIDE_STEP)
-                self.ai_chat_frame.place_configure(x=self.ai_chat_x, y=0, height=h, width=ct.AI_CHAT_WIDTH)
-                self.after(ct.AI_CHAT_WINDOW_SLIDE_INTERVAL, animate)
-            else:
-                self.ai_chat_x = target_x
-                self.ai_chat_frame.place_configure(x=self.ai_chat_x, y=0, height=h, width=ct.AI_CHAT_WIDTH)
-                self.ai_chat_visible = False
-                self.ai_chat_animating = False
-
-        animate()
+            self.ai_chat_frame.close()
 
     def on_send_to_ai(self, event=None):
         ai_chat_prompt = self.ai_chat_prompt.get().strip()
@@ -3039,7 +2970,7 @@ class FlowchartTool(tk.Tk):
             elif self.swimlanes is not None and len(self.swimlanes) > 0:
                 self._hide_operation_info()
             elif not self.app_start:
-                self._show_operation_info()
+                self.info_panel.open()
 
     def _show_app_start_panel(self):
         img = Image.open('HAYATE.png', 'r')
@@ -3054,18 +2985,15 @@ class FlowchartTool(tk.Tk):
             self.canvas.delete(self.app_start_panel)
             self.app_start_panel = None
         
-        self._show_operation_info()
+        self.info_panel.open()
 
     def _show_operation_info(self):
-        if hasattr(self, "ope_info") and self.ope_info:
-            return
-        self.ope_info = tk.Label(self.canvas, justify="left", font=("Consolas", 9), fg="#0f172a", text=ct.OPERATION_INFO_TEXT)
-        self.ope_info.pack(padx=8, pady=8, anchor="ne")
+        self.info_on.set(True)
+        self.show_info()
     
     def _hide_operation_info(self):
-        if hasattr(self, "ope_info") and self.ope_info:
-            self.ope_info.destroy()
-            self.ope_info = None
+        # self.info_on.set(False)
+        self.show_info()
 
     def change_node_fill_color(self, color_no):
         # print(f"Change node fill color to {color_no}")
@@ -3183,6 +3111,7 @@ class FlowchartTool(tk.Tk):
         self.icons["Save_Mermaid"] = self.make_icon("Save_Mermaid")
         self.icons["AI-generation"] = self.make_icon("AI-generation")
         self.icons["Manual"] = self.make_icon("Manual")
+        self.icons["Info"] = self.make_icon("Info")
         self.icons["Status_normal"] = self.make_icon("Status_normal")
         self.icons["Status_active"] = self.make_icon("Status_active")
         self.icons["Status_inactive"] = self.make_icon("Status_inactive")
@@ -3193,11 +3122,14 @@ class FlowchartTool(tk.Tk):
         x0, y0, x1, y1 = 0, 0, size - 1, size - 1
 
         if platform.system() == "Windows":
-            font=ImageFont.truetype("arial.ttf", size//2.8) 
+            font=ImageFont.truetype("arial.ttf", size//2.8)
+            font2=ImageFont.truetype("arial.ttf", size//2)
         elif platform.system() == "Darwin":  # macOS
             font=ImageFont.truetype("Arial.ttf", size//2.8)
+            font2=ImageFont.truetype("Arial.ttf", size//2)
         else:
             font=ImageFont.load_default()
+            font2=ImageFont.load_default()
 
         if name == "Select":
             d.line((x0+size//3+size*0//16, y0+size//3-size*3//16, x0+size//3+size*0  //12, y0+size//3-size*4//12), fill=fg, width=8)
@@ -3390,6 +3322,9 @@ class FlowchartTool(tk.Tk):
             # d.rounded_rectangle((x0, y0, x1, y1), radius=size//8, outline=fg, width=8)
             d.text((x0+size//2, y0+size//3), "Guide", fill=fg, anchor="mm", font=font)
             d.text((x0+size//2, y0+size*2//3), "page", fill=fg, anchor="mm", font=font)
+        elif name == "Info":
+            # d.rounded_rectangle((x0, y0, x1, y1), radius=size//8, outline=fg, width=8)
+            d.text((x0+size//2, y0+size//2), "Info", fill=fg, anchor="mm", font=font2)
 
         elif name == "Status_normal":
             d.rounded_rectangle((x0+size//8, y0+size//4, x1-size//8, y1-size//4),

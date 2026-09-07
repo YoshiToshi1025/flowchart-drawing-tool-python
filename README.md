@@ -198,6 +198,7 @@ This project provides a **“Simple Flowchart Drawing Tool 颯(HAYATE)”** that
 * 2026/07/27 : Added support for new generative AI models (Gemini 3.6 Flash, Claude Opus 5, and Kimi K3), and fixed issues when loading generative AI data.
 * 2026/08/15 : Added support for new generative AI models (Grok 4.6, Gemini 3.7 Flash), added support for changing node types with Ctrl + Mouse Wheel, and updated the mouse and keyboard controls reference table.
 * 2026/08/25 : Support for connecting to Unsloth, support for resizing node width and height using mouse operations (Shift/Ctrl + Wheel) or keyboard shortcuts (Ctrl+w/W/h/H), and changes to the keyboard shortcut for changing node types (Ctrl+Shift+Wheel).
+* 2026/09/07 : Confirmed connectivity with new generative AI models (GPT 6 Astra, Claude Fable 5.1, Gemini 3.8 Flash), added an information panel (release notes, operation guide, and keyboard & mouse controls), and made the right slide panel resizable.
 
 ## Notes (Additional)
 

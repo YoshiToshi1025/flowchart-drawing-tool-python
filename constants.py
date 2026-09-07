@@ -1,7 +1,7 @@
 from tkinter import font
 import os
 from dotenv import load_dotenv
-from constants_i18n import get_i18n_ui_text, get_i18n_message, get_i18n_ai_prompt_template
+from constants_i18n import get_i18n_ui_text, get_i18n_message, get_i18n_ai_prompt_template, get_i18n_release_note, get_i18n_help_text, get_i18n_key_mouse_text, get_i18n_key_mouse_list
 
 # Application Language Setting / アプリケーションの言語設定
 #   You can change the language by setting the "i18n_lang" variable to "en" for English or "ja" for Japanese.
@@ -337,12 +337,60 @@ UNSLOTH_API_KEY_NOT_SET_MESSAGE = get_i18n_message("UNSLOTH_API_KEY_NOT_SET_MESS
 
 UNSUPPORTED_AI_MODEL_MESSAGE = get_i18n_message("UNSUPPORTED_AI_MODEL_MESSAGE", lang=i18n_lang)
 
+# Mouse Key Definitions / マウス・キー定義
+KEY_MOUSE_DEFINITIONS_TITLE = get_i18n_key_mouse_text("KEY_MOUSE_DEFINITIONS_TITLE", lang=i18n_lang)
+
+# ShortCut Key Definitions / ショートカット・キー定義
+SHORTCUT_KEY_TITLE = get_i18n_key_mouse_text("SHORTCUT_KEY_TITLE", lang=i18n_lang)
+SHORTCUT_KEY_COLUMN_1_TITLE = get_i18n_key_mouse_text("SHORTCUT_KEY_COLUMN_1_TITLE", lang=i18n_lang)
+SHORTCUT_KEY_COLUMN_2_TITLE = get_i18n_key_mouse_text("SHORTCUT_KEY_COLUMN_2_TITLE", lang=i18n_lang)
+SHORTCUT_KEY_LIST = get_i18n_key_mouse_list("SHORTCUT_KEY_LIST", lang=i18n_lang)
+
+# Mouse Action for Canvas / キャンバス上のマウス操作
+MOUSE_ACTION_FOR_CANVAS_TITLE = get_i18n_key_mouse_text("MOUSE_ACTION_FOR_CANVAS_TITLE", lang=i18n_lang)
+MOUSE_ACTION_FOR_CANVAS_COLUMN_1_TITLE = get_i18n_key_mouse_text("MOUSE_ACTION_FOR_CANVAS_COLUMN_1_TITLE", lang=i18n_lang)
+MOUSE_ACTION_FOR_CANVAS_COLUMN_2_TITLE = get_i18n_key_mouse_text("MOUSE_ACTION_FOR_CANVAS_COLUMN_2_TITLE", lang=i18n_lang)
+MOUSE_ACTION_FOR_CANVAS_LIST = get_i18n_key_mouse_list("MOUSE_ACTION_FOR_CANVAS_LIST", lang=i18n_lang)
+
+# Mouse Action for Swimlane / スイムレーン上のマウス操作
+MOUSE_ACTION_FOR_SWIMLANE_TITLE = get_i18n_key_mouse_text("MOUSE_ACTION_FOR_SWIMLANE_TITLE", lang=i18n_lang)
+MOUSE_ACTION_FOR_SWIMLANE_COLUMN_1_TITLE = get_i18n_key_mouse_text("MOUSE_ACTION_FOR_SWIMLANE_COLUMN_1_TITLE", lang=i18n_lang)
+MOUSE_ACTION_FOR_SWIMLANE_COLUMN_2_TITLE = get_i18n_key_mouse_text("MOUSE_ACTION_FOR_SWIMLANE_COLUMN_2_TITLE", lang=i18n_lang)
+MOUSE_ACTION_FOR_SWIMLANE_LIST = get_i18n_key_mouse_list("MOUSE_ACTION_FOR_SWIMLANE_LIST", lang=i18n_lang)
+
+# Mouse Action for Node / ノード上のマウス操作
+MOUSE_ACTION_FOR_NODE_TITLE = get_i18n_key_mouse_text("MOUSE_ACTION_FOR_NODE_TITLE", lang=i18n_lang)
+MOUSE_ACTION_FOR_NODE_COLUMN_1_TITLE = get_i18n_key_mouse_text("MOUSE_ACTION_FOR_NODE_COLUMN_1_TITLE", lang=i18n_lang)
+MOUSE_ACTION_FOR_NODE_COLUMN_2_TITLE = get_i18n_key_mouse_text("MOUSE_ACTION_FOR_NODE_COLUMN_2_TITLE", lang=i18n_lang)
+MOUSE_ACTION_FOR_NODE_LIST = get_i18n_key_mouse_list("MOUSE_ACTION_FOR_NODE_LIST", lang=i18n_lang)
+
+# Mouse Action for Link / リンク上のマウス操作
+MOUSE_ACTION_FOR_LINK_TITLE = get_i18n_key_mouse_text("MOUSE_ACTION_FOR_LINK_TITLE", lang=i18n_lang)
+MOUSE_ACTION_FOR_LINK_COLUMN_1_TITLE = get_i18n_key_mouse_text("MOUSE_ACTION_FOR_LINK_COLUMN_1_TITLE", lang=i18n_lang)
+MOUSE_ACTION_FOR_LINK_COLUMN_2_TITLE = get_i18n_key_mouse_text("MOUSE_ACTION_FOR_LINK_COLUMN_2_TITLE", lang=i18n_lang)
+MOUSE_ACTION_FOR_LINK_LIST = get_i18n_key_mouse_list("MOUSE_ACTION_FOR_LINK_LIST", lang=i18n_lang)
+
+# Mouse Action for Note / ノート上のマウス操作
+MOUSE_ACTION_FOR_NOTE_TITLE = get_i18n_key_mouse_text("MOUSE_ACTION_FOR_NOTE_TITLE", lang=i18n_lang)
+MOUSE_ACTION_FOR_NOTE_COLUMN_1_TITLE = get_i18n_key_mouse_text("MOUSE_ACTION_FOR_NOTE_COLUMN_1_TITLE", lang=i18n_lang)
+MOUSE_ACTION_FOR_NOTE_COLUMN_2_TITLE = get_i18n_key_mouse_text("MOUSE_ACTION_FOR_NOTE_COLUMN_2_TITLE", lang=i18n_lang)
+MOUSE_ACTION_FOR_NOTE_LIST = get_i18n_key_mouse_list("MOUSE_ACTION_FOR_NOTE_LIST", lang=i18n_lang)
+
+# Basic Help Text / 基本操作ヘルプ・テキスト
+BASIC_HELP_TITLE = get_i18n_help_text("BASIC_HELP_TITLE", lang=i18n_lang)
+BASIC_HELP_TEXT = get_i18n_help_text("BASIC_HELP_TEXT", lang=i18n_lang)
+
+# Release Note Text / リリースノート・テキスト
+RELEASE_NOTE_TITLE = get_i18n_release_note("RELEASE_NOTE_TITLE", lang=i18n_lang)
+RELEASE_NOTE_TEXT = get_i18n_release_note("RELEASE_NOTE_TEXT", lang=i18n_lang)
+
+
 # AI Model Selection / 使用する生成AIモデル
-AI_MODEL = "gpt-5.6-sol"  # Specify the AI model to use for generating flowcharts.
+AI_MODEL = "gpt-6-astra"  # Specify the AI model to use for generating flowcharts.
 # Example of available AI model names / 指定可能な生成AIモデル名例 (as of 2026.7.11)
-#   OpenAI (gpt-*): "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "gpt-5.5", "gpt-5.4", "gpt-5.4-mini"
-#   GeminiAI (gemini-*): "gemini-3.7-flash", "gemini-3.6-flash", "gemini-3.1-pro-preview", "gemini-3.1-flash-lite", "gemini-3-flash-preview", "gemini-pro-latest", "gemini-flash-lite-latest"
-#   AnthropicAI (claude-*): "claude-fable-5", "claude-opus-4-8", "claude-sonnet-5", "claude-haiku-4-5"
+#   OpenAI (gpt-*): "gpt-6-astra", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "gpt-5.5", "gpt-5.4", "gpt-5.4-mini"
+#   GeminiAI (gemini-*): "gemini-3.8-flash", "gemini-3.7-flash", "gemini-3.6-flash", "gemini-3.1-pro-preview", "gemini-3.1-flash-lite", "gemini-3-flash-preview", "gemini-pro-latest", "gemini-flash-lite-latest"
+#   AnthropicAI (claude-*): "claude-fable-5-1", "claude-fable-5", "claude-opus-5", "claude-sonnet-5", "claude-haiku-4-5"
 #   MoonshotAI (kimi-*): "kimi-k3"
 #   SpaceXAI (grok-*): "grok-4.6"
 #   LMStudio (lmstudio): "lmstudio" (LMStudio is a local model_URL)
@@ -360,10 +408,15 @@ LMSTUDIO_BASE_URL = "http://127.0.0.1:1234/v1"  # LMStudio local model URL (if u
 # Unsloth Base URL / UnslothのベースURL
 UNSLOTH_BASE_URL = "http://127.0.0.1:8888/v1"  # Unsloth local model URL (if using Unsloth, set the base URL here)
 
+# Info Panel Width / 情報パネルの幅
+INFO_PANEL_WIDTH = 450
+INFO_PANEL_WIDTH_MIN = 250
+INFO_PANEL_WIDTH_MAX = 1000
+
 # AI Related Constants / AI関連定数
-AI_CHAT_WIDTH = 550
-AI_CHAT_WINDOW_SLIDE_STEP = 20
-AI_CHAT_WINDOW_SLIDE_INTERVAL = 15  # ms
+AI_CHAT_WIDTH = 500
+AI_CHAT_WIDTH_MIN = 300
+AI_CHAT_WIDTH_MAX = 1000
 
 AI_INPUT_TEMPLATE = get_i18n_ai_prompt_template("AI_INPUT_TEMPLATE", lang=i18n_lang)
 AI_SPEC_TEMPLATE = get_i18n_ai_prompt_template("AI_SPEC_TEMPLATE", lang=i18n_lang)

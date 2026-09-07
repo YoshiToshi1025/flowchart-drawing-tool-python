@@ -361,7 +361,7 @@ def parse_link_chain_line(nodes: Dict[str, Node], line: str) -> List[Link]:
     s = line.strip()
     links: List[Link] = []
 
-    node_pat_id_only = re.compile(r"\s*(?P<id>[A-Za-z][A-Za-z]*)\s*") # node id (A, B, AA, ...)   ０文字以上の空白文字 + 一文字以上の大小アルファベット + ０文字以上の空白文字
+    node_pat_id_only = re.compile(r"\s*(?P<id>[A-Za-z][A-Za-z0-9_]*)\s*") # node id (A, B, AA, ...)   ０文字以上の空白文字 + 一文字以上の大小アルファベット + ０文字以上の空白文字
     node_pat_ex = re.compile(
         r"""
         \s*

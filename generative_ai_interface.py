@@ -127,7 +127,8 @@ class Generative_AI_interface:
             for model in models.data:
                 if model.id.startswith("gpt-") and "image" not in model.id and "codex" not in model.id \
                         and "audio" not in model.id and "realtime" not in model.id and "tts" not in model.id \
-                        and "whisper" not in model.id and "transcribe" not in model.id:
+                        and "whisper" not in model.id and "transcribe" not in model.id and "search" not in model.id \
+                        and "chat" not in model.id:
                     model_names.append(model.id)
             model_names.sort(reverse=True)
             return model_names
@@ -234,7 +235,7 @@ class Generative_AI_interface:
 
         user_input_msg = ct.AI_INPUT_TEMPLATE.replace("$order", user_msg)
         if spec_msg:
-            user_input_msg += ct.AI_SPEC_TEMPLATE.replace("$spec", spec_msg)
+            user_input_msg += "\n" + ct.AI_SPEC_TEMPLATE.replace("$spec", spec_msg)
         original_filename = f"{user_msg}_{self.ai_model}"
         sanitized_filename = self.sanitize_filename(original_filename)
         args = (user_input_msg, sanitized_filename)
