@@ -449,9 +449,18 @@ I18N_RELEASE_NOTE_DICT = {
 
   "RELEASE_NOTE_TEXT.en" : """Release Notes
 
-[ 2026/08/29 ]
-- Fixed a display issue that occurred when resizing nodes.
-- Fixed an issue with loading node information through the generative AI integration.
+[ 2026/09/09 ]
+- Bug fixes
+  - Adjusted tab display in the slide panel on macOS
+  - Fixed an issue where the display could become distorted at application startup
+  - Fixed an issue where mouse-based width adjustment did not work for multiple selected nodes
+
+[ 2026/09/07 ]
+- Added right-side slide panels for key bindings, a quick operation guide, and release notes
+- Made the AI integration slide panel resizable
+- Confirmed compatibility with the latest AI models (GPT-6 Astra, Claude Fable 5.1, Gemini 3.8 Flash)
+- Fixed display issues caused by node resizing
+- Fixed an issue when loading node information in the AI integration feature
 
 [ 2026/08/25 ]
 - Added support for connecting to Unsloth through the generative AI integration.
@@ -482,6 +491,12 @@ I18N_RELEASE_NOTE_DICT = {
 - Fixed an issue with swimlane movement.
 """,
   "RELEASE_NOTE_TEXT.ja" : """リリースノート
+
+[ 2026/09/09 ]
+・不具合対応
+  ・macOSでのスライドパネル内のタブ表示の調整、
+  ・アプリ起動時に表示が乱れることがある件への対応
+  ・複数選択したノードに対するマウス操作による幅調整が効かない件への対応
 
 [ 2026/09/07 ]
 ・キー定義、簡易操作ガイド、リリースノートを、右スライドで表示可能に

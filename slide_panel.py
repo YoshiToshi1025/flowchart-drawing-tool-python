@@ -1,4 +1,5 @@
 import tkinter as tk
+import time
 
 class SlidePanel(tk.Frame):
     """
@@ -104,16 +105,18 @@ class SlidePanel(tk.Frame):
     # --------------------------------------------------
     def _get_target_x(self, open_state):
         parent_width = self.parent.winfo_width()
+        # print(f"parent_width: {parent_width}, self.panel_width: {self.panel_width}, open_state: {open_state}")
+
+        if parent_width < 10:
+            # 親フレームの幅を正常に取得できない場合は、3秒待って処理を継続する
+            time.sleep(3)  # 3秒待つ
 
         if self.side == "left":
-
             if open_state:
                 return 0
             else:
                 return -self.panel_width
-
         else:
-
             if open_state:
                 return parent_width - self.panel_width
             else:

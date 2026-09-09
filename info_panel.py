@@ -8,28 +8,13 @@ class InfoPanel:
     def __init__(self, panel_frame):
         self.panel_frame = panel_frame
 
-        # パネル幅
-        self.width = 400
-        self.min_width = 250
-        self.max_width = 800
-
-        # アニメーション設定
-        self.animation_step = 30
-        self.animation_delay = 10
-
-        # 状態
-        self.visible = False
-        self.animating = False
-
-        # リサイズ用
-        self.drag_start_x = 0
-        self.drag_start_width = 0
-
         # =====================================================
         # Notebook
         # =====================================================
-        self.notebook = ttk.Notebook(self.panel_frame)
-        self.notebook.pack(fill="both", expand=True)
+        self.notebook = ttk.Notebook(self.panel_frame, padding=(0, 10, 0, 0))
+        notebook_style = ttk.Style()
+        notebook_style.configure("TNotebook", tabposition="nw")
+        self.notebook.pack(fill="both", expand=True, padx=0, pady=0)
 
         # -----------------------------------------------------
         # タブ1 : リリースノート
@@ -38,63 +23,65 @@ class InfoPanel:
 
         self.notebook.add(
             self.changelog_frame,
-            text=ct.RELEASE_NOTE_TITLE
+            text=ct.RELEASE_NOTE_TITLE,
+            padding=(0, 0, 0, 0)
         )
 
         self._create_changelog_tab()
+
         # -----------------------------------------------------
         # タブ2 : キー&マウス定義
         # -----------------------------------------------------
         self.key_and_mouse_frame = ttk.Frame(self.notebook)
-        self.notebook.add(self.key_and_mouse_frame, text=ct.KEY_MOUSE_DEFINITIONS_TITLE)
+        self.notebook.add(self.key_and_mouse_frame, text=ct.KEY_MOUSE_DEFINITIONS_TITLE, padding=(0, 0, 0, 0))
         # self._create_key_and_mouse_tab()
 
         # =====================================================
         # Sub_Notebook in キー&マウス定義
         # =====================================================
-        self.sub_notebook_of_key_and_mouse = ttk.Notebook(self.key_and_mouse_frame)
-        self.sub_notebook_of_key_and_mouse.pack(fill="both", expand=True, pady=(6, 0))
+        self.sub_notebook_of_key_and_mouse = ttk.Notebook(self.key_and_mouse_frame, padding=(0, 5, 0, 0))
+        self.sub_notebook_of_key_and_mouse.pack(fill="both", expand=True, padx=0, pady=0)
 
         # -----------------------------------------------------
         # タブ2-1 : キー操作
         # -----------------------------------------------------
         self.key_frame = ttk.Frame(self.sub_notebook_of_key_and_mouse)
-        self.sub_notebook_of_key_and_mouse.add(self.key_frame, text=ct.SHORTCUT_KEY_TITLE)
+        self.sub_notebook_of_key_and_mouse.add(self.key_frame, text=ct.SHORTCUT_KEY_TITLE, padding=(0, 0, 0, 0))
         self._create_key_tab()
 
         # -----------------------------------------------------
         # タブ2-2 : Canvasマウス操作
         # -----------------------------------------------------
         self.canvas_mouse_frame = ttk.Frame(self.sub_notebook_of_key_and_mouse)
-        self.sub_notebook_of_key_and_mouse.add(self.canvas_mouse_frame, text=ct.MOUSE_ACTION_FOR_CANVAS_TITLE)
+        self.sub_notebook_of_key_and_mouse.add(self.canvas_mouse_frame, text=ct.MOUSE_ACTION_FOR_CANVAS_TITLE, padding=(0, 0, 0, 0))
         self._create_canvas_mouse_tab()
 
         # -----------------------------------------------------
         # タブ2-3 : Swimlaneマウス操作
         # -----------------------------------------------------
         self.swimlane_mouse_frame = ttk.Frame(self.sub_notebook_of_key_and_mouse)
-        self.sub_notebook_of_key_and_mouse.add(self.swimlane_mouse_frame, text=ct.MOUSE_ACTION_FOR_SWIMLANE_TITLE)
+        self.sub_notebook_of_key_and_mouse.add(self.swimlane_mouse_frame, text=ct.MOUSE_ACTION_FOR_SWIMLANE_TITLE, padding=(0, 0, 0, 0))
         self._create_swimlane_mouse_tab()
 
         # -----------------------------------------------------
         # タブ2-4 : Nodeマウス操作
         # -----------------------------------------------------
         self.node_mouse_frame = ttk.Frame(self.sub_notebook_of_key_and_mouse)
-        self.sub_notebook_of_key_and_mouse.add(self.node_mouse_frame, text=ct.MOUSE_ACTION_FOR_NODE_TITLE)
+        self.sub_notebook_of_key_and_mouse.add(self.node_mouse_frame, text=ct.MOUSE_ACTION_FOR_NODE_TITLE, padding=(0, 0, 0, 0))
         self._create_node_mouse_tab()
 
         # -----------------------------------------------------
         # タブ2-5 : Linkマウス操作
         # -----------------------------------------------------
         self.link_mouse_frame = ttk.Frame(self.sub_notebook_of_key_and_mouse)
-        self.sub_notebook_of_key_and_mouse.add(self.link_mouse_frame, text=ct.MOUSE_ACTION_FOR_LINK_TITLE)
+        self.sub_notebook_of_key_and_mouse.add(self.link_mouse_frame, text=ct.MOUSE_ACTION_FOR_LINK_TITLE, padding=(0, 0, 0, 0))
         self._create_link_mouse_tab()
 
         # -----------------------------------------------------
         # タブ2-6 : Noteマウス操作
         # -----------------------------------------------------
         self.note_mouse_frame = ttk.Frame(self.sub_notebook_of_key_and_mouse)
-        self.sub_notebook_of_key_and_mouse.add(self.note_mouse_frame, text=ct.MOUSE_ACTION_FOR_NOTE_TITLE)
+        self.sub_notebook_of_key_and_mouse.add(self.note_mouse_frame, text=ct.MOUSE_ACTION_FOR_NOTE_TITLE, padding=(0, 0, 0, 0))
         self._create_note_mouse_tab()
 
         # -----------------------------------------------------
@@ -106,7 +93,8 @@ class InfoPanel:
 
         self.notebook.add(
             self.help_frame,
-            text=ct.BASIC_HELP_TITLE
+            text=ct.BASIC_HELP_TITLE,
+            padding=(0, 0, 0, 0)
         )
 
         self._create_help_tab()
@@ -122,7 +110,7 @@ class InfoPanel:
         style.configure("Treeview.Heading", background="#eeeeee", relief="flat")
 
         frame = ttk.Frame(self.key_frame)
-        frame.pack(fill="both", expand=True, padx=6, pady=6)
+        frame.pack(fill="both", expand=True, padx=0, pady=0)
 
         # Treeview
         columns = ("key", "function")
@@ -149,7 +137,7 @@ class InfoPanel:
     def _create_canvas_mouse_tab(self):
 
         frame = ttk.Frame(self.canvas_mouse_frame)
-        frame.pack(fill="both", expand=True, padx=6, pady=6)
+        frame.pack(fill="both", expand=True, padx=0, pady=0)
 
         # Treeview
         columns = ("mouse", "function")
@@ -171,7 +159,7 @@ class InfoPanel:
 
     def _create_swimlane_mouse_tab(self):
         frame = ttk.Frame(self.swimlane_mouse_frame)
-        frame.pack(fill="both", expand=True, padx=6, pady=6)
+        frame.pack(fill="both", expand=True, padx=0, pady=0)
 
         columns = ("mouse", "function")
 
@@ -192,7 +180,7 @@ class InfoPanel:
 
     def _create_node_mouse_tab(self):
         frame = ttk.Frame(self.node_mouse_frame)
-        frame.pack(fill="both", expand=True, padx=6, pady=6)
+        frame.pack(fill="both", expand=True, padx=0, pady=0)
 
         columns = ("mouse", "function")
 
@@ -213,7 +201,7 @@ class InfoPanel:
 
     def _create_link_mouse_tab(self):
         frame = ttk.Frame(self.link_mouse_frame)
-        frame.pack(fill="both", expand=True, padx=6, pady=6)
+        frame.pack(fill="both", expand=True, padx=0, pady=0)
 
         columns = ("mouse", "function")
 
@@ -234,7 +222,7 @@ class InfoPanel:
 
     def _create_note_mouse_tab(self):
         frame = ttk.Frame(self.note_mouse_frame)
-        frame.pack(fill="both", expand=True, padx=6, pady=6)
+        frame.pack(fill="both", expand=True, padx=0, pady=0)
 
         columns = ("mouse", "function")
 
@@ -265,8 +253,8 @@ class InfoPanel:
         frame.pack(
             fill="both",
             expand=True,
-            padx=6,
-            pady=6
+            padx=0,
+            pady=0
         )
 
         scrollbar = ttk.Scrollbar(
@@ -319,8 +307,8 @@ class InfoPanel:
         frame.pack(
             fill="both",
             expand=True,
-            padx=10,
-            pady=10
+            padx=0,
+            pady=0
         )
 
         scrollbar = ttk.Scrollbar(

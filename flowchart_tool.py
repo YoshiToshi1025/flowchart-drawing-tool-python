@@ -338,8 +338,8 @@ class FlowchartTool(tk.Tk):
         self.info_panel.pack_propagate(False)  # サイズ固定
 
         # 入力フレーム
-        input_frame = tk.Frame(self.info_panel, bg="#eeeeee")
-        input_frame.pack(side=tk.TOP, fill=tk.X, padx=(4,4), pady=(4,4))
+        # input_frame = tk.Frame(self.info_panel, bg="#eeeeee")
+        # input_frame.pack(side=tk.TOP, fill=tk.X, padx=(4,4), pady=(4,4))
 
         InfoPanel(panel_frame=self.info_panel)  # 情報パネルの初期化 
 
@@ -1515,7 +1515,7 @@ class FlowchartTool(tk.Tk):
                 else:
                     swimlane.change_width(increase=False)
                 modify_flag = True
-        if self.selected_node_ids is not None and len(self.selected_node_ids) == 1:
+        if self.selected_node_ids is not None and len(self.selected_node_ids) > 0:
             for node_id in self.selected_node_ids:
                 node_obj = self.nodes.get(node_id)
                 if node_obj is not None:
@@ -1563,7 +1563,7 @@ class FlowchartTool(tk.Tk):
                 else:
                     swimlane.change_height(increase=False)
                 modify_flag = True
-        if self.selected_node_ids is not None and len(self.selected_node_ids) == 1:
+        if self.selected_node_ids is not None and len(self.selected_node_ids) > 0:
             for node_id in self.selected_node_ids:
                 node_obj = self.nodes.get(node_id)
                 if node_obj is not None:
@@ -1588,7 +1588,7 @@ class FlowchartTool(tk.Tk):
                 self.rotate_edge_label_position(increase=True)
             else:
                 self.rotate_edge_label_position(increase=False) 
-        if self.selected_node_ids is not None and len(self.selected_node_ids) >= 1:
+        if self.selected_node_ids is not None and len(self.selected_node_ids) > 0:
             for node_id in self.selected_node_ids:
                 node_obj = self.nodes.get(node_id)
                 if node_obj is not None:
@@ -2977,8 +2977,8 @@ class FlowchartTool(tk.Tk):
         img = img.resize((400, 350), Image.Resampling.LANCZOS)
         self.app_start_img = ImageTk.PhotoImage(img)
         self.app_start_panel = self.canvas.create_image(self.canvas_width//2, self.canvas_height//2, anchor="center", image=self.app_start_img)
-        # 2500ms後に非表示
-        self.after(2500, self._hide_app_start_panel)
+        # 4000ms後に非表示
+        self.after(4000, self._hide_app_start_panel)
 
     def _hide_app_start_panel(self):
         if hasattr(self, "app_start_panel") and self.app_start_panel:

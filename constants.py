@@ -25,7 +25,7 @@ APP_TITLE = get_i18n_ui_text("APP_TITLE", lang=i18n_lang)
 
 # Canvas Parameters / キャンバス・パラメータ
 CANVAS_PARAMS = {
-    "size": "1200x800",
+    "size": "1440x900",
     "bg_color": "white",
     "grid_color": "#eeeeee",
     "grid_spacing": 15,
@@ -337,6 +337,11 @@ UNSLOTH_API_KEY_NOT_SET_MESSAGE = get_i18n_message("UNSLOTH_API_KEY_NOT_SET_MESS
 
 UNSUPPORTED_AI_MODEL_MESSAGE = get_i18n_message("UNSUPPORTED_AI_MODEL_MESSAGE", lang=i18n_lang)
 
+# Info Panel Width / 情報パネルの幅
+INFO_PANEL_WIDTH = 450
+INFO_PANEL_WIDTH_MIN = 250
+INFO_PANEL_WIDTH_MAX = 1000
+
 # Mouse Key Definitions / マウス・キー定義
 KEY_MOUSE_DEFINITIONS_TITLE = get_i18n_key_mouse_text("KEY_MOUSE_DEFINITIONS_TITLE", lang=i18n_lang)
 
@@ -407,11 +412,6 @@ LMSTUDIO_BASE_URL = "http://127.0.0.1:1234/v1"  # LMStudio local model URL (if u
 
 # Unsloth Base URL / UnslothのベースURL
 UNSLOTH_BASE_URL = "http://127.0.0.1:8888/v1"  # Unsloth local model URL (if using Unsloth, set the base URL here)
-
-# Info Panel Width / 情報パネルの幅
-INFO_PANEL_WIDTH = 450
-INFO_PANEL_WIDTH_MIN = 250
-INFO_PANEL_WIDTH_MAX = 1000
 
 # AI Related Constants / AI関連定数
 AI_CHAT_WIDTH = 500
