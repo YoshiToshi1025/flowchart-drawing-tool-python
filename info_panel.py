@@ -87,18 +87,16 @@ class InfoPanel:
         # -----------------------------------------------------
         # タブ3 : 基本操作ガイド
         # -----------------------------------------------------
-        self.help_frame = ttk.Frame(
-            self.notebook
-        )
-
-        self.notebook.add(
-            self.help_frame,
-            text=ct.BASIC_HELP_TITLE,
-            padding=(0, 0, 0, 0)
-        )
-
+        self.help_frame = ttk.Frame(self.notebook)
+        self.notebook.add(self.help_frame, text=ct.BASIC_HELP_TITLE, padding=(0, 0, 0, 0))
         self._create_help_tab()
 
+        # -----------------------------------------------------
+        # タブ4 : Tips表示
+        # -----------------------------------------------------
+        self.tips_frame = ttk.Frame(self.notebook)
+        self.notebook.add(self.tips_frame, text=ct.TIPS_TITLE, padding=(0, 0, 0, 0))
+        self._create_tips_tab()
 
     # =========================================================
     # キー割り当てタブ
@@ -245,118 +243,67 @@ class InfoPanel:
     # リリースノートタブ
     # =========================================================
     def _create_changelog_tab(self):
+        frame = ttk.Frame(self.changelog_frame)
+        frame.pack(fill="both", expand=True, padx=0, pady=0)
 
-        frame = ttk.Frame(
-            self.changelog_frame
-        )
+        scrollbar = ttk.Scrollbar(frame)
+        scrollbar.pack(side="right", fill="y")
 
-        frame.pack(
-            fill="both",
-            expand=True,
-            padx=0,
-            pady=0
-        )
+        text = tk.Text(frame, wrap="word", relief="flat", font=("", 9), spacing3 = 3, yscrollcommand=scrollbar.set)
+        text.pack(side="left", fill="both", expand=True)
 
-        scrollbar = ttk.Scrollbar(
-            frame
-        )
-
-        scrollbar.pack(
-            side="right",
-            fill="y"
-        )
-
-        text = tk.Text(
-            frame,
-            wrap="word",
-            relief="flat",
-            font=("", 9),
-            spacing3 = 3, # 段落間のスペース
-            yscrollcommand=scrollbar.set
-        )
-
-        text.pack(
-            side="left",
-            fill="both",
-            expand=True
-        )
-
-        scrollbar.config(
-            command=text.yview
-        )
+        scrollbar.config(command=text.yview)
 
         changelog_text = ct.RELEASE_NOTE_TEXT
+        text.insert("1.0", changelog_text)
 
-        text.insert(
-            "1.0",
-            changelog_text
-        )
+        text.config(state="disabled")
 
-        text.config(
-            state="disabled"
-        )
     # =========================================================
     # 基本操作ガイドタブ
     # =========================================================
     def _create_help_tab(self):
 
-        frame = ttk.Frame(
-            self.help_frame
-        )
+        frame = ttk.Frame(self.help_frame)
+        frame.pack(fill="both", expand=True, padx=0, pady=0)
 
-        frame.pack(
-            fill="both",
-            expand=True,
-            padx=0,
-            pady=0
-        )
+        scrollbar = ttk.Scrollbar(frame)
+        scrollbar.pack(side="right", fill="y")
 
-        scrollbar = ttk.Scrollbar(
-            frame
-        )
+        text = tk.Text(frame, wrap="word", relief="flat", font=("", 9), spacing3 = 3, yscrollcommand=scrollbar.set)
+        text.pack(side="left", fill="both", expand=True,)
 
-        scrollbar.pack(
-            side="right",
-            fill="y"
-        )
-
-        text = tk.Text(
-            frame,
-            wrap="word",
-            relief="flat",
-            font=("", 9),
-            spacing3 = 3, # 段落間のスペース
-            yscrollcommand=scrollbar.set
-        )
-
-        text.pack(
-            side="left",
-            fill="both",
-            expand=True,
-        )
-
-        scrollbar.config(
-            command=text.yview
-        )
+        scrollbar.config(command=text.yview)
 
         help_text = ct.BASIC_HELP_TEXT
+        text.insert("1.0",help_text)
 
-        text.insert(
-            "1.0",
-            help_text
-        )
+        text.config(state="disabled")
 
-        text.config(
-            state="disabled"
-        )
+    # =========================================================
+    # Tips表示タブ
+    # =========================================================
+    def _create_tips_tab(self):
+
+        frame = ttk.Frame(self.tips_frame)
+        frame.pack(fill="both", expand=True, padx=0, pady=0)
+
+        scrollbar = ttk.Scrollbar(frame)
+        scrollbar.pack(side="right", fill="y")
+
+        text = tk.Text(frame, wrap="word", relief="flat", font=("", 9), spacing3 = 3, yscrollcommand=scrollbar.set)
+        text.pack(side="left", fill="both", expand=True,)
+
+        scrollbar.config(command=text.yview)
+
+        tips_text = ct.TIPS_TEXT
+        text.insert("1.0",tips_text)
+
+        text.config(state="disabled")
 
     # =========================================================
     # 指定タブを表示
     # =========================================================
     def show_tab(self, index):
-
-        self.notebook.select(
-            index
-        )
-
+        self.notebook.select(index)
         self.show()

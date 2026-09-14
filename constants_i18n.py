@@ -175,22 +175,28 @@ I18N_MESSAGE_DICT = {
     "AI_GENERATED_MESSAGE2.en" : "Do you want to load it now?",
     "AI_GENERATED_MESSAGE2.ja" : "今すぐ読み込みますか？",
 
-    "OPENAI_API_KEY_NOT_SET_MESSAGE.en" : "OPENAI_API_KEY is not set in the .env file. Please define the API key in the .env file.",
-    "OPENAI_API_KEY_NOT_SET_MESSAGE.ja" : ".envファイルで OPENAI_API_KEY が未設定です。.envファイルにAPIキーを定義してください。",
-    "GEMINI_API_KEY_NOT_SET_MESSAGE.en" : "GEMINI_API_KEY is not set in the .env file. Please define the API key in the .env file.",
-    "GEMINI_API_KEY_NOT_SET_MESSAGE.ja" : ".envファイルで GEMINI_API_KEY が未設定です。.envファイルにAPIキーを定義してください。",
-    "ANTHROPIC_API_KEY_NOT_SET_MESSAGE.en" : "ANTHROPIC_API_KEY is not set in the .env file. Please define the API key in the .env file.",
-    "ANTHROPIC_API_KEY_NOT_SET_MESSAGE.ja" : ".envファイルで ANTHROPIC_API_KEY が未設定です。.envファイルにAPIキーを定義してください。",
-    "MOONSHOT_API_KEY_NOT_SET_MESSAGE.en" : "MOONSHOT_API_KEY is not set in the .env file. Please define the API key in the .env file.",
-    "MOONSHOT_API_KEY_NOT_SET_MESSAGE.ja" : ".envファイルで MOONSHOT_API_KEY が未設定です。.envファイルにAPIキーを定義してください。",
-    "MOONSHOT_API_KEY_NOT_SET_MESSAGE.en" : "MOONSHOT_API_KEY is not set in the .env file. Please define the API key in the .env file.",
-    "MOONSHOT_API_KEY_NOT_SET_MESSAGE.ja" : ".envファイルで MOONSHOT_API_KEY が未設定です。.envファイルにAPIキーを定義してください。",
-    "SPACEXAI_API_KEY_NOT_SET_MESSAGE.en" : "XAI_API_KEY is not set in the .env file. Please define the API key in the .env file.",
-    "SPACEXAI_API_KEY_NOT_SET_MESSAGE.ja" : ".envファイルで XAI_API_KEY が未設定です。.envファイルにAPIキーを定義してください。",
-    "UNSLOTH_API_KEY_NOT_SET_MESSAGE.en" : "UNSLOTH_API_KEY is not set in the .env file. Please define the API key in the .env file.",
-    "UNSLOTH_API_KEY_NOT_SET_MESSAGE.ja" : ".envファイルで UNSLOTH_API_KEY が未設定です。.envファイルにAPIキーを定義してください。",
-    "UNSUPPORTED_AI_MODEL_MESSAGE.en" : "Unsupported AI model specified. Please check the AI_MODEL section in constants.py.",
-    "UNSUPPORTED_AI_MODEL_MESSAGE.ja" : "未対応のAIモデルが指定されています。constants.pyのAI_MODEL欄を確認してください。",
+    "OPENAI_API_KEY_NOT_SET_MESSAGE.ja" : "OpenAIの生成AIモデルを指定していますが、APIキーが未定義です。 生成AI連携機能を使用する場合は、.env ファイルで OPENAI_API_KEY を設定してください。",
+    "OPENAI_API_KEY_NOT_SET_MESSAGE.en" : "OpenAI API key is not defined. If you want to use the AI integration feature, please set the OPENAI_API_KEY in the .env file.",
+
+    "GEMINI_API_KEY_NOT_SET_MESSAGE.ja" : "GEMINIの生成AIモデルを指定していますが、APIキーが未定義です。 生成AI連携機能を使用する場合は、.env ファイルで GEMINI_API_KEY を設定してください。",
+    "GEMINI_API_KEY_NOT_SET_MESSAGE.en" : "GEMINI API key is not defined. If you want to use the AI integration feature, please set the GEMINI_API_KEY in the .env file.",
+
+    "ANTHROPIC_API_KEY_NOT_SET_MESSAGE.ja" : "ANTHROPICの生成AIモデルを指定していますが、APIキーが未定義です。生成AI連携機能を使用する場合は、.env ファイルで ANTHROPIC_API_KEY を設定してください。",
+    "ANTHROPIC_API_KEY_NOT_SET_MESSAGE.en" : "ANTHROPIC API key is not defined. If you want to use the AI integration feature, please set the ANTHROPIC_API_KEY in the .env file.",
+
+    "MOONSHOT_API_KEY_NOT_SET_MESSAGE.ja" : "MOONSHOTの生成AIモデルを指定していますが、APIキーが未定義です。生成AI連携機能を使用する場合は、.env ファイルで MOONSHOT_API_KEY を設定してください。",
+    "MOONSHOT_API_KEY_NOT_SET_MESSAGE.en" : "MOONSHOT API key is not defined. If you want to use the AI integration feature, please set the MOONSHOT_API_KEY in the .env file.",
+
+    "SPACEXAI_API_KEY_NOT_SET_MESSAGE.ja" : "SPACEXAIの生成AIモデルを指定していますが、APIキーが未定義です。生成AI連携機能を使用する場合は、.env ファイルで SPACEXAI_API_KEY を設定してください。",
+    "SPACEXAI_API_KEY_NOT_SET_MESSAGE.en" : "SPACEXAI API key is not defined. If you want to use the AI integration feature, please set the SPACEXAI_API_KEY in the .env file.",
+
+    "UNSLOTH_API_KEY_NOT_SET_MESSAGE.ja" : "UNSLOTHの生成AIモデルを指定していますが、APIキーが未定義です。生成AI連携機能を使用する場合は、.env ファイルで UNSLOTH_API_KEY を設定してください。",
+    "UNSLOTH_API_KEY_NOT_SET_MESSAGE.en" : "UNSLOTH API key is not defined. If you want to use the AI integration feature, please set the UNSLOTH_API_KEY in the .env file.",
+
+    "NOT_SPECIFIED_AI_MODEL_MESSAGE.ja" : "生成AIモデルが指定されていません。constants.pyの AI_MODEL 欄を確認してください。",
+    "NOT_SPECIFIED_AI_MODEL_MESSAGE.en" : "No AI model specified. Please check the AI_MODEL section in constants.py.",
+    "UNSUPPORTED_AI_MODEL_MESSAGE.ja" : "不明な生成AIモデルが指定されています。constants.pyの AI_MODEL 欄を確認してください。",
+    "UNSUPPORTED_AI_MODEL_MESSAGE.en" : "Unknown AI model specified. Please check the AI_MODEL section in constants.py.",
 }
 
 I18N_KEY_MOUSE_TEXT_DICT = {
@@ -401,21 +407,21 @@ I18N_HELP_TEXT_DICT = {
 """,
     "BASIC_HELP_TEXT.ja" :"""フローチャート作図の基本操作
 
-■ノードの配置
+■ ノードの配置
  (1)配置したいノードをツールバーで選択
  (2)キャンバス内で、配置したい位置をクリック
         → 指定位置にノードが作図される
  (3)ノードのドラッグ操作で位置を微調整
  (4)ノードをダブルクリックしてテキストを入力
 
-■リンクの接続
+■ リンクの接続
  (1)ツールバーでリンクを選択
  (2)接続元のノードをクリックしたまま、接続先のノードで離す
         → 2つのノード間のリンクが作図される
  (3)リンクの接続位置（回り込み）の変更は、Ctrl+Wheelで調整できる
  (4)リンクにラベルを付けるには、リンクをダブルクリックして文字入力
 
-■ノードの移動
+■ ノードの移動
  (1)ツールバーで Select アイコンを選択
  (2)移動したいノードをマウス操作で選択
     ・クリック：ノード選択
@@ -424,18 +430,18 @@ I18N_HELP_TEXT_DICT = {
  (3)選択したノードの１つをクリックして、ドラッグ操作で移動先を指定
         → 選択中のノードすべてが指定位置に移動される
 
-■ノードの削除/UNDO/REDO
+■ ノードの削除/UNDO/REDO
  ・Delete アイコンをクリック → 選択中のノードが削除される
  ・Undo アイコンをクリック → 編集操作が１回戻る
  ・Redo アイコンをクリック → 取消操作が１回戻る
 
-■ノードの編集
+■ ノードの編集
  ・ノードをダブルクリック → テキストの編集ができる
  ・ノードを選択して Ctrl+w/W/h/H → ノードの幅/高さを増減できる
  ・ノードを選択して Ctrl+Wheel → ノードの種類を変更できる
  ・ノードを選択して Ctrl-0～9 → ノードの塗りつぶし色を変更できる
 
-■作図したフローチャートの保存/読込
+■ 作図したフローチャートの保存/読込
  ・Save JSON アイコンを選択クリック
         → 作図中のデータがJSON形式で保存される
  ・Load JSON アイコンを選択クリック
@@ -447,50 +453,13 @@ I18N_RELEASE_NOTE_DICT = {
   "RELEASE_NOTE_TITLE.en" : "Release Notes",
   "RELEASE_NOTE_TITLE.ja" : "リリースノート",
 
-  "RELEASE_NOTE_TEXT.en" : """Release Notes
-
-[ 2026/09/09 ]
-- Bug fixes
-  - Adjusted tab display in the slide panel on macOS
-  - Fixed an issue where the display could become distorted at application startup
-  - Fixed an issue where mouse-based width adjustment did not work for multiple selected nodes
-
-[ 2026/09/07 ]
-- Added right-side slide panels for key bindings, a quick operation guide, and release notes
-- Made the AI integration slide panel resizable
-- Confirmed compatibility with the latest AI models (GPT-6 Astra, Claude Fable 5.1, Gemini 3.8 Flash)
-- Fixed display issues caused by node resizing
-- Fixed an issue when loading node information in the AI integration feature
-
-[ 2026/08/25 ]
-- Added support for connecting to Unsloth through the generative AI integration.
-- Added support for changing node width and height using mouse operations (Shift/Ctrl + Wheel) or keyboard shortcuts (Ctrl + w/W/h/H).
-- Changed the keyboard shortcut for changing the node type from Ctrl + Wheel to Ctrl + Shift + Wheel due to the above feature enhancement.
-
-[ 2026/08/15 ]
-- Added support for new generative AI models (Grok 4.6, Gemini 3.7 Flash) in the generative AI integration.
-- Added support for changing the node type using Ctrl + Wheel.
-- Reorganized the list of keyboard shortcuts and mouse operations displayed on the initial screen.
-
-[ 2026/07/27 ]
-- Added support for new generative AI models (Gemini 3.6 Flash, Claude Opus 5, Kimi K3) in the generative AI integration.
-- Fixed an issue when loading generative AI data, including support for escape characters in the note field.
-
-[ 2026/07/11 ]
-- Added support for new generative AI models (GPT 5.6 Sol/Terra/Luna, Claude Fable 5) in the generative AI integration.
-- Added support for connecting to LM Studio through the generative AI integration.
-
-[ 2026/07/04 ]
-- Fixed an issue with Backspace handling during text editing, where deleting text could also delete elements at the same time.
-
-[ 2026/06/28 ]
-- Added support for duplicating selected nodes/swimlanes and links between selected elements using Ctrl + Drag.
-- Improved usability on macOS:
-  - Added support for deleting nodes and other elements using the Backspace key in addition to the Delete key.
-  - Added support for specifying line breaks with \n during text editing.
-- Fixed an issue with swimlane movement.
-""",
-  "RELEASE_NOTE_TEXT.ja" : """リリースノート
+  "RELEASE_NOTE_TEXT.ja" : """
+[ 2026/09/15 ]
+・右スライドパネルに、Tips情報を追加表示
+・アプリ起動時に.envファイルが無ければ、自動で作成
+・不具合対応
+  ・生成AIモデルおよびAPIキー未指定時のメッセージ表示を改善
+  ・生成AI接続不可時の対応を改善
 
 [ 2026/09/09 ]
 ・不具合対応
@@ -533,7 +502,141 @@ I18N_RELEASE_NOTE_DICT = {
   ・テキスト編集で ￥n でも改行指定を可能に
 ・不具合対応（スイムレーンの移動処理）
 """,
+  "RELEASE_NOTE_TEXT.en" : """
+[ 2026/09/15 ]
+- Added Tips information to the right-side slide panel.
+- Automatically create a .env file if it does not exist at application startup.
+- Bug fixes:
+  - Improved message display when the generative AI model and API key are not specified.
+  - Improved handling when the generative AI connection is not available.
+
+[ 2026/09/09 ]
+- Bug fixes
+  - Adjusted tab display in the slide panel on macOS
+  - Fixed an issue where the display could become distorted at application startup
+  - Fixed an issue where mouse-based width adjustment did not work for multiple selected nodes
+
+[ 2026/09/07 ]
+- Added right-side slide panels for key bindings, a quick operation guide, and release notes
+- Made the AI integration slide panel resizable
+- Confirmed compatibility with the latest AI models (GPT-6 Astra, Claude Fable 5.1, Gemini 3.8 Flash)
+- Fixed display issues caused by node resizing
+- Fixed an issue when loading node information in the AI integration feature
+
+[ 2026/08/25 ]
+- Added support for connecting to Unsloth through the generative AI integration.
+- Added support for changing node width and height using mouse operations (Shift/Ctrl + Wheel) or keyboard shortcuts (Ctrl + w/W/h/H).
+- Changed the keyboard shortcut for changing the node type from Ctrl + Wheel to Ctrl + Shift + Wheel due to the above feature enhancement.
+
+[ 2026/08/15 ]
+- Added support for new generative AI models (Grok 4.6, Gemini 3.7 Flash) in the generative AI integration.
+- Added support for changing the node type using Ctrl + Wheel.
+- Reorganized the list of keyboard shortcuts and mouse operations displayed on the initial screen.
+
+[ 2026/07/27 ]
+- Added support for new generative AI models (Gemini 3.6 Flash, Claude Opus 5, Kimi K3) in the generative AI integration.
+- Fixed an issue when loading generative AI data, including support for escape characters in the note field.
+
+[ 2026/07/11 ]
+- Added support for new generative AI models (GPT 5.6 Sol/Terra/Luna, Claude Fable 5) in the generative AI integration.
+- Added support for connecting to LM Studio through the generative AI integration.
+
+[ 2026/07/04 ]
+- Fixed an issue with Backspace handling during text editing, where deleting text could also delete elements at the same time.
+
+[ 2026/06/28 ]
+- Added support for duplicating selected nodes/swimlanes and links between selected elements using Ctrl + Drag.
+- Improved usability on macOS:
+  - Added support for deleting nodes and other elements using the Backspace key in addition to the Delete key.
+  - Added support for specifying line breaks with \n during text editing.
+- Fixed an issue with swimlane movement.
+""",
 }
+
+I18N_TIPS_DICT = {
+  "TIPS_TITLE.en" : "Tips",
+  "TIPS_TITLE.ja" : "Tips",
+
+  "TIPS_TEXT.ja" : """
+■ 初期設定
+・アプリ起動時、アプリのカレントフォルダに .env ファイルが無ければ、自動で作成されます。
+・.envファイルでは、「各種生成AI接続用APIキー」と「アプリ表示用言語」の設定を行います。
+
+■ フローチャート作図
+・ノード及びスイムレーンの縦横サイズは、マウス操作やキー操作で変更できます。
+・テキスト内の改行は、\\n で指定します。
+・グリッドを非表示にすると、要素の位置がグリッドに制約されず、自由に配置できます。
+・ノートの削除（非表示）は、ノート内のテキストを空（削除）にすることで行います。
+
+■ 要素の選択
+・要素を選択するには、要素を直接クリックするか、あるいは、ドラッグ操作で範囲選択を行います。
+・要素を追加選択するには、Shiftキーを押しながら要素をクリックします。
+
+■ 要素の移動・複製
+・選択中の要素の１つをドラッグすることで、選択中の要素すべてを移動できます。
+・Ctrlキーを押しながらドラッグすると、選択中の要素の複製を作成しながら移動できます。
+
+■ キャンバスのサイズ変更
+・キャンバスのサイズは、ウィンドウのサイズ拡大や、要素の移動、フローチャート読み込みによって、全データが含まれるよう自動でサイズ拡張されます。
+・拡張されたキャンバスのサイズの縮小は手動操作になります。ツールバーの「Resize Canvas」ボタンで専用ダイアログを呼び出し、希望のサイズを指定します。
+
+■ フローチャートの保存・読込
+・作成したフローチャートは、JSON形式、または、Mermaid形式で保存できます。
+・JSON形式では、作図したすべての要素とその属性を保存するので、後で元通りに読み込むことができます。
+・Mermaid形式で保存すると、ノードとリンクの最小情報（種類・接続関係）のみが保存されるので、元通りに読み込むことはできません。スイムレーンも保存されません。
+・フローチャートを読み込む際、キャンバス情報をリセットするので、描画している情報はすべてクリアされます。
+
+■ Excel出力機能
+・作成したフローチャートをJSON形式で保存し、提供マクロをExcel上で動作させることで、フローチャートをExcel図形として描画させることができます。
+・macOS用のマクロを利用する場合、ファイルパスおよびファイル名をすべて半角にする必要があります。
+・作成したフローチャート（Excel図形）に対して、全オブジェクトを選択 → グループ化 → 図形の書式設定のプロパティで”セルに合わせて移動するがサイズ変更はしない”を設定 とすると、フローチャートが崩れにくくなります。
+
+■ 生成AI連携機能
+・英語表示モードにすると、生成AIへの依頼も出力結果も英語で行われます。
+・生成AI連携機能で使用する生成AIモデルは、constants.pyファイル内の AI_MODEL で指定します。
+・生成AIが出力したフローチャートを整えるには、一旦、ノートを非表示にしてフローチャートを整え、そのあとNoteを表示してNoteの位置を整えると編集しやすくなります。
+""",
+  "TIPS_TEXT.en" : """
+[Initial Setup Tips]
+- When the application is launched, if there is no .env file in the application's current directory, it will be automatically created.
+- In the .env file, set the "API keys for various generative AI connections" and the "application display language".
+
+[Flowchart Drawing Tips]
+- The vertical and horizontal sizes of nodes and swimlanes can be changed by mouse or key operations.
+- Line breaks within text should be specified using \n.
+- When the grid is hidden, elements are not constrained by the grid and can be freely positioned.
+- Deleting (hiding) a note is done by emptying (deleting) the text within the note.
+
+[Element Selection Tips]
+- To select an element, click directly on the element or drag to select a range.
+- To add to the selection, hold down the Shift key while clicking on elements.
+
+[Element Movement and Duplication Tips]
+- Dragging one of the selected elements moves all selected elements.
+- Holding down the Ctrl key while dragging creates a duplicate of the selected elements while moving them.
+
+[Canvas Resizing Tips]
+- The canvas size automatically expands to include all data when the window is resized, elements are moved, or a flowchart is loaded.
+- To reduce the expanded canvas size, use the "Resize Canvas" button on the toolbar to open the dedicated dialog and specify the desired size.
+
+[Flowchart Saving and Loading Tips]
+- Created flowcharts can be saved in JSON or Mermaid format.
+- JSON format saves all elements and their attributes, allowing them to be reloaded exactly as they were.
+- Mermaid format saves only the minimal information of nodes and links (type and connections), so it cannot be reloaded exactly as it was. Swimlanes are also not saved.
+- When loading a flowchart, the canvas information is reset, so all drawn information is cleared.
+
+[Excel Export Function Tips]
+- By saving the created flowchart in JSON format and running the provided macro in Excel, the flowchart can be drawn as Excel shapes.
+- When using the macro for macOS, the file path and file name must be in half-width characters.
+- For the created flowchart (Excel shapes), select all objects → group them → set "Move but do not resize with cells" in the shape format properties to make the flowchart less likely to break.
+
+[Generative AI Integration Tips]
+- In English display mode, both requests to the generative AI and the output results are in English.
+- The generative AI model used in the generative AI integration feature is specified by AI_MODEL in the constants.py file.
+- To adjust the flowchart output by the generative AI, temporarily hide the notes, adjust the flowchart, and then show the notes again to adjust their positions.
+""",
+}
+
 
 # Generative AI Prompt Template
 I18N_AI_PROMPT_TEMPLATE_DICT = {
@@ -852,6 +955,20 @@ def get_i18n_release_note(key, lang=default_i18n_lang):
 
     if i18n_text == i18n_key:
         print(f"Warning: Release note for key '{key}' and language '{lang}' not found.")
+
+    return i18n_text
+
+def get_i18n_tips_text(key, lang=default_i18n_lang):
+    if key is None:
+        return None
+    if lang is None:
+        lang=default_i18n_lang
+
+    i18n_key = f"{key}.{lang}"
+    i18n_text = I18N_TIPS_DICT.get(i18n_key, i18n_key)
+
+    if i18n_text == i18n_key:
+        print(f"Warning: Tips text for key '{key}' and language '{lang}' not found.")
 
     return i18n_text
 

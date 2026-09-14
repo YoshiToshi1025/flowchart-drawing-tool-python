@@ -320,14 +320,14 @@ class FlowchartTool(tk.Tk):
 
         self._draw_grid()   # 初期グリッド描画
 
+        # 生成AI KEY読み取りと AI clientの初期設定
+        self.ai_interface = Generative_AI_interface()
+
         self.app_start = True  # アプリ起動直後フラグ
         self.display_operation_info()  # 操作情報表示制御
 
         # ウィンドウ終了時の確認
         self.protocol("WM_DELETE_WINDOW", self.on_close)
-
-        # ---- 生成AI KEY読み取りと AI clientの初期設定 ----
-        self.ai_interface = Generative_AI_interface()
 
         # -------------------------
         # 情報パネル（InfoPanel）

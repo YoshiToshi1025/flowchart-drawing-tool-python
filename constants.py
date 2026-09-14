@@ -1,11 +1,19 @@
 from tkinter import font
 import os
+from pathlib import Path
 from dotenv import load_dotenv
-from constants_i18n import get_i18n_ui_text, get_i18n_message, get_i18n_ai_prompt_template, get_i18n_release_note, get_i18n_help_text, get_i18n_key_mouse_text, get_i18n_key_mouse_list
+from constants_i18n import get_i18n_ui_text, get_i18n_message, get_i18n_ai_prompt_template, get_i18n_release_note, get_i18n_help_text, get_i18n_key_mouse_text, get_i18n_key_mouse_list, get_i18n_tips_text
 
 # Application Language Setting / アプリケーションの言語設定
 #   You can change the language by setting the "i18n_lang" variable to "en" for English or "ja" for Japanese.
 #   "i18n_lang"変数を"en"に設定すると英語、"ja"に設定すると日本語になります。
+
+# カレントフォルダに.envファイルが存在しなければ、.env_templateファイルをコピーして.envファイルを作成する
+if not Path(".env").exists():
+    if Path(".env_template").exists():
+        import shutil
+        shutil.copy(".env_template", ".env")
+        print(".envファイルを自動作成しました。必要に応じて編集してください。")
 
 load_dotenv()  # Load environment variables from .env file
 
@@ -335,10 +343,11 @@ MOONSHOT_API_KEY_NOT_SET_MESSAGE = get_i18n_message("MOONSHOT_API_KEY_NOT_SET_ME
 SPACEXAI_API_KEY_NOT_SET_MESSAGE = get_i18n_message("SPACEXAI_API_KEY_NOT_SET_MESSAGE", lang=i18n_lang)
 UNSLOTH_API_KEY_NOT_SET_MESSAGE = get_i18n_message("UNSLOTH_API_KEY_NOT_SET_MESSAGE", lang=i18n_lang)
 
+NOT_SPECIFIED_AI_MODEL_MESSAGE = get_i18n_message("NOT_SPECIFIED_AI_MODEL_MESSAGE", lang=i18n_lang)
 UNSUPPORTED_AI_MODEL_MESSAGE = get_i18n_message("UNSUPPORTED_AI_MODEL_MESSAGE", lang=i18n_lang)
 
 # Info Panel Width / 情報パネルの幅
-INFO_PANEL_WIDTH = 450
+INFO_PANEL_WIDTH = 500
 INFO_PANEL_WIDTH_MIN = 250
 INFO_PANEL_WIDTH_MAX = 1000
 
@@ -389,9 +398,13 @@ BASIC_HELP_TEXT = get_i18n_help_text("BASIC_HELP_TEXT", lang=i18n_lang)
 RELEASE_NOTE_TITLE = get_i18n_release_note("RELEASE_NOTE_TITLE", lang=i18n_lang)
 RELEASE_NOTE_TEXT = get_i18n_release_note("RELEASE_NOTE_TEXT", lang=i18n_lang)
 
+# Tips Text / Tips・テキスト
+TIPS_TITLE = get_i18n_tips_text("TIPS_TITLE", lang=i18n_lang)
+TIPS_TEXT = get_i18n_tips_text("TIPS_TEXT", lang=i18n_lang)
+
 
 # AI Model Selection / 使用する生成AIモデル
-AI_MODEL = "gpt-6-astra"  # Specify the AI model to use for generating flowcharts.
+AI_MODEL = "grok-4.7"  # Specify the AI model to use for generating flowcharts.
 # Example of available AI model names / 指定可能な生成AIモデル名例 (as of 2026.7.11)
 #   OpenAI (gpt-*): "gpt-6-astra", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "gpt-5.5", "gpt-5.4", "gpt-5.4-mini"
 #   GeminiAI (gemini-*): "gemini-3.8-flash", "gemini-3.7-flash", "gemini-3.6-flash", "gemini-3.1-pro-preview", "gemini-3.1-flash-lite", "gemini-3-flash-preview", "gemini-pro-latest", "gemini-flash-lite-latest"

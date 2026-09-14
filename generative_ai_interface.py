@@ -10,67 +10,97 @@ class Generative_AI_interface:
     def __init__(self):
         self.ai_type, self.ai_model = self.get_specified_AI_type_and_model()
         if self.ai_type == "OpenAI":
-            from openai import OpenAI
-            self.openai_client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+            if self.defined_openai_api_key():
+                from openai import OpenAI
+                self.openai_client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+                openai_ai_models = self.get_openai_ai_models()
+                print(f"Available OpenAI models: {openai_ai_models}")
+                if self.ai_model not in openai_ai_models:
+                    print(f"Specified OpenAI model '{self.ai_model}' is not available.")
+            # else:
+            #    print("OpenAI API key is not defined.")
         elif self.ai_type == "Gemini":
-            from google import genai
-            self.gemini_client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
+            if self.defined_gemini_api_key():
+                from google import genai
+                self.gemini_client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
+                gemini_ai_models = self.get_gemini_ai_models()
+                print(f"Available Gemini models: {gemini_ai_models}")
+                if self.ai_model not in gemini_ai_models:
+                    print(f"Specified Gemini model '{self.ai_model}' is not available.")
+            # else:
+            #    print("Gemini API key is not defined.")
         elif self.ai_type == "Anthropic":
-            from anthropic import Anthropic
-            self.anthropic_client = Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+            if self.defined_anthropic_api_key():
+                from anthropic import Anthropic
+                self.anthropic_client = Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+                anthropic_ai_models = self.get_anthropic_ai_models()
+                print(f"Available Anthropic models: {anthropic_ai_models}")
+                if self.ai_model not in anthropic_ai_models:
+                    print(f"Specified Anthropic model '{self.ai_model}' is not available.")
+            # else:
+            #    print("Anthropic API key is not defined.")
         elif self.ai_type == "MoonshotAI":
-            from openai import OpenAI
-            self.moonshot_client = OpenAI(base_url=ct.MOONSHOT_BASE_URL, api_key=os.environ["MOONSHOT_API_KEY"])
+            if self.defined_moonshot_api_key():
+                from openai import OpenAI
+                self.moonshot_client = OpenAI(base_url=ct.MOONSHOT_BASE_URL, api_key=os.environ["MOONSHOT_API_KEY"])
+                moonshot_ai_models = self.get_moonshot_ai_models()
+                print(f"Available MoonshotAI models: {moonshot_ai_models}")
+                if self.ai_model not in moonshot_ai_models:
+                    print(f"Specified MoonshotAI model '{self.ai_model}' is not available.")
+            # else:
+            #    print("MoonshotAI API key is not defined.")
         elif self.ai_type == "SpaceXAI":
-            from openai import OpenAI
-            self.openai_client = OpenAI(base_url=ct.XAI_BASE_URL, api_key=os.environ["XAI_API_KEY"])
+            if self.defined_spacexai_api_key():
+                from openai import OpenAI
+                self.spacexai_client = OpenAI(base_url=ct.XAI_BASE_URL, api_key=os.environ["XAI_API_KEY"])
+                spacexai_ai_models = self.get_spacexai_ai_models()
+                print(f"Available SpaceXAI models: {spacexai_ai_models}")
+                if self.ai_model not in spacexai_ai_models:
+                    print(f"Specified SpaceXAI model '{self.ai_model}' is not available.")
+            # else:
+            #    print("SpaceXAI API key is not defined.")
         elif self.ai_type == "LMStudio":
-            from openai import OpenAI
-            self.openai_client = OpenAI(base_url=ct.LMSTUDIO_BASE_URL, api_key="not-needed")
+            if ct.LMSTUDIO_BASE_URL is not None:
+                from openai import OpenAI
+                self.lmstudio_client = OpenAI(base_url=ct.LMSTUDIO_BASE_URL, api_key="not-needed")
+                lmstudio_ai_models = self.get_lmstudio_ai_models()
+                print(f"Available LMStudio models: {lmstudio_ai_models}")
+                if self.ai_model not in lmstudio_ai_models:
+                    print(f"Specified LMStudio model '{self.ai_model}' is not available.")
+            # else:
+            #    print("LMStudio base URL is not defined.")
         elif self.ai_type == "Unsloth":
-            from openai import OpenAI
-            self.openai_client = OpenAI(base_url=ct.UNSLOTH_BASE_URL, api_key=os.environ["UNSLOTH_API_KEY"])
-
-        if self.ai_type == "OpenAI" and self.defined_openai_api_key():
-            openai_ai_models = self.get_openai_ai_models()
-            print(f"Available OpenAI models: {openai_ai_models}")
-        elif self.ai_type == "Gemini" and self.defined_gemini_api_key():
-            gemini_ai_models = self.get_gemini_ai_models()
-            print(f"Available Gemini models: {gemini_ai_models}")
-        elif self.ai_type == "Anthropic" and self.defined_anthropic_api_key():
-            anthropic_ai_models = self.get_anthropic_ai_models()
-            print(f"Available Anthropic models: {anthropic_ai_models}")
-        elif self.ai_type == "MoonshotAI" and self.defined_moonshot_api_key():
-            moonshot_ai_models = self.get_moonshot_ai_models()
-            print(f"Available MoonshotAI models: {moonshot_ai_models}")
-        elif self.ai_type == "SpaceXAI" and self.defined_spacexai_api_key():
-            spacexai_ai_models = self.get_spacexai_ai_models()
-            print(f"Available SpaceXAI models: {spacexai_ai_models}")
-        elif self.ai_type == "LMStudio" and ct.LMSTUDIO_BASE_URL is not None:
-            lmstudio_ai_models = self.get_lmstudio_ai_models()
-            print(f"Available LMStudio models: {lmstudio_ai_models}")
-        elif self.ai_type == "Unsloth" and ct.UNSLOTH_BASE_URL is not None:
-            unsloth_ai_models = self.get_unsloth_ai_models()
-            print(f"Available Unsloth models: {unsloth_ai_models}")
+            if self.defined_unsloth_api_key() and ct.UNSLOTH_BASE_URL is not None:
+                from openai import OpenAI
+                self.unsloth_client = OpenAI(base_url=ct.UNSLOTH_BASE_URL, api_key=os.environ["UNSLOTH_API_KEY"])
+                unsloth_ai_models = self.get_unsloth_ai_models()
+                print(f"Available Unsloth models: {unsloth_ai_models}")
+                if self.ai_model not in unsloth_ai_models:
+                    print(f"Specified Unsloth model '{self.ai_model}' is not available.")
+            # else:
+            #    print("Unsloth API key or base URL is not defined.")
 
     def get_specified_AI_type_and_model(self):
         ai_model = ct.AI_MODEL
-        if ai_model is not None and ai_model.startswith("gpt-") and self.defined_openai_api_key():
+        if ai_model is not None and ai_model.startswith("gpt-"):
             ai_type = "OpenAI"
-        elif ai_model is not None and ai_model.startswith("gemini-") and self.defined_gemini_api_key():
+        elif ai_model is not None and ai_model.startswith("gemini-"):
             ai_type = "Gemini"
-        elif ai_model is not None and ai_model.startswith("claude-") and self.defined_anthropic_api_key():
+        elif ai_model is not None and ai_model.startswith("claude-"):
             ai_type = "Anthropic"
-        elif ai_model is not None and ai_model.startswith("kimi-") and self.defined_moonshot_api_key():
+        elif ai_model is not None and ai_model.startswith("kimi-"):
             ai_type = "MoonshotAI"
-        elif ai_model is not None and ai_model.startswith("grok-") and self.defined_spacexai_api_key():
+        elif ai_model is not None and ai_model.startswith("grok-"):
             ai_type = "SpaceXAI"
-        elif ai_model is not None and ai_model=="lmstudio" and ct.LMSTUDIO_BASE_URL is not None:
+        elif ai_model is not None and ai_model=="lmstudio":
             ai_type = "LMStudio"
-        elif ai_model is not None and ai_model=="unsloth" and self.defined_unsloth_api_key() and ct.UNSLOTH_BASE_URL is not None:
+        elif ai_model is not None and ai_model=="unsloth":
             ai_type = "Unsloth"
         else:
-            print(ct.UNSUPPORTED_AI_MODEL_MESSAGE)
+            if ai_model is None or ai_model == "":
+                print(ct.NOT_SPECIFIED_AI_MODEL_MESSAGE)
+            else:
+                print(ct.UNSUPPORTED_AI_MODEL_MESSAGE)
             ai_type = None
             ai_model = None
         
@@ -187,7 +217,7 @@ class Generative_AI_interface:
         if not self.defined_spacexai_api_key():
             return []
         try:
-            models = self.openai_client.models.list()
+            models = self.spacexai_client.models.list()
             model_names = []
             for model in models.data:
                 if model.id.startswith("grok-") and "image" not in model.id and "video" not in model.id \
@@ -200,10 +230,10 @@ class Generative_AI_interface:
             return []
 
     def get_lmstudio_ai_models(self):
-        if not self.defined_openai_api_key():
-            return []
+        #if not self.defined_lmstudio_api_key():
+        #    return []
         try:
-            models = self.openai_client.models.list()
+            models = self.lmstudio_client.models.list(timeout=5)
             model_names = []
             for model in models.data:
                 if "embedding" not in model.id:
@@ -211,14 +241,14 @@ class Generative_AI_interface:
             model_names.sort(reverse=True)
             return model_names
         except Exception as e:
-            print(f"Error fetching OpenAI models: {e}")
+            print(f"Error fetching LMStudio models: {e}")
             return []
 
     def get_unsloth_ai_models(self):
-        if not self.defined_openai_api_key():
+        if not self.defined_unsloth_api_key():
             return []
         try:
-            models = self.openai_client.models.list()
+            models = self.unsloth_client.models.list(timeout=5)
             model_names = []
             for model in models.data:
                 model_names.append(model.id)
@@ -254,13 +284,13 @@ class Generative_AI_interface:
             thread = Thread(target=self.call_moonshot_ai, args=(args, return_values), daemon=True)
         elif self.ai_type == "SpaceXAI":
             # print("Calling SpaceXAI API...")
-            thread = Thread(target=self.call_openai_ai, args=(args, return_values), daemon=True)
+            thread = Thread(target=self.call_spacexai_ai, args=(args, return_values), daemon=True)
         elif self.ai_type == "LMStudio":
             # print("Calling LMStudio API...")
-            thread = Thread(target=self.call_openai_ai, args=(args, return_values), daemon=True)
+            thread = Thread(target=self.call_lmstudio_ai, args=(args, return_values), daemon=True)
         elif self.ai_type == "Unsloth":
             # print("Calling Unsloth API...")
-            thread = Thread(target=self.call_openai_ai, args=(args, return_values), daemon=True)
+            thread = Thread(target=self.call_unsloth_ai, args=(args, return_values), daemon=True)
         else:
             print(ct.UNSUPPORTED_AI_MODEL_MESSAGE)
             return_text = ct.UNSUPPORTED_AI_MODEL_MESSAGE
