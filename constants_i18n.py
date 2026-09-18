@@ -454,6 +454,11 @@ I18N_RELEASE_NOTE_DICT = {
   "RELEASE_NOTE_TITLE.ja" : "リリースノート",
 
   "RELEASE_NOTE_TEXT.ja" : """
+[ 2026/09/19 ]
+・ホイール操作によるツールバーの選択変更について、Select選択を変更対象から外す対応
+・ノードおよびスイムレーンが未選択であっても、CTRL+ドラッグで複製を可能にする対応
+・生成AIへの指示内容を残せるように、出力結果の1つ目の要素のノート欄に、AIへの指示内容をを含める対応
+
 [ 2026/09/15 ]
 ・右スライドパネルに、Tips情報を追加表示
 ・アプリ起動時に.envファイルが無ければ、自動で作成
@@ -503,6 +508,11 @@ I18N_RELEASE_NOTE_DICT = {
 ・不具合対応（スイムレーンの移動処理）
 """,
   "RELEASE_NOTE_TEXT.en" : """
+[ 2026/09/19 ]
+- Excluded the "Select" option from toolbar selection changes via wheel operation.
+- Enabled duplication via CTRL+drag even when nodes and swimlanes are not selected.
+- Included the AI instruction content in the note field of the first output element to retain the instructions for the generative AI.
+
 [ 2026/09/15 ]
 - Added Tips information to the right-side slide panel.
 - Automatically create a .env file if it does not exist at application startup.
@@ -645,6 +655,12 @@ I18N_AI_PROMPT_TEMPLATE_DICT = {
 
     "AI_SPEC_TEMPLATE.en" : "# Detailed Specifications\n$spec",
     "AI_SPEC_TEMPLATE.ja" : "# 詳細仕様\n$spec",
+
+    "AI_PROMPT_TITLE.ja" : "AIへの作成指示タイトル\\n・",
+    "AI_PROMPT_TITLE.en" : "Instruction Title for AI\\n-",
+
+    "AI_PROMPT_SPEC.ja" : "詳細仕様",
+    "AI_PROMPT_SPEC.en" : "Detailed Specifications",
 
     "AI_SYSTEM_INSTRUCTIONS.en" : '''# Role
 You are a system design expert specializing in organizing business workflows and process overviews.

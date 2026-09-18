@@ -33,7 +33,7 @@ APP_TITLE = get_i18n_ui_text("APP_TITLE", lang=i18n_lang)
 
 # Canvas Parameters / キャンバス・パラメータ
 CANVAS_PARAMS = {
-    "size": "1440x900",
+    "size": "1200x800",
     "bg_color": "white",
     "grid_color": "#eeeeee",
     "grid_spacing": 15,
@@ -347,7 +347,7 @@ NOT_SPECIFIED_AI_MODEL_MESSAGE = get_i18n_message("NOT_SPECIFIED_AI_MODEL_MESSAG
 UNSUPPORTED_AI_MODEL_MESSAGE = get_i18n_message("UNSUPPORTED_AI_MODEL_MESSAGE", lang=i18n_lang)
 
 # Info Panel Width / 情報パネルの幅
-INFO_PANEL_WIDTH = 500
+INFO_PANEL_WIDTH = 460
 INFO_PANEL_WIDTH_MIN = 250
 INFO_PANEL_WIDTH_MAX = 1000
 
@@ -434,6 +434,9 @@ AI_CHAT_WIDTH_MAX = 1000
 AI_INPUT_TEMPLATE = get_i18n_ai_prompt_template("AI_INPUT_TEMPLATE", lang=i18n_lang)
 AI_SPEC_TEMPLATE = get_i18n_ai_prompt_template("AI_SPEC_TEMPLATE", lang=i18n_lang)
 AI_SYSTEM_INSTRUCTIONS = get_i18n_ai_prompt_template("AI_SYSTEM_INSTRUCTIONS", lang=i18n_lang)
+AI_PROMPT_TITLE = get_i18n_ai_prompt_template("AI_PROMPT_TITLE", lang=i18n_lang)
+AI_PROMPT_SPEC = get_i18n_ai_prompt_template("AI_PROMPT_SPEC", lang=i18n_lang)
+
 
 # Work Directory / 作業フォルダ
 WORK_DIR_NAME = "work"

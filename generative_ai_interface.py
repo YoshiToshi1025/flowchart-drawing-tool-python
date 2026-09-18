@@ -158,7 +158,7 @@ class Generative_AI_interface:
                 if model.id.startswith("gpt-") and "image" not in model.id and "codex" not in model.id \
                         and "audio" not in model.id and "realtime" not in model.id and "tts" not in model.id \
                         and "whisper" not in model.id and "transcribe" not in model.id and "search" not in model.id \
-                        and "chat" not in model.id:
+                        and "chat" not in model.id and "live" not in model.id:
                     model_names.append(model.id)
             model_names.sort(reverse=True)
             return model_names
@@ -268,7 +268,7 @@ class Generative_AI_interface:
             user_input_msg += "\n" + ct.AI_SPEC_TEMPLATE.replace("$spec", spec_msg)
         original_filename = f"{user_msg}_{self.ai_model}"
         sanitized_filename = self.sanitize_filename(original_filename)
-        args = (user_input_msg, sanitized_filename)
+        args = (user_input_msg, sanitized_filename, user_msg, spec_msg)
         return_values = [None, None]
         if self.ai_type == "OpenAI":
             # print("Calling OpenAI API...")
@@ -304,8 +304,27 @@ class Generative_AI_interface:
 
         return return_text, mmd_filepath
 
+    # AIが生成したテキストに、依頼したプロンプトを強制的に埋め込む
+    def insert_prompt_into_output(self, ai_output_text: str, title_prompt: str, spec_prompt: str) -> str:
+        search_text = "bx: 0, by: 0"
+
+        title_phrase = ct.AI_PROMPT_TITLE
+        spec_phrase = ct.AI_PROMPT_SPEC
+        spec_prompt = spec_prompt.replace("\n", "\\n")
+
+        if title_prompt is not None and title_prompt != "":
+            if spec_prompt is None or spec_prompt == "":
+                repalce_text = f"{search_text}, details: \"{title_phrase}{title_prompt}\""
+            else:
+                repalce_text = f"{search_text}, details: \"{title_phrase}{title_prompt}\\n{spec_phrase}\\n{spec_prompt}\""
+
+            if search_text in ai_output_text:
+                ai_output_text = ai_output_text.replace(search_text, repalce_text, 1)
+
+        return ai_output_text
+
     def call_openai_ai(self, args, return_values):
-        user_input_msg, filename = args
+        user_input_msg, filename, user_msg, spec_msg = args
         try:
             resp = self.openai_client.responses.create(
                 model=ct.AI_MODEL,
@@ -313,6 +332,8 @@ class Generative_AI_interface:
                 input=user_input_msg,
             )
             assistant_text = resp.output_text or ""
+            assistant_text = self.insert_prompt_into_output(assistant_text, user_msg, spec_msg)
+
             success_flag, mmd_filepath = self.save_mmd_to_file(filename, assistant_text)
             return_values[0] = assistant_text
             return_values[1] = mmd_filepath
@@ -323,7 +344,7 @@ class Generative_AI_interface:
             return_values[1] = None
 
     def call_gemini_ai(self, args, return_values):
-        user_input_msg, filename = args
+        user_input_msg, filename, user_msg, spec_msg = args
         from google import genai
         try:
             response = self.gemini_client.models.generate_content(
@@ -332,6 +353,7 @@ class Generative_AI_interface:
                 contents=user_input_msg
             )
             assistant_text = response.text or ""
+            assistant_text = self.insert_prompt_into_output(assistant_text, user_msg, spec_msg)
             success_flag, mmd_filepath = self.save_mmd_to_file(filename, assistant_text)
             return_values[0] = assistant_text
             return_values[1] = mmd_filepath
@@ -341,7 +363,7 @@ class Generative_AI_interface:
             return_values[1] = None
 
     def call_anthropic_ai(self, args, return_values):
-        user_input_msg, filename = args
+        user_input_msg, filename, user_msg, spec_msg = args
         from anthropic import Anthropic
         try:
             response = self.anthropic_client.messages.create(
@@ -359,6 +381,7 @@ class Generative_AI_interface:
                 if message.type == "text":
                     assistant_text = message.text or ""
                     break
+            assistant_text = self.insert_prompt_into_output(assistant_text, user_msg, spec_msg)
             success_flag, mmd_filepath = self.save_mmd_to_file(filename, assistant_text)
             return_values[0] = assistant_text
             return_values[1] = mmd_filepath
@@ -368,7 +391,7 @@ class Generative_AI_interface:
             return_values[1] = None
 
     def call_moonshot_ai(self, args, return_values):
-        user_input_msg, filename = args
+        user_input_msg, filename, user_msg, spec_msg = args
         try:
             resp = self.moonshot_client.chat.completions.create(
                 model=ct.AI_MODEL,
@@ -378,6 +401,7 @@ class Generative_AI_interface:
                 ],
             )
             assistant_text = resp.choices[0].message.content or ""
+            assistant_text = self.insert_prompt_into_output(assistant_text, user_msg, spec_msg)
             success_flag, mmd_filepath = self.save_mmd_to_file(filename, assistant_text)
             return_values[0] = assistant_text
             return_values[1] = mmd_filepath

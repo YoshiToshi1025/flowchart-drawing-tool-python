@@ -1145,13 +1145,32 @@ class FlowchartTool(tk.Tk):
     def on_drag_start_ctrl(self, event):
         # print("Control-Drag started.")
 
-        # TODO ドラッグした要素を複製し、ドラッグ情報を記録する、複製したものを選択中にして複製元は選択から外す
+        # ドラッグした要素を複製し、ドラッグ情報を記録し、複製したものを選択中にして複製元は選択を解除する
+
+        # テキスト編集中なら、編集中のテキストを確定させる
+        if self.text_edit is not None:
+            self.finish_text_edit(commit=True)
+        if self.edge_label_edit is not None:
+            self.finish_edge_label_edit(commit=True)
+        if self.swimlane_label_edit is not None:
+            self.finish_swimlane_label_edit(commit=True)
+        if self.note_text_edit is not None:
+            self.finish_note_text_edit(commit=True)
 
         selected_node_id = self.node_at(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
         selected_edge_id = self.edge_at(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
         selected_swimlane = self.swimlane_at(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
         selected_note = self.note_at(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
         # print(f"Selected on drag start: node_id={selected_node_id}, edge_id={selected_edge_id}, swimlane={selected_swimlane}, note={selected_note}")
+
+        # 選択オブジェクトが選択中の場合は、現状の選択状態を維持する
+        if self.isSelectedObject(selected_node_id, selected_swimlane):
+            pass
+        else:
+            if selected_node_id is not None:
+                self.select_node(selected_node_id)
+            if selected_swimlane is not None:
+                self.select_swimlane(selected_swimlane)
 
         if selected_node_id is not None:
             # print(f"Node selected for dragging: node_id={selected_node_id}")
@@ -1221,7 +1240,7 @@ class FlowchartTool(tk.Tk):
     def on_drag_end_ctrl(self, event):
         # print("Control-Drag ended.")
 
-        # TODO 選択中の要素とスイムレーンと選択中要素同士を結ぶリンクを複製しD&Dで移動した量だけ移動させる、複製したものを選択中にして複製元は選択から外す
+        # 選択中の要素とスイムレーンと選択中要素同士を結ぶリンクを複製しD&Dで移動した量だけ移動させる、複製したものを選択中にして複製元は選択を解除する
         mode = self.drag_data["mode"]
         self.drag_data["drag_end_x"] = self.canvas.canvasx(event.x)
         self.drag_data["drag_end_y"] = self.canvas.canvasy(event.y)
@@ -1480,10 +1499,11 @@ class FlowchartTool(tk.Tk):
 
     def on_mouse_wheel(self, event):
         # print("Mouse Wheel detected : No action assigned")
-        # マウスホイール操作でローテーションでモードを変更する
+        # マウスホイール操作でローテーションでモードを変更する、ただしSelectionモードは除外
         mode = self.mode.get()
         delta = event.delta
         mode_values = list(ct.MODE_DICT.values())
+        mode_values.remove(ct.DEFAULT_MODE)
         if mode in mode_values:
             current_index = mode_values.index(mode)
             if delta > 0:
@@ -1492,10 +1512,8 @@ class FlowchartTool(tk.Tk):
             else:
                 # 下スクロール：次のモードへ
                 new_index = (current_index + 1) % len(mode_values)
-        else:
-            new_index = 0
-        new_mode = mode_values[new_index]
-        self.mode.set(new_mode)
+            new_mode = mode_values[new_index]
+            self.mode.set(new_mode)
 
     def on_mouse_wheel_shift(self, event):
         # print("Shift + Mouse Wheel detected")
@@ -2977,8 +2995,8 @@ class FlowchartTool(tk.Tk):
         img = img.resize((400, 350), Image.Resampling.LANCZOS)
         self.app_start_img = ImageTk.PhotoImage(img)
         self.app_start_panel = self.canvas.create_image(self.canvas_width//2, self.canvas_height//2, anchor="center", image=self.app_start_img)
-        # 4000ms後に非表示
-        self.after(4000, self._hide_app_start_panel)
+        # 3000ms後に非表示
+        self.after(3000, self._hide_app_start_panel)
 
     def _hide_app_start_panel(self):
         if hasattr(self, "app_start_panel") and self.app_start_panel:
