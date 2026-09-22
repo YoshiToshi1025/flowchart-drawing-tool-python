@@ -65,8 +65,8 @@ class Generative_AI_interface:
                 self.lmstudio_client = OpenAI(base_url=ct.LMSTUDIO_BASE_URL, api_key="not-needed")
                 lmstudio_ai_models = self.get_lmstudio_ai_models()
                 print(f"Available LMStudio models: {lmstudio_ai_models}")
-                if self.ai_model not in lmstudio_ai_models:
-                    print(f"Specified LMStudio model '{self.ai_model}' is not available.")
+                if len(lmstudio_ai_models):
+                      print(f"Specified LMStudio AI model is not available.")
             # else:
             #    print("LMStudio base URL is not defined.")
         elif self.ai_type == "Unsloth":
@@ -75,8 +75,8 @@ class Generative_AI_interface:
                 self.unsloth_client = OpenAI(base_url=ct.UNSLOTH_BASE_URL, api_key=os.environ["UNSLOTH_API_KEY"])
                 unsloth_ai_models = self.get_unsloth_ai_models()
                 print(f"Available Unsloth models: {unsloth_ai_models}")
-                if self.ai_model not in unsloth_ai_models:
-                    print(f"Specified Unsloth model '{self.ai_model}' is not available.")
+                if len(unsloth_ai_models) == 0:
+                    print(f"Specified Unsloth AI model is not available.")
             # else:
             #    print("Unsloth API key or base URL is not defined.")
 
@@ -127,18 +127,18 @@ class Generative_AI_interface:
             print(ct.ANTHROPIC_API_KEY_NOT_SET_MESSAGE)
             return False
 
-    def defined_moonshot_api_key(self):
-        if "MOONSHOT_API_KEY" in os.environ and len(os.environ["MOONSHOT_API_KEY"].strip()) > 0:
-            return True
-        else:
-            print(ct.MOONSHOT_API_KEY_NOT_SET_MESSAGE)
-            return False
-
     def defined_spacexai_api_key(self):
         if "XAI_API_KEY" in os.environ and len(os.environ["XAI_API_KEY"].strip()) > 0:
             return True
         else:
             print(ct.SPACEXAI_API_KEY_NOT_SET_MESSAGE)
+            return False
+
+    def defined_moonshot_api_key(self):
+        if "MOONSHOT_API_KEY" in os.environ and len(os.environ["MOONSHOT_API_KEY"].strip()) > 0:
+            return True
+        else:
+            print(ct.MOONSHOT_API_KEY_NOT_SET_MESSAGE)
             return False
 
     def defined_unsloth_api_key(self):
@@ -198,21 +198,6 @@ class Generative_AI_interface:
             print(f"Error fetching Anthropic models: {e}")
             return []
 
-    def get_moonshot_ai_models(self):
-        if not self.defined_moonshot_api_key():
-            return []
-        try:
-            models = self.moonshot_client.models.list()
-            model_names = []
-            for model in models.data:
-                if model.id.startswith("kimi-") and "code" not in model.id:
-                    model_names.append(model.id)
-            model_names.sort(reverse=True)
-            return model_names
-        except Exception as e:
-            print(f"Error fetching MoonshotAI models: {e}")
-            return []
-
     def get_spacexai_ai_models(self):
         if not self.defined_spacexai_api_key():
             return []
@@ -227,6 +212,21 @@ class Generative_AI_interface:
             return model_names
         except Exception as e:
             print(f"Error fetching SpaceXAI models: {e}")
+            return []
+
+    def get_moonshot_ai_models(self):
+        if not self.defined_moonshot_api_key():
+            return []
+        try:
+            models = self.moonshot_client.models.list()
+            model_names = []
+            for model in models.data:
+                if model.id.startswith("kimi-") and "code" not in model.id:
+                    model_names.append(model.id)
+            model_names.sort(reverse=True)
+            return model_names
+        except Exception as e:
+            print(f"Error fetching MoonshotAI models: {e}")
             return []
 
     def get_lmstudio_ai_models(self):
@@ -390,6 +390,26 @@ class Generative_AI_interface:
             return_values[0] = "Anthropic API Error"
             return_values[1] = None
 
+    def call_spacexai_ai(self, args, return_values):
+        user_input_msg, filename, user_msg, spec_msg = args
+        try:
+            resp = self.spacexai_client.responses.create(
+                model=ct.AI_MODEL,
+                instructions=ct.AI_SYSTEM_INSTRUCTIONS,
+                input=user_input_msg,
+            )
+            assistant_text = resp.output_text or ""
+            assistant_text = self.insert_prompt_into_output(assistant_text, user_msg, spec_msg)
+
+            success_flag, mmd_filepath = self.save_mmd_to_file(filename, assistant_text)
+            return_values[0] = assistant_text
+            return_values[1] = mmd_filepath
+            # print(f"SpaceXAI API call successful. assistant_text: {assistant_text}, mmd_filepath: {mmd_filepath}, return_values: {return_values}")
+        except Exception as e:
+            print(e)
+            return_values[0] = "SpaceXAI API Error"
+            return_values[1] = None
+
     def call_moonshot_ai(self, args, return_values):
         user_input_msg, filename, user_msg, spec_msg = args
         try:
@@ -409,6 +429,46 @@ class Generative_AI_interface:
         except Exception as e:
             print(e)
             return_values[0] = "Moonshot API Error"
+            return_values[1] = None
+
+    def call_lmstudio_ai(self, args, return_values):
+        user_input_msg, filename, user_msg, spec_msg = args
+        try:
+            resp = self.lmstudio_client.responses.create(
+                model=ct.AI_MODEL,
+                instructions=ct.AI_SYSTEM_INSTRUCTIONS,
+                input=user_input_msg,
+            )
+            assistant_text = resp.output_text or ""
+            assistant_text = self.insert_prompt_into_output(assistant_text, user_msg, spec_msg)
+
+            success_flag, mmd_filepath = self.save_mmd_to_file(filename, assistant_text)
+            return_values[0] = assistant_text
+            return_values[1] = mmd_filepath
+            # print(f"LMStudioAI API call successful. assistant_text: {assistant_text}, mmd_filepath: {mmd_filepath}, return_values: {return_values}")
+        except Exception as e:
+            print(e)
+            return_values[0] = "LMStudioAI API Error"
+            return_values[1] = None
+
+    def call_unsloth_ai(self, args, return_values):
+        user_input_msg, filename, user_msg, spec_msg = args
+        try:
+            resp = self.unsloth_client.responses.create(
+                model=ct.AI_MODEL,
+                instructions=ct.AI_SYSTEM_INSTRUCTIONS,
+                input=user_input_msg,
+            )
+            assistant_text = resp.output_text or ""
+            assistant_text = self.insert_prompt_into_output(assistant_text, user_msg, spec_msg)
+
+            success_flag, mmd_filepath = self.save_mmd_to_file(filename, assistant_text)
+            return_values[0] = assistant_text
+            return_values[1] = mmd_filepath
+            # print(f"Unsloth AI API call successful. assistant_text: {assistant_text}, mmd_filepath: {mmd_filepath}, return_values: {return_values}")
+        except Exception as e:
+            print(e)
+            return_values[0] = "Unsloth AI API Error"
             return_values[1] = None
 
     # -----------------------------

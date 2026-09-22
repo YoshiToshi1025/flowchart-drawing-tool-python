@@ -202,6 +202,7 @@ This project provides a **“Simple Flowchart Drawing Tool 颯(HAYATE)”** that
 * 2026/09/09 : Bug fixes (slide panel display issues on macOS, startup display issues, and node width adjustment when multiple nodes are selected)
 * 2026/09/15 : Added a Tips tab to the Information Panel, automatically creates the .env file if it does not exist, and fixed issues related to missing AI model/API key settings and AI connection failures.
 * 2026/09/19 : Prevented Select mode from changing with the mouse wheel, added AI request details to AI-generated output, and enabled node duplication without selecting a node.
+* 2026/09/23 : Added support for new AI models (Claude Opus 5.5, Grok 4.7), Fixed connection errors with some AI models
 
 ## Notes (Additional)
 

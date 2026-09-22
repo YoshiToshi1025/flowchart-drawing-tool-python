@@ -454,6 +454,11 @@ I18N_RELEASE_NOTE_DICT = {
   "RELEASE_NOTE_TITLE.ja" : "リリースノート",
 
   "RELEASE_NOTE_TEXT.ja" : """
+[ 2026/09/23 ]
+・生成AI連携機能における最新生成AI(claude-opus-5-5, grok-4.7)の動作確認
+・不具合対応
+  ・生成AI連携機能における生成AIとの接続エラーの解消(Grok, LMStudio, Unsloth)
+
 [ 2026/09/19 ]
 ・ホイール操作によるツールバーの選択変更について、Select選択を変更対象から外す対応
 ・ノードおよびスイムレーンが未選択であっても、CTRL+ドラッグで複製を可能にする対応
@@ -508,7 +513,12 @@ I18N_RELEASE_NOTE_DICT = {
 ・不具合対応（スイムレーンの移動処理）
 """,
   "RELEASE_NOTE_TEXT.en" : """
-[ 2026/09/19 ]
+[ 2026/09/23 ]
+- Confirmed compatibility with the latest generative AI models (Claude Opus 5.5, Grok 4.7) in the generative AI integration.
+- Bug fixes:
+  - Resolved connection errors with generative AI models in the generative AI integration (Grok, LMStudio, Unsloth).
+
+  [ 2026/09/19 ]
 - Excluded the "Select" option from toolbar selection changes via wheel operation.
 - Enabled duplication via CTRL+drag even when nodes and swimlanes are not selected.
 - Included the AI instruction content in the note field of the first output element to retain the instructions for the generative AI.
