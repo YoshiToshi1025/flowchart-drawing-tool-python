@@ -31,23 +31,23 @@ This project provides a **“Simple Flowchart Drawing Tool 颯(HAYATE)”** that
 * Quickly create, save, and re-edit simple flowcharts
 * Automatic routing of links when connecting elements or moving nodes, with manual adjustment support
 * Supports both vertical and horizontal swimlanes
-* Integration with generative AI (OpenAI GPT, Google Gemini, Anthropic Claude) for automatic flowchart generation (with manual editing available afterward)
+* API Integration with generative AI (GPT, Gemini, Claude, Grok, LMStudio, Unsloth) for automatic flowchart generation (with manual editing available afterward)
 
 <div style="text-align: center;">
-<img width="75%" src="example/Login Authentication Requirements_gpt-5.5.png" />
+<img width="75%" src="example/Part Number Assignment System_claude-opus-5-5.png" />
 </div>
 
 * Released VBA for importing flowchart JSON data into Excel and rendering editable flowcharts → significantly reduces Excel diagramming workload
 
 <div style="text-align: center;">
-<img width="75%" src="example/Login Authentication Requirements_gpt-5.5_to_Excel.png" />
+<img width="75%" src="example/Part Number Assignment System_to_Excel.png" />
 </div>
 
 ## Installation
 
 ### Prerequisites
 
-* Supported OS: Verified on Windows 11 and macOS 26.4
+* Supported OS: Verified on Windows 11 and macOS 27
 * A Python execution environment with Tkinter Canvas support is required
   (Not supported in web environments such as Google Colab; macOS requires Tkinter setup)
 * Git is recommended for checking out the latest code from GitHub
@@ -203,6 +203,7 @@ This project provides a **“Simple Flowchart Drawing Tool 颯(HAYATE)”** that
 * 2026/09/15 : Added a Tips tab to the Information Panel, automatically creates the .env file if it does not exist, and fixed issues related to missing AI model/API key settings and AI connection failures.
 * 2026/09/19 : Prevented Select mode from changing with the mouse wheel, added AI request details to AI-generated output, and enabled node duplication without selecting a node.
 * 2026/09/23 : Added support for new AI models (Claude Opus 5.5, Grok 4.7), Fixed connection errors with some AI models
+* 2026/09/25 : Added support for changing the fill color of selected links with Ctrl+0–9 and resetting to the default color with Ctrl+r, Changed the fill color reset shortcut for nodes and swimlanes to Ctrl+r, Updated the images in the English version of the README.
 
 ## Notes (Additional)
 

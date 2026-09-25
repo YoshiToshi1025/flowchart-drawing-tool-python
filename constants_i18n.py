@@ -254,7 +254,7 @@ I18N_KEY_MOUSE_LIST_DICT = {
             ("Ctrl-z", "元に戻す(UNDO)"),
             ("Ctrl-y", "やり直し(REDO)"),
             ("Ctrl-0~9", "選択中のノード/スイムレーンの塗りつぶし色を変更"),
-            ("Ctrl-'-'", "選択中のノード/スイムレーンの塗りつぶし色をリセット"),
+            ("Ctrl-r", "選択中のノード/スイムレーンの塗りつぶし色をリセット"),
             ("Ctrl-w", "選択中のノード/スイムレーンの幅を増加"),
             ("Ctrl-W", "選択中のノード/スイムレーンの幅を減少"),
             ("Ctrl-h", "選択中のノード/スイムレーンの高さを増加"),
@@ -267,7 +267,7 @@ I18N_KEY_MOUSE_LIST_DICT = {
             ("Ctrl-z", "Undo the previous action"),
             ("Ctrl-y", "Redo the previously undone action"),
             ("Ctrl-0~9", "Change the fill color of the selected node/swimlane"),
-            ("Ctrl-'-'", "Reset the fill color of the selected node/swimlane"),
+            ("Ctrl-r", "Reset the fill color of the selected node/swimlane"),
             ("Ctrl-w", "Increase the width of the selected node/swimlane"),
             ("Ctrl-W", "Decrease the width of the selected node/swimlane"),
             ("Ctrl-h", "Increase the height of the selected node/swimlane"),
@@ -454,6 +454,11 @@ I18N_RELEASE_NOTE_DICT = {
   "RELEASE_NOTE_TITLE.ja" : "リリースノート",
 
   "RELEASE_NOTE_TEXT.ja" : """
+[ 2026/09/25 ]
+・リンク選択時に、Ctrl+0～9でリンクの線色の変更と、Ctrl+rでデフォルトにリセットに対応
+・ノードとスイムレーンの塗りつぶし色のリセット操作を Ctrl+r に変更（Ctrl+'-'は意図しない動作になるため）
+・README（英語版）の図を更新
+
 [ 2026/09/23 ]
 ・生成AI連携機能における最新生成AI(claude-opus-5-5, grok-4.7)の動作確認
 ・不具合対応
@@ -513,6 +518,11 @@ I18N_RELEASE_NOTE_DICT = {
 ・不具合対応（スイムレーンの移動処理）
 """,
   "RELEASE_NOTE_TEXT.en" : """
+[ 2026/09/25 ]
+- Added support for changing the line color of selected links with Ctrl+0~9, and resetting to the default color with Ctrl+r.
+- Changed the fill color reset shortcut for nodes and swimlanes to Ctrl+r (Ctrl+'-' was changed because it could cause unintended behavior).
+- Updated the images in the English version of the README.
+
 [ 2026/09/23 ]
 - Confirmed compatibility with the latest generative AI models (Claude Opus 5.5, Grok 4.7) in the generative AI integration.
 - Bug fixes:

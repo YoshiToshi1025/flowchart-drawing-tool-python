@@ -234,6 +234,20 @@ EDGE_LINE_STYLE_SOLID = "solid"
 EDGE_LINE_STYLE_DASHED = "dashed"
 EDGE_LINE_STYLE_DOTTED = "dotted"
 
+# Edge Line Colors / エッジ・線色リスト
+EDGE_LINE_COLORS = [
+    "#333333", # Dark Gray
+    "#2F5597", # Blue
+    "#4472C4", # Blue
+    "#548235", # Green
+    "#2E75B6", # Blue
+    "#C00000", # Red
+    "#C65911", # Orange
+    "#7030A0", # Purple
+    "#806000", # Brown
+    "#7F7F7F", # Gray
+]
+
 EDGE_PARAMS = {
     "line_style": EDGE_LINE_STYLE_SOLID,
     "color": "#0f172a",
@@ -404,7 +418,7 @@ TIPS_TEXT = get_i18n_tips_text("TIPS_TEXT", lang=i18n_lang)
 
 
 # AI Model Selection / 使用する生成AIモデル
-AI_MODEL = "gpt-6-astra"  # Specify the AI model to use for generating flowcharts.
+AI_MODEL = "claude-opus-5-5"  # Specify the AI model to use for generating flowcharts.
 # Example of available AI model names / 指定可能な生成AIモデル名例 (as of 2026.7.11)
 #   OpenAI (gpt-*): "gpt-6-astra", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "gpt-5.5", "gpt-5.4", "gpt-5.4-mini"
 #   GeminiAI (gemini-*): "gemini-3.8-flash", "gemini-3.7-flash", "gemini-3.6-flash", "gemini-3.1-pro-preview", "gemini-3.1-flash-lite", "gemini-3-flash-preview", "gemini-pro-latest", "gemini-flash-lite-latest"

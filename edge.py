@@ -2718,6 +2718,9 @@ class Edge:
         if self.line_style is not None:
             edge_data["line_style"] = self.line_style
 
+        if self.color is not None:
+            edge_data["color"] = self.color
+
         if self.connection_mode is not None:
             edge_data["connection_mode"] = self.connection_mode
         if self.from_node_connection_point is not None:

@@ -276,7 +276,7 @@ class FlowchartTool(tk.Tk):
         self.bind_all("<Control-Key-8>", lambda e: self.change_node_fill_color(7))
         self.bind_all("<Control-Key-9>", lambda e: self.change_node_fill_color(8))
         self.bind_all("<Control-Key-0>", lambda e: self.change_node_fill_color(9))
-        self.bind_all("<Control-Key-->", lambda e: self.reset_node_fill_color())
+        self.bind_all("<Control-Key-r>", lambda e: self.reset_node_fill_color())
 
         self.bind_all("<Control-Key-w>", lambda e: self.change_node_width(increase=True))
         self.bind_all("<Control-Key-W>", lambda e: self.change_node_width(increase=False))
@@ -1356,6 +1356,7 @@ class FlowchartTool(tk.Tk):
                     original_edge_obj = self.get_edge_between_nodes(original_from_node_id, original_to_node_id)
                     if original_edge_obj is not None:
                         clone_edge_obj = Edge(edge_type=original_edge_obj.edge_type, path_type=original_edge_obj.path_type, line_style=original_edge_obj.line_style,
+                                                color=original_edge_obj.color,
                                                 from_node_obj=clone_from_node_obj, to_node_obj=clone_to_node_obj, text=original_edge_obj.label_text, \
                                                 connection_mode=original_edge_obj.connection_mode, \
                                                 from_node_connection_point=original_edge_obj.from_node_connection_point, \
@@ -1811,7 +1812,8 @@ class FlowchartTool(tk.Tk):
     def _reset_edge_to_original_color(self, edge_obj):
         if edge_obj is None or edge_obj.line_id is None:
             return
-        self.canvas.itemconfig(edge_obj.line_id, fill=ct.EDGE_PARAMS["color"])
+        self.canvas.itemconfig(edge_obj.line_id, fill=edge_obj.color)
+        self.canvas.itemconfig(edge_obj.label_id, fill=edge_obj.color)
 
     # 選択されているノードのステータスを変更する
     def change_selected_nodes_status(self, status):
@@ -2268,6 +2270,7 @@ class FlowchartTool(tk.Tk):
         for edge_line_id, edge_obj in self.edges.items():
             edge_data = edge_obj.to_dict()  # Edgeクラスのto_dictメソッドを使用してエッジデータを取得
             edges_data.append(edge_data)
+
         # スイムレーンは、種類、タイトル、ヘッダー位置、サイズを保存
         swimlanes_data = []
         for swimlane_obj in self.swimlanes:
@@ -2332,6 +2335,7 @@ class FlowchartTool(tk.Tk):
             path_type = ed.get("path_type", ct.EDGE_PARAMS["path_type"]) if edge_type == ct.EDGE_TYPE_ELBOW else None
             default_line_style = ct.EDGE_PARAMS["line_style"] if edge_type == ct.EDGE_TYPE_ELBOW else ct.EDGE_LINE_STYLE_DOTTED
             line_style = ed.get("line_style", default_line_style)
+            color = ed.get("color", ct.EDGE_PARAMS["color"])
             connection_mode = ed.get("connection_mode", None)
             from_connection_point = ed.get("from_connection_point", None)
             to_connection_point = ed.get("to_connection_point", None)
@@ -2341,7 +2345,8 @@ class FlowchartTool(tk.Tk):
             if fid in self.nodes and tid in self.nodes:
                 from_node_obj = self.nodes[fid]
                 to_node_obj = self.nodes[tid]
-                edge_obj = Edge(edge_type=edge_type, path_type=path_type, line_style=line_style, from_node_obj=from_node_obj, to_node_obj=to_node_obj, text=label, \
+                edge_obj = Edge(edge_type=edge_type, path_type=path_type, line_style=line_style, color=color,
+                                        from_node_obj=from_node_obj, to_node_obj=to_node_obj, text=label, \
                                         connection_mode=connection_mode, \
                                         from_node_connection_point=from_connection_point, \
                                         to_node_connection_point=to_connection_point, \
@@ -3039,6 +3044,11 @@ class FlowchartTool(tk.Tk):
             self.canvas.itemconfig(selected_swimlane.top_id, fill=selected_swimlane.fill_color)
             self.canvas.itemconfig(selected_swimlane.bottom_id, fill=selected_swimlane.fill_color)
 
+        if self.selected_edge_id in self.edges:
+            selected_edge = self.edges[self.selected_edge_id]
+            selected_edge.color = ct.EDGE_LINE_COLORS[color_no]
+            self.canvas.itemconfig(selected_edge.line_id, fill=selected_edge.color)
+
         self.push_history()
 
     def reset_node_fill_color(self):
@@ -3054,6 +3064,12 @@ class FlowchartTool(tk.Tk):
             selected_swimlane.fill_color = selected_swimlane.reset_fill_color()
             self.canvas.itemconfig(selected_swimlane.top_id, fill=selected_swimlane.fill_color)
             self.canvas.itemconfig(selected_swimlane.bottom_id, fill=selected_swimlane.fill_color)
+
+        if self.selected_edge_id in self.edges:
+            selected_edge = self.edges[self.selected_edge_id]
+            selected_edge.color = ct.EDGE_PARAMS["color"]
+            self.canvas.itemconfig(selected_edge.line_id, fill=selected_edge.color)
+            self.canvas.itemconfig(selected_edge.label_id, fill=selected_edge.color)
 
         self.push_history()
 

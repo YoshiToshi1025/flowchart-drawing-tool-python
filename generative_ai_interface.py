@@ -178,7 +178,7 @@ class Generative_AI_interface:
                if model_name.startswith("gemini-") and "audio" not in model_name and "translate" not in model_name \
                        and "embedding" not in model_name and "robotics" not in model_name and "omni" not in model_name \
                        and "image" not in model_name and "tts" not in model_name and "live" not in model_name \
-                       and "computer-use" not in model_name and "customtools" not in model_name:
+                       and "computer-use" not in model_name and "customtools" not in model_name and "transcribe" not in model_name:
                    model_names.append(model_name)
             model_names.sort(reverse=True)
             return model_names
