@@ -14,6 +14,8 @@ from PIL import Image, ImageDraw, ImageTk, ImageFont
 import sys
 from typing import Dict, List, Optional, Tuple, Literal
 import webbrowser
+import base64
+import io
 
 import mermaid_flowdata_loader as mfloader
 import mermaid_flowdata_saver as mfsaver
@@ -1418,7 +1420,13 @@ class FlowchartTool(tk.Tk):
         #    #return
         nid = self.node_at(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
         if nid:
-            self.start_text_edit(nid)
+            node_obj = self.nodes[nid]
+            if node_obj is not None:
+                if node_obj.type == ct.NODE_SPECIAL_NODE_PARAMS["type"]:
+                    node_obj.load_picture(self.canvas)
+                    self.push_history()
+                else:
+                    self.start_text_edit(nid)
         else:
             selected_edge = self.edge_at(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
             if selected_edge is not None:
@@ -1700,6 +1708,10 @@ class FlowchartTool(tk.Tk):
         adjusted_x, adjusted_y = self.adjusted_xy(new_node_id, original_node.x, original_node.y, original_node.type)
 
         duplicated_node_obj = Node(new_node_id, original_node.type, adjusted_x, adjusted_y, w=original_node.w, h=original_node.h, shape_type=original_node.shape_type, fill_color=original_node.fill_color, text=original_node.text, status=original_node.status, details=original_node.details, canvas=self.canvas)
+        if original_node.base_image_data is not None:
+            duplicated_node_obj.base_image_data = original_node.base_image_data
+            duplicated_node_obj.redraw_picture(self.canvas)
+
         self.nodes[new_node_id] = duplicated_node_obj
 
         if original_node.details is not None:
@@ -2027,6 +2039,8 @@ class FlowchartTool(tk.Tk):
                 self.canvas.delete(node_obj.shape_id)
             if node_obj.text_id:
                 self.canvas.delete(node_obj.text_id)
+            if node_obj.image_id:
+                self.canvas.delete(node_obj.image_id)
 
         # 要素削除に伴う関連エッジの削除
         edges_to_keep = {}
@@ -2319,9 +2333,22 @@ class FlowchartTool(tk.Tk):
             status = nd.get("status", None)
             details = nd.get("details", None)
             note_data = nd.get("note", None)
+            image_base64_data = nd.get("image_data", None)
+            if image_base64_data is None:
+                image_data = None
+            else:
+                image_data = base64.b64decode(image_base64_data)
+
             # print(f"Importing node id: {nid}, type: {node_type}, x: {x}, y: {y}, w: {w}, h: {h}, shape_type: {shape_type}, fill_color: {fill_color}, text: {text}, status: {status}, details: {details}, note_data: {note_data}")  # for DEBUG
 
             self._create_node_with_id(nid, node_type, x, y, w=w, h=h, shape_type=shape_type, fill_color=fill_color, text=text, status=status, details=details, note_data=note_data)
+            if node_type == ct.NODE_SPECIAL_NODE_PARAMS["type"]:
+                node_obj = self.nodes[nid]
+                if node_obj is not None and image_data is not None:
+                    base_image_data = Image.open(io.BytesIO(image_data))
+                    node_obj.base_image_data = ImageTk.PhotoImage(base_image_data)
+                    node_obj.redraw_picture(self.canvas)
+
             if nid > max_id:
                 max_id = nid
 
@@ -2744,10 +2771,15 @@ class FlowchartTool(tk.Tk):
         elif node_type == ct.NODE_DOCUMENT_PARAMS["type"]:     # ドキュメント
             points = node_obj.get_document_points()
             self.canvas.coords(shape_id, *points)
+        elif node_type == ct.NODE_SPECIAL_NODE_PARAMS["type"]:   # 特殊要素
+            points = node_obj.get_special_node_points()
+            self.canvas.coords(shape_id, *points)
+            node_obj.redraw_picture(self.canvas)    # 表示画像のリサイズ処理
         else:
-            points = node_obj.get_default_points()
+            points = node_obj.get_undefined_points()
             self.canvas.coords(shape_id, *points)
 
+        # ノードのテキスト位置を更新
         if node_obj.type == ct.NODE_STORAGE_PARAMS["type"]:
             self.canvas.coords(node_obj.text_id, x, y + h / 10)
         elif node_obj.type == ct.NODE_DOCUMENT_PARAMS["type"]:
@@ -3128,6 +3160,7 @@ class FlowchartTool(tk.Tk):
         self.icons["I/O"] = self.make_icon("I/O")
         self.icons["Storage"] = self.make_icon("Storage")
         self.icons["Document"] = self.make_icon("Document")
+        self.icons["SpecialNode"] = self.make_icon("SpecialNode")
         self.icons["Note"] = self.make_icon("Note")
         self.icons["Link_elbow_vertical"] = self.make_icon("Link_elbow_vertical")
         self.icons["Link_elbow_horizontal"] = self.make_icon("Link_elbow_horizontal")
@@ -3236,6 +3269,9 @@ class FlowchartTool(tk.Tk):
             d.line((x1-size//16, y0+size//5.5+size//30, x1-size//16, y1-size//5.5-size//20), fill=fg, width=8)
             d.arc((x0, y1-size*3//8-size//30, x0+size//2+size//20, y1-size//8-size//30), start=30, end=150, fill=fg, width=8)
             d.arc((x0+size//2-size//20, y1-size*3//8+size//20, x1, y1-size//8+size//20), start=210, end=330, fill=fg, width=8)
+        elif name == "SpecialNode":
+            d.rounded_rectangle((x0, y0, x1, y1), radius=size//8, outline=fg, width=8)
+            d.text((x0+size//2, y0+size//2), "IMG", fill=fg, anchor="mm", font=font)
 
         elif name == "Note":
             d.polygon([(x0+size//8, y0+size//8), (x0+size//8, y1-size//8), (x1-size//3, y1-size//8), (x1-size//8, y1-size//3), (x1-size//8, y0+size//8)], outline="#D6B94D", fill="#FFF9CC", width=4)

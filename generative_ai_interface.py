@@ -80,8 +80,24 @@ class Generative_AI_interface:
             # else:
             #    print("Unsloth API key or base URL is not defined.")
 
+    # パラメータとして指定されたAIモデル名を取得する（優先度：環境変数→パラメータ）
+    def get_specified_ai_model_name(self):
+        env_ai_model_name = os.environ.get("AI_MODEL")
+        const_ai_model_name = ct.AI_MODEL
+
+        ai_model_name = ""
+        if env_ai_model_name is None or env_ai_model_name == "":
+            if const_ai_model_name is None or const_ai_model_name == "":
+                ai_model_name = ""
+            else:
+                ai_model_name = const_ai_model_name
+        else:
+            ai_model_name = env_ai_model_name
+
+        return ai_model_name
+
     def get_specified_AI_type_and_model(self):
-        ai_model = ct.AI_MODEL
+        ai_model = self.get_specified_ai_model_name()
         if ai_model is not None and ai_model.startswith("gpt-"):
             ai_type = "OpenAI"
         elif ai_model is not None and ai_model.startswith("gemini-"):
@@ -327,7 +343,7 @@ class Generative_AI_interface:
         user_input_msg, filename, user_msg, spec_msg = args
         try:
             resp = self.openai_client.responses.create(
-                model=ct.AI_MODEL,
+                model=self.get_specified_ai_model_name(),
                 instructions=ct.AI_SYSTEM_INSTRUCTIONS,
                 input=user_input_msg,
             )
@@ -348,7 +364,7 @@ class Generative_AI_interface:
         from google import genai
         try:
             response = self.gemini_client.models.generate_content(
-                model=ct.AI_MODEL,
+                model=self.get_specified_ai_model_name(),
                 config=genai.types.GenerateContentConfig(system_instruction=ct.AI_SYSTEM_INSTRUCTIONS),
                 contents=user_input_msg
             )
@@ -367,7 +383,7 @@ class Generative_AI_interface:
         from anthropic import Anthropic
         try:
             response = self.anthropic_client.messages.create(
-                model=ct.AI_MODEL,
+                model=self.get_specified_ai_model_name(),
                 max_tokens=20000,
                 temperature=1,
                 system=ct.AI_SYSTEM_INSTRUCTIONS,
@@ -394,7 +410,7 @@ class Generative_AI_interface:
         user_input_msg, filename, user_msg, spec_msg = args
         try:
             resp = self.spacexai_client.responses.create(
-                model=ct.AI_MODEL,
+                model=self.get_specified_ai_model_name(),
                 instructions=ct.AI_SYSTEM_INSTRUCTIONS,
                 input=user_input_msg,
             )
@@ -414,7 +430,7 @@ class Generative_AI_interface:
         user_input_msg, filename, user_msg, spec_msg = args
         try:
             resp = self.moonshot_client.chat.completions.create(
-                model=ct.AI_MODEL,
+                model=self.get_specified_ai_model_name(),
                 messages=[
                     {"role": "system", "content": ct.AI_SYSTEM_INSTRUCTIONS},
                     {"role": "user", "content": user_input_msg}
@@ -435,7 +451,7 @@ class Generative_AI_interface:
         user_input_msg, filename, user_msg, spec_msg = args
         try:
             resp = self.lmstudio_client.responses.create(
-                model=ct.AI_MODEL,
+                model=self.get_specified_ai_model_name(),
                 instructions=ct.AI_SYSTEM_INSTRUCTIONS,
                 input=user_input_msg,
             )
@@ -455,7 +471,7 @@ class Generative_AI_interface:
         user_input_msg, filename, user_msg, spec_msg = args
         try:
             resp = self.unsloth_client.responses.create(
-                model=ct.AI_MODEL,
+                model=self.get_specified_ai_model_name(),
                 instructions=ct.AI_SYSTEM_INSTRUCTIONS,
                 input=user_input_msg,
             )

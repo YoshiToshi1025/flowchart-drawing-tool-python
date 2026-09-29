@@ -25,6 +25,9 @@ I18N_UI_TEXT_DICT = {
     "NODE_DOCUMENT_PARAMS_TEXT.en" : "Document",
     "NODE_DOCUMENT_PARAMS_TEXT.ja" : "文書",
 
+    "NODE_SPECIAL_NODE_PARAMS_TEXT.en" : "(Image)",
+    "NODE_SPECIAL_NODE_PARAMS_TEXT.ja" : "(画像)",
+
     "NOTE_PARAMS_TEXT.en" : "Note/Spec",
     "NOTE_PARAMS_TEXT.ja" : "Note/Spec",
 
@@ -454,6 +457,11 @@ I18N_RELEASE_NOTE_DICT = {
   "RELEASE_NOTE_TITLE.ja" : "リリースノート",
 
   "RELEASE_NOTE_TEXT.ja" : """
+[ 2026/09/29 ]
+・画像を張り付けられる特殊ノードの追加（Excel図形変換は未対応）
+・画像ノードを含むサンプルJSONファイルを添付（logodix.comのロゴを使用、商用利用不可）
+・.envファイルにて、利用する生成AIモデルを指定可能に（constants.pyより.envのAI_MODEL設定が優先される）
+
 [ 2026/09/25 ]
 ・リンク選択時に、Ctrl+0～9でリンクの線色の変更と、Ctrl+rでデフォルトにリセットに対応
 ・ノードとスイムレーンの塗りつぶし色のリセット操作を Ctrl+r に変更（Ctrl+'-'は意図しない動作になるため）
@@ -518,6 +526,11 @@ I18N_RELEASE_NOTE_DICT = {
 ・不具合対応（スイムレーンの移動処理）
 """,
   "RELEASE_NOTE_TEXT.en" : """
+[ 2026/09/29 ]
+- Added a special node that can paste images (Excel shape conversion is not supported).
+- Added a sample JSON file containing an image node (using the logo from logodix.com, not for commercial use).
+- Added the ability to specify the generative AI model to be used in the .env file (the AI_MODEL setting in .env takes precedence over constants.py).
+
 [ 2026/09/25 ]
 - Added support for changing the line color of selected links with Ctrl+0~9, and resetting to the default color with Ctrl+r.
 - Changed the fill color reset shortcut for nodes and swimlanes to Ctrl+r (Ctrl+'-' was changed because it could cause unintended behavior).

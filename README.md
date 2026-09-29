@@ -89,7 +89,7 @@ This project provides a **“Simple Flowchart Drawing Tool 颯(HAYATE)”** that
      ```
 
      ```
-       [constants.py]
+       [.env or constants.py](The setting defined in the .env file takes precedence.)
          AI_MODEL="(Name of the generative AI model to use)"
          Example: AI_MODEL="gpt-5.6-sol"
      ```
@@ -204,6 +204,7 @@ This project provides a **“Simple Flowchart Drawing Tool 颯(HAYATE)”** that
 * 2026/09/19 : Prevented Select mode from changing with the mouse wheel, added AI request details to AI-generated output, and enabled node duplication without selecting a node.
 * 2026/09/23 : Added support for new AI models (Claude Opus 5.5, Grok 4.7), Fixed connection errors with some AI models
 * 2026/09/25 : Added support for changing the fill color of selected links with Ctrl+0–9 and resetting to the default color with Ctrl+r, Changed the fill color reset shortcut for nodes and swimlanes to Ctrl+r, Updated the images in the English version of the README.
+* 2026/09/29 : Added a node that supports image attachments (sample JSON file included), Added support for prioritizing the AI model specified in the .env file
 
 ## Notes (Additional)
 

@@ -49,6 +49,7 @@ MODE_DICT = {
     "I/O" : "add:io",
     "Storage" : "add:storage",
     "Document" : "add:document",
+    "SpecialNode" : "add:special_node",
     "Link_elbow" : "link_elbow",
     "Link_straight" : "link_straight",
 }
@@ -196,6 +197,23 @@ NODE_DOCUMENT_PARAMS = {
     "height": 75,
     "fill_color": "#FFFFFF", # White
     "outline_color": "#334155",
+    "selected_outline_color": "#0ea5e9",  # Light Blue
+    "outline_width": 2,
+    "text_width": 110,
+    "text_color": "#0f172a",  # Dark Blue
+    "font_family": "Arial",
+    "font_size": 9,
+    "font_weight": font.NORMAL,
+}
+
+# Node SpecialNode Parameters / ノード・特殊要素・パラメータ
+NODE_SPECIAL_NODE_PARAMS = {
+    "type": "special_node",
+    "text": get_i18n_ui_text("NODE_SPECIAL_NODE_PARAMS_TEXT", lang=i18n_lang),
+    "width": 120,
+    "height": 120,
+    "fill_color": "#FFFFFF", # White
+    "outline_color": "#FFFFFF", # White
     "selected_outline_color": "#0ea5e9",  # Light Blue
     "outline_width": 2,
     "text_width": 110,
@@ -419,9 +437,9 @@ TIPS_TEXT = get_i18n_tips_text("TIPS_TEXT", lang=i18n_lang)
 
 # AI Model Selection / 使用する生成AIモデル
 AI_MODEL = "claude-opus-5-5"  # Specify the AI model to use for generating flowcharts.
-# Example of available AI model names / 指定可能な生成AIモデル名例 (as of 2026.7.11)
+# Example of available AI model names / 指定可能な生成AIモデル名例
 #   OpenAI (gpt-*): "gpt-6-astra", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "gpt-5.5", "gpt-5.4", "gpt-5.4-mini"
-#   GeminiAI (gemini-*): "gemini-3.8-flash", "gemini-3.7-flash", "gemini-3.6-flash", "gemini-3.1-pro-preview", "gemini-3.1-flash-lite", "gemini-3-flash-preview", "gemini-pro-latest", "gemini-flash-lite-latest"
+#   GeminiAI (gemini-*): "gemini-3.8-flash", "gemini-3.7-flash", "gemini-3.6-flash", "gemini-3.1-pro-preview"
 #   AnthropicAI (claude-*): "claude-opus-5-5", "claude-fable-5-1", "claude-fable-5", "claude-opus-5", "claude-sonnet-5", "claude-haiku-4-5"
 #   MoonshotAI (kimi-*): "kimi-k3"
 #   SpaceXAI (grok-*): "grok-4.7", "grok-4.6"
