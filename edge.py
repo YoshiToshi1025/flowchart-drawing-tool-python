@@ -4,6 +4,7 @@ import node
 from typing import Literal, Tuple
 from math import inf
 import platform
+import math
 
 LABEL_POSITION_LIST = ["auto", "p0se", "p0sw", "p0nw", "p0ne", "p1se", "p1sw", "p1nw", "p1ne", "p2se", "p2sw", "p2nw", "p2ne", "p3se", "p3sw", "p3nw", "p3ne", "p4se", "p4sw", "p4nw", "p4ne", "p5se", "p5sw", "p5nw", "p5ne"]
 
@@ -122,6 +123,7 @@ class Edge:
             # print(f"**2    Created line with ID: {self.line_id}")  # for DEBUG
         # エッジはノードの下に
         canvas.tag_lower(self.line_id, "node")
+        # canvas.tag_raise(self.line_id, "node")
     
     def get_dash_pattern(self):
         if self.line_style == ct.EDGE_LINE_STYLE_DASHED:
@@ -1168,8 +1170,15 @@ class Edge:
         if to_node_obj.x is None or to_node_obj.y is None or to_node_obj.h is None or to_node_obj.w is None:
             return coords, None, None, "center", "center"
 
-        from_x, from_y = self.from_rect_intersection(from_node_obj, to_node_obj)
-        to_x, to_y = self.to_rect_intersection(from_node_obj, to_node_obj)
+        if from_node_obj.shape_type == "ellipse":
+            from_x, from_y = self.from_ellipse_intersection(from_node_obj, to_node_obj)
+        else:
+            from_x, from_y = self.from_rect_intersection(from_node_obj, to_node_obj)
+
+        if to_node_obj.shape_type == "ellipse":
+            to_x, to_y = self.to_ellipse_intersection(from_node_obj, to_node_obj)
+        else:
+            to_x, to_y = self.to_rect_intersection(from_node_obj, to_node_obj)
 
         coords = [from_x, from_y, to_x, to_y]
 
@@ -1184,6 +1193,50 @@ class Edge:
         """直線アンカー座標計算"""
         coords = [from_node_obj.x, from_node_obj.y, to_node_obj.x, to_node_obj.y]
         return coords
+
+    def from_ellipse_intersection(self, from_node_obj, to_node_obj):
+        from_x, from_y, from_w, from_h = from_node_obj.x, from_node_obj.y, from_node_obj.w, from_node_obj.h
+        to_x, to_y, to_w, to_h = to_node_obj.x, to_node_obj.y, to_node_obj.w, to_node_obj.h
+
+        from_w = abs(from_w)
+        from_h = abs(from_h)
+
+        lw = to_x - from_x
+        lh = to_y - from_y
+        if lw == 0 and lh == 0:
+            return from_x, from_y
+
+        t = 1 / math.sqrt((lw / from_w * 2) ** 2 + (lh / from_h * 2) ** 2)
+
+        x = from_x + t * lw
+        y = from_y + t * lh
+
+        return x, y
+
+    def to_ellipse_intersection(self, from_node_obj, to_node_obj):
+        from_x, from_y, from_w, from_h = from_node_obj.x, from_node_obj.y, from_node_obj.w, from_node_obj.h
+        to_x, to_y, to_w, to_h = to_node_obj.x, to_node_obj.y, to_node_obj.w, to_node_obj.h
+
+        to_w = abs(to_w)
+        to_h = abs(to_h)
+
+        lw = to_x - from_x
+        lh = to_y - from_y
+
+        if lw == 0 and lh == 0:
+            return to_x, to_y
+
+        t = 1 / math.sqrt((lw / to_w * 2) ** 2 + (lh / to_h * 2) ** 2)
+
+        x = to_x - t * lw
+        y = to_y - t * lh
+
+        return x, y
+
+    def calc_angle(self, w, h):
+        angle = math.atan2(w, h)
+
+        return angle
 
     def from_rect_intersection(self, from_node_obj, to_node_obj):
         lx1, ly1, lw1, lh1 = from_node_obj.x, from_node_obj.y, from_node_obj.w, from_node_obj.h

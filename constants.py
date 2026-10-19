@@ -71,6 +71,58 @@ NODE_FILL_COLORS = [
     "#F7F5F2",  # Light Gray
 ]
 
+NODE_FILL_COLORS_1 = [
+    "#F9C8D0",  # Pink
+    "#FFC2CD",  # Rose
+    "#FFE0C2",  # Orange
+    "#FFFAC2",  # Yellow
+    "#D8F1D0",  # Green
+    "#C2FFE0",  # Teal
+    "#C2F3FF",  # Blue
+    "#C2D7FF",  # Indigo
+    "#D4C2FF",  # Purple
+    "#E8E2D9",  # Gray
+]
+
+NODE_FILL_COLORS_2 = [
+    "#F59EAD",  # Pink
+    "#FF94A8",  # Rose
+    "#FFC994",  # Orange
+    "#FFF694",  # Yellow
+    "#BBE7AC",  # Green
+    "#94FFC9",  # Teal
+    "#94EBFF",  # Blue
+    "#94BAFF",  # Indigo
+    "#B394FF",  # Purple
+    "#D6CCBD",  # Gray
+]
+
+NODE_FILL_COLORS_3 = [
+    "#F07087",  # Pink
+    "#FF617F",  # Rose
+    "#FFB061",  # Orange
+    "#FFF261",  # Yellow
+    "#9ADB85",  # Green
+    "#61FFB0",  # Teal
+    "#61E1FF",  # Blue
+    "#6199FF",  # Indigo
+    "#8F61FF",  # Purple
+    "#C3B49D",  # Gray
+]
+
+NODE_OUTLINE_COLORS = [
+    "#D94C67",  # Pink
+    "#E64565",  # Rose
+    "#D98232",  # Orange
+    "#B5A500",  # Yellow
+    "#62A64B",  # Green
+    "#24A875",  # Teal
+    "#229EBF",  # Blue
+    "#3976D6",  # Indigo
+    "#7545D6",  # Purple
+    "#92816B",  # Gray
+]
+
 NODE_STATUS_NORMAL = "normal"
 NODE_STATUS_ACTIVE = "active"
 NODE_STATUS_INACTIVE = "inactive"
@@ -254,16 +306,16 @@ EDGE_LINE_STYLE_DOTTED = "dotted"
 
 # Edge Line Colors / エッジ・線色リスト
 EDGE_LINE_COLORS = [
-    "#333333", # Dark Gray
-    "#2F5597", # Blue
-    "#4472C4", # Blue
-    "#548235", # Green
-    "#2E75B6", # Blue
-    "#C00000", # Red
-    "#C65911", # Orange
-    "#7030A0", # Purple
-    "#806000", # Brown
-    "#7F7F7F", # Gray
+    "#D94C67",  # Pink
+    "#E64565",  # Rose
+    "#D98232",  # Orange
+    "#B5A500",  # Yellow
+    "#62A64B",  # Green
+    "#24A875",  # Teal
+    "#229EBF",  # Blue
+    "#3976D6",  # Indigo
+    "#7545D6",  # Purple
+    "#92816B",  # Gray
 ]
 
 EDGE_PARAMS = {
@@ -439,7 +491,7 @@ TIPS_TEXT = get_i18n_tips_text("TIPS_TEXT", lang=i18n_lang)
 AI_MODEL = "claude-opus-5-5"  # Specify the AI model to use for generating flowcharts.
 # Example of available AI model names / 指定可能な生成AIモデル名例
 #   OpenAI (gpt-*): "gpt-6-astra", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "gpt-5.5", "gpt-5.4", "gpt-5.4-mini"
-#   GeminiAI (gemini-*): "gemini-3.8-flash", "gemini-3.7-flash", "gemini-3.6-flash", "gemini-3.1-pro-preview"
+#   GeminiAI (gemini-*): "gemini-4-argon", "gemini-3.8-flash", "gemini-3.7-flash", "gemini-3.6-flash", "gemini-3.1-pro-preview"
 #   AnthropicAI (claude-*): "claude-opus-5-5", "claude-fable-5-1", "claude-fable-5", "claude-opus-5", "claude-sonnet-5", "claude-haiku-4-5"
 #   MoonshotAI (kimi-*): "kimi-k3"
 #   SpaceXAI (grok-*): "grok-4.7", "grok-4.6"

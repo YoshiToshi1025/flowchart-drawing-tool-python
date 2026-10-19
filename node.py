@@ -10,6 +10,7 @@ from PIL import Image, ImageTk
 import base64
 import io
 import os
+from pathlib import Path
 
 class Node:
     id = None
@@ -19,6 +20,9 @@ class Node:
     w:int = 0
     h:int = 0
     text = None
+    shape_type = None
+    fill_color = None
+    outline_color = None
     details = None    # Note, Spec, Memoなどの詳細情報を格納する属性
     status = "normal" # "normal", "active", "inactive"
     shape_id = None
@@ -27,7 +31,7 @@ class Node:
     base_image_data = None
     display_image_data = None
 
-    def __init__(self, node_id, node_type, x:int, y:int, w=None, h=None, shape_type=None, fill_color=None, text=None, details=None, status=None, canvas=None):
+    def __init__(self, node_id, node_type, x:int, y:int, w=None, h=None, shape_type=None, fill_color=None, outline_color=None, text=None, details=None, status=None, canvas=None):
         # print(f"Creating Node: id={node_id}, type={node_type}, x={x}, y={y}, w={w}, h={h}, shape_type={shape_type}, fill_color={fill_color}, text={text}, status={status}")
         self.id = node_id
         self.type = node_type
@@ -106,7 +110,19 @@ class Node:
             }.get(self.type, ct.NODE_DEFAULT_PARAMS["fill_color"])
         else:
             self.fill_color = fill_color
-        # print(f"Node fill_color set to {self.fill_color}")
+
+        if outline_color is None:
+            self.outline_color = {
+                ct.NODE_PROCESS_PARAMS["type"] : ct.NODE_PROCESS_PARAMS["outline_color"],
+                ct.NODE_DECISION_PARAMS["type"] : ct.NODE_DECISION_PARAMS["outline_color"],
+                ct.NODE_TERMINATOR_PARAMS["type"] : ct.NODE_TERMINATOR_PARAMS["outline_color"],
+                ct.NODE_IO_PARAMS["type"] : ct.NODE_IO_PARAMS["outline_color"],
+                ct.NODE_STORAGE_PARAMS["type"] : ct.NODE_STORAGE_PARAMS["outline_color"],
+                ct.NODE_DOCUMENT_PARAMS["type"] : ct.NODE_DOCUMENT_PARAMS["outline_color"],
+                ct.NODE_SPECIAL_NODE_PARAMS["type"] : ct.NODE_SPECIAL_NODE_PARAMS["outline_color"],
+            }.get(self.type, ct.NODE_DEFAULT_PARAMS["outline_color"])
+        else:
+            self.outline_color = outline_color
 
         if canvas is not None:
             self.draw(canvas)
@@ -134,13 +150,24 @@ class Node:
 
     def draw_process(self, canvas: tk.Canvas):
         if self.x is not None and self.y is not None and self.w is not None and self.h is not None:
-            points = self.get_process_points()
-            self.shape_id = canvas.create_polygon(
-                points, fill=self.get_fill_color(),
-                outline=self.get_outline_color(),
-                width=self.get_outline_width(),
-                tags=("node", f"node-{self.id}", "node-shape")
-            )
+            if self.shape_type == "ellipse":
+                points = self.get_process_points()
+                self.shape_id = canvas.create_oval(
+                    points,
+                    fill=self.get_fill_color(),
+                    outline=self.get_outline_color(),
+                    width=self.get_outline_width(),
+                    tags=("node", f"node-{self.id}", "node-shape")
+                )
+            else:
+                points = self.get_process_points()
+                self.shape_id = canvas.create_polygon(
+                    points,
+                    fill=self.get_fill_color(),
+                    outline=self.get_outline_color(),
+                    width=self.get_outline_width(),
+                    tags=("node", f"node-{self.id}", "node-shape")
+                )
 
     def draw_decision(self, canvas: tk.Canvas):
         if self.x is not None and self.y is not None and self.w is not None and self.h is not None:
@@ -280,6 +307,10 @@ class Node:
 
         return fill_color
 
+    def reset_outline_color(self):
+        self.outline_color = None
+        return self.get_outline_color()
+
     def get_outline_color(self):
         default_outline_color = ct.NODE_DEFAULT_PARAMS["outline_color"]
         default_active_outline_color = ct.NODE_DEFAULT_PARAMS.get("active_outline_color", default_outline_color)
@@ -291,56 +322,56 @@ class Node:
             elif self.status == "inactive":
                 outline_color = ct.NODE_PROCESS_PARAMS.get("inactive_outline_color", default_inactive_outline_color)
             else:
-                outline_color = ct.NODE_PROCESS_PARAMS.get("outline_color", default_outline_color)
+                outline_color = ct.NODE_PROCESS_PARAMS.get("outline_color", default_outline_color) if self.outline_color is None else self.outline_color
         elif self.type == ct.NODE_DECISION_PARAMS["type"]:     # 分岐
             if self.status == "active":
                 outline_color = ct.NODE_DECISION_PARAMS.get("active_outline_color", default_active_outline_color)
             elif self.status == "inactive":
                 outline_color = ct.NODE_DECISION_PARAMS.get("inactive_outline_color", default_inactive_outline_color)
             else:
-                outline_color = ct.NODE_DECISION_PARAMS.get("outline_color", default_outline_color)
+                outline_color = ct.NODE_DECISION_PARAMS.get("outline_color", default_outline_color) if self.outline_color is None else self.outline_color
         elif self.type == ct.NODE_TERMINATOR_PARAMS["type"]:   # 端点
             if self.status == "active":
                 outline_color = ct.NODE_TERMINATOR_PARAMS.get("active_outline_color", default_active_outline_color)
             elif self.status == "inactive":
                 outline_color = ct.NODE_TERMINATOR_PARAMS.get("inactive_outline_color", default_inactive_outline_color)
             else:
-                outline_color = ct.NODE_TERMINATOR_PARAMS.get("outline_color", default_outline_color)
+                outline_color = ct.NODE_TERMINATOR_PARAMS.get("outline_color", default_outline_color) if self.outline_color is None else self.outline_color
         elif self.type == ct.NODE_IO_PARAMS["type"]:           # 入出力
             if self.status == "active":
                 outline_color = ct.NODE_IO_PARAMS.get("active_outline_color", default_active_outline_color)
             elif self.status == "inactive":
                 outline_color = ct.NODE_IO_PARAMS.get("inactive_outline_color", default_inactive_outline_color)
             else:
-                outline_color = ct.NODE_IO_PARAMS.get("outline_color", default_outline_color)
+                outline_color = ct.NODE_IO_PARAMS.get("outline_color", default_outline_color) if self.outline_color is None else self.outline_color
         elif self.type == ct.NODE_STORAGE_PARAMS["type"]:           # ストレージ
             if self.status == "active":
                 outline_color = ct.NODE_STORAGE_PARAMS.get("active_outline_color", default_active_outline_color)
             elif self.status == "inactive":
                 outline_color = ct.NODE_STORAGE_PARAMS.get("inactive_outline_color", default_inactive_outline_color)
             else:
-                outline_color = ct.NODE_STORAGE_PARAMS.get("outline_color", default_outline_color)
+                outline_color = ct.NODE_STORAGE_PARAMS.get("outline_color", default_outline_color) if self.outline_color is None else self.outline_color
         elif self.type == ct.NODE_DOCUMENT_PARAMS["type"]:           # ドキュメント
             if self.status == "active":
                 outline_color = ct.NODE_DOCUMENT_PARAMS.get("active_outline_color", default_active_outline_color)
             elif self.status == "inactive":
                 outline_color = ct.NODE_DOCUMENT_PARAMS.get("inactive_outline_color", default_inactive_outline_color)
             else:
-                outline_color = ct.NODE_DOCUMENT_PARAMS.get("outline_color", default_outline_color)
+                outline_color = ct.NODE_DOCUMENT_PARAMS.get("outline_color", default_outline_color) if self.outline_color is None else self.outline_color
         elif self.type == ct.NODE_SPECIAL_NODE_PARAMS["type"]:           # 特殊要素
             if self.status == "active":
                 outline_color = ct.NODE_SPECIAL_NODE_PARAMS.get("active_outline_color", default_active_outline_color)
             elif self.status == "inactive":
                 outline_color = ct.NODE_SPECIAL_NODE_PARAMS.get("inactive_outline_color", default_inactive_outline_color)
             else:
-                outline_color = ct.NODE_SPECIAL_NODE_PARAMS.get("outline_color", default_outline_color)
+                outline_color = ct.NODE_SPECIAL_NODE_PARAMS.get("outline_color", default_outline_color) if self.outline_color is None else self.outline_color
         else:
             if self.status == "active":                        # その他（未定義）
                 outline_color = default_active_outline_color
             elif self.status == "inactive":
                 outline_color = default_inactive_outline_color
             else:
-                outline_color = default_outline_color
+                outline_color = default_outline_color if self.outline_color is None else self.outline_color
 
         return outline_color
     
@@ -710,11 +741,13 @@ class Node:
         x = (left + right) / 2
         y = (top + bottom) / 2
 
-        coords = []
-        angle_step = 5
-        for angle in range(0, 361, angle_step):
-            radius = math.radians(angle)
-            coords += [x - rw * math.cos(radius), y - rh * math.sin(radius)]
+        # coords = []
+        # angle_step = 5
+        # for angle in range(0, 361, angle_step):
+        #     radius = math.radians(angle)
+        #     coords += [x - rw * math.cos(radius), y - rh * math.sin(radius)]
+
+        coords = [x-rw, y-rh, x+rw, y+rh]
 
         return coords
 
@@ -808,14 +841,14 @@ class Node:
                 next_shape_type = "small"
             elif current_type == "terminator" and current_shape_type == "small":
                 next_type = "process"
-                next_shape_type = "rectangle"
-            elif current_type == "process" and current_shape_type == "rectangle":
-                next_type = "process"
                 next_shape_type = "corner_rounded_rectangle"
             elif current_type == "process" and current_shape_type == "corner_rounded_rectangle":
                 next_type = "process"
                 next_shape_type = "ellipse"
             elif current_type == "process" and current_shape_type == "ellipse":
+                next_type = "process"
+                next_shape_type = "rectangle"
+            elif current_type == "process" and current_shape_type == "rectangle":
                 next_type = "decision"
                 next_shape_type = "decision"
             elif current_type == "decision":
@@ -851,14 +884,14 @@ class Node:
                 next_shape_type = "decision"
             elif current_type == "decision":
                 next_type = "process"
+                next_shape_type = "rectangle"
+            elif current_type == "process" and current_shape_type == "rectangle":
+                next_type = "process"
                 next_shape_type = "ellipse"
             elif current_type == "process" and current_shape_type == "ellipse":
                 next_type = "process"
                 next_shape_type = "corner_rounded_rectangle"
             elif current_type == "process" and current_shape_type == "corner_rounded_rectangle":
-                next_type = "process"
-                next_shape_type = "rectangle"
-            elif current_type == "process" and current_shape_type == "rectangle":
                 next_type = "terminator"
                 next_shape_type = "small"
             elif current_type == "terminator" and current_shape_type == "small":
@@ -967,8 +1000,8 @@ class Node:
         if file_path:
             try:
                 image = Image.open(file_path)
-                file_name = os.path.basename(file_path)
-                self.text = file_name
+                file_name_no_ext = Path(file_path).stem
+                self.text = file_name_no_ext
                 if self.text_id:
                     canvas.itemconfig(self.text_id, text=self.text)
 
@@ -1016,6 +1049,52 @@ class Node:
 
             self.image_id = canvas.create_image(self.x, self.y, image=self.display_image_data, tags=("node", f"node-{self.id}", "node-image"))
 
+    def change_shape_type(self, canvas: tk.Canvas, new_shape_type: str):
+        current_shape_id = self.shape_id
+        current_shape_type = canvas.type(current_shape_id)
+        if current_shape_type == "oval":
+            current_shape_type = "ellipse"
+        new_shape_type = self.shape_type
+        new_shape_id = None
+
+        if current_shape_type == "ellipse" and new_shape_type != "ellipse":
+            # 現在の図形を削除
+            canvas.delete(current_shape_id)
+            # 新しい図形を描画
+            points = self.get_process_points()
+            new_shape_id = canvas.create_polygon(points, 
+                                fill=self.get_fill_color(),
+                                outline=self.get_outline_color(),
+                                width=self.get_outline_width(),
+                                tags=("node", f"node-{self.id}", "node-shape"))
+            self.shape_id = new_shape_id
+            canvas.tag_raise(self.text_id)
+        elif current_shape_type != "ellipse" and new_shape_type == "ellipse":
+            # 現在の図形を削除
+            canvas.delete(current_shape_id)
+            # 新しい図形を描画
+            left, top, right, bottom = self.x - self.w/2, self.y - self.h/2, self.x + self.w/2, self.y + self.h/2
+            new_shape_id = canvas.create_oval(left, top, right, bottom,
+                                fill=self.get_fill_color(),
+                                outline=self.get_outline_color(),
+                                width=self.get_outline_width(),
+                                tags=("node", f"node-{self.id}", "node-shape"))
+            self.shape_id = new_shape_id
+            canvas.tag_raise(self.text_id)
+        elif current_shape_type == "ellipse" and new_shape_type == "ellipse":
+            # 図形形状の変更が変更元も変更先も楕円の場合は、座標のみ更新する
+            points = self.get_process_points()
+            canvas.coords(self.shape_id, *points)
+        elif current_shape_type != "ellipse" and new_shape_type != "ellipse":
+            # 図形形状の変更が変更元も変更先も楕円でない場合は、座標のみ更新する
+            points = self.get_process_points()
+            canvas.coords(self.shape_id, *points)
+        else:
+            # その他の形状への変更はサポートされていないため、エラー表示とする
+            print(f"Error: Unsupported shape type change from {current_shape_type} to {new_shape_type}")
+
+        return new_shape_id
+
     def to_dict(self):
         node_data = {
             "id": self.id,
@@ -1030,6 +1109,8 @@ class Node:
             node_data["shape_type"] = self.shape_type
         if self.fill_color is not None:
             node_data["fill_color"] = self.fill_color
+        if self.outline_color is not None:
+            node_data["outline_color"] = self.outline_color
         if self.status is not None and self.status != ct.NODE_STATUS_NORMAL:
             node_data["status"] = self.status
         if self.details is not None:

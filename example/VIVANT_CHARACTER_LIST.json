@@ -1,0 +1,1525 @@
+{
+  "nodes": [
+    {
+      "id": 1,
+      "type": "process",
+      "x": 487,
+      "y": 480,
+      "w": 105,
+      "h": 90,
+      "text": "テント",
+      "shape_type": "ellipse",
+      "fill_color": "#F59EAD",
+      "outline_color": "#D94C67"
+    },
+    {
+      "id": 4,
+      "type": "process",
+      "x": 817,
+      "y": 270,
+      "w": 105,
+      "h": 90,
+      "text": "丸菱商事",
+      "shape_type": "ellipse",
+      "fill_color": "#FFC994",
+      "outline_color": "#D98232"
+    },
+    {
+      "id": 6,
+      "type": "process",
+      "x": 1162,
+      "y": 480,
+      "w": 105,
+      "h": 90,
+      "text": "別班",
+      "shape_type": "ellipse",
+      "fill_color": "#FFF694",
+      "outline_color": "#B5A500"
+    },
+    {
+      "id": 9,
+      "type": "process",
+      "x": 1042,
+      "y": 810,
+      "w": 105,
+      "h": 90,
+      "text": "公安",
+      "shape_type": "ellipse",
+      "fill_color": "#BBE7AC",
+      "outline_color": "#62A64B"
+    },
+    {
+      "id": 11,
+      "type": "process",
+      "x": 622,
+      "y": 825,
+      "w": 105,
+      "h": 90,
+      "text": "シンシー",
+      "shape_type": "ellipse",
+      "fill_color": "#94EBFF",
+      "outline_color": "#229EBF"
+    },
+    {
+      "id": 13,
+      "type": "process",
+      "x": 1192,
+      "y": 345,
+      "w": 75,
+      "h": 60,
+      "text": "櫻井里美",
+      "shape_type": "ellipse",
+      "fill_color": "#FFFDE6",
+      "outline_color": "#B5A500",
+      "details": "別班の司令官",
+      "note": {
+        "dx": 30,
+        "dy": -60,
+        "w": 75,
+        "h": 30,
+        "display_state": "normal"
+      }
+    },
+    {
+      "id": 15,
+      "type": "process",
+      "x": 1282,
+      "y": 390,
+      "w": 75,
+      "h": 60,
+      "text": "田代久美子",
+      "shape_type": "ellipse",
+      "fill_color": "#FFFDE6",
+      "outline_color": "#B5A500",
+      "details": "コーカサス地方担当の別班員",
+      "note": {
+        "dx": 143,
+        "dy": 45,
+        "w": 90,
+        "h": 30,
+        "display_state": "normal"
+      }
+    },
+    {
+      "id": 17,
+      "type": "process",
+      "x": 1312,
+      "y": 465,
+      "w": 75,
+      "h": 60,
+      "text": "高田明敏",
+      "shape_type": "ellipse",
+      "fill_color": "#FFFDE6",
+      "outline_color": "#B5A500",
+      "details": "別班員\n表向きは経済産業省資源エネルギー庁に勤務する官僚",
+      "note": {
+        "dx": 120,
+        "dy": 30,
+        "w": 105,
+        "h": 60,
+        "display_state": "normal"
+      }
+    },
+    {
+      "id": 19,
+      "type": "process",
+      "x": 1282,
+      "y": 540,
+      "w": 75,
+      "h": 60,
+      "text": "廣瀬瑞樹",
+      "shape_type": "ellipse",
+      "fill_color": "#FFFDE6",
+      "outline_color": "#B5A500",
+      "details": "別班員\n医療系システム機器販売の株式会社レイシルのSE",
+      "note": {
+        "dx": 98,
+        "dy": 30,
+        "w": 90,
+        "h": 60,
+        "display_state": "normal"
+      }
+    },
+    {
+      "id": 21,
+      "type": "process",
+      "x": 1207,
+      "y": 600,
+      "w": 75,
+      "h": 60,
+      "text": "熊谷一輝",
+      "shape_type": "ellipse",
+      "fill_color": "#FFFDE6",
+      "outline_color": "#B5A500",
+      "details": "別班員\n万俵製作所のエンジニア",
+      "note": {
+        "dx": 105,
+        "dy": 37,
+        "w": 75,
+        "h": 45,
+        "display_state": "normal"
+      }
+    },
+    {
+      "id": 23,
+      "type": "process",
+      "x": 1117,
+      "y": 600,
+      "w": 75,
+      "h": 60,
+      "text": "和田貢",
+      "shape_type": "ellipse",
+      "fill_color": "#FFFDE6",
+      "outline_color": "#B5A500",
+      "status": "inactive",
+      "details": "別班員\nアイチ自動車ロシア支部勤務",
+      "note": {
+        "dx": 203,
+        "dy": 97,
+        "w": 90,
+        "h": 45,
+        "display_state": "normal"
+      }
+    },
+    {
+      "id": 25,
+      "type": "process",
+      "x": 1012,
+      "y": 480,
+      "w": 75,
+      "h": 60,
+      "text": "AIハヤト",
+      "shape_type": "ellipse",
+      "fill_color": "#FFFDE6",
+      "outline_color": "#B5A500",
+      "details": "別班のスーパーコンピュータ\n乃木の別人格Fの精神構造をベースに構築",
+      "note": {
+        "dx": -90,
+        "dy": 22,
+        "w": 75,
+        "h": 75,
+        "display_state": "normal"
+      }
+    },
+    {
+      "id": 27,
+      "type": "process",
+      "x": 1027,
+      "y": 555,
+      "w": 75,
+      "h": 60,
+      "text": "黒須駿",
+      "shape_type": "ellipse",
+      "fill_color": "#FFFDE6",
+      "outline_color": "#B5A500",
+      "details": "別班員、乃木の後輩\nJKT資源開発のエンジニア",
+      "note": {
+        "dx": -105,
+        "dy": 22,
+        "w": 105,
+        "h": 45,
+        "display_state": "normal"
+      }
+    },
+    {
+      "id": 29,
+      "type": "process",
+      "x": 1027,
+      "y": 390,
+      "w": 75,
+      "h": 60,
+      "text": "乃木憂助",
+      "shape_type": "ellipse",
+      "fill_color": "#FFFDE6",
+      "outline_color": "#B5A500",
+      "details": "エネルギー開発事業部2課長\n別班員\n別人格F\n",
+      "note": {
+        "dx": 68,
+        "dy": -285,
+        "w": 90,
+        "h": 60,
+        "display_state": "normal"
+      }
+    },
+    {
+      "id": 31,
+      "type": "process",
+      "x": 1102,
+      "y": 345,
+      "w": 75,
+      "h": 60,
+      "text": "長野利彦",
+      "shape_type": "ellipse",
+      "fill_color": "#FFFDE6",
+      "outline_color": "#B5A500",
+      "details": "専務\n東南アジア統括の別班員",
+      "note": {
+        "dx": 150,
+        "dy": -165,
+        "w": 135,
+        "h": 30,
+        "display_state": "normal"
+      }
+    },
+    {
+      "id": 33,
+      "type": "process",
+      "x": 967,
+      "y": 255,
+      "w": 75,
+      "h": 60,
+      "text": "太田梨歩",
+      "shape_type": "ellipse",
+      "fill_color": "#FFF1E3",
+      "outline_color": "#D98232",
+      "details": "元財務部\n天才ハッカー「ブルーウォーカー」",
+      "note": {
+        "dx": 53,
+        "dy": -83,
+        "w": 90,
+        "h": 45,
+        "display_state": "normal"
+      }
+    },
+    {
+      "id": 35,
+      "type": "process",
+      "x": 922,
+      "y": 165,
+      "w": 75,
+      "h": 60,
+      "text": "宇佐美哲也",
+      "shape_type": "ellipse",
+      "fill_color": "#FFF1E3",
+      "outline_color": "#D98232",
+      "details": "エネルギー事業部長\n",
+      "note": {
+        "dx": 60,
+        "dy": -60,
+        "w": 105,
+        "h": 30,
+        "display_state": "normal"
+      }
+    },
+    {
+      "id": 37,
+      "type": "process",
+      "x": 667,
+      "y": 270,
+      "w": 75,
+      "h": 60,
+      "text": " 山本巧",
+      "shape_type": "ellipse",
+      "fill_color": "#FFF1E3",
+      "outline_color": "#D98232",
+      "status": "inactive",
+      "details": "エネルギー事業部1課長\n元情報システム部\nテントの最下位モニター",
+      "note": {
+        "dx": -112,
+        "dy": -90,
+        "w": 120,
+        "h": 45,
+        "display_state": "normal"
+      }
+    },
+    {
+      "id": 39,
+      "type": "process",
+      "x": 832,
+      "y": 120,
+      "w": 75,
+      "h": 60,
+      "text": "坂本誠司",
+      "shape_type": "ellipse",
+      "fill_color": "#FFF1E3",
+      "outline_color": "#D98232",
+      "details": "社長",
+      "note": {
+        "dx": 53,
+        "dy": -60,
+        "w": 45,
+        "h": 30,
+        "display_state": "normal"
+      }
+    },
+    {
+      "id": 41,
+      "type": "process",
+      "x": 742,
+      "y": 135,
+      "w": 75,
+      "h": 60,
+      "text": "水上了",
+      "shape_type": "ellipse",
+      "fill_color": "#FFF1E3",
+      "outline_color": "#D98232",
+      "details": "乃木の部下",
+      "note": {
+        "dx": 30,
+        "dy": -75,
+        "w": 60,
+        "h": 30,
+        "display_state": "normal"
+      }
+    },
+    {
+      "id": 43,
+      "type": "process",
+      "x": 682,
+      "y": 195,
+      "w": 75,
+      "h": 60,
+      "text": "立石真央",
+      "shape_type": "ellipse",
+      "fill_color": "#FFF1E3",
+      "outline_color": "#D98232",
+      "details": "乃木の部下",
+      "note": {
+        "dx": -30,
+        "dy": -105,
+        "w": 60,
+        "h": 30,
+        "display_state": "normal"
+      }
+    },
+    {
+      "id": 45,
+      "type": "process",
+      "x": 697,
+      "y": 345,
+      "w": 75,
+      "h": 60,
+      "text": "原智彦",
+      "shape_type": "ellipse",
+      "fill_color": "#FFF1E3",
+      "outline_color": "#D98232",
+      "details": "経理部長",
+      "note": {
+        "dx": 8,
+        "dy": 60,
+        "w": 60,
+        "h": 30,
+        "display_state": "normal"
+      }
+    },
+    {
+      "id": 47,
+      "type": "process",
+      "x": 787,
+      "y": 390,
+      "w": 75,
+      "h": 60,
+      "text": "河合幸二",
+      "shape_type": "ellipse",
+      "fill_color": "#FFF1E3",
+      "outline_color": "#D98232",
+      "details": "業務監査部",
+      "note": {
+        "dx": 38,
+        "dy": 60,
+        "w": 60,
+        "h": 30,
+        "display_state": "normal"
+      }
+    },
+    {
+      "id": 49,
+      "type": "process",
+      "x": 892,
+      "y": 375,
+      "w": 75,
+      "h": 60,
+      "text": "冨樫",
+      "shape_type": "ellipse",
+      "fill_color": "#FFF1E3",
+      "outline_color": "#D98232",
+      "details": "金属資源部長\n次期役員候補",
+      "note": {
+        "dx": 45,
+        "dy": 60,
+        "w": 75,
+        "h": 30,
+        "display_state": "normal"
+      }
+    },
+    {
+      "id": 52,
+      "type": "process",
+      "x": 1117,
+      "y": 225,
+      "w": 75,
+      "h": 60,
+      "text": "ゲルン",
+      "shape_type": "ellipse",
+      "fill_color": "#F7F5F2",
+      "outline_color": "#92816B",
+      "details": "長野のエージェント\n上腕から胸部に入墨\n大小の手裏剣使い",
+      "note": {
+        "dx": 90,
+        "dy": -128,
+        "w": 105,
+        "h": 45,
+        "display_state": "normal"
+      }
+    },
+    {
+      "id": 54,
+      "type": "process",
+      "x": 1312,
+      "y": 255,
+      "w": 75,
+      "h": 60,
+      "text": "フィルザ",
+      "shape_type": "ellipse",
+      "fill_color": "#F7F5F2",
+      "outline_color": "#92816B"
+    },
+    {
+      "id": 56,
+      "type": "process",
+      "x": 1372,
+      "y": 300,
+      "w": 75,
+      "h": 60,
+      "text": "ロマル",
+      "shape_type": "ellipse",
+      "fill_color": "#F7F5F2",
+      "outline_color": "#92816B"
+    },
+    {
+      "id": 58,
+      "type": "process",
+      "x": 1402,
+      "y": 375,
+      "w": 75,
+      "h": 60,
+      "text": "ナティック",
+      "shape_type": "ellipse",
+      "fill_color": "#F7F5F2",
+      "outline_color": "#92816B"
+    },
+    {
+      "id": 60,
+      "type": "process",
+      "x": 517,
+      "y": 345,
+      "w": 75,
+      "h": 60,
+      "text": "ノゴーン\n・ベキ",
+      "shape_type": "ellipse",
+      "fill_color": "#FDECEF",
+      "outline_color": "#D94C67",
+      "status": "inactive",
+      "details": "本名：乃木卓\n乃木憂介の父\nテントの創始者",
+      "note": {
+        "dx": -45,
+        "dy": -83,
+        "w": 75,
+        "h": 45,
+        "display_state": "normal"
+      }
+    },
+    {
+      "id": 62,
+      "type": "process",
+      "x": 622,
+      "y": 420,
+      "w": 75,
+      "h": 60,
+      "text": "ノコル",
+      "shape_type": "ellipse",
+      "fill_color": "#FDECEF",
+      "outline_color": "#D94C67",
+      "details": "テントの幹部\n乃木憂介の義弟",
+      "note": {
+        "dx": -52,
+        "dy": -150,
+        "w": 90,
+        "h": 30,
+        "display_state": "normal"
+      }
+    },
+    {
+      "id": 64,
+      "type": "process",
+      "x": 577,
+      "y": 600,
+      "w": 75,
+      "h": 60,
+      "text": "アリ",
+      "shape_type": "ellipse",
+      "fill_color": "#FDECEF",
+      "outline_color": "#D94C67"
+    },
+    {
+      "id": 66,
+      "type": "process",
+      "x": 427,
+      "y": 360,
+      "w": 75,
+      "h": 60,
+      "text": "ピヨ",
+      "shape_type": "ellipse",
+      "fill_color": "#FDECEF",
+      "outline_color": "#D94C67",
+      "status": "inactive"
+    },
+    {
+      "id": 68,
+      "type": "process",
+      "x": 367,
+      "y": 420,
+      "w": 75,
+      "h": 60,
+      "text": "バトラカ",
+      "shape_type": "ellipse",
+      "fill_color": "#FDECEF",
+      "outline_color": "#D94C67",
+      "status": "inactive"
+    },
+    {
+      "id": 70,
+      "type": "process",
+      "x": 352,
+      "y": 510,
+      "w": 75,
+      "h": 60,
+      "text": "シチ",
+      "shape_type": "ellipse",
+      "fill_color": "#FDECEF",
+      "outline_color": "#D94C67"
+    },
+    {
+      "id": 72,
+      "type": "process",
+      "x": 382,
+      "y": 600,
+      "w": 75,
+      "h": 60,
+      "text": "マタ",
+      "shape_type": "ellipse",
+      "fill_color": "#FDECEF",
+      "outline_color": "#D94C67"
+    },
+    {
+      "id": 74,
+      "type": "process",
+      "x": 472,
+      "y": 615,
+      "w": 75,
+      "h": 60,
+      "text": "アディエル",
+      "shape_type": "ellipse",
+      "fill_color": "#FDECEF",
+      "outline_color": "#D94C67"
+    },
+    {
+      "id": 76,
+      "type": "process",
+      "x": 262,
+      "y": 615,
+      "w": 105,
+      "h": 90,
+      "text": "Y2K",
+      "shape_type": "ellipse",
+      "fill_color": "#FDECEF",
+      "outline_color": "#D94C67"
+    },
+    {
+      "id": 80,
+      "type": "process",
+      "x": 412,
+      "y": 690,
+      "w": 75,
+      "h": 60,
+      "text": "ジャミーン",
+      "shape_type": "ellipse",
+      "fill_color": "#F7F5F2",
+      "outline_color": "#92816B",
+      "details": "奇跡の少女\n善人と悪人を識別できる能力を持つ",
+      "note": {
+        "dx": -15,
+        "dy": 75,
+        "w": 75,
+        "h": 60,
+        "display_state": "normal"
+      }
+    },
+    {
+      "id": 82,
+      "type": "process",
+      "x": 1012,
+      "y": 660,
+      "w": 75,
+      "h": 60,
+      "text": "新庄浩太郎",
+      "shape_type": "ellipse",
+      "fill_color": "#F1FAEE",
+      "outline_color": "#62A64B"
+    },
+    {
+      "id": 84,
+      "type": "process",
+      "x": 682,
+      "y": 510,
+      "w": 75,
+      "h": 60,
+      "text": "チョッキー",
+      "shape_type": "ellipse",
+      "fill_color": "#FDECEF",
+      "outline_color": "#D94C67",
+      "details": "CTP社の社長\nタイの有名実業家\nテント元上位モニター",
+      "note": {
+        "dx": 120,
+        "dy": -8,
+        "w": 105,
+        "h": 45,
+        "display_state": "normal"
+      }
+    },
+    {
+      "id": 86,
+      "type": "process",
+      "x": 307,
+      "y": 720,
+      "w": 75,
+      "h": 60,
+      "text": "エリシャ\n・ママドフ",
+      "shape_type": "ellipse",
+      "fill_color": "#F7F5F2",
+      "outline_color": "#92816B",
+      "details": "核融合技術を発明するも秘密にしている",
+      "note": {
+        "dx": -90,
+        "dy": -23,
+        "w": 75,
+        "h": 45,
+        "display_state": "normal"
+      }
+    },
+    {
+      "id": 88,
+      "type": "process",
+      "x": 907,
+      "y": 780,
+      "w": 75,
+      "h": 60,
+      "text": "野崎守",
+      "shape_type": "ellipse",
+      "fill_color": "#F1FAEE",
+      "outline_color": "#62A64B",
+      "details": "警視庁公安部外事第4課・理事官",
+      "note": {
+        "dx": 53,
+        "dy": -60,
+        "w": 90,
+        "h": 30,
+        "display_state": "normal"
+      }
+    },
+    {
+      "id": 90,
+      "type": "process",
+      "x": 1117,
+      "y": 690,
+      "w": 75,
+      "h": 60,
+      "text": "佐野雄太郎",
+      "shape_type": "ellipse",
+      "fill_color": "#F1FAEE",
+      "outline_color": "#62A64B",
+      "details": "警視庁公安部部長",
+      "note": {
+        "dx": 83,
+        "dy": -15,
+        "w": 60,
+        "h": 30,
+        "display_state": "normal"
+      }
+    },
+    {
+      "id": 92,
+      "type": "process",
+      "x": 1162,
+      "y": 780,
+      "w": 75,
+      "h": 60,
+      "text": "東条翔太",
+      "shape_type": "ellipse",
+      "fill_color": "#F1FAEE",
+      "outline_color": "#62A64B",
+      "details": "サイバー犯罪対策課\nホワイトハッカー",
+      "note": {
+        "dx": 105,
+        "dy": -30,
+        "w": 105,
+        "h": 30,
+        "display_state": "normal"
+      }
+    },
+    {
+      "id": 94,
+      "type": "process",
+      "x": 1162,
+      "y": 870,
+      "w": 75,
+      "h": 60,
+      "text": "森田喜一",
+      "shape_type": "ellipse",
+      "fill_color": "#F1FAEE",
+      "outline_color": "#62A64B"
+    },
+    {
+      "id": 96,
+      "type": "process",
+      "x": 1087,
+      "y": 930,
+      "w": 75,
+      "h": 60,
+      "text": "和久井俊作",
+      "shape_type": "ellipse",
+      "fill_color": "#F1FAEE",
+      "outline_color": "#62A64B"
+    },
+    {
+      "id": 98,
+      "type": "process",
+      "x": 937,
+      "y": 915,
+      "w": 75,
+      "h": 60,
+      "text": "鈴木祥",
+      "shape_type": "ellipse",
+      "fill_color": "#F1FAEE",
+      "outline_color": "#62A64B"
+    },
+    {
+      "id": 100,
+      "type": "process",
+      "x": 862,
+      "y": 660,
+      "w": 75,
+      "h": 60,
+      "text": "ドラム",
+      "shape_type": "ellipse",
+      "fill_color": "#F7F5F2",
+      "outline_color": "#92816B",
+      "details": "野崎の助手",
+      "note": {
+        "dx": 75,
+        "dy": 15,
+        "w": 45,
+        "h": 30,
+        "display_state": "normal"
+      }
+    },
+    {
+      "id": 102,
+      "type": "process",
+      "x": 802,
+      "y": 840,
+      "w": 75,
+      "h": 60,
+      "text": "劉銘軒",
+      "shape_type": "ellipse",
+      "fill_color": "#EAFBFF",
+      "outline_color": "#229EBF"
+    },
+    {
+      "id": 104,
+      "type": "process",
+      "x": 577,
+      "y": 720,
+      "w": 75,
+      "h": 60,
+      "text": "樊林杏",
+      "shape_type": "ellipse",
+      "fill_color": "#EAFBFF",
+      "outline_color": "#229EBF",
+      "details": "中国の裏の組織「シンシー」の責任者",
+      "note": {
+        "dx": 75,
+        "dy": -60,
+        "w": 75,
+        "h": 45,
+        "display_state": "normal"
+      }
+    },
+    {
+      "id": 106,
+      "type": "process",
+      "x": 502,
+      "y": 780,
+      "w": 75,
+      "h": 60,
+      "text": "李茗沢",
+      "shape_type": "ellipse",
+      "fill_color": "#EAFBFF",
+      "outline_color": "#229EBF"
+    },
+    {
+      "id": 108,
+      "type": "process",
+      "x": 502,
+      "y": 885,
+      "w": 75,
+      "h": 60,
+      "text": "周浩然",
+      "shape_type": "ellipse",
+      "fill_color": "#EAFBFF",
+      "outline_color": "#229EBF"
+    },
+    {
+      "id": 110,
+      "type": "process",
+      "x": 697,
+      "y": 930,
+      "w": 75,
+      "h": 60,
+      "text": "沈俊宇",
+      "shape_type": "ellipse",
+      "fill_color": "#EAFBFF",
+      "outline_color": "#229EBF"
+    },
+    {
+      "id": 112,
+      "type": "process",
+      "x": 577,
+      "y": 945,
+      "w": 75,
+      "h": 60,
+      "text": "佟吐爾地",
+      "shape_type": "ellipse",
+      "fill_color": "#EAFBFF",
+      "outline_color": "#229EBF",
+      "status": "inactive"
+    },
+    {
+      "id": 114,
+      "type": "process",
+      "x": 712,
+      "y": 735,
+      "w": 75,
+      "h": 60,
+      "text": "張競士",
+      "shape_type": "ellipse",
+      "fill_color": "#EAFBFF",
+      "outline_color": "#229EBF"
+    },
+    {
+      "id": 116,
+      "type": "process",
+      "x": 1447,
+      "y": 825,
+      "w": 75,
+      "h": 60,
+      "text": "柚木薫",
+      "shape_type": "ellipse",
+      "fill_color": "#F7F5F2",
+      "outline_color": "#92816B",
+      "details": "世界医療機構(WHI)の医師",
+      "note": {
+        "dx": 60,
+        "dy": -75,
+        "w": 75,
+        "h": 30,
+        "display_state": "normal"
+      }
+    },
+    {
+      "id": 118,
+      "type": "process",
+      "x": 1582,
+      "y": 825,
+      "w": 75,
+      "h": 60,
+      "text": "チンギス",
+      "shape_type": "ellipse",
+      "fill_color": "#F7F5F2",
+      "outline_color": "#92816B",
+      "details": "バルカ警察の警察官\n",
+      "note": {
+        "dx": 87.0,
+        "dy": -69.0,
+        "w": 60,
+        "h": 30,
+        "display_state": "normal"
+      }
+    },
+    {
+      "id": 120,
+      "type": "process",
+      "x": 1447,
+      "y": 930,
+      "w": 75,
+      "h": 60,
+      "text": "乃木寛道",
+      "shape_type": "ellipse",
+      "fill_color": "#F7F5F2",
+      "outline_color": "#92816B",
+      "details": "乃木家当主\n乃木卓の兄",
+      "note": {
+        "dx": 63.0,
+        "dy": -49.0,
+        "w": 60,
+        "h": 30,
+        "display_state": "normal"
+      }
+    },
+    {
+      "id": 122,
+      "type": "process",
+      "x": 1582,
+      "y": 930,
+      "w": 75,
+      "h": 60,
+      "text": "タイラン\n・グリエワ",
+      "shape_type": "ellipse",
+      "fill_color": "#F7F5F2",
+      "outline_color": "#92816B",
+      "details": "エリシャ・ママドフを囲う情報系ブローカー",
+      "note": {
+        "dx": 96.0,
+        "dy": -42.0,
+        "w": 75,
+        "h": 45,
+        "display_state": "normal"
+      }
+    },
+    {
+      "id": 124,
+      "type": "process",
+      "x": 757,
+      "y": 645,
+      "w": 75,
+      "h": 60,
+      "text": "毛じいさん",
+      "shape_type": "ellipse",
+      "fill_color": "#F7F5F2",
+      "outline_color": "#92816B",
+      "details": "情報屋",
+      "note": {
+        "dx": -60,
+        "dy": -45,
+        "w": 45,
+        "h": 30,
+        "display_state": "normal"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from_id": 6,
+      "to_id": 25,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#B5A500",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 6,
+      "to_id": 29,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#B5A500",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 6,
+      "to_id": 27,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#B5A500",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 6,
+      "to_id": 31,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#B5A500",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 6,
+      "to_id": 13,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#B5A500",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 6,
+      "to_id": 15,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#B5A500",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 6,
+      "to_id": 17,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#B5A500",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 6,
+      "to_id": 19,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#B5A500",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 6,
+      "to_id": 21,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#B5A500",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 6,
+      "to_id": 23,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#B5A500",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 4,
+      "to_id": 31,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#D98232",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 4,
+      "to_id": 29,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#D98232",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 4,
+      "to_id": 49,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#D98232",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 4,
+      "to_id": 47,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#D98232",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 4,
+      "to_id": 45,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#D98232",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 4,
+      "to_id": 43,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#D98232",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 4,
+      "to_id": 41,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#D98232",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 4,
+      "to_id": 37,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#D98232",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 4,
+      "to_id": 39,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#D98232",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 4,
+      "to_id": 35,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#D98232",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 4,
+      "to_id": 33,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#D98232",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 6,
+      "to_id": 33,
+      "edge_type": "line",
+      "line_style": "dotted",
+      "color": "#B5A500",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 15,
+      "to_id": 54,
+      "edge_type": "line",
+      "line_style": "dotted",
+      "color": "#0f172a",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 15,
+      "to_id": 56,
+      "edge_type": "line",
+      "line_style": "dotted",
+      "color": "#0f172a",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 15,
+      "to_id": 58,
+      "edge_type": "line",
+      "line_style": "dotted",
+      "color": "#0f172a",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 1,
+      "to_id": 37,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#D94C67",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 1,
+      "to_id": 62,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#D94C67",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 1,
+      "to_id": 60,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#D94C67",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 1,
+      "to_id": 66,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#D94C67",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 1,
+      "to_id": 68,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#D94C67",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 1,
+      "to_id": 70,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#D94C67",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 1,
+      "to_id": 72,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#D94C67",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 1,
+      "to_id": 74,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#D94C67",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 1,
+      "to_id": 82,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#D94C67",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 1,
+      "to_id": 64,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#D94C67",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 74,
+      "to_id": 80,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#0f172a",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 86,
+      "to_id": 80,
+      "edge_type": "line",
+      "line_style": "dotted",
+      "color": "#0f172a",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 82,
+      "to_id": 84,
+      "edge_type": "line",
+      "line_style": "dotted",
+      "color": "#0f172a",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 9,
+      "to_id": 82,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#62A64B",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 31,
+      "to_id": 52,
+      "edge_type": "line",
+      "line_style": "dotted",
+      "color": "#0f172a",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 9,
+      "to_id": 88,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#62A64B",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 9,
+      "to_id": 90,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#62A64B",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 9,
+      "to_id": 92,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#62A64B",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 9,
+      "to_id": 94,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#62A64B",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 9,
+      "to_id": 96,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#62A64B",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 9,
+      "to_id": 98,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#62A64B",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 11,
+      "to_id": 98,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#229EBF",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 1,
+      "to_id": 76,
+      "edge_type": "line",
+      "line_style": "dotted",
+      "color": "#D94C67",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 1,
+      "to_id": 29,
+      "edge_type": "line",
+      "line_style": "dotted",
+      "color": "#D94C67",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 11,
+      "to_id": 114,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#229EBF",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 11,
+      "to_id": 112,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#229EBF",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 11,
+      "to_id": 110,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#229EBF",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 11,
+      "to_id": 108,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#229EBF",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 11,
+      "to_id": 106,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#229EBF",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 11,
+      "to_id": 104,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#229EBF",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 11,
+      "to_id": 102,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#229EBF",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 11,
+      "to_id": 88,
+      "edge_type": "line",
+      "line_style": "solid",
+      "color": "#229EBF",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 88,
+      "to_id": 100,
+      "edge_type": "line",
+      "line_style": "dotted",
+      "color": "#0f172a",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 88,
+      "to_id": 102,
+      "edge_type": "line",
+      "line_style": "dotted",
+      "color": "#0f172a",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 88,
+      "to_id": 114,
+      "edge_type": "line",
+      "line_style": "dotted",
+      "color": "#0f172a",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 1,
+      "to_id": 84,
+      "edge_type": "line",
+      "line_style": "dashed",
+      "color": "#D94C67",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 114,
+      "to_id": 124,
+      "edge_type": "line",
+      "line_style": "dotted",
+      "color": "#0f172a",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 88,
+      "to_id": 124,
+      "edge_type": "line",
+      "line_style": "dotted",
+      "color": "#0f172a",
+      "connection_mode": "auto"
+    },
+    {
+      "from_id": 6,
+      "to_id": 82,
+      "edge_type": "line",
+      "line_style": "dotted",
+      "color": "#B5A500",
+      "connection_mode": "auto"
+    }
+  ],
+  "swimlanes": []
+}

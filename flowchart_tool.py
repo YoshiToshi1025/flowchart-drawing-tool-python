@@ -746,6 +746,8 @@ class FlowchartTool(tk.Tk):
             if selecting_node_id is None:
                 if selecting_edge is not None:
                     self.select_edge(selecting_edge)
+                else:
+                    self.mode.set("select")
                 return
             if self.link_start_node_id is None:
                 self.link_start_node_id = selecting_node_id
@@ -1489,8 +1491,8 @@ class FlowchartTool(tk.Tk):
             return note
         return None
 
-    def create_note(self, text: str = "", dx: Optional[int] = None, dy: Optional[int] = None, base_node: Optional[Node] = None, display_state="normal", canvas: Optional[tk.Canvas] = None):
-        self.note = Note(canvas, base_node=base_node, text=text, dx=dx, dy=dy, display_state=display_state)
+    def create_note(self, text: str = "", dx: Optional[int] = None, dy: Optional[int] = None, w: Optional[int] = None, h: Optional[int] = None, base_node: Optional[Node] = None, display_state="normal", canvas: Optional[tk.Canvas] = None):
+        self.note = Note(canvas, base_node=base_node, text=text, dx=dx, dy=dy, w=w, h=h, display_state=display_state)
         return self.note
 
     def on_canvas_resize(self, event):
@@ -1554,6 +1556,16 @@ class FlowchartTool(tk.Tk):
                 if modify_flag:
                     self._move_node_graphics(node_obj)
                     self._update_edges_for_node(node_id)
+
+        selecting_note = self.note_at(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
+        if selecting_note is not None:
+            if delta > 0:
+                selecting_note.change_width(self.canvas, increase=True)
+            else:
+                selecting_note.change_width(self.canvas, increase=False)
+            selecting_note.redraw()
+            modify_flag = True
+
         if modify_flag:
             self.push_history()
 
@@ -1602,6 +1614,15 @@ class FlowchartTool(tk.Tk):
                 if modify_flag:
                     self._move_node_graphics(node_obj)
                     self._update_edges_for_node(node_id)
+
+        selecting_note = self.note_at(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
+        if selecting_note is not None:
+            if delta > 0:
+                selecting_note.change_height(self.canvas, increase=True)
+            else:
+                selecting_note.change_height(self.canvas, increase=False)
+            selecting_note.redraw()
+            modify_flag = True
 
         if modify_flag:
             self.push_history()
@@ -1671,7 +1692,7 @@ class FlowchartTool(tk.Tk):
         
         self.display_operation_info()  # 操作情報表示制御
 
-    def _create_node_with_id(self, node_id, node_type, x, y, w=None, h=None, shape_type=None, fill_color=None, text=None, status=None, details=None, note_data=None):
+    def _create_node_with_id(self, node_id, node_type, x, y, w=None, h=None, shape_type=None, fill_color=None, outline_color=None, text=None, status=None, details=None, note_data=None):
         adjusted_x, adjusted_y = self.adjusted_xy(node_id, x, y, node_type)
 
         auto_text = self.auto_node_text(node_type, text)
@@ -1680,13 +1701,21 @@ class FlowchartTool(tk.Tk):
             if self.current_terminator_kind == "Terminator_small":
                 w = ct.NODE_TERMINATOR_PARAMS["width"]  // 2
 
-        node_obj = Node(node_id, node_type, adjusted_x, adjusted_y, w=w, h=h, shape_type=shape_type, fill_color=fill_color, text=auto_text, status=status, details=details, canvas=self.canvas)
+        node_obj = Node(node_id, node_type, adjusted_x, adjusted_y, w=w, h=h, shape_type=shape_type, fill_color=fill_color, outline_color=outline_color, text=auto_text, status=status, details=details, canvas=self.canvas)
         self.nodes[node_id] = node_obj
 
         if details is not None:
             if note_data is None:
-                note_data = {"dx": None, "dy": None, "display_state": "normal"}
-            note_obj = self.create_note(text=details, dx=note_data.get("dx"), dy=note_data.get("dy"), base_node=node_obj, display_state=note_data.get("display_state"), canvas=self.canvas)
+                note_data = {"dx": None, "dy": None, "w": None, "h": None, "display_state": "normal"}
+            note_obj = self.create_note(
+                text=details,
+                dx=note_data.get("dx"),
+                dy=note_data.get("dy"),
+                w=note_data.get("w", None),
+                h=note_data.get("h", None),
+                base_node=node_obj,
+                display_state=note_data.get("display_state"),
+                canvas=self.canvas)
             if note_obj is not None and note_obj.shape_id is not None:
                 self.notes[note_obj.shape_id] = note_obj
 
@@ -1707,7 +1736,7 @@ class FlowchartTool(tk.Tk):
         # print(f"Duplicating node id: {original_node.id} to new node id: {new_node_id}")
         adjusted_x, adjusted_y = self.adjusted_xy(new_node_id, original_node.x, original_node.y, original_node.type)
 
-        duplicated_node_obj = Node(new_node_id, original_node.type, adjusted_x, adjusted_y, w=original_node.w, h=original_node.h, shape_type=original_node.shape_type, fill_color=original_node.fill_color, text=original_node.text, status=original_node.status, details=original_node.details, canvas=self.canvas)
+        duplicated_node_obj = Node(new_node_id, original_node.type, adjusted_x, adjusted_y, w=original_node.w, h=original_node.h, shape_type=original_node.shape_type, fill_color=original_node.fill_color, outline_color=original_node.outline_color, text=original_node.text, status=original_node.status, details=original_node.details, canvas=self.canvas)
         if original_node.base_image_data is not None:
             duplicated_node_obj.base_image_data = original_node.base_image_data
             duplicated_node_obj.redraw_picture(self.canvas)
@@ -1719,8 +1748,10 @@ class FlowchartTool(tk.Tk):
             if note_obj is not None:
                 note_dx = note_obj.dx
                 note_dy = note_obj.dy
+                note_w = note_obj.w
+                note_h = note_obj.h
                 note_display_state = note_obj.display_state
-                duplicated_note_obj = self.create_note(text=duplicated_node_obj.details, dx=note_dx, dy=note_dy, base_node=duplicated_node_obj, display_state=note_display_state, canvas=self.canvas)
+                duplicated_note_obj = self.create_note(text=duplicated_node_obj.details, dx=note_dx, dy=note_dy, w=note_w, h=note_h, base_node=duplicated_node_obj, display_state=note_display_state, canvas=self.canvas)
                 if duplicated_note_obj is not None and duplicated_note_obj.shape_id is not None:
                     self.notes[duplicated_note_obj.shape_id] = duplicated_note_obj
 
@@ -2329,6 +2360,7 @@ class FlowchartTool(tk.Tk):
             h = nd.get("h", Node.get_height_of_type(node_type))
             shape_type = nd.get("shape_type", None)
             fill_color = nd.get("fill_color", None)
+            outline_color = nd.get("outline_color", None)
             text = nd.get("text", "")
             status = nd.get("status", None)
             details = nd.get("details", None)
@@ -2339,9 +2371,9 @@ class FlowchartTool(tk.Tk):
             else:
                 image_data = base64.b64decode(image_base64_data)
 
-            # print(f"Importing node id: {nid}, type: {node_type}, x: {x}, y: {y}, w: {w}, h: {h}, shape_type: {shape_type}, fill_color: {fill_color}, text: {text}, status: {status}, details: {details}, note_data: {note_data}")  # for DEBUG
+            # print(f"Importing node id: {nid}, type: {node_type}, x: {x}, y: {y}, w: {w}, h: {h}, shape_type: {shape_type}, fill_color: {fill_color}, outline_color: {outline_color}, text: {text}, status: {status}, details: {details}, note_data: {note_data}")  # for DEBUG
 
-            self._create_node_with_id(nid, node_type, x, y, w=w, h=h, shape_type=shape_type, fill_color=fill_color, text=text, status=status, details=details, note_data=note_data)
+            self._create_node_with_id(nid, node_type, x, y, w=w, h=h, shape_type=shape_type, fill_color=fill_color, outline_color=outline_color, text=text, status=status, details=details, note_data=note_data)
             if node_type == ct.NODE_SPECIAL_NODE_PARAMS["type"]:
                 node_obj = self.nodes[nid]
                 if node_obj is not None and image_data is not None:
@@ -2752,10 +2784,18 @@ class FlowchartTool(tk.Tk):
 
         shape_id = node_obj.shape_id
         node_type = node_obj.type
+        current_shape_type = self.canvas.type(shape_id)
+        if current_shape_type == "oval":
+            current_shape_type = "ellipse"
+        new_shape_type = node_obj.shape_type
+        # print (f"current_shape_type: {current_shape_type}, new_shape_type: {new_shape_type}")  # for DEBUG
 
         if node_type == ct.NODE_PROCESS_PARAMS["type"]:    # 処理
-            points = node_obj.get_process_points()
-            self.canvas.coords(shape_id, *points)
+            current_shape_id = node_obj.shape_id
+            node_obj.change_shape_type(self.canvas, new_shape_type)
+            if current_shape_id != node_obj.shape_id:
+                self.deselect_node(node_obj.id)  # ノードの選択解除
+                self.select_node(node_obj.id)    # ノードの選択状態を再設定
         elif node_type == ct.NODE_DECISION_PARAMS["type"]:    # 分岐
             points = node_obj.get_decision_points()
             self.canvas.coords(shape_id, *points)
@@ -3058,7 +3098,15 @@ class FlowchartTool(tk.Tk):
             if selected_node_id in self.nodes:
                 node_obj = self.nodes[selected_node_id]
                 if 0 <= color_no < 10:
-                    node_obj.fill_color = ct.NODE_FILL_COLORS[color_no]
+                    if node_obj.fill_color == ct.NODE_FILL_COLORS[color_no]:
+                        node_obj.fill_color = ct.NODE_FILL_COLORS_1[color_no]
+                    elif node_obj.fill_color == ct.NODE_FILL_COLORS_1[color_no]:
+                        node_obj.fill_color = ct.NODE_FILL_COLORS_2[color_no]
+                    elif node_obj.fill_color == ct.NODE_FILL_COLORS_2[color_no]:
+                        node_obj.fill_color = ct.NODE_FILL_COLORS_3[color_no]
+                    else:
+                        node_obj.fill_color = ct.NODE_FILL_COLORS[color_no]
+                    node_obj.outline_color = ct.NODE_OUTLINE_COLORS[color_no]
                 else:
                     node_obj.fill_color = {
                         ct.NODE_PROCESS_PARAMS["type"] : ct.NODE_PROCESS_PARAMS["fill_color"],
@@ -3067,9 +3115,21 @@ class FlowchartTool(tk.Tk):
                         ct.NODE_IO_PARAMS["type"] : ct.NODE_IO_PARAMS["fill_color"],
                         ct.NODE_STORAGE_PARAMS["type"] : ct.NODE_STORAGE_PARAMS["fill_color"],
                         ct.NODE_DOCUMENT_PARAMS["type"] : ct.NODE_DOCUMENT_PARAMS["fill_color"],
+                        ct.NODE_SPECIAL_NODE_PARAMS["type"] : ct.NODE_SPECIAL_NODE_PARAMS["fill_color"],
                     }.get(node_obj.type, ct.NODE_DEFAULT_PARAMS["fill_color"])
+                    node_obj.outline_color = {
+                        ct.NODE_PROCESS_PARAMS["type"] : ct.NODE_PROCESS_PARAMS["outline_color"],
+                        ct.NODE_DECISION_PARAMS["type"] : ct.NODE_DECISION_PARAMS["outline_color"],
+                        ct.NODE_TERMINATOR_PARAMS["type"] : ct.NODE_TERMINATOR_PARAMS["outline_color"],
+                        ct.NODE_IO_PARAMS["type"] : ct.NODE_IO_PARAMS["outline_color"],
+                        ct.NODE_STORAGE_PARAMS["type"] : ct.NODE_STORAGE_PARAMS["outline_color"],
+                        ct.NODE_DOCUMENT_PARAMS["type"] : ct.NODE_DOCUMENT_PARAMS["outline_color"],
+                        ct.NODE_SPECIAL_NODE_PARAMS["type"] : ct.NODE_SPECIAL_NODE_PARAMS["outline_color"],
+                    }.get(self.type, ct.NODE_DEFAULT_PARAMS["outline_color"])
+
                 fill_color = node_obj.get_fill_color()
-                self.canvas.itemconfig(node_obj.shape_id, fill=fill_color)
+                outline_color = node_obj.get_outline_color()
+                self.canvas.itemconfig(node_obj.shape_id, fill=fill_color, outline=outline_color)
 
         for selected_swimlane in self.selected_swimlanes:
             selected_swimlane.fill_color = ct.SWIMLANE_FILL_COLORS[color_no]
@@ -3090,7 +3150,8 @@ class FlowchartTool(tk.Tk):
             if selected_node_id in self.nodes:
                 node_obj = self.nodes[selected_node_id]
                 node_obj.fill_color = node_obj.reset_fill_color()
-                self.canvas.itemconfig(node_obj.shape_id, fill=node_obj.fill_color)
+                node_obj.outline_color = node_obj.reset_outline_color()
+                self.canvas.itemconfig(node_obj.shape_id, fill=node_obj.fill_color, outline=node_obj.outline_color)
 
         for selected_swimlane in self.selected_swimlanes:
             selected_swimlane.fill_color = selected_swimlane.reset_fill_color()

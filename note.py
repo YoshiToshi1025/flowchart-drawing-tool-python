@@ -40,6 +40,8 @@ class Note:
 
         self.dx = ct.NOTE_PARAMS["dx"] if self.dx is None else self.dx
         self.dy = ct.NOTE_PARAMS["dy"] if self.dy is None else self.dy
+        self.w = ct.NOTE_PARAMS["width"] if self.w is None else self.w
+        self.h = ct.NOTE_PARAMS["height"] if self.h is None else self.h
         self.display_state = ct.NOTE_PARAMS.get("state", "normal") if self.display_state is None else self.display_state
         self.font = tkfont.Font(family=ct.NOTE_PARAMS["font_family"], size=ct.NOTE_PARAMS["font_size"], weight=ct.NOTE_PARAMS["font_weight"])
         self.display_state = "normal" if self.display_state is None else self.display_state
@@ -54,8 +56,6 @@ class Note:
 
         self.x = self.base_node.x + self.dx
         self.y = self.base_node.y + self.dy
-        self.w = ct.NOTE_PARAMS["width"]
-        self.h = ct.NOTE_PARAMS["height"]
 
         self.shape_id = self.canvas.create_rectangle(
                             self.x - self.w / 2, self.y - self.h / 2, self.x + self.w / 2, self.y + self.h / 2,
@@ -229,7 +229,11 @@ class Note:
         if note_obj.x is None or note_obj.y is None or note_obj.h is None or note_obj.w is None:
             return coords
 
-        from_x, from_y = self.from_rect_intersection(base_node_obj, note_obj)
+        if base_node_obj.shape_type == "ellipse":
+            from_x, from_y = self.from_ellipse_intersection(base_node_obj, note_obj)
+        else:
+            from_x, from_y = self.from_rect_intersection(base_node_obj, note_obj)
+
         to_x, to_y = self.to_rect_intersection(base_node_obj, note_obj)
 
         coords = [from_x, from_y, to_x, to_y]
@@ -273,6 +277,50 @@ class Note:
         )
 
         return lx2 + dx * t, ly2 + dy * t
+
+    def from_ellipse_intersection(self, from_node_obj, to_node_obj):
+        from_x, from_y, from_w, from_h = from_node_obj.x, from_node_obj.y, from_node_obj.w, from_node_obj.h
+        to_x, to_y, to_w, to_h = to_node_obj.x, to_node_obj.y, to_node_obj.w, to_node_obj.h
+
+        from_w = abs(from_w)
+        from_h = abs(from_h)
+
+        lw = to_x - from_x
+        lh = to_y - from_y
+        if lw == 0 and lh == 0:
+            return from_x, from_y
+
+        t = 1 / math.sqrt((lw / from_w * 2) ** 2 + (lh / from_h * 2) ** 2)
+
+        x = from_x + t * lw
+        y = from_y + t * lh
+
+        return x, y
+
+    def to_ellipse_intersection(self, from_node_obj, to_node_obj):
+        from_x, from_y, from_w, from_h = from_node_obj.x, from_node_obj.y, from_node_obj.w, from_node_obj.h
+        to_x, to_y, to_w, to_h = to_node_obj.x, to_node_obj.y, to_node_obj.w, to_node_obj.h
+
+        to_w = abs(to_w)
+        to_h = abs(to_h)
+
+        lw = to_x - from_x
+        lh = to_y - from_y
+
+        if lw == 0 and lh == 0:
+            return to_x, to_y
+
+        t = 1 / math.sqrt((lw / to_w * 2) ** 2 + (lh / to_h * 2) ** 2)
+
+        x = to_x - t * lw
+        y = to_y - t * lh
+
+        return x, y
+
+    def calc_angle(self, w, h):
+        angle = math.atan2(w, h)
+
+        return angle
 
     def wrap_text(self, text, font, max_width):
         """文字列を指定幅に収まるように改行する"""
@@ -340,6 +388,24 @@ class Note:
         if self.line_id is not None:
             canvas.itemconfigure(self.line_id, state="normal")
 
+    def change_width(self, canvas: tk.Canvas, increase=True):
+        width_step = ct.CANVAS_PARAMS["grid_spacing"]
+        if increase:
+            self.w += width_step
+        else:
+            self.w -= width_step
+            if self.w < width_step * 2:
+                self.w = width_step * 2
+
+    def change_height(self, canvas: tk.Canvas, increase=True):
+        height_step = ct.CANVAS_PARAMS["grid_spacing"]
+        if increase:
+            self.h += height_step
+        else:
+            self.h -= height_step
+            if self.h < height_step * 2:
+                self.h = height_step * 2
+
     def delete(self, canvas: tk.Canvas):
         if self.shape_id is not None:
             canvas.delete(self.shape_id)
@@ -357,6 +423,8 @@ class Note:
             "text": self.text,
             "dx": self.dx,
             "dy": self.dy,
+            "w": self.w,
+            "h": self.h,
             "display_state": self.display_state,
         }
         return note_data
@@ -365,6 +433,8 @@ class Note:
         note_data = {
             "dx": self.dx,
             "dy": self.dy,
+            "w": self.w,
+            "h": self.h,
             "display_state": self.display_state,
         }
         return note_data

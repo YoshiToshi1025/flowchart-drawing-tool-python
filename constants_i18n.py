@@ -256,7 +256,7 @@ I18N_KEY_MOUSE_LIST_DICT = {
             ("Ctrl-a", "すべてのノード/スイムレーンを選択"),
             ("Ctrl-z", "元に戻す(UNDO)"),
             ("Ctrl-y", "やり直し(REDO)"),
-            ("Ctrl-0~9", "選択中のノード/スイムレーンの塗りつぶし色を変更"),
+            ("Ctrl-0~9", "選択中のノード/スイムレーン/リンクの塗りつぶし色と縁取り色（ノードのみ）を変更、繰り返し指定で塗りつぶし色を4段階で濃淡変更"),
             ("Ctrl-r", "選択中のノード/スイムレーンの塗りつぶし色をリセット"),
             ("Ctrl-w", "選択中のノード/スイムレーンの幅を増加"),
             ("Ctrl-W", "選択中のノード/スイムレーンの幅を減少"),
@@ -269,7 +269,7 @@ I18N_KEY_MOUSE_LIST_DICT = {
             ("Ctrl-a", "Select all nodes/swimlanes"),
             ("Ctrl-z", "Undo the previous action"),
             ("Ctrl-y", "Redo the previously undone action"),
-            ("Ctrl-0~9", "Change the fill color of the selected node/swimlane"),
+            ("Ctrl-0~9", "Change the fill and stroke colors of the selected node/swimlane/link (for nodes only), and adjust fill color brightness in 4 levels by repeating the command"),
             ("Ctrl-r", "Reset the fill color of the selected node/swimlane"),
             ("Ctrl-w", "Increase the width of the selected node/swimlane"),
             ("Ctrl-W", "Decrease the width of the selected node/swimlane"),
@@ -457,6 +457,12 @@ I18N_RELEASE_NOTE_DICT = {
   "RELEASE_NOTE_TITLE.ja" : "リリースノート",
 
   "RELEASE_NOTE_TEXT.ja" : """
+[ 2026/10/19 ]
+・楕円ノードをより滑らかに表示するよう描画方法を変更
+・ノードについて、塗りつぶし色変更操作(Ctrl+0～9)に合わせて縁取り色も変更可能に
+・ノードについて、塗りつぶし色変更操作(Ctrl+0～9)を繰り返し指定することで、塗りつぶし色の濃淡を4段階で変更可能に
+・ノート欄の大きさを変更可能に（Shift+Wheel:横幅の変更、Ctrl+Wheel:縦幅の変更)
+
 [ 2026/09/29 ]
 ・画像を張り付けられる特殊ノードの追加（Excel図形変換は未対応）
 ・画像ノードを含むサンプルJSONファイルを添付（logodix.comのロゴを使用、商用利用不可）
@@ -511,21 +517,14 @@ I18N_RELEASE_NOTE_DICT = {
 ・生成AI連携機能で、新しい生成AIへの対応(Gemini 3.6 Flash, Claude Opus 5, Kimi K3)
 ・生成AIデータ読み込み時の不具合に対応（note欄でのエスケープ文字の読込対応）
 
-[ 2026/07/11 ]
-・生成AI連携機能で、新しい生成AIへの対応(GPT 5.6 Sol/Terra/Luna, Claude Fable 5)
-・生成AI連携機能で、LM Studioとの接続対応
-
-[ 2026/07/04 ]
-・文字列編集時のBackSpace処理の不具合対応(文字列削除時に同時に要素などが削除されていた事象に対応)
-
-[ 2026/06/28 ]
-・Ctrl+Drag操作で、選択中のノード/スイムレーンと選択中要素間のリンクの複製に対応
-・macOSでの操作の改善
-  ・DeleteキーだけでなくBackSpaceキーでもノードなどの削除を可能に
-  ・テキスト編集で ￥n でも改行指定を可能に
-・不具合対応（スイムレーンの移動処理）
 """,
   "RELEASE_NOTE_TEXT.en" : """
+[ 2026/10/19 ]
+- Changed the drawing method to display elliptical nodes more smoothly.
+- For nodes, the border color can also be changed along with the fill color change operation (Ctrl+0~9).
+- For nodes, the fill color change operation (Ctrl+0~9) can be repeated to change the fill color shade in 4 levels.
+- The size of the note field can be changed (Shift+Wheel: change width, Ctrl+Wheel: change height).
+
 [ 2026/09/29 ]
 - Added a special node that can paste images (Excel shape conversion is not supported).
 - Added a sample JSON file containing an image node (using the logo from logodix.com, not for commercial use).
@@ -580,19 +579,6 @@ I18N_RELEASE_NOTE_DICT = {
 - Added support for new generative AI models (Gemini 3.6 Flash, Claude Opus 5, Kimi K3) in the generative AI integration.
 - Fixed an issue when loading generative AI data, including support for escape characters in the note field.
 
-[ 2026/07/11 ]
-- Added support for new generative AI models (GPT 5.6 Sol/Terra/Luna, Claude Fable 5) in the generative AI integration.
-- Added support for connecting to LM Studio through the generative AI integration.
-
-[ 2026/07/04 ]
-- Fixed an issue with Backspace handling during text editing, where deleting text could also delete elements at the same time.
-
-[ 2026/06/28 ]
-- Added support for duplicating selected nodes/swimlanes and links between selected elements using Ctrl + Drag.
-- Improved usability on macOS:
-  - Added support for deleting nodes and other elements using the Backspace key in addition to the Delete key.
-  - Added support for specifying line breaks with \n during text editing.
-- Fixed an issue with swimlane movement.
 """,
 }
 
@@ -603,7 +589,7 @@ I18N_TIPS_DICT = {
   "TIPS_TEXT.ja" : """
 ■ 初期設定
 ・アプリ起動時、アプリのカレントフォルダに .env ファイルが無ければ、自動で作成されます。
-・.envファイルでは、「各種生成AI接続用APIキー」と「アプリ表示用言語」の設定を行います。
+・.envファイルでは、「各種生成AI接続用APIキー」と「アプリ表示用言語」と「利用する生成AIモデル」の設定を行います。
 
 ■ フローチャート作図
 ・ノード及びスイムレーンの縦横サイズは、マウス操作やキー操作で変更できます。
@@ -636,13 +622,13 @@ I18N_TIPS_DICT = {
 
 ■ 生成AI連携機能
 ・英語表示モードにすると、生成AIへの依頼も出力結果も英語で行われます。
-・生成AI連携機能で使用する生成AIモデルは、constants.pyファイル内の AI_MODEL で指定します。
+・生成AI連携機能で使用する生成AIモデルは、.env または constants.py ファイル内の AI_MODEL で指定します。.envの設定が優先されます。
 ・生成AIが出力したフローチャートを整えるには、一旦、ノートを非表示にしてフローチャートを整え、そのあとNoteを表示してNoteの位置を整えると編集しやすくなります。
 """,
   "TIPS_TEXT.en" : """
 [Initial Setup Tips]
 - When the application is launched, if there is no .env file in the application's current directory, it will be automatically created.
-- In the .env file, set the "API keys for various generative AI connections" and the "application display language".
+- In the .env file, set the "API keys for various generative AI connections", the "application display language", and the "generative AI model" to use.
 
 [Flowchart Drawing Tips]
 - The vertical and horizontal sizes of nodes and swimlanes can be changed by mouse or key operations.
@@ -675,7 +661,7 @@ I18N_TIPS_DICT = {
 
 [Generative AI Integration Tips]
 - In English display mode, both requests to the generative AI and the output results are in English.
-- The generative AI model used in the generative AI integration feature is specified by AI_MODEL in the constants.py file.
+- The generative AI model used in the generative AI integration feature is specified by AI_MODEL in the .env or constants.py file. The .env setting takes precedence.
 - To adjust the flowchart output by the generative AI, temporarily hide the notes, adjust the flowchart, and then show the notes again to adjust their positions.
 """,
 }

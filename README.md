@@ -195,16 +195,17 @@ This project provides a **“Simple Flowchart Drawing Tool 颯(HAYATE)”** that
 * 2026/06/28 : Added support for duplicating selected elements/swimlanes and links between selected elements using Ctrl+Drag, improved operations on macOS (deletion with Backspace and line breaks with ￥n), and fixed a bug in the swimlane move process.
 * 2026/07/04 : Fixed a bug in Backspace handling while editing text.
 * 2026/07/11 : Added support for new generative AI models (GPT 5.6 Sol/Terra/Luna and Claude Fable 5) and integration with LM Studio.
-* 2026/07/27 : Added support for new generative AI models (Gemini 3.6 Flash, Claude Opus 5, and Kimi K3), and fixed issues when loading generative AI data.
-* 2026/08/15 : Added support for new generative AI models (Grok 4.6, Gemini 3.7 Flash), added support for changing node types with Ctrl + Mouse Wheel, and updated the mouse and keyboard controls reference table.
-* 2026/08/25 : Support for connecting to Unsloth, support for resizing node width and height using mouse operations (Shift/Ctrl + Wheel) or keyboard shortcuts (Ctrl+w/W/h/H), and changes to the keyboard shortcut for changing node types (Ctrl+Shift+Wheel).
-* 2026/09/07 : Confirmed connectivity with new generative AI models (GPT 6 Astra, Claude Fable 5.1, Gemini 3.8 Flash), added an information panel (release notes, operation guide, and keyboard & mouse controls), and made the right slide panel resizable.
+* 2026/07/27 : Added support for new generative AI models (Gemini 3.6 Flash, Claude Opus 5, and Kimi K3). Fixed issues when loading generative AI data.
+* 2026/08/15 : Added support for new generative AI models (Grok 4.6, Gemini 3.7 Flash). Added support for changing node types with Ctrl + Mouse Wheel. Updated the mouse and keyboard controls reference table.
+* 2026/08/25 : Support for connecting to Unsloth. Support for resizing node width and height using mouse operations (Shift/Ctrl + Wheel) or keyboard shortcuts (Ctrl+w/W/h/H). Changes to the keyboard shortcut for changing node types (Ctrl+Shift+Wheel).
+* 2026/09/07 : Confirmed connectivity with new generative AI models (GPT 6 Astra, Claude Fable 5.1, Gemini 3.8 Flash). Added an information panel (release notes, operation guide, and keyboard & mouse controls). Made the right slide panel resizable.
 * 2026/09/09 : Bug fixes (slide panel display issues on macOS, startup display issues, and node width adjustment when multiple nodes are selected)
-* 2026/09/15 : Added a Tips tab to the Information Panel, automatically creates the .env file if it does not exist, and fixed issues related to missing AI model/API key settings and AI connection failures.
-* 2026/09/19 : Prevented Select mode from changing with the mouse wheel, added AI request details to AI-generated output, and enabled node duplication without selecting a node.
-* 2026/09/23 : Added support for new AI models (Claude Opus 5.5, Grok 4.7), Fixed connection errors with some AI models
-* 2026/09/25 : Added support for changing the fill color of selected links with Ctrl+0–9 and resetting to the default color with Ctrl+r, Changed the fill color reset shortcut for nodes and swimlanes to Ctrl+r, Updated the images in the English version of the README.
-* 2026/09/29 : Added a node that supports image attachments (sample JSON file included), Added support for prioritizing the AI model specified in the .env file
+* 2026/09/15 : Added a Tips tab to the Information Panel. Automatically creates the .env file if it does not exist. Fixed issues related to missing AI model/API key settings and AI connection failures.
+* 2026/09/19 : Prevented Select mode from changing with the mouse wheel. Added AI request details to AI-generated output. Enabled node duplication without selecting a node.
+* 2026/09/23 : Added support for new AI models (Claude Opus 5.5, Grok 4.7). Fixed connection errors with some AI models.
+* 2026/09/25 : Added support for changing the fill color of selected links with Ctrl+0–9 and resetting to the default color with Ctrl+r. Changed the fill color reset shortcut for nodes and swimlanes to Ctrl+r. Updated the images in the English version of the README.
+* 2026/09/29 : Added a node that supports image attachments (sample JSON file included). Added support for prioritizing the AI model specified in the .env file.
+* 2026/10/19 : Improved the smoothness of ellipse node rendering. Added support for changing node border colors and adjusting fill color intensity. Added support for resizing the notes area.
 
 ## Notes (Additional)
 
