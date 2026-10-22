@@ -457,6 +457,9 @@ I18N_RELEASE_NOTE_DICT = {
   "RELEASE_NOTE_TITLE.ja" : "リリースノート",
 
   "RELEASE_NOTE_TEXT.ja" : """
+[ 2026/10/23 ]
+・ノート欄の幅を広げた際にテキスト表示幅が広がらない不具合への対応
+
 [ 2026/10/19 ]
 ・楕円ノードをより滑らかに表示するよう描画方法を変更
 ・ノードについて、塗りつぶし色変更操作(Ctrl+0～9)に合わせて縁取り色も変更可能に
@@ -519,6 +522,9 @@ I18N_RELEASE_NOTE_DICT = {
 
 """,
   "RELEASE_NOTE_TEXT.en" : """
+[ 2026/10/23 ]
+- Fixed an issue where the text display width did not expand when the note field width was widened.
+
 [ 2026/10/19 ]
 - Changed the drawing method to display elliptical nodes more smoothly.
 - For nodes, the border color can also be changed along with the fill color change operation (Ctrl+0~9).

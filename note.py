@@ -218,6 +218,7 @@ class Note:
             if commit_text_edit:
                 self.canvas.itemconfigure(
                     self.text_id,
+                    width=textarea_width,
                     text=display_text
                 )
 

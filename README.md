@@ -206,6 +206,7 @@ This project provides a **“Simple Flowchart Drawing Tool 颯(HAYATE)”** that
 * 2026/09/25 : Added support for changing the fill color of selected links with Ctrl+0–9 and resetting to the default color with Ctrl+r. Changed the fill color reset shortcut for nodes and swimlanes to Ctrl+r. Updated the images in the English version of the README.
 * 2026/09/29 : Added a node that supports image attachments (sample JSON file included). Added support for prioritizing the AI model specified in the .env file.
 * 2026/10/19 : Improved the smoothness of ellipse node rendering. Added support for changing node border colors and adjusting fill color intensity. Added support for resizing the notes area.
+* 2026/10/23 : Fixed an issue where the text display width did not expand when the note field was widened.
 
 ## Notes (Additional)
 
