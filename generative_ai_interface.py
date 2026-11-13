@@ -16,6 +16,7 @@ class Generative_AI_interface:
                 openai_ai_models = self.get_openai_ai_models()
                 print(f"Available OpenAI models: {openai_ai_models}")
                 if self.ai_model not in openai_ai_models:
+                    self.ai_model = None
                     print(f"Specified OpenAI model '{self.ai_model}' is not available.")
             # else:
             #    print("OpenAI API key is not defined.")
@@ -26,6 +27,7 @@ class Generative_AI_interface:
                 gemini_ai_models = self.get_gemini_ai_models()
                 print(f"Available Gemini models: {gemini_ai_models}")
                 if self.ai_model not in gemini_ai_models:
+                    self.ai_model = None
                     print(f"Specified Gemini model '{self.ai_model}' is not available.")
             # else:
             #    print("Gemini API key is not defined.")
@@ -36,6 +38,7 @@ class Generative_AI_interface:
                 anthropic_ai_models = self.get_anthropic_ai_models()
                 print(f"Available Anthropic models: {anthropic_ai_models}")
                 if self.ai_model not in anthropic_ai_models:
+                    self.ai_model = None
                     print(f"Specified Anthropic model '{self.ai_model}' is not available.")
             # else:
             #    print("Anthropic API key is not defined.")
@@ -46,6 +49,7 @@ class Generative_AI_interface:
                 moonshot_ai_models = self.get_moonshot_ai_models()
                 print(f"Available MoonshotAI models: {moonshot_ai_models}")
                 if self.ai_model not in moonshot_ai_models:
+                    self.ai_model = None
                     print(f"Specified MoonshotAI model '{self.ai_model}' is not available.")
             # else:
             #    print("MoonshotAI API key is not defined.")
@@ -56,6 +60,7 @@ class Generative_AI_interface:
                 spacexai_ai_models = self.get_spacexai_ai_models()
                 print(f"Available SpaceXAI models: {spacexai_ai_models}")
                 if self.ai_model not in spacexai_ai_models:
+                    self.ai_model = None
                     print(f"Specified SpaceXAI model '{self.ai_model}' is not available.")
             # else:
             #    print("SpaceXAI API key is not defined.")
@@ -194,7 +199,8 @@ class Generative_AI_interface:
                if model_name.startswith("gemini-") and "audio" not in model_name and "translate" not in model_name \
                        and "embedding" not in model_name and "robotics" not in model_name and "omni" not in model_name \
                        and "image" not in model_name and "tts" not in model_name and "live" not in model_name \
-                       and "computer-use" not in model_name and "customtools" not in model_name and "transcribe" not in model_name:
+                       and "computer-use" not in model_name and "customtools" not in model_name and "transcribe" not in model_name \
+                       and "banana" not in model_name:
                    model_names.append(model_name)
             model_names.sort(reverse=True)
             return model_names

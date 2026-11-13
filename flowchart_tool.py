@@ -28,6 +28,7 @@ from modal_window import ModalWindow, ResizeCanvasModal
 from generative_ai_interface import Generative_AI_interface
 from info_panel import InfoPanel
 from slide_panel import SlidePanel
+from property_editor import PropertyEditor
 
 import platform
 if platform.system() == "Windows":
@@ -51,6 +52,7 @@ class FlowchartTool(tk.Tk):
         self.grid_on = tk.BooleanVar(value=True)  # グリッド表示ON/OFF
         self.note_on = tk.BooleanVar(value=True)  # ノート表示ON/OFF
         self.info_on = tk.BooleanVar(value=False)  # 情報パネル表示ON/OFF
+        self.property_on = tk.BooleanVar(value=False)  # プロパティパネル表示ON/OFF
         self.ai_chat_window_on = tk.BooleanVar(value=False)  # チャットウィンドウ表示ON/OFF
 
         # 登録済みノード情報
@@ -201,6 +203,11 @@ class FlowchartTool(tk.Tk):
         button_info.pack(side=tk.LEFT, padx=(4,1))
         ToolTip(button_info, "Show Info Panel")  # 右サイドに情報パネルを表示
 
+        # インフォメーション表示ボタン
+        button_property = tk.Checkbutton(toolbar, text="Property", image=self.icons["Property"], compound="none", indicatoron=False, variable=self.property_on, command=self.show_property_panel, width=30, height=30)
+        button_property.pack(side=tk.LEFT, padx=(4,1))
+        ToolTip(button_property, "Show Property Panel")  # 左サイドに情報パネルを表示
+
         ttk.Separator(toolbar, orient=tk.VERTICAL).pack(side=tk.LEFT, fill=tk.Y, padx=(8,8))
 
         # 状態ラベル表示
@@ -258,7 +265,6 @@ class FlowchartTool(tk.Tk):
 
         # キャンバスリサイズ時の処理
         self.canvas.bind("<Configure>", self.on_canvas_resize)
-
 
         # キー操作定義
         self.bind_all("<BackSpace>", lambda e: self.delete_selected())
@@ -346,6 +352,20 @@ class FlowchartTool(tk.Tk):
         InfoPanel(panel_frame=self.info_panel)  # 情報パネルの初期化 
 
         # -------------------------
+        # プロパティエディター（Frame）
+        # -------------------------
+        self.property_editor_frame = SlidePanel(self.main_panel, 
+             width=ct.PROPERTY_EDITOR_WIDTH, min_width=ct.PROPERTY_EDITOR_WIDTH_MIN, max_width=ct.PROPERTY_EDITOR_WIDTH_MAX,
+             height=self.canvas_height, side="right", bg="#eeeeee")
+
+        self.property_editor = PropertyEditor(
+                                    self.property_editor_frame,
+                                    refresh_callback=self.push_history_and_canvas_refresh,
+                                    isdataexists_callback=self.isdataexists,
+                                    reload_callback=self.push_selected_data_to_property_editor
+                                )  # プロパティエディタの初期化
+
+        # -------------------------
         # チャットパネル（Frame）
         # -------------------------
         self.ai_chat_frame = SlidePanel(self.main_panel, 
@@ -403,6 +423,12 @@ class FlowchartTool(tk.Tk):
             self.info_panel.open()
         else:
             self.info_panel.close()
+
+    def show_property_panel(self):
+        if self.property_on.get():
+            self.property_editor_frame.open()
+        else:
+            self.property_editor_frame.close()
 
     # キャンバスのリサイズ確認を行う（必要に応じてリサイズを実行）
     def confirm_canvas_resize(self):
@@ -689,6 +715,9 @@ class FlowchartTool(tk.Tk):
 
     def on_canvas_click(self, event):
         # print(f"Canvas clicked")
+        if self.is_pointer_on_panel():
+            return
+
         mode = self.mode.get()
 
         # テキスト編集中なら、編集中のテキストを確定させる
@@ -1361,7 +1390,7 @@ class FlowchartTool(tk.Tk):
                     if original_edge_obj is not None:
                         clone_edge_obj = Edge(edge_type=original_edge_obj.edge_type, path_type=original_edge_obj.path_type, line_style=original_edge_obj.line_style,
                                                 color=original_edge_obj.color,
-                                                from_node_obj=clone_from_node_obj, to_node_obj=clone_to_node_obj, text=original_edge_obj.label_text, \
+                                                from_node_obj=clone_from_node_obj, to_node_obj=clone_to_node_obj, label_text=original_edge_obj.label_text, \
                                                 connection_mode=original_edge_obj.connection_mode, \
                                                 from_node_connection_point=original_edge_obj.from_node_connection_point, \
                                                 to_node_connection_point=original_edge_obj.to_node_connection_point, \
@@ -1492,7 +1521,7 @@ class FlowchartTool(tk.Tk):
         return None
 
     def create_note(self, text: str = "", dx: Optional[int] = None, dy: Optional[int] = None, w: Optional[int] = None, h: Optional[int] = None, base_node: Optional[Node] = None, display_state="normal", canvas: Optional[tk.Canvas] = None):
-        self.note = Note(canvas, base_node=base_node, text=text, dx=dx, dy=dy, w=w, h=h, display_state=display_state)
+        self.note = Note(canvas=canvas, base_node=base_node, text=text, dx=dx, dy=dy, w=w, h=h, display_state=display_state)
         return self.note
 
     def on_canvas_resize(self, event):
@@ -1692,7 +1721,13 @@ class FlowchartTool(tk.Tk):
         
         self.display_operation_info()  # 操作情報表示制御
 
-    def _create_node_with_id(self, node_id, node_type, x, y, w=None, h=None, shape_type=None, fill_color=None, outline_color=None, text=None, status=None, details=None, note_data=None):
+    def _create_node_with_id(
+            self, node_id, node_type,
+            x, y, w=None, h=None, shape_type=None,
+            fill_color=None, outline_color=None, text=None, status=None,
+            outline_width=None, text_width=None, text_color=None,
+            font_family=None, font_size=None, font_weight=None,
+            details=None, note_data=None):
         adjusted_x, adjusted_y = self.adjusted_xy(node_id, x, y, node_type)
 
         auto_text = self.auto_node_text(node_type, text)
@@ -1701,10 +1736,16 @@ class FlowchartTool(tk.Tk):
             if self.current_terminator_kind == "Terminator_small":
                 w = ct.NODE_TERMINATOR_PARAMS["width"]  // 2
 
-        node_obj = Node(node_id, node_type, adjusted_x, adjusted_y, w=w, h=h, shape_type=shape_type, fill_color=fill_color, outline_color=outline_color, text=auto_text, status=status, details=details, canvas=self.canvas)
+        node_obj = Node(id=node_id, type=node_type,
+                        x=adjusted_x, y=adjusted_y, w=w, h=h,
+                        shape_type=shape_type, fill_color=fill_color, outline_color=outline_color,
+                        text=auto_text, status=status,
+                        outline_width=outline_width, text_width=text_width, text_color=text_color,
+                        font_family=font_family, font_size=font_size, font_weight=font_weight,
+                        details=details, canvas=self.canvas)
         self.nodes[node_id] = node_obj
 
-        if details is not None:
+        if details is not None and details != "":
             if note_data is None:
                 note_data = {"dx": None, "dy": None, "w": None, "h": None, "display_state": "normal"}
             note_obj = self.create_note(
@@ -1736,14 +1777,20 @@ class FlowchartTool(tk.Tk):
         # print(f"Duplicating node id: {original_node.id} to new node id: {new_node_id}")
         adjusted_x, adjusted_y = self.adjusted_xy(new_node_id, original_node.x, original_node.y, original_node.type)
 
-        duplicated_node_obj = Node(new_node_id, original_node.type, adjusted_x, adjusted_y, w=original_node.w, h=original_node.h, shape_type=original_node.shape_type, fill_color=original_node.fill_color, outline_color=original_node.outline_color, text=original_node.text, status=original_node.status, details=original_node.details, canvas=self.canvas)
+        duplicated_node_obj = Node(
+                                id=new_node_id, type=original_node.type,
+                                x=adjusted_x, y=adjusted_y, w=original_node.w, h=original_node.h,
+                                shape_type=original_node.shape_type,
+                                fill_color=original_node.fill_color, outline_color=original_node.outline_color,
+                                text=original_node.text, status=original_node.status,
+                                details=original_node.details, canvas=self.canvas)
         if original_node.base_image_data is not None:
             duplicated_node_obj.base_image_data = original_node.base_image_data
             duplicated_node_obj.redraw_picture(self.canvas)
 
         self.nodes[new_node_id] = duplicated_node_obj
 
-        if original_node.details is not None:
+        if original_node.details is not None and original_node != "":
             note_obj = self.get_note_for_node(original_node.id)  # ノードに紐づくノートを取得
             if note_obj is not None:
                 note_dx = note_obj.dx
@@ -1751,7 +1798,11 @@ class FlowchartTool(tk.Tk):
                 note_w = note_obj.w
                 note_h = note_obj.h
                 note_display_state = note_obj.display_state
-                duplicated_note_obj = self.create_note(text=duplicated_node_obj.details, dx=note_dx, dy=note_dy, w=note_w, h=note_h, base_node=duplicated_node_obj, display_state=note_display_state, canvas=self.canvas)
+                duplicated_note_obj = self.create_note(
+                                            text=duplicated_node_obj.details,
+                                            dx=note_dx, dy=note_dy, w=note_w, h=note_h,
+                                            base_node=duplicated_node_obj, display_state=note_display_state,
+                                            canvas=self.canvas)
                 if duplicated_note_obj is not None and duplicated_note_obj.shape_id is not None:
                     self.notes[duplicated_note_obj.shape_id] = duplicated_note_obj
 
@@ -1795,11 +1846,15 @@ class FlowchartTool(tk.Tk):
                 self.selected_node_ids.append(node_id)
                 self._set_node_to_selected_outline_color(self.nodes[node_id])
 
+        self.push_selected_data_to_property_editor()
+
     def deselect_node(self, node_id):
         # print(f"Deselecting node id: {node_id}")
         if node_id is not None and self.selected_node_ids is not None and node_id in self.selected_node_ids:
             self.selected_node_ids.remove(node_id)
-            self._reset_node_to_original_outline_color(self.nodes[node_id])
+            self._reset_node_to_original_color(self.nodes[node_id])
+
+        self.push_selected_data_to_property_editor()
 
     def select_nodes(self, node_ids):
         if node_ids is not None and len(node_ids) == 1:
@@ -1811,7 +1866,7 @@ class FlowchartTool(tk.Tk):
         if self.selected_node_ids is not None and len(self.selected_node_ids) > 0:
             for selected_node_id in self.selected_node_ids:
                 if selected_node_id in self.nodes:
-                    self._reset_node_to_original_outline_color(self.nodes[selected_node_id])
+                    self._reset_node_to_original_color(self.nodes[selected_node_id])
         # 既存選択のハイライト解除（エッジ）
         if self.selected_edge_id:
             # print(f"Reset edge color for edge id:{self.selected_edge_id}")    # for DEBUG
@@ -1830,14 +1885,32 @@ class FlowchartTool(tk.Tk):
                 if node_id in self.nodes:
                     self._set_node_to_selected_outline_color(self.nodes[node_id])
 
+        self.push_selected_data_to_property_editor()
+
+    def push_selected_data_to_property_editor(self):
+        if self.property_on.get():
+            selected_nodes = []
+            for node_id in self.selected_node_ids:
+                if node_id in self.nodes:
+                    selected_nodes.append(self.nodes[node_id])
+            self.property_editor.set_target_objects(selected_nodes)
+
     # ノードの枠の色をオリジナルの定義に戻す
-    def _reset_node_to_original_outline_color(self, node_obj):
+    def _reset_node_to_original_color(self, node_obj):
         if node_obj is None or node_obj.shape_id is None:
             return
         outline_color = node_obj.get_outline_color()  # ノードオブジェクトから元の枠色を取得
-        self.canvas.itemconfig(node_obj.shape_id, outline=outline_color)
+        fill_color = node_obj.get_fill_color()  # ノードオブジェクトから元の塗りつぶし色を取得
+        self.canvas.itemconfig(node_obj.shape_id, outline=outline_color, fill=fill_color)
+        if node_obj.text_id is not None:
+            text_color = node_obj.get_text_color()
+            font_family = node_obj.font_family
+            font_size = node_obj.font_size
+            font_weight = node_obj.get_text_font_weight()
+            self.canvas.itemconfig(node_obj.text_id, fill=text_color, font=(font_family, font_size, font_weight))
 
     # ノードの枠の色をそれぞれのノード定義の選択色に変更する
+    #todo
     def _set_node_to_selected_outline_color(self, node_obj):
         if node_obj is None or node_obj.shape_id is None:
             return
@@ -1867,10 +1940,15 @@ class FlowchartTool(tk.Tk):
                     fill_color = self.nodes[node_id].get_fill_color()
                     outline_color = self.nodes[node_id].get_outline_color()
                     outline_width = self.nodes[node_id].get_outline_width()
-                    text_color = self.nodes[node_id].get_text_color()
+                    # self.nodes[node_id]._init_text_params()
+
                     self.canvas.itemconfig(self.nodes[node_id].shape_id, fill=fill_color, outline=outline_color, width=outline_width)
+
                     if self.nodes[node_id].text_id:
-                        font_family, font_size, font_weight, text_width, text_color = self.nodes[node_id]._get_text_params()
+                        text_color = self.nodes[node_id].get_text_color()
+                        font_family = self.nodes[node_id].font_family
+                        font_size = self.nodes[node_id].font_size
+                        font_weight = self.nodes[node_id].get_text_font_weight()
                         self.canvas.itemconfig(self.nodes[node_id].text_id, fill=text_color, font=(font_family, font_size, font_weight))
 
                     self._set_node_to_selected_outline_color(self.nodes[node_id])
@@ -1886,7 +1964,7 @@ class FlowchartTool(tk.Tk):
         if self.selected_node_ids is not None and len(self.selected_node_ids) > 0:
             for selected_node_id in self.selected_node_ids:
                 if selected_node_id in self.nodes:
-                    self._reset_node_to_original_outline_color(self.nodes[selected_node_id])
+                    self._reset_node_to_original_color(self.nodes[selected_node_id])
         # 既存選択のハイライト解除（エッジ）    
         if self.selected_edge_id:
             self._reset_edge_to_original_color(self.edges[self.selected_edge_id])
@@ -1911,7 +1989,7 @@ class FlowchartTool(tk.Tk):
         if self.selected_node_ids is not None and len(self.selected_node_ids) > 0:
             for selected_node_id in self.selected_node_ids:
                 if selected_node_id in self.nodes:
-                    self._reset_node_to_original_outline_color(self.nodes[selected_node_id])
+                    self._reset_node_to_original_color(self.nodes[selected_node_id])
         # 既存選択のハイライト解除（エッジ）
         if self.selected_edge_id:
             self._reset_edge_to_original_color(self.edges[self.selected_edge_id])
@@ -1954,7 +2032,7 @@ class FlowchartTool(tk.Tk):
         if self.selected_node_ids is not None and len(self.selected_node_ids) > 0:
             for selected_node_id in self.selected_node_ids:
                 if selected_node_id in self.nodes:
-                    self._reset_node_to_original_outline_color(self.nodes[selected_node_id])
+                    self._reset_node_to_original_color(self.nodes[selected_node_id])
         # 既存選択の解除（ノード）
         self.selected_node_ids = []
 
@@ -2044,7 +2122,36 @@ class FlowchartTool(tk.Tk):
         self.link_elbow_button_in_toolbar.configure(image=self.icons["Link_elbow_" + self.current_link_elbow_path_type])
         self.link_elbow_toolbar_tooltip.modify_label("Link_elbow_" + self.current_link_elbow_path_type)  # ツールチップのテキストも更新
 
+    def is_pointer_on_panel(self) -> bool:
+        mouse_x = self.canvas.winfo_pointerx() - self.canvas.winfo_rootx()
+        mouse_y = self.canvas.winfo_pointery() - self.canvas.winfo_rooty()
+        # print(f"delete: mouse pos:({mouse_x},{mouse_y})")
+
+        # サイドパネルが表示されている状態で、パネル状にマウスがあると、Delete処理を無効にする
+        if self.ai_chat_window_on.get():
+            x1 = self.ai_chat_frame.winfo_x()
+            x2 = x1 + self.ai_chat_frame.winfo_width()
+            # print(f"x1: {x1}, mouse_x: {mouse_x}, x2: {x2}")
+            if x1 <= mouse_x <= x2:
+                return True
+        elif self.info_on.get():
+            x1 = self.info_panel.winfo_x()
+            x2 = x1 + self.info_panel.winfo_width()
+            # print(f"x1: {x1}, mouse_x: {mouse_x}, x2: {x2}")
+            if x1 <= mouse_x <= x2:
+                return True
+        elif self.property_on.get():
+            x1 = self.property_editor_frame.winfo_x()
+            x2 = x1 + self.property_editor_frame.winfo_width()
+            # print(f"x1: {x1}, mouse_x: {mouse_x}, x2: {x2}")
+            if x1 <= mouse_x <= x2:
+                return True
+        return False
+
     def delete_selected(self):
+        if self.is_pointer_on_panel():
+            return
+
         if self.swimlane_label_edit is not None or self.edge_label_edit is not None or self.text_edit is not None or self.note_text_edit is not None:
             return  # 編集中は削除しない
         nids = self.selected_node_ids.copy()
@@ -2200,7 +2307,7 @@ class FlowchartTool(tk.Tk):
         auto_text = self.auto_edge_label(None, from_node_obj)
         edge_obj = Edge(edge_type=edge_type, path_type=path_type, line_style=line_style,
                         from_node_obj=from_node_obj, to_node_obj=to_node_obj,
-                        text=auto_text, canvas=self.canvas)
+                        label_text=auto_text, canvas=self.canvas)
 
         if edge_obj is not None and edge_obj.line_id is not None:
             self.edges[edge_obj.line_id] = edge_obj
@@ -2211,11 +2318,11 @@ class FlowchartTool(tk.Tk):
             if self.temporary_node is not None and self.temporary_node.shape_id is not None:
                 self.temporary_data_init()
             to_x, to_y = self.canvas.canvasx(event.x), self.canvas.canvasy(event.y)
-            self.temporary_node = Node(-1, ct.NODE_PROCESS_PARAMS["type"], to_x, to_y, w=0, h=0, shape_type="rectangle", text="", canvas=self.canvas)
+            self.temporary_node = Node(id=-1, type=ct.NODE_PROCESS_PARAMS["type"], x=to_x, y=to_y, w=0, h=0, shape_type="rectangle", text="", canvas=self.canvas)
         else:
             if self.temporary_node is None:
                 to_x, to_y = self.canvas.canvasx(event.x), self.canvas.canvasy(event.y)
-                self.temporary_node = Node(-1, ct.NODE_PROCESS_PARAMS["type"], to_x, to_y, w=0, h=0, shape_type="rectangle", text="", canvas=self.canvas)
+                self.temporary_node = Node(id=-1, type=ct.NODE_PROCESS_PARAMS["type"], x=to_x, y=to_y, w=0, h=0, shape_type="rectangle", text="", canvas=self.canvas)
             else:
                 move_to_x, move_to_y = self.canvas.canvasx(event.x), self.canvas.canvasy(event.y)
                 # self.temporary_node.x, self.temporary_node.y = self.adjusted_xy(self.temporary_node.id, move_to_x, move_to_y)
@@ -2245,7 +2352,7 @@ class FlowchartTool(tk.Tk):
         # print(f"* From node obj: {from_node_obj}, To node obj: {to_node_obj}")  # for DEBUG
         temporary_edge = Edge(edge_type=edge_type, path_type=path_type, line_style=line_style,
                                 from_node_obj=from_node_obj, to_node_obj=to_node_obj,
-                                color="#0ea5e9", text="", canvas=self.canvas)
+                                color="#0ea5e9", label_text="", canvas=self.canvas)
         # print(f"** Temporary edge created: {temporary_edge}")  # for DEBUG
         return temporary_edge
 
@@ -2363,6 +2470,14 @@ class FlowchartTool(tk.Tk):
             outline_color = nd.get("outline_color", None)
             text = nd.get("text", "")
             status = nd.get("status", None)
+
+            outline_width = nd.get("outline_width", None)
+            text_width = nd.get("text_width", None)
+            text_color = nd.get("text_color", None)
+            font_family = nd.get("font_family", None)
+            font_size = nd.get("font_size", None)
+            font_weight = nd.get("font_weight", None)
+            
             details = nd.get("details", None)
             note_data = nd.get("note", None)
             image_base64_data = nd.get("image_data", None)
@@ -2373,7 +2488,13 @@ class FlowchartTool(tk.Tk):
 
             # print(f"Importing node id: {nid}, type: {node_type}, x: {x}, y: {y}, w: {w}, h: {h}, shape_type: {shape_type}, fill_color: {fill_color}, outline_color: {outline_color}, text: {text}, status: {status}, details: {details}, note_data: {note_data}")  # for DEBUG
 
-            self._create_node_with_id(nid, node_type, x, y, w=w, h=h, shape_type=shape_type, fill_color=fill_color, outline_color=outline_color, text=text, status=status, details=details, note_data=note_data)
+            self._create_node_with_id(
+                nid, node_type, x, y, w=w, h=h, 
+                shape_type=shape_type, fill_color=fill_color, outline_color=outline_color,
+                text=text, status=status,
+                outline_width=outline_width, text_width=text_width, text_color=text_color,
+                font_family=font_family, font_size=font_size, font_weight=font_weight,
+                details=details, note_data=note_data)
             if node_type == ct.NODE_SPECIAL_NODE_PARAMS["type"]:
                 node_obj = self.nodes[nid]
                 if node_obj is not None and image_data is not None:
@@ -2405,7 +2526,7 @@ class FlowchartTool(tk.Tk):
                 from_node_obj = self.nodes[fid]
                 to_node_obj = self.nodes[tid]
                 edge_obj = Edge(edge_type=edge_type, path_type=path_type, line_style=line_style, color=color,
-                                        from_node_obj=from_node_obj, to_node_obj=to_node_obj, text=label, \
+                                        from_node_obj=from_node_obj, to_node_obj=to_node_obj, label_text=label, \
                                         connection_mode=connection_mode, \
                                         from_node_connection_point=from_connection_point, \
                                         to_node_connection_point=to_connection_point, \
@@ -2448,7 +2569,6 @@ class FlowchartTool(tk.Tk):
         
         self.display_operation_info()  # 操作情報表示制御
 
-
     def undo(self):
         if self.history_index <= 0:
             return
@@ -2460,6 +2580,33 @@ class FlowchartTool(tk.Tk):
         if self.history_index >= len(self.history) - 1:
             return
         self.history_index += 1
+        state = self.history[self.history_index]
+        self.import_model(state, push_to_history=False)
+
+    def push_history_and_canvas_refresh(self):
+        print(f"call push_history_and_canvas_refresh")
+
+        selected_node_ids = []
+        for node_id in self.selected_node_ids:
+            selected_node_ids.append(node_id)
+        print(f"selected_node_ids: {selected_node_ids}")
+
+        self.push_history()
+        self.canvas_refresh()
+        self.select_nodes(selected_node_ids)
+        if self.property_on.get():
+            self.push_selected_data_to_property_editor()
+
+    #todo Nodeだけでなく、EdgeやSwimlaneも対応する予定
+    def isdataexists(self, id) -> bool:
+        if self.nodes.get(id) is None:
+            print(f"id: {id}, return False")
+            return False
+        else:
+            print(f"id: {id}, return True")
+            return True
+
+    def canvas_refresh(self):
         state = self.history[self.history_index]
         self.import_model(state, push_to_history=False)
 
@@ -2998,7 +3145,7 @@ class FlowchartTool(tk.Tk):
             if fid in self.nodes and tid in self.nodes:
                 from_node_obj = self.nodes.get(fid)
                 to_node_obj = self.nodes.get(tid)
-                edge_obj = Edge(edge_type=edge_type, line_style=line_style, from_node_obj=from_node_obj, to_node_obj=to_node_obj, text=label, \
+                edge_obj = Edge(edge_type=edge_type, line_style=line_style, from_node_obj=from_node_obj, to_node_obj=to_node_obj, label_text=label, \
                                         canvas=self.canvas)
                 if edge_obj is not None and edge_obj.line_id is not None:
                     self.edges[edge_obj.line_id] = edge_obj
@@ -3108,28 +3255,10 @@ class FlowchartTool(tk.Tk):
                         node_obj.fill_color = ct.NODE_FILL_COLORS[color_no]
                     node_obj.outline_color = ct.NODE_OUTLINE_COLORS[color_no]
                 else:
-                    node_obj.fill_color = {
-                        ct.NODE_PROCESS_PARAMS["type"] : ct.NODE_PROCESS_PARAMS["fill_color"],
-                        ct.NODE_DECISION_PARAMS["type"] : ct.NODE_DECISION_PARAMS["fill_color"],
-                        ct.NODE_TERMINATOR_PARAMS["type"] : ct.NODE_TERMINATOR_PARAMS["fill_color"],
-                        ct.NODE_IO_PARAMS["type"] : ct.NODE_IO_PARAMS["fill_color"],
-                        ct.NODE_STORAGE_PARAMS["type"] : ct.NODE_STORAGE_PARAMS["fill_color"],
-                        ct.NODE_DOCUMENT_PARAMS["type"] : ct.NODE_DOCUMENT_PARAMS["fill_color"],
-                        ct.NODE_SPECIAL_NODE_PARAMS["type"] : ct.NODE_SPECIAL_NODE_PARAMS["fill_color"],
-                    }.get(node_obj.type, ct.NODE_DEFAULT_PARAMS["fill_color"])
-                    node_obj.outline_color = {
-                        ct.NODE_PROCESS_PARAMS["type"] : ct.NODE_PROCESS_PARAMS["outline_color"],
-                        ct.NODE_DECISION_PARAMS["type"] : ct.NODE_DECISION_PARAMS["outline_color"],
-                        ct.NODE_TERMINATOR_PARAMS["type"] : ct.NODE_TERMINATOR_PARAMS["outline_color"],
-                        ct.NODE_IO_PARAMS["type"] : ct.NODE_IO_PARAMS["outline_color"],
-                        ct.NODE_STORAGE_PARAMS["type"] : ct.NODE_STORAGE_PARAMS["outline_color"],
-                        ct.NODE_DOCUMENT_PARAMS["type"] : ct.NODE_DOCUMENT_PARAMS["outline_color"],
-                        ct.NODE_SPECIAL_NODE_PARAMS["type"] : ct.NODE_SPECIAL_NODE_PARAMS["outline_color"],
-                    }.get(self.type, ct.NODE_DEFAULT_PARAMS["outline_color"])
+                    node_obj.get_fill_color()
+                    node_obj.get_outline_color()
 
-                fill_color = node_obj.get_fill_color()
-                outline_color = node_obj.get_outline_color()
-                self.canvas.itemconfig(node_obj.shape_id, fill=fill_color, outline=outline_color)
+                self.canvas.itemconfig(node_obj.shape_id, fill=node_obj.fill_color, outline=node_obj.outline_color)
 
         for selected_swimlane in self.selected_swimlanes:
             selected_swimlane.fill_color = ct.SWIMLANE_FILL_COLORS[color_no]
@@ -3149,8 +3278,8 @@ class FlowchartTool(tk.Tk):
         for selected_node_id in self.selected_node_ids:
             if selected_node_id in self.nodes:
                 node_obj = self.nodes[selected_node_id]
-                node_obj.fill_color = node_obj.reset_fill_color()
-                node_obj.outline_color = node_obj.reset_outline_color()
+                node_obj.get_fill_color()
+                node_obj.get_outline_color()
                 self.canvas.itemconfig(node_obj.shape_id, fill=node_obj.fill_color, outline=node_obj.outline_color)
 
         for selected_swimlane in self.selected_swimlanes:
@@ -3240,6 +3369,7 @@ class FlowchartTool(tk.Tk):
         self.icons["AI-generation"] = self.make_icon("AI-generation")
         self.icons["Manual"] = self.make_icon("Manual")
         self.icons["Info"] = self.make_icon("Info")
+        self.icons["Property"] = self.make_icon("Property")
         self.icons["Status_normal"] = self.make_icon("Status_normal")
         self.icons["Status_active"] = self.make_icon("Status_active")
         self.icons["Status_inactive"] = self.make_icon("Status_inactive")
@@ -3456,6 +3586,13 @@ class FlowchartTool(tk.Tk):
         elif name == "Info":
             # d.rounded_rectangle((x0, y0, x1, y1), radius=size//8, outline=fg, width=8)
             d.text((x0+size//2, y0+size//2), "Info", fill=fg, anchor="mm", font=font2)
+        elif name == "Property":
+            d.rounded_rectangle((x0, y0, x1, y1), radius=size//8, outline=fg, width=8)
+            d.line((x0, y0+26, x1, y0+26), fill=fg, width=8)
+            d.text((x0+size//2, y0+size//2-16), "- ---", fill=fg, anchor="mm", font=font)
+            d.text((x0+size//2, y0+size//2), "- ---", fill=fg, anchor="mm", font=font)
+            d.text((x0+size//2, y0+size//2+16), "- ---", fill=fg, anchor="mm", font=font)
+            d.text((x0+size//2, y0+size//2+32), "- ---", fill=fg, anchor="mm", font=font)
 
         elif name == "Status_normal":
             d.rounded_rectangle((x0+size//8, y0+size//4, x1-size//8, y1-size//4),

@@ -457,6 +457,14 @@ I18N_RELEASE_NOTE_DICT = {
   "RELEASE_NOTE_TITLE.ja" : "リリースノート",
 
   "RELEASE_NOTE_TEXT.ja" : """
+[ 2026/11/14 ]
+・フローチャート内のノードの属性値を編集できるPropertyEditor（β版）を公開
+　操作方法：
+　　画面上部から「Show Property Panel」アイコンを選択して、パネル表示
+　→ 特定のノードを選択（複数選択に対応）
+　→ 属性値を変更
+　→ 「Apply Changes」ボタン押下で、ノードの属性値を更新
+
 [ 2026/10/23 ]
 ・ノート欄の幅を広げた際にテキスト表示幅が広がらない不具合への対応
 
@@ -522,6 +530,14 @@ I18N_RELEASE_NOTE_DICT = {
 
 """,
   "RELEASE_NOTE_TEXT.en" : """
+[ 2026/11/14 ]
+- Released the beta version of PropertyEditor, which allows users to edit node properties in flowcharts.
+  How to use:
+  1. Click the "Show Property Panel" icon at the top of the screen to display the panel.
+  2. Select one or more nodes (multiple selection is supported).
+  3. Modify the property values.
+  4. Click the "Apply Changes" button to update the selected nodes' properties.
+
 [ 2026/10/23 ]
 - Fixed an issue where the text display width did not expand when the note field width was widened.
 

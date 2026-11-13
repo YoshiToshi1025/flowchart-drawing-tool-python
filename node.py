@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Literal
 import tkinter as tk
 import tkinter.font as tkfont
 import constants as ct
@@ -12,53 +12,52 @@ import io
 import os
 from pathlib import Path
 
+@dataclass
 class Node:
-    id = None
-    type = None
-    x:int = 0
-    y:int = 0
-    w:int = 0
-    h:int = 0
-    text = None
-    shape_type = None
-    fill_color = None
-    outline_color = None
-    details = None    # Note, Spec, Memoなどの詳細情報を格納する属性
-    status = "normal" # "normal", "active", "inactive"
-    shape_id = None
-    text_id = None
-    image_id = None
-    base_image_data = None
-    display_image_data = None
+    id: int = None
+    type: Literal["process", "decision", "terminator", "io", "storage", "document", "special_node"] = "process"
+    text: str = ""
+    x: int = 0
+    y: int = 0
+    w: int = 0
+    h: int = 0
+    shape_type: Literal["rectangle", "corner_rounded_rectangle", "ellipse", "normal", "small", "decision", "io", "storage", "document", "special_node"] = "rectangle"
+    fill_color: Optional[str] = None
+    outline_color: Optional[str] = None
+    details: Optional[str] = ""    # Note, Spec, Memoなどの詳細情報を格納する属性
+    status: Literal["normal", "active", "inactive"] = "normal" # "normal", "active", "inactive"
+    outline_width: Optional[int] = None
+    text_width: Optional[int] = None
+    text_color: Optional[str] = None
+    font_family: Literal["Arial", "Courier", "Helvetica", "Times"] = "Arial"
+    font_size: Literal[6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 20, 24] = 9
+    font_weight: Literal["normal", "bold"] = "normal"
 
-    def __init__(self, node_id, node_type, x:int, y:int, w=None, h=None, shape_type=None, fill_color=None, outline_color=None, text=None, details=None, status=None, canvas=None):
-        # print(f"Creating Node: id={node_id}, type={node_type}, x={x}, y={y}, w={w}, h={h}, shape_type={shape_type}, fill_color={fill_color}, text={text}, status={status}")
-        self.id = node_id
-        self.type = node_type
-        self.x = x
-        self.y = y
+    shape_id: Optional[str] = None
+    text_id: Optional[str] = None
+    image_id: Optional[str] = None
+    base_image_data: Optional[str] = None
+    display_image_data: Optional[str] = None
+    canvas: Optional[tk.Canvas] = None
+
+    def __post_init__(self):
 
         if self.type == ct.NODE_PROCESS_PARAMS["type"]:
-            if shape_type is not None:
-                self.shape_type = shape_type
-            else:
+            if self.shape_type is None:
                 self.shape_type = ct.NODE_PROCESS_PARAMS["shape_type"]
         elif self.type == ct.NODE_TERMINATOR_PARAMS["type"]:
-            if shape_type is not None:
-                self.shape_type = shape_type
-            elif w is not None and w == ct.NODE_TERMINATOR_PARAMS["width"]  // 2:
+            if self.shape_type is None:
+                if self.w is not None and self.w == ct.NODE_TERMINATOR_PARAMS["width"]  // 2:
                     self.shape_type = "small"
-            else:
-                self.shape_type = "normal"
+                else:
+                    self.shape_type = "normal"
         else:
             self.shape_type = self.type
 
-        self.status = status if status is not None else ct.NODE_STATUS_NORMAL
-        self.details = details
+        if self.status is None:
+            self.status = ct.NODE_STATUS_NORMAL
 
-        # print(f"create Node {self.id} initialized with type={self.type}, shape_type={self.shape_type}, status={self.status}")
-
-        if w is None:
+        if self.w is None:
             self.w = {
                 ct.NODE_PROCESS_PARAMS["type"] : ct.NODE_PROCESS_PARAMS["width"],
                 ct.NODE_DECISION_PARAMS["type"] : ct.NODE_DECISION_PARAMS["width"],
@@ -69,10 +68,8 @@ class Node:
                 ct.NODE_DOCUMENT_PARAMS["type"] : ct.NODE_DOCUMENT_PARAMS["width"],
                 ct.NODE_SPECIAL_NODE_PARAMS["type"] : ct.NODE_SPECIAL_NODE_PARAMS["width"],
             }.get(self.type, ct.NODE_DEFAULT_PARAMS["width"])
-        else:
-            self.w = w
 
-        if h is None:
+        if self.h is None:
             self.h = {
                 ct.NODE_PROCESS_PARAMS["type"] : ct.NODE_PROCESS_PARAMS["height"],
                 ct.NODE_DECISION_PARAMS["type"] : ct.NODE_DECISION_PARAMS["height"],
@@ -82,10 +79,8 @@ class Node:
                 ct.NODE_DOCUMENT_PARAMS["type"] : ct.NODE_DOCUMENT_PARAMS["height"],
                 ct.NODE_SPECIAL_NODE_PARAMS["type"] : ct.NODE_SPECIAL_NODE_PARAMS["height"],
             }.get(self.type, ct.NODE_DEFAULT_PARAMS["height"])
-        else:
-            self.h = h
 
-        if text is None:
+        if self.text is None:
             self.text = {
                 ct.NODE_PROCESS_PARAMS["type"] : ct.NODE_PROCESS_PARAMS["text"],
                 ct.NODE_DECISION_PARAMS["type"] : ct.NODE_DECISION_PARAMS["text"],
@@ -95,37 +90,20 @@ class Node:
                 ct.NODE_DOCUMENT_PARAMS["type"] : ct.NODE_DOCUMENT_PARAMS["text"],
                 ct.NODE_SPECIAL_NODE_PARAMS["type"] : ct.NODE_SPECIAL_NODE_PARAMS["text"],
             }.get(self.type, ct.NODE_DEFAULT_PARAMS["text"])
-        else:
-            self.text = text
 
-        if fill_color is None:
-            self.fill_color = {
-                ct.NODE_PROCESS_PARAMS["type"] : ct.NODE_PROCESS_PARAMS["fill_color"],
-                ct.NODE_DECISION_PARAMS["type"] : ct.NODE_DECISION_PARAMS["fill_color"],
-                ct.NODE_TERMINATOR_PARAMS["type"] : ct.NODE_TERMINATOR_PARAMS["fill_color"],
-                ct.NODE_IO_PARAMS["type"] : ct.NODE_IO_PARAMS["fill_color"],
-                ct.NODE_STORAGE_PARAMS["type"] : ct.NODE_STORAGE_PARAMS["fill_color"],
-                ct.NODE_DOCUMENT_PARAMS["type"] : ct.NODE_DOCUMENT_PARAMS["fill_color"],
-                ct.NODE_SPECIAL_NODE_PARAMS["type"] : ct.NODE_SPECIAL_NODE_PARAMS["fill_color"],
-            }.get(self.type, ct.NODE_DEFAULT_PARAMS["fill_color"])
-        else:
-            self.fill_color = fill_color
+        if self.fill_color is None:
+            self.fill_color = self.get_fill_color()
 
-        if outline_color is None:
-            self.outline_color = {
-                ct.NODE_PROCESS_PARAMS["type"] : ct.NODE_PROCESS_PARAMS["outline_color"],
-                ct.NODE_DECISION_PARAMS["type"] : ct.NODE_DECISION_PARAMS["outline_color"],
-                ct.NODE_TERMINATOR_PARAMS["type"] : ct.NODE_TERMINATOR_PARAMS["outline_color"],
-                ct.NODE_IO_PARAMS["type"] : ct.NODE_IO_PARAMS["outline_color"],
-                ct.NODE_STORAGE_PARAMS["type"] : ct.NODE_STORAGE_PARAMS["outline_color"],
-                ct.NODE_DOCUMENT_PARAMS["type"] : ct.NODE_DOCUMENT_PARAMS["outline_color"],
-                ct.NODE_SPECIAL_NODE_PARAMS["type"] : ct.NODE_SPECIAL_NODE_PARAMS["outline_color"],
-            }.get(self.type, ct.NODE_DEFAULT_PARAMS["outline_color"])
-        else:
-            self.outline_color = outline_color
+        if self.outline_color is None:
+            self.outline_color = self.get_outline_color()
 
-        if canvas is not None:
-            self.draw(canvas)
+        if self.outline_width is None:
+            self.outline_width = self.get_outline_width()
+
+        self._init_text_params()
+
+        if self.canvas is not None:
+            self.draw(self.canvas)
 
     def draw(self, canvas: tk.Canvas):
         # 図形描画（nodeタグを付与）
@@ -173,7 +151,8 @@ class Node:
         if self.x is not None and self.y is not None and self.w is not None and self.h is not None:
             points = self.get_decision_points()
             self.shape_id = canvas.create_polygon(
-                points, fill=self.get_fill_color(),
+                points,
+                fill=self.get_fill_color(),
                 outline=self.get_outline_color(),
                 width=self.get_outline_width(),
                 tags=("node", f"node-{self.id}", "node-shape")
@@ -183,7 +162,8 @@ class Node:
         if self.x is not None and self.y is not None and self.w is not None and self.h is not None:
             points = self.get_terminator_points()
             self.shape_id = canvas.create_polygon(
-                points, fill=self.get_fill_color(),
+                points,
+                fill=self.get_fill_color(),
                 outline=self.get_outline_color(),
                 width=self.get_outline_width(),
                 tags=("node", f"node-{self.id}", "node-shape")
@@ -193,7 +173,8 @@ class Node:
         if self.x is not None and self.y is not None and self.w is not None and self.h is not None:
             points = self.get_io_points()
             self.shape_id = canvas.create_polygon(
-                points, fill=self.get_fill_color(),
+                points,
+                fill=self.get_fill_color(),
                 outline=self.get_outline_color(),
                 width=self.get_outline_width(),
                 tags=("node", f"node-{self.id}", "node-shape")
@@ -203,7 +184,8 @@ class Node:
         if self.x is not None and self.y is not None and self.w is not None and self.h is not None:
             points = self.get_storage_points()
             self.shape_id = canvas.create_polygon(
-                points, fill=self.get_fill_color(),
+                points,
+                fill=self.get_fill_color(),
                 outline=self.get_outline_color(),
                 width=self.get_outline_width(),
                 tags=("node", f"node-{self.id}", "node-shape")
@@ -213,7 +195,8 @@ class Node:
         if self.x is not None and self.y is not None and self.w is not None and self.h is not None:
             points = self.get_document_points()
             self.shape_id = canvas.create_polygon(
-                points, fill=self.get_fill_color(),
+                points,
+                fill=self.get_fill_color(),
                 outline=self.get_outline_color(),
                 width=self.get_outline_width(),
                 tags=("node", f"node-{self.id}", "node-shape")
@@ -223,7 +206,8 @@ class Node:
         if self.x is not None and self.y is not None and self.w is not None and self.h is not None:
             points = self.get_special_node_points()
             self.shape_id = canvas.create_polygon(
-                points, fill=self.get_fill_color(),
+                points,
+                fill=self.get_fill_color(),
                 outline=self.get_outline_color(),
                 width=self.get_outline_width(),
                 tags=("node", f"node-{self.id}", "node-shape")
@@ -233,11 +217,12 @@ class Node:
         if self.x is not None and self.y is not None and self.w is not None and self.h is not None:
             points = self.get_undefined_points()
             self.shape_id = canvas.create_polygon(
-                points, fill=self.get_fill_color(),
+                points,
+                fill=self.get_fill_color(),
                 outline=self.get_outline_color(),
                 width=self.get_outline_width(),
-            tags=("node", f"node-{self.id}", "node-shape")
-        )
+                tags=("node", f"node-{self.id}", "node-shape")
+            )
 
     def reset_fill_color(self):
         self.fill_color = None
@@ -386,56 +371,56 @@ class Node:
             elif self.status == "inactive":
                 outline_width = ct.NODE_PROCESS_PARAMS.get("inactive_outline_width", default_inactive_outline_width)
             else:
-                outline_width = ct.NODE_PROCESS_PARAMS.get("outline_width", default_outline_width)
+                outline_width = ct.NODE_PROCESS_PARAMS.get("outline_width", default_outline_width) if self.outline_width is None else self.outline_width
         elif self.type == ct.NODE_DECISION_PARAMS["type"]:     # 分岐
             if self.status == "active":
                 outline_width = ct.NODE_DECISION_PARAMS.get("active_outline_width", default_active_outline_width)
             elif self.status == "inactive":
                 outline_width = ct.NODE_DECISION_PARAMS.get("inactive_outline_width", default_inactive_outline_width)
             else:
-                outline_width = ct.NODE_DECISION_PARAMS.get("outline_width", default_outline_width)
+                outline_width = ct.NODE_DECISION_PARAMS.get("outline_width", default_outline_width) if self.outline_width is None else self.outline_width
         elif self.type == ct.NODE_TERMINATOR_PARAMS["type"]:   # 端点
             if self.status == "active":
                 outline_width = ct.NODE_TERMINATOR_PARAMS.get("active_outline_width", default_active_outline_width)
             elif self.status == "inactive":
                 outline_width = ct.NODE_TERMINATOR_PARAMS.get("inactive_outline_width", default_inactive_outline_width)
             else:
-                outline_width = ct.NODE_TERMINATOR_PARAMS.get("outline_width", default_outline_width)
+                outline_width = ct.NODE_TERMINATOR_PARAMS.get("outline_width", default_outline_width) if self.outline_width is None else self.outline_width
         elif self.type == ct.NODE_IO_PARAMS["type"]:           # 入出力
             if self.status == "active":
                 outline_width = ct.NODE_IO_PARAMS.get("active_outline_width", default_active_outline_width)
             elif self.status == "inactive":
                 outline_width = ct.NODE_IO_PARAMS.get("inactive_outline_width", default_inactive_outline_width)
             else:
-                outline_width = ct.NODE_IO_PARAMS.get("outline_width", default_outline_width)
+                outline_width = ct.NODE_IO_PARAMS.get("outline_width", default_outline_width) if self.outline_width is None else self.outline_width
         elif self.type == ct.NODE_STORAGE_PARAMS["type"]:           # ストレージ
             if self.status == "active":
                 outline_width = ct.NODE_STORAGE_PARAMS.get("active_outline_width", default_active_outline_width)
             elif self.status == "inactive":
                 outline_width = ct.NODE_STORAGE_PARAMS.get("inactive_outline_width", default_inactive_outline_width)
             else:
-                outline_width = ct.NODE_STORAGE_PARAMS.get("outline_width", default_outline_width)
+                outline_width = ct.NODE_STORAGE_PARAMS.get("outline_width", default_outline_width) if self.outline_width is None else self.outline_width
         elif self.type == ct.NODE_DOCUMENT_PARAMS["type"]:           # ドキュメント
             if self.status == "active":
                 outline_width = ct.NODE_DOCUMENT_PARAMS.get("active_outline_width", default_active_outline_width)
             elif self.status == "inactive":
                 outline_width = ct.NODE_DOCUMENT_PARAMS.get("inactive_outline_width", default_inactive_outline_width)
             else:
-                outline_width = ct.NODE_DOCUMENT_PARAMS.get("outline_width", default_outline_width)
+                outline_width = ct.NODE_DOCUMENT_PARAMS.get("outline_width", default_outline_width) if self.outline_width is None else self.outline_width
         elif self.type == ct.NODE_SPECIAL_NODE_PARAMS["type"]:           # 特殊要素
             if self.status == "active":
                 outline_width = ct.NODE_SPECIAL_NODE_PARAMS.get("active_outline_width", default_active_outline_width)
             elif self.status == "inactive":
                 outline_width = ct.NODE_SPECIAL_NODE_PARAMS.get("inactive_outline_width", default_inactive_outline_width)
             else:
-                outline_width = ct.NODE_SPECIAL_NODE_PARAMS.get("outline_width", default_outline_width)
+                outline_width = ct.NODE_SPECIAL_NODE_PARAMS.get("outline_width", default_outline_width) if self.outline_width is None else self.outline_width
         else:
             if self.status == "active":                        # その他（未定義）
                 outline_width = default_active_outline_width
             elif self.status == "inactive":
                 outline_width = default_inactive_outline_width
             else:
-                outline_width = default_outline_width
+                outline_width = default_outline_width if self.outline_width is None else self.outline_width
 
         return outline_width
 
@@ -450,56 +435,56 @@ class Node:
             elif self.status == "inactive":
                 text_color = ct.NODE_PROCESS_PARAMS.get("inactive_text_color", default_inactive_text_color)
             else:
-                text_color = ct.NODE_PROCESS_PARAMS.get("text_color", default_text_color)
+                text_color = ct.NODE_PROCESS_PARAMS.get("text_color", default_text_color) if self.text_color is None else self.text_color
         elif self.type == ct.NODE_DECISION_PARAMS["type"]:     # 分岐
             if self.status == "active":
                 text_color = ct.NODE_DECISION_PARAMS.get("active_text_color", default_active_text_color)
             elif self.status == "inactive":
                 text_color = ct.NODE_DECISION_PARAMS.get("inactive_text_color", default_inactive_text_color)
             else:
-                text_color = ct.NODE_DECISION_PARAMS.get("text_color", default_text_color)
+                text_color = ct.NODE_DECISION_PARAMS.get("text_color", default_text_color) if self.text_color is None else self.text_color
         elif self.type == ct.NODE_TERMINATOR_PARAMS["type"]:   # 端点
             if self.status == "active":
                 text_color = ct.NODE_TERMINATOR_PARAMS.get("active_text_color", default_active_text_color)
             elif self.status == "inactive":
                 text_color = ct.NODE_TERMINATOR_PARAMS.get("inactive_text_color", default_inactive_text_color)
             else:
-                text_color = ct.NODE_TERMINATOR_PARAMS.get("text_color", default_text_color)
+                text_color = ct.NODE_TERMINATOR_PARAMS.get("text_color", default_text_color) if self.text_color is None else self.text_color
         elif self.type == ct.NODE_IO_PARAMS["type"]:           # 入出力
             if self.status == "active":
                 text_color = ct.NODE_IO_PARAMS.get("active_text_color", default_active_text_color)
             elif self.status == "inactive":
                 text_color = ct.NODE_IO_PARAMS.get("inactive_text_color", default_inactive_text_color)
             else:
-                text_color = ct.NODE_IO_PARAMS.get("text_color", default_text_color)
+                text_color = ct.NODE_IO_PARAMS.get("text_color", default_text_color) if self.text_color is None else self.text_color
         elif self.type == ct.NODE_STORAGE_PARAMS["type"]:           # ストレージ
             if self.status == "active":
                 text_color = ct.NODE_STORAGE_PARAMS.get("active_text_color", default_active_text_color)
             elif self.status == "inactive":
                 text_color = ct.NODE_STORAGE_PARAMS.get("inactive_text_color", default_inactive_text_color)
             else:
-                text_color = ct.NODE_STORAGE_PARAMS.get("text_color", default_text_color)
+                text_color = ct.NODE_STORAGE_PARAMS.get("text_color", default_text_color) if self.text_color is None else self.text_color
         elif self.type == ct.NODE_DOCUMENT_PARAMS["type"]:           # ドキュメント
             if self.status == "active":
                 text_color = ct.NODE_DOCUMENT_PARAMS.get("active_text_color", default_active_text_color)
             elif self.status == "inactive":
                 text_color = ct.NODE_DOCUMENT_PARAMS.get("inactive_text_color", default_inactive_text_color)
             else:
-                text_color = ct.NODE_DOCUMENT_PARAMS.get("text_color", default_text_color)
+                text_color = ct.NODE_DOCUMENT_PARAMS.get("text_color", default_text_color) if self.text_color is None else self.text_color
         elif self.type == ct.NODE_SPECIAL_NODE_PARAMS["type"]:           # 特殊要素
             if self.status == "active":
                 text_color = ct.NODE_SPECIAL_NODE_PARAMS.get("active_text_color", default_active_text_color)
             elif self.status == "inactive":
                 text_color = ct.NODE_SPECIAL_NODE_PARAMS.get("inactive_text_color", default_inactive_text_color)
             else:
-                text_color = ct.NODE_SPECIAL_NODE_PARAMS.get("text_color", default_text_color)
+                text_color = ct.NODE_SPECIAL_NODE_PARAMS.get("text_color", default_text_color) if self.text_color is None else self.text_color
         else:
             if self.status == "active":                        # その他（未定義）
                 text_color = default_active_text_color
             elif self.status == "inactive":
                 text_color = default_inactive_text_color
             else:
-                text_color = default_text_color
+                text_color = default_text_color if self.text_color is None else self.text_color
 
         return text_color
 
@@ -514,56 +499,56 @@ class Node:
             elif self.status == "inactive":
                 font_weight = ct.NODE_PROCESS_PARAMS.get("inactive_font_weight", default_inactive_font_weight)
             else:
-                font_weight = ct.NODE_PROCESS_PARAMS.get("font_weight", default_font_weight)
+                font_weight = ct.NODE_PROCESS_PARAMS.get("font_weight", default_font_weight) if self.font_weight is None else self.font_weight
         elif self.type == ct.NODE_DECISION_PARAMS["type"]:     # 分岐
             if self.status == "active":
                 font_weight = ct.NODE_DECISION_PARAMS.get("active_font_weight", default_active_font_weight)
             elif self.status == "inactive":
                 font_weight = ct.NODE_DECISION_PARAMS.get("inactive_font_weight", default_inactive_font_weight)
             else:
-                font_weight = ct.NODE_DECISION_PARAMS.get("font_weight", default_font_weight)
+                font_weight = ct.NODE_DECISION_PARAMS.get("font_weight", default_font_weight) if self.font_weight is None else self.font_weight
         elif self.type == ct.NODE_TERMINATOR_PARAMS["type"]:   # 端点
             if self.status == "active":
                 font_weight = ct.NODE_TERMINATOR_PARAMS.get("active_font_weight", default_active_font_weight)
             elif self.status == "inactive":
                 font_weight = ct.NODE_TERMINATOR_PARAMS.get("inactive_font_weight", default_inactive_font_weight)
             else:
-                font_weight = ct.NODE_TERMINATOR_PARAMS.get("font_weight", default_font_weight)
+                font_weight = ct.NODE_TERMINATOR_PARAMS.get("font_weight", default_font_weight) if self.font_weight is None else self.font_weight
         elif self.type == ct.NODE_IO_PARAMS["type"]:           # 入出力
             if self.status == "active":
                 font_weight = ct.NODE_IO_PARAMS.get("active_font_weight", default_active_font_weight)
             elif self.status == "inactive":
                 font_weight = ct.NODE_IO_PARAMS.get("inactive_font_weight", default_inactive_font_weight)
             else:
-                font_weight = ct.NODE_IO_PARAMS.get("font_weight", default_font_weight)
+                font_weight = ct.NODE_IO_PARAMS.get("font_weight", default_font_weight) if self.font_weight is None else self.font_weight
         elif self.type == ct.NODE_STORAGE_PARAMS["type"]:           # ストレージ
             if self.status == "active":
                 font_weight = ct.NODE_STORAGE_PARAMS.get("active_font_weight", default_active_font_weight)
             elif self.status == "inactive":
                 font_weight = ct.NODE_STORAGE_PARAMS.get("inactive_font_weight", default_inactive_font_weight)
             else:
-                font_weight = ct.NODE_STORAGE_PARAMS.get("font_weight", default_font_weight)
+                font_weight = ct.NODE_STORAGE_PARAMS.get("font_weight", default_font_weight) if self.font_weight is None else self.font_weight
         elif self.type == ct.NODE_DOCUMENT_PARAMS["type"]:           # ドキュメント
             if self.status == "active":
                 font_weight = ct.NODE_DOCUMENT_PARAMS.get("active_font_weight", default_active_font_weight)
             elif self.status == "inactive":
                 font_weight = ct.NODE_DOCUMENT_PARAMS.get("inactive_font_weight", default_inactive_font_weight)
             else:
-                font_weight = ct.NODE_DOCUMENT_PARAMS.get("font_weight", default_font_weight)
+                font_weight = ct.NODE_DOCUMENT_PARAMS.get("font_weight", default_font_weight) if self.font_weight is None else self.font_weight
         elif self.type == ct.NODE_SPECIAL_NODE_PARAMS["type"]:           # 特殊要素
             if self.status == "active":
                 font_weight = ct.NODE_SPECIAL_NODE_PARAMS.get("active_font_weight", default_active_font_weight)
             elif self.status == "inactive":
                 font_weight = ct.NODE_SPECIAL_NODE_PARAMS.get("inactive_font_weight", default_inactive_font_weight)
             else:
-                font_weight = ct.NODE_SPECIAL_NODE_PARAMS.get("font_weight", default_font_weight)
+                font_weight = ct.NODE_SPECIAL_NODE_PARAMS.get("font_weight", default_font_weight) if self.font_weight is None else self.font_weight
         else:
             if self.status == "active":                        # その他（未定義）
                 font_weight = default_active_font_weight
             elif self.status == "inactive":
                 font_weight = default_inactive_font_weight
             else:
-                font_weight = default_font_weight
+                font_weight = default_font_weight if self.font_weight is None else self.font_weight
 
         return font_weight
 
@@ -632,28 +617,27 @@ class Node:
     def draw_text(self, canvas: tk.Canvas):
         # テキストの描画（nodeタグを付与）
         if self.x is not None and self.y is not None and self.text is not None:
-            font_family, font_size, font_weight, text_width, text_color = self._get_text_params()
             if self.type == ct.NODE_STORAGE_PARAMS["type"]:      # ストレージ
                 self.text_id = canvas.create_text(
-                    self.x, self.y + self.h / 10, text=self.text, font=(font_family, font_size, font_weight), width=text_width,
-                    fill=text_color,
+                    self.x, self.y + self.h / 10, text=self.text, font=(self.font_family, self.font_size, self.get_text_font_weight()), width=self.text_width,
+                    fill=self.get_text_color(),
                     tags=("node", f"node-{self.id}", "node-text")
                 )
             elif self.type == ct.NODE_DOCUMENT_PARAMS["type"]:      # ドキュメント
                 self.text_id = canvas.create_text(
-                    self.x, self.y - self.h / 10, text=self.text, font=(font_family, font_size, font_weight), width=text_width,
-                    fill=text_color,
+                    self.x, self.y - self.h / 10, text=self.text, font=(self.font_family, self.font_size, self.get_text_font_weight()), width=self.text_width,
+                    fill=self.get_text_color(),
                     tags=("node", f"node-{self.id}", "node-text")
                 )
             else:
                 self.text_id = canvas.create_text(
-                    self.x, self.y, text=self.text, font=(font_family, font_size, font_weight), width=text_width,
-                    fill=text_color,
+                    self.x, self.y, text=self.text, font=(self.font_family, self.font_size, self.get_text_font_weight()), width=self.text_width,
+                    fill=self.get_text_color(),
                     tags=("node", f"node-{self.id}", "node-text")
                 )
         self.change_textarea_width(canvas)
 
-    def _get_text_params(self):
+    def _init_text_params(self):
         if self.type == ct.NODE_PROCESS_PARAMS["type"]:        # 処理
             font_family, font_size, text_width  = ct.NODE_PROCESS_PARAMS["font_family"], ct.NODE_PROCESS_PARAMS["font_size"], ct.NODE_PROCESS_PARAMS["text_width"]
         elif self.type == ct.NODE_DECISION_PARAMS["type"]:     # 分岐
@@ -671,10 +655,18 @@ class Node:
         else:                                   # その他（未定義）
             font_family, font_size, text_width = ct.NODE_DEFAULT_PARAMS["font_family"], ct.NODE_DEFAULT_PARAMS["font_size"], ct.NODE_DEFAULT_PARAMS["text_width"]
 
-        font_weight = self.get_text_font_weight()
-        text_color = self.get_text_color()
+        if self.font_family is None:
+            self.font_family = font_family
+        if self.font_size is None:
+            self.font_size = font_size
+        if self.text_width is None:
+            self.text_width = text_width
+        if self.font_weight is None:
+            self.font_weight = self.get_text_font_weight()
+        if self.text_color is None:
+            self.text_color = self.get_text_color()
 
-        return font_family, font_size, font_weight, text_width, text_color
+        return self.font_family, self.font_size, self.font_weight, self.text_width, self.text_color
 
     def get_rectangle_coords(self, left, top, right, bottom):
         return [left, top, right, top, right, bottom, left, bottom]
@@ -1063,9 +1055,9 @@ class Node:
             # 新しい図形を描画
             points = self.get_process_points()
             new_shape_id = canvas.create_polygon(points, 
-                                fill=self.get_fill_color(),
-                                outline=self.get_outline_color(),
-                                width=self.get_outline_width(),
+                                fill=self.fill_color,
+                                outline=self.outline_color,
+                                width=self.outline_width,
                                 tags=("node", f"node-{self.id}", "node-shape"))
             self.shape_id = new_shape_id
             canvas.tag_raise(self.text_id)
@@ -1075,9 +1067,9 @@ class Node:
             # 新しい図形を描画
             left, top, right, bottom = self.x - self.w/2, self.y - self.h/2, self.x + self.w/2, self.y + self.h/2
             new_shape_id = canvas.create_oval(left, top, right, bottom,
-                                fill=self.get_fill_color(),
-                                outline=self.get_outline_color(),
-                                width=self.get_outline_width(),
+                                fill=self.fill_color,
+                                outline=self.outline_color,
+                                width=self.outline_width,
                                 tags=("node", f"node-{self.id}", "node-shape"))
             self.shape_id = new_shape_id
             canvas.tag_raise(self.text_id)
@@ -1115,6 +1107,19 @@ class Node:
             node_data["status"] = self.status
         if self.details is not None:
             node_data["details"] = self.details
+        if self.outline_width is not None:
+            node_data["outline_width"] = self.outline_width
+        if self.text_width is not None:
+            node_data["text_width"] = self.text_width
+        if self.text_color is not None:
+            node_data["text_color"] = self.text_color
+        if self.font_family is not None:
+            node_data["font_family"] = self.font_family
+        if self.font_size is not None:
+            node_data["font_size"] = self.font_size
+        if self.font_weight is not None:
+            node_data["font_weight"] = self.font_weight
+
         if self.base_image_data is not None:
             base_image = ImageTk.getimage(self.base_image_data)
             buffer = io.BytesIO()

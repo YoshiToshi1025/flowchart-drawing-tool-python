@@ -10,7 +10,14 @@
       "text": "テント",
       "shape_type": "ellipse",
       "fill_color": "#F59EAD",
-      "outline_color": "#D94C67"
+      "outline_color": "#D94C67",
+      "details": "",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#D94C67",
+      "font_family": "Arial",
+      "font_size": 14,
+      "font_weight": "bold"
     },
     {
       "id": 4,
@@ -22,7 +29,14 @@
       "text": "丸菱商事",
       "shape_type": "ellipse",
       "fill_color": "#FFC994",
-      "outline_color": "#D98232"
+      "outline_color": "#D98232",
+      "details": "",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#D98232",
+      "font_family": "Arial",
+      "font_size": 14,
+      "font_weight": "bold"
     },
     {
       "id": 6,
@@ -34,7 +48,14 @@
       "text": "別班",
       "shape_type": "ellipse",
       "fill_color": "#FFF694",
-      "outline_color": "#B5A500"
+      "outline_color": "#B5A500",
+      "details": "",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#B5A500",
+      "font_family": "Arial",
+      "font_size": 14,
+      "font_weight": "bold"
     },
     {
       "id": 9,
@@ -46,7 +67,14 @@
       "text": "公安",
       "shape_type": "ellipse",
       "fill_color": "#BBE7AC",
-      "outline_color": "#62A64B"
+      "outline_color": "#62A64B",
+      "details": "",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#62A64B",
+      "font_family": "Arial",
+      "font_size": 14,
+      "font_weight": "bold"
     },
     {
       "id": 11,
@@ -58,7 +86,14 @@
       "text": "シンシー",
       "shape_type": "ellipse",
       "fill_color": "#94EBFF",
-      "outline_color": "#229EBF"
+      "outline_color": "#229EBF",
+      "details": "",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#229EBF",
+      "font_family": "Arial",
+      "font_size": 14,
+      "font_weight": "bold"
     },
     {
       "id": 13,
@@ -72,6 +107,12 @@
       "fill_color": "#FFFDE6",
       "outline_color": "#B5A500",
       "details": "別班の司令官",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal",
       "note": {
         "dx": 30,
         "dy": -60,
@@ -92,6 +133,12 @@
       "fill_color": "#FFFDE6",
       "outline_color": "#B5A500",
       "details": "コーカサス地方担当の別班員",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal",
       "note": {
         "dx": 143,
         "dy": 45,
@@ -112,6 +159,12 @@
       "fill_color": "#FFFDE6",
       "outline_color": "#B5A500",
       "details": "別班員\n表向きは経済産業省資源エネルギー庁に勤務する官僚",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal",
       "note": {
         "dx": 120,
         "dy": 30,
@@ -132,6 +185,12 @@
       "fill_color": "#FFFDE6",
       "outline_color": "#B5A500",
       "details": "別班員\n医療系システム機器販売の株式会社レイシルのSE",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal",
       "note": {
         "dx": 98,
         "dy": 30,
@@ -152,6 +211,12 @@
       "fill_color": "#FFFDE6",
       "outline_color": "#B5A500",
       "details": "別班員\n万俵製作所のエンジニア",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal",
       "note": {
         "dx": 105,
         "dy": 37,
@@ -173,6 +238,12 @@
       "outline_color": "#B5A500",
       "status": "inactive",
       "details": "別班員\nアイチ自動車ロシア支部勤務",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#a9a9a9",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal",
       "note": {
         "dx": 203,
         "dy": 97,
@@ -193,6 +264,12 @@
       "fill_color": "#FFFDE6",
       "outline_color": "#B5A500",
       "details": "別班のスーパーコンピュータ\n乃木の別人格Fの精神構造をベースに構築",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal",
       "note": {
         "dx": -90,
         "dy": 22,
@@ -213,6 +290,12 @@
       "fill_color": "#FFFDE6",
       "outline_color": "#B5A500",
       "details": "別班員、乃木の後輩\nJKT資源開発のエンジニア",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal",
       "note": {
         "dx": -105,
         "dy": 22,
@@ -233,6 +316,12 @@
       "fill_color": "#FFFDE6",
       "outline_color": "#B5A500",
       "details": "エネルギー開発事業部2課長\n別班員\n別人格F\n",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal",
       "note": {
         "dx": 68,
         "dy": -285,
@@ -253,6 +342,12 @@
       "fill_color": "#FFFDE6",
       "outline_color": "#B5A500",
       "details": "専務\n東南アジア統括の別班員",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal",
       "note": {
         "dx": 150,
         "dy": -165,
@@ -273,6 +368,12 @@
       "fill_color": "#FFF1E3",
       "outline_color": "#D98232",
       "details": "元財務部\n天才ハッカー「ブルーウォーカー」",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal",
       "note": {
         "dx": 53,
         "dy": -83,
@@ -293,6 +394,12 @@
       "fill_color": "#FFF1E3",
       "outline_color": "#D98232",
       "details": "エネルギー事業部長\n",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal",
       "note": {
         "dx": 60,
         "dy": -60,
@@ -314,6 +421,12 @@
       "outline_color": "#D98232",
       "status": "inactive",
       "details": "エネルギー事業部1課長\n元情報システム部\nテントの最下位モニター",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#a9a9a9",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal",
       "note": {
         "dx": -112,
         "dy": -90,
@@ -334,6 +447,12 @@
       "fill_color": "#FFF1E3",
       "outline_color": "#D98232",
       "details": "社長",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal",
       "note": {
         "dx": 53,
         "dy": -60,
@@ -354,6 +473,12 @@
       "fill_color": "#FFF1E3",
       "outline_color": "#D98232",
       "details": "乃木の部下",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal",
       "note": {
         "dx": 30,
         "dy": -75,
@@ -374,6 +499,12 @@
       "fill_color": "#FFF1E3",
       "outline_color": "#D98232",
       "details": "乃木の部下",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal",
       "note": {
         "dx": -30,
         "dy": -105,
@@ -394,6 +525,12 @@
       "fill_color": "#FFF1E3",
       "outline_color": "#D98232",
       "details": "経理部長",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal",
       "note": {
         "dx": 8,
         "dy": 60,
@@ -414,6 +551,12 @@
       "fill_color": "#FFF1E3",
       "outline_color": "#D98232",
       "details": "業務監査部",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal",
       "note": {
         "dx": 38,
         "dy": 60,
@@ -434,6 +577,12 @@
       "fill_color": "#FFF1E3",
       "outline_color": "#D98232",
       "details": "金属資源部長\n次期役員候補",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal",
       "note": {
         "dx": 45,
         "dy": 60,
@@ -454,6 +603,12 @@
       "fill_color": "#F7F5F2",
       "outline_color": "#92816B",
       "details": "長野のエージェント\n上腕から胸部に入墨\n大小の手裏剣使い",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal",
       "note": {
         "dx": 90,
         "dy": -128,
@@ -472,7 +627,13 @@
       "text": "フィルザ",
       "shape_type": "ellipse",
       "fill_color": "#F7F5F2",
-      "outline_color": "#92816B"
+      "outline_color": "#92816B",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal"
     },
     {
       "id": 56,
@@ -484,7 +645,13 @@
       "text": "ロマル",
       "shape_type": "ellipse",
       "fill_color": "#F7F5F2",
-      "outline_color": "#92816B"
+      "outline_color": "#92816B",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal"
     },
     {
       "id": 58,
@@ -496,7 +663,13 @@
       "text": "ナティック",
       "shape_type": "ellipse",
       "fill_color": "#F7F5F2",
-      "outline_color": "#92816B"
+      "outline_color": "#92816B",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal"
     },
     {
       "id": 60,
@@ -509,8 +682,13 @@
       "shape_type": "ellipse",
       "fill_color": "#FDECEF",
       "outline_color": "#D94C67",
-      "status": "inactive",
       "details": "本名：乃木卓\n乃木憂介の父\nテントの創始者",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal",
       "note": {
         "dx": -45,
         "dy": -83,
@@ -531,6 +709,12 @@
       "fill_color": "#FDECEF",
       "outline_color": "#D94C67",
       "details": "テントの幹部\n乃木憂介の義弟",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal",
       "note": {
         "dx": -52,
         "dy": -150,
@@ -549,7 +733,13 @@
       "text": "アリ",
       "shape_type": "ellipse",
       "fill_color": "#FDECEF",
-      "outline_color": "#D94C67"
+      "outline_color": "#D94C67",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal"
     },
     {
       "id": 66,
@@ -562,7 +752,12 @@
       "shape_type": "ellipse",
       "fill_color": "#FDECEF",
       "outline_color": "#D94C67",
-      "status": "inactive"
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal"
     },
     {
       "id": 68,
@@ -575,7 +770,12 @@
       "shape_type": "ellipse",
       "fill_color": "#FDECEF",
       "outline_color": "#D94C67",
-      "status": "inactive"
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal"
     },
     {
       "id": 70,
@@ -587,7 +787,13 @@
       "text": "シチ",
       "shape_type": "ellipse",
       "fill_color": "#FDECEF",
-      "outline_color": "#D94C67"
+      "outline_color": "#D94C67",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal"
     },
     {
       "id": 72,
@@ -599,7 +805,14 @@
       "text": "マタ",
       "shape_type": "ellipse",
       "fill_color": "#FDECEF",
-      "outline_color": "#D94C67"
+      "outline_color": "#D94C67",
+      "details": "",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal"
     },
     {
       "id": 74,
@@ -611,7 +824,14 @@
       "text": "アディエル",
       "shape_type": "ellipse",
       "fill_color": "#FDECEF",
-      "outline_color": "#D94C67"
+      "outline_color": "#D94C67",
+      "status": "inactive",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal"
     },
     {
       "id": 76,
@@ -623,7 +843,13 @@
       "text": "Y2K",
       "shape_type": "ellipse",
       "fill_color": "#FDECEF",
-      "outline_color": "#D94C67"
+      "outline_color": "#D94C67",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal"
     },
     {
       "id": 80,
@@ -637,6 +863,12 @@
       "fill_color": "#F7F5F2",
       "outline_color": "#92816B",
       "details": "奇跡の少女\n善人と悪人を識別できる能力を持つ",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal",
       "note": {
         "dx": -15,
         "dy": 75,
@@ -655,13 +887,19 @@
       "text": "新庄浩太郎",
       "shape_type": "ellipse",
       "fill_color": "#F1FAEE",
-      "outline_color": "#62A64B"
+      "outline_color": "#62A64B",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal"
     },
     {
       "id": 84,
       "type": "process",
       "x": 682,
-      "y": 510,
+      "y": 495,
       "w": 75,
       "h": 60,
       "text": "チョッキー",
@@ -669,9 +907,15 @@
       "fill_color": "#FDECEF",
       "outline_color": "#D94C67",
       "details": "CTP社の社長\nタイの有名実業家\nテント元上位モニター",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal",
       "note": {
         "dx": 120,
-        "dy": -8,
+        "dy": 7,
         "w": 105,
         "h": 45,
         "display_state": "normal"
@@ -688,7 +932,14 @@
       "shape_type": "ellipse",
       "fill_color": "#F7F5F2",
       "outline_color": "#92816B",
+      "status": "inactive",
       "details": "核融合技術を発明するも秘密にしている",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal",
       "note": {
         "dx": -90,
         "dy": -23,
@@ -709,6 +960,12 @@
       "fill_color": "#F1FAEE",
       "outline_color": "#62A64B",
       "details": "警視庁公安部外事第4課・理事官",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal",
       "note": {
         "dx": 53,
         "dy": -60,
@@ -729,6 +986,12 @@
       "fill_color": "#F1FAEE",
       "outline_color": "#62A64B",
       "details": "警視庁公安部部長",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal",
       "note": {
         "dx": 83,
         "dy": -15,
@@ -749,6 +1012,12 @@
       "fill_color": "#F1FAEE",
       "outline_color": "#62A64B",
       "details": "サイバー犯罪対策課\nホワイトハッカー",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal",
       "note": {
         "dx": 105,
         "dy": -30,
@@ -767,7 +1036,13 @@
       "text": "森田喜一",
       "shape_type": "ellipse",
       "fill_color": "#F1FAEE",
-      "outline_color": "#62A64B"
+      "outline_color": "#62A64B",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal"
     },
     {
       "id": 96,
@@ -779,7 +1054,13 @@
       "text": "和久井俊作",
       "shape_type": "ellipse",
       "fill_color": "#F1FAEE",
-      "outline_color": "#62A64B"
+      "outline_color": "#62A64B",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal"
     },
     {
       "id": 98,
@@ -791,7 +1072,13 @@
       "text": "鈴木祥",
       "shape_type": "ellipse",
       "fill_color": "#F1FAEE",
-      "outline_color": "#62A64B"
+      "outline_color": "#62A64B",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal"
     },
     {
       "id": 100,
@@ -805,6 +1092,12 @@
       "fill_color": "#F7F5F2",
       "outline_color": "#92816B",
       "details": "野崎の助手",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal",
       "note": {
         "dx": 75,
         "dy": 15,
@@ -823,7 +1116,13 @@
       "text": "劉銘軒",
       "shape_type": "ellipse",
       "fill_color": "#EAFBFF",
-      "outline_color": "#229EBF"
+      "outline_color": "#229EBF",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal"
     },
     {
       "id": 104,
@@ -836,7 +1135,14 @@
       "shape_type": "ellipse",
       "fill_color": "#EAFBFF",
       "outline_color": "#229EBF",
+      "status": "inactive",
       "details": "中国の裏の組織「シンシー」の責任者",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal",
       "note": {
         "dx": 75,
         "dy": -60,
@@ -855,7 +1161,14 @@
       "text": "李茗沢",
       "shape_type": "ellipse",
       "fill_color": "#EAFBFF",
-      "outline_color": "#229EBF"
+      "outline_color": "#229EBF",
+      "status": "inactive",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#a9a9a9",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal"
     },
     {
       "id": 108,
@@ -867,7 +1180,13 @@
       "text": "周浩然",
       "shape_type": "ellipse",
       "fill_color": "#EAFBFF",
-      "outline_color": "#229EBF"
+      "outline_color": "#229EBF",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal"
     },
     {
       "id": 110,
@@ -879,7 +1198,13 @@
       "text": "沈俊宇",
       "shape_type": "ellipse",
       "fill_color": "#EAFBFF",
-      "outline_color": "#229EBF"
+      "outline_color": "#229EBF",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal"
     },
     {
       "id": 112,
@@ -892,7 +1217,13 @@
       "shape_type": "ellipse",
       "fill_color": "#EAFBFF",
       "outline_color": "#229EBF",
-      "status": "inactive"
+      "status": "inactive",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#a9a9a9",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal"
     },
     {
       "id": 114,
@@ -904,7 +1235,14 @@
       "text": "張競士",
       "shape_type": "ellipse",
       "fill_color": "#EAFBFF",
-      "outline_color": "#229EBF"
+      "outline_color": "#229EBF",
+      "status": "inactive",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal"
     },
     {
       "id": 116,
@@ -918,6 +1256,12 @@
       "fill_color": "#F7F5F2",
       "outline_color": "#92816B",
       "details": "世界医療機構(WHI)の医師",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal",
       "note": {
         "dx": 60,
         "dy": -75,
@@ -938,6 +1282,12 @@
       "fill_color": "#F7F5F2",
       "outline_color": "#92816B",
       "details": "バルカ警察の警察官\n",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal",
       "note": {
         "dx": 87.0,
         "dy": -69.0,
@@ -958,6 +1308,12 @@
       "fill_color": "#F7F5F2",
       "outline_color": "#92816B",
       "details": "乃木家当主\n乃木卓の兄",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal",
       "note": {
         "dx": 63.0,
         "dy": -49.0,
@@ -978,6 +1334,12 @@
       "fill_color": "#F7F5F2",
       "outline_color": "#92816B",
       "details": "エリシャ・ママドフを囲う情報系ブローカー",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal",
       "note": {
         "dx": 96.0,
         "dy": -42.0,
@@ -997,7 +1359,14 @@
       "shape_type": "ellipse",
       "fill_color": "#F7F5F2",
       "outline_color": "#92816B",
+      "status": "inactive",
       "details": "情報屋",
+      "outline_width": 2,
+      "text_width": 110,
+      "text_color": "#0f172a",
+      "font_family": "Arial",
+      "font_size": 9,
+      "font_weight": "normal",
       "note": {
         "dx": -60,
         "dy": -45,
@@ -1292,7 +1661,7 @@
       "from_id": 74,
       "to_id": 80,
       "edge_type": "line",
-      "line_style": "solid",
+      "line_style": "dashed",
       "color": "#0f172a",
       "connection_mode": "auto"
     },
@@ -1300,7 +1669,7 @@
       "from_id": 86,
       "to_id": 80,
       "edge_type": "line",
-      "line_style": "dotted",
+      "line_style": "solid",
       "color": "#0f172a",
       "connection_mode": "auto"
     },

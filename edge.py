@@ -1,36 +1,39 @@
+from dataclasses import dataclass
 import tkinter as tk
 import constants as ct
-import node
-from typing import Literal, Tuple
+from node import Node
+from typing import Literal, Tuple, Optional
 from math import inf
 import platform
 import math
 
 LABEL_POSITION_LIST = ["auto", "p0se", "p0sw", "p0nw", "p0ne", "p1se", "p1sw", "p1nw", "p1ne", "p2se", "p2sw", "p2nw", "p2ne", "p3se", "p3sw", "p3nw", "p3ne", "p4se", "p4sw", "p4nw", "p4ne", "p5se", "p5sw", "p5nw", "p5ne"]
 
+@dataclass
 class Edge:
-    line_id = None
-    edge_type:Literal["elbow", "line"] = "elbow"  # "elbow", "line"のいずれか
-    line_style:Literal["solid", "dashed", "dotted"] = "solid"  # "solid", "dashed", "dotted"のいずれか
-    from_node_obj = None
-    to_node_obj = None
-    to_x = None
-    to_y = None
-    color = ct.EDGE_PARAMS["color"]
-    points = None  # List of (x, y) tuples
-    label_id = None
-    label_x = None
-    label_y = None
-    label_text = None
-    label_anchor:Literal["center", "n", "ne", "e", "se", "s", "sw", "w", "nw"] = "center"
-    label_justify:Literal["left", "center", "right"] = "left"
-    label_position = "auto"
-    connection_mode:Literal["auto", "manual", None] = "auto"
-    from_node_connection_point:Literal["top", "bottom", "left", "right", "auto", None] = None
-    to_node_connection_point:Literal["top", "bottom", "left", "right", "auto", None] = None
-    edge_wrap_margin = None
-    edge_wrap_ratio1 = None
-    edge_wrap_ratio2 = None
+    from_node_obj: Node = None
+    to_node_obj: Node = None
+    edge_type: Literal["elbow", "line"] = "elbow"  # "elbow", "line"のいずれか
+    path_type: Literal["vertical", "horizontal", "tree"] = "vertical"  # "vertical", "horizontal", "tree"のいずれか
+    line_style: Literal["solid", "dashed", "dotted"] = "solid"  # "solid", "dashed", "dotted"のいずれか
+    color: str = ct.EDGE_PARAMS["color"]
+    points: Optional[list[tuple[int, int]]] = None  # List of (x, y) tuples
+    label_x: Optional[int] = None
+    label_y: Optional[int] = None
+    label_text: Optional[str] = None
+    label_anchor: Literal["center", "n", "ne", "e", "se", "s", "sw", "w", "nw"] = "center"
+    label_justify: Literal["left", "center", "right"] = "left"
+    label_position: Literal["auto", "p0se", "p0sw", "p0nw", "p0ne", "p1se", "p1sw", "p1nw", "p1ne", "p2se", "p2sw", "p2nw", "p2ne", "p3se", "p3sw", "p3nw", "p3ne", "p4se", "p4sw", "p4nw", "p4ne", "p5se", "p5sw", "p5nw", "p5ne"] = "auto"
+    connection_mode: Literal["auto", "manual"] = "auto"
+    from_node_connection_point: Literal["top", "bottom", "left", "right", "auto"] = "auto"
+    to_node_connection_point: Literal["top", "bottom", "left", "right", "auto"] = "auto"
+    edge_wrap_margin: Optional[int] = None
+    edge_wrap_ratio1: Optional[float] = None
+    edge_wrap_ratio2: Optional[float] = None
+
+    line_id: Optional[int] = None
+    label_id: Optional[int] = None
+    canvas: Optional[tk.Canvas] = None  # Canvasオブジェクトを保持するための属性
 
     if platform.system() == "Windows":
         PointPerPixel = 0.75  # 1 pixel = 0.75 points 
@@ -39,35 +42,28 @@ class Edge:
     else:
         PointPerPixel = 0.75  # 1 pixel = 0.75 points 
 
-
-    def __init__(self, edge_type:Literal["elbow", "line"]="elbow", \
-                    path_type:Literal["vertical", "horizontal", "tree", None]=None, \
-                    line_style:Literal["solid", "dashed", "dotted"]="solid", \
-                    from_node_obj=None, to_node_obj=None, color=None, points=None, text=None, \
-                    connection_mode=None, from_node_connection_point=None, to_node_connection_point=None, edge_wrap_margin=None, \
-                    label_x=None, label_y=None, canvas=None,\
-                    label_position:Literal["auto", "p0se", "p0sw", "p0nw", "p0ne", "p1se", "p1sw", "p1nw", "p1ne", "p2se", "p2sw", "p2nw", "p2ne", "p3se", "p3sw", "p3nw", "p3ne", "p4se", "p4sw", "p4nw", "p4ne", "p5se", "p5sw", "p5nw", "p5ne"]="auto"):
-        self.line_id = None
-        self.edge_type = edge_type
-        self.path_type = path_type
+    def __post_init__(self):
         if self.edge_type == ct.EDGE_TYPE_ELBOW and self.path_type is None:
             self.path_type = ct.EDGE_PARAMS.get("path_type", "vertical")
-        self.line_style = line_style
-        self.from_node_obj = from_node_obj
-        self.to_node_obj = to_node_obj
-        self.color = color if color is not None else ct.EDGE_PARAMS["color"]
-        self.label_text = text
-        self.label_position = label_position
+
+        if self.color is None:
+            self.color = ct.EDGE_PARAMS["color"]
+
         if self.edge_type == ct.EDGE_TYPE_ELBOW:
             self.label_anchor = "center"
             self.label_justify = "left"
         else:
             self.label_anchor = "center"
             self.label_justify = "center"
-        self.connection_mode = connection_mode if connection_mode in ["auto", "manual"] else None
-        self.from_node_connection_point = from_node_connection_point if from_node_connection_point in ["top", "bottom", "left", "right", "auto"] else None
-        self.to_node_connection_point = to_node_connection_point if to_node_connection_point in ["top", "bottom", "left", "right", "auto"] else None
-        self.edge_wrap_margin = edge_wrap_margin
+
+        if self.connection_mode not in ["auto", "manual"]:
+            self.connection_mode = None
+
+        if self.from_node_connection_point not in ["top", "bottom", "left", "right", "auto"]:
+            self.from_node_connection_point = None
+
+        if self.to_node_connection_point not in ["top", "bottom", "left", "right", "auto"]:
+            self.to_node_connection_point = None
 
         if self.connection_mode is None:
             if self.from_node_connection_point is None or self.from_node_connection_point == "auto" or self.to_node_connection_point is None or self.to_node_connection_point == "auto":
@@ -77,20 +73,16 @@ class Edge:
             else:
                 self.connection_mode = "manual"
 
-        if points is None:
+        if self.points is None:
             # 直線またはかぎ線の頂点の座標とラベル位置を自動計算
-            self._compute_edge_geometry(from_node_obj, to_node_obj)
-        else:
-            self.points = points  # List of (x, y) tuples
-            self.label_x = label_x
-            self.label_y = label_y
+            self._compute_edge_geometry(self.from_node_obj, self.to_node_obj)
 
         self.edge_wrap_ratio1, self.edge_wrap_ratio2 = self.get_edge_wrap_ratios()
 
-        if canvas is not None:
-            self.draw(canvas, from_node_obj, to_node_obj, text)
+        if self.canvas is not None:
+            self.draw(self.canvas, self.from_node_obj, self.to_node_obj)
 
-    def draw(self, canvas:tk.Canvas, from_node_obj, to_node_obj, text=None):
+    def draw(self, canvas:tk.Canvas, from_node_obj: Node, to_node_obj: Node):
         """エッジとラベルの描画"""
         # エッジの描画
         self.draw_edge(canvas, from_node_obj, to_node_obj)
@@ -98,7 +90,7 @@ class Edge:
         if self.line_id is not None:
             self.draw_label(canvas, from_node_obj)
 
-    def draw_edge(self, canvas:tk.Canvas, from_node_obj, to_node_obj):
+    def draw_edge(self, canvas:tk.Canvas, from_node_obj: Node, to_node_obj: Node):
         # print(f"**  Drawing edge from {from_node_obj.id if from_node_obj else None} to {to_node_obj.id if to_node_obj else None} with points: {self.points}")  # for DEBUG
         """エッジの描画"""
         arrow_kind = ct.EDGE_PARAMS.get("arrow_kind", tk.LAST)
@@ -133,7 +125,7 @@ class Edge:
         else:
             return ()
 
-    def draw_label(self, canvas:tk.Canvas, from_node_obj):
+    def draw_label(self, canvas:tk.Canvas, from_node_obj: Node):
         """エッジラベルの描画"""
 
         if self.label_x is not None and self.label_y is not None and self.label_text is not None:
@@ -148,7 +140,7 @@ class Edge:
             # ラベルもノードの下でOK（少し上に描かれるので視認性は保てる）
             canvas.tag_raise(self.label_id, "node")
 
-    def _compute_edge_geometry(self, from_node_obj: node.Node, to_node_obj: node.Node):
+    def _compute_edge_geometry(self, from_node_obj: Node, to_node_obj: Node):
         """直線またはかぎ線の頂点の座標とラベル位置を計算"""
         # 各ノードのアンカーとラベル位置を設定
         if self.edge_type == "elbow":
@@ -1863,9 +1855,9 @@ class Edge:
 
         return coords
 
-    def update_label_text(self, canvas, text):
+    def update_label_text(self, canvas, label_text):
         """エッジラベルのテキスト更新"""
-        self.label_text = text
+        self.label_text = label_text
         if canvas:
             self.refresh_label(canvas)
 

@@ -490,10 +490,10 @@ TIPS_TEXT = get_i18n_tips_text("TIPS_TEXT", lang=i18n_lang)
 # AI Model Selection / 使用する生成AIモデル
 AI_MODEL = "claude-opus-5-5"  # Specify the AI model to use for generating flowcharts.
 # Example of available AI model names / 指定可能な生成AIモデル名例
-#   OpenAI (gpt-*): "gpt-6-astra", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "gpt-5.5", "gpt-5.4", "gpt-5.4-mini"
-#   GeminiAI (gemini-*): "gemini-4-argon", "gemini-3.8-flash", "gemini-3.7-flash", "gemini-3.6-flash", "gemini-3.1-pro-preview"
-#   AnthropicAI (claude-*): "claude-opus-5-5", "claude-fable-5-1", "claude-fable-5", "claude-opus-5", "claude-sonnet-5", "claude-haiku-4-5"
-#   MoonshotAI (kimi-*): "kimi-k3"
+#   OpenAI (gpt-*): "gpt-6-astra", "gpt-6.1-terra", "gpt-6.1-sol", "gpt-6-sol", "gpt-6-luna"
+#   GeminiAI (gemini-*): "gemini-4-carbon", "gemini-4-argon", "gemini-4-hydrogen", "gemini-3.8-flash"
+#   AnthropicAI (claude-*): "claude-fable-5-2", "claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-5-5"
+#   MoonshotAI (kimi-*): "kimi-k3.1-pro", "kimi-k3"
 #   SpaceXAI (grok-*): "grok-4.7", "grok-4.6"
 #   LMStudio (lmstudio): "lmstudio" (LMStudio is a local model_URL)
 #   Unsloth (unsloth): "unsloth" (Unsloth is a local model_URL)
@@ -521,6 +521,10 @@ AI_SYSTEM_INSTRUCTIONS = get_i18n_ai_prompt_template("AI_SYSTEM_INSTRUCTIONS", l
 AI_PROMPT_TITLE = get_i18n_ai_prompt_template("AI_PROMPT_TITLE", lang=i18n_lang)
 AI_PROMPT_SPEC = get_i18n_ai_prompt_template("AI_PROMPT_SPEC", lang=i18n_lang)
 
+# Property Editor Settings / プロパティエディタ用設定
+PROPERTY_EDITOR_WIDTH = 400
+PROPERTY_EDITOR_WIDTH_MIN = 300
+PROPERTY_EDITOR_WIDTH_MAX = 800
 
 # Work Directory / 作業フォルダ
 WORK_DIR_NAME = "work"
