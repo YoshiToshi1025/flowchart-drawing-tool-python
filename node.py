@@ -15,23 +15,23 @@ from pathlib import Path
 @dataclass
 class Node:
     id: int = None
-    type: Literal["process", "decision", "terminator", "io", "storage", "document", "special_node"] = "process"
     text: str = ""
+    type: Literal["process", "decision", "terminator", "io", "storage", "document", "special_node"] = "process"
+    shape_type: Literal["rectangle", "corner_rounded_rectangle", "ellipse", "normal", "small", "decision", "io", "storage", "document", "special_node"] = "rectangle"
+    status: Literal["normal", "active", "inactive"] = "normal" # "normal", "active", "inactive"
     x: int = 0
     y: int = 0
     w: int = 0
     h: int = 0
-    shape_type: Literal["rectangle", "corner_rounded_rectangle", "ellipse", "normal", "small", "decision", "io", "storage", "document", "special_node"] = "rectangle"
     fill_color: Optional[str] = None
     outline_color: Optional[str] = None
-    details: Optional[str] = ""    # Note, Spec, Memoなどの詳細情報を格納する属性
-    status: Literal["normal", "active", "inactive"] = "normal" # "normal", "active", "inactive"
     outline_width: Optional[int] = None
     text_width: Optional[int] = None
     text_color: Optional[str] = None
     font_family: Literal["Arial", "Courier", "Helvetica", "Times"] = "Arial"
     font_size: Literal[6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 20, 24] = 9
     font_weight: Literal["normal", "bold"] = "normal"
+    details: Optional[str] = ""    # Note, Spec, Memoなどの詳細情報を格納する属性
 
     shape_id: Optional[str] = None
     text_id: Optional[str] = None
@@ -359,6 +359,10 @@ class Node:
                 outline_color = default_outline_color if self.outline_color is None else self.outline_color
 
         return outline_color
+
+    def reset_outline_width(self):
+        self.outline_width = None
+        return self.get_outline_width()
     
     def get_outline_width(self):
         default_outline_width = ct.NODE_DEFAULT_PARAMS["outline_width"]
@@ -424,6 +428,10 @@ class Node:
 
         return outline_width
 
+    def reset_text_color(self):
+        self.text_color = None
+        return self.get_text_color()
+
     def get_text_color(self):
         default_text_color = ct.NODE_DEFAULT_PARAMS["text_color"]
         default_active_text_color = ct.NODE_DEFAULT_PARAMS.get("active_text_color", default_text_color)
@@ -487,6 +495,10 @@ class Node:
                 text_color = default_text_color if self.text_color is None else self.text_color
 
         return text_color
+
+    def reset_text_font_weight(self):
+        self.font_weight = None
+        return self.get_text_font_weight()
 
     def get_text_font_weight(self):
         default_font_weight = ct.NODE_DEFAULT_PARAMS["font_weight"]
@@ -1099,26 +1111,26 @@ class Node:
         }
         if self.shape_type is not None:
             node_data["shape_type"] = self.shape_type
-        if self.fill_color is not None:
-            node_data["fill_color"] = self.fill_color
-        if self.outline_color is not None:
-            node_data["outline_color"] = self.outline_color
+        if self.fill_color is not None and self.fill_color != Node.get_default_fill_color(self.type):
+                node_data["fill_color"] = self.fill_color
+        if self.outline_color is not None and self.outline_color != Node.get_default_outline_color(self.type):
+                node_data["outline_color"] = self.outline_color
         if self.status is not None and self.status != ct.NODE_STATUS_NORMAL:
             node_data["status"] = self.status
         if self.details is not None:
             node_data["details"] = self.details
-        if self.outline_width is not None:
-            node_data["outline_width"] = self.outline_width
-        if self.text_width is not None:
-            node_data["text_width"] = self.text_width
-        if self.text_color is not None:
-            node_data["text_color"] = self.text_color
-        if self.font_family is not None:
-            node_data["font_family"] = self.font_family
-        if self.font_size is not None:
-            node_data["font_size"] = self.font_size
-        if self.font_weight is not None:
-            node_data["font_weight"] = self.font_weight
+        if self.outline_width is not None and self.outline_width != Node.get_default_outline_width(self.type):
+                node_data["outline_width"] = self.outline_width
+        if self.text_width is not None and self.text_width != Node.get_default_text_width(self.type):
+                node_data["text_width"] = self.text_width
+        if self.text_color is not None and self.text_color != Node.get_default_text_color(self.type):
+                node_data["text_color"] = self.text_color
+        if self.font_family is not None and self.font_family != Node.get_default_font_family(self.type):
+                node_data["font_family"] = self.font_family
+        if self.font_size is not None and self.font_size != Node.get_default_font_size(self.type):
+                node_data["font_size"] = self.font_size
+        if self.font_weight is not None and self.font_weight != Node.get_default_font_weight(self.type):
+                node_data["font_weight"] = self.font_weight
 
         if self.base_image_data is not None:
             base_image = ImageTk.getimage(self.base_image_data)
@@ -1158,3 +1170,56 @@ class Node:
             ct.NODE_SPECIAL_NODE_PARAMS["type"] : ct.NODE_SPECIAL_NODE_PARAMS["height"],
         }.get(node_type, ct.NODE_DEFAULT_PARAMS["height"])
         return height
+
+    @classmethod
+    def get_default_fill_color(cls, node_type) -> int:
+        fill_color = Node.get_default_element_value(node_type, "fill_color")
+        return fill_color
+
+    @classmethod
+    def get_default_outline_color(cls, node_type) -> int:
+        outline_color = Node.get_default_element_value(node_type, "outline_color")
+        return outline_color
+
+    @classmethod
+    def get_default_outline_width(cls, node_type) -> int:
+        outline_width = Node.get_default_element_value(node_type, "outline_width")
+        return outline_width
+
+    @classmethod
+    def get_default_text_width(cls, node_type) -> int:
+        text_width = Node.get_default_element_value(node_type, "text_width")
+        return text_width
+
+    @classmethod
+    def get_default_text_color(cls, node_type) -> str:
+        text_color = Node.get_default_element_value(node_type, "text_color")
+        return text_color
+
+    @classmethod
+    def get_default_font_family(cls, node_type) -> str:
+        font_family = Node.get_default_element_value(node_type, "font_family")
+        return font_family
+
+    @classmethod
+    def get_default_font_size(cls, node_type) -> int:
+        font_size = Node.get_default_element_value(node_type, "font_size")
+        return font_size
+
+    @classmethod
+    def get_default_font_weight(cls, node_type) -> str:
+        font_weight = Node.get_default_element_value(node_type, "font_weight")
+        return font_weight
+
+    @classmethod
+    def get_default_element_value(cls, node_type, element_name):
+        element_value = {
+            ct.NODE_PROCESS_PARAMS["type"] : ct.NODE_PROCESS_PARAMS[element_name],
+            ct.NODE_DECISION_PARAMS["type"] : ct.NODE_DECISION_PARAMS[element_name],
+            ct.NODE_TERMINATOR_PARAMS["type"] : ct.NODE_TERMINATOR_PARAMS[element_name],
+            ct.NODE_IO_PARAMS["type"] : ct.NODE_IO_PARAMS[element_name],
+            ct.NODE_STORAGE_PARAMS["type"] : ct.NODE_STORAGE_PARAMS[element_name],
+            ct.NODE_DOCUMENT_PARAMS["type"] : ct.NODE_DOCUMENT_PARAMS[element_name],
+            ct.NODE_SPECIAL_NODE_PARAMS["type"] : ct.NODE_SPECIAL_NODE_PARAMS[element_name],
+        }.get(node_type, ct.NODE_DEFAULT_PARAMS[element_name])
+        return element_value

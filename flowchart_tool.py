@@ -57,12 +57,13 @@ class FlowchartTool(tk.Tk):
 
         # 登録済みノード情報
         self.nodes: dict[int, Node] = {}   # node_id -> dict
-        self._id_counter = itertools.count(1)   # 新規登録用ノードIDカウンタ
+        self._node_id_counter = itertools.count(1)   # 新規登録用ノードIDカウンタ
         self.selected_node_ids = []    # 選択中のノードIDリスト
 
         # 登録済みエッジ情報
-        self.edges: dict[int, Edge] = {}   # line_id -> list of edge dict
-        self.selected_edge_id = None    # 選択中のエッジLine_ID
+        self.edges: dict[int, Edge] = {}   # edge_id -> dict
+        self._edge_id_counter = itertools.count(1)   # 新規登録用エッジIDカウンタ
+        self.selected_edge_id = None    # 選択中のエッジID
         self.link_start_node_id = None  # リンク始点ノードID
 
         # 登録済みスイムレーン情報
@@ -203,10 +204,10 @@ class FlowchartTool(tk.Tk):
         button_info.pack(side=tk.LEFT, padx=(4,1))
         ToolTip(button_info, "Show Info Panel")  # 右サイドに情報パネルを表示
 
-        # インフォメーション表示ボタン
+        # プロパティエディタ表示ボタン
         button_property = tk.Checkbutton(toolbar, text="Property", image=self.icons["Property"], compound="none", indicatoron=False, variable=self.property_on, command=self.show_property_panel, width=30, height=30)
         button_property.pack(side=tk.LEFT, padx=(4,1))
-        ToolTip(button_property, "Show Property Panel")  # 左サイドに情報パネルを表示
+        ToolTip(button_property, "Show Property Panel")  # 右サイドにプロパティエディタパネルを表示
 
         ttk.Separator(toolbar, orient=tk.VERTICAL).pack(side=tk.LEFT, fill=tk.Y, padx=(8,8))
 
@@ -427,6 +428,7 @@ class FlowchartTool(tk.Tk):
     def show_property_panel(self):
         if self.property_on.get():
             self.property_editor_frame.open()
+            self.push_selected_data_to_property_editor()
         else:
             self.property_editor_frame.close()
 
@@ -836,8 +838,8 @@ class FlowchartTool(tk.Tk):
             else:
                 if selecting_node_id is not None:
                     self.additional_select_node(selecting_node_id)
-                # if selecting_edge is not None:
-                #     self.select_edge(selecting_edge)
+                if selecting_edge is not None:
+                    self.select_edge(selecting_edge)
                 self.additional_select_swimlane(selecting_swimlane)
         # リンクモードの場合は、ノードを選択していればリンクの開始点として記憶し、次にノードを選択したらリンクを作成する
         elif mode.startswith("link"):
@@ -850,20 +852,20 @@ class FlowchartTool(tk.Tk):
             else:
                 if selecting_node_id is not None:
                     self.additional_select_node(selecting_node_id)
-                # if selecting_edge is not None:
-                #     self.select_edge(selecting_edge)
+                if selecting_edge is not None:
+                    self.select_edge(selecting_edge)
                 self.additional_select_swimlane(selecting_swimlane)
 
     def on_drag_start(self, event):
         # print("Drag started")
 
         selected_node_id = self.node_at(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
-        selected_edge_id = self.edge_at(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
+        selected_edge = self.edge_at(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
         selected_swimlane = self.swimlane_at(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
         selected_note = self.note_at(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
         # print(f"Selected on drag start: node_id={selected_node_id}, edge_id={selected_edge_id}, swimlane={selected_swimlane}, note={selected_note}")
 
-        if selected_node_id is None and selected_edge_id is None and selected_swimlane is None and selected_note is None:
+        if selected_node_id is None and selected_edge is None and selected_swimlane is None and selected_note is None:
             self.drag_data["mode"] = "select_area"
             self.drag_data["node_id"] = None
             self.drag_data["shape_id"] = None
@@ -921,8 +923,8 @@ class FlowchartTool(tk.Tk):
                 self.drag_data["drag_start_y"] = self.canvas.canvasy(event.y)
                 self.drag_data["drag_end_x"] = self.canvas.canvasx(event.x)
                 self.drag_data["drag_end_y"] = self.canvas.canvasy(event.y)
-        elif selected_edge_id is not None:
-            self.select_edge(selected_edge_id)
+        elif selected_edge is not None:
+            self.select_edge(self.edges.get(selected_edge.id))
         elif selected_swimlane is not None:
             self.select_swimlane(selected_swimlane)
             self.drag_data["mode"] = "move_swimlane"
@@ -1388,17 +1390,23 @@ class FlowchartTool(tk.Tk):
                 if original_from_node_id != original_to_node_id:
                     original_edge_obj = self.get_edge_between_nodes(original_from_node_id, original_to_node_id)
                     if original_edge_obj is not None:
-                        clone_edge_obj = Edge(edge_type=original_edge_obj.edge_type, path_type=original_edge_obj.path_type, line_style=original_edge_obj.line_style,
-                                                color=original_edge_obj.color,
-                                                from_node_obj=clone_from_node_obj, to_node_obj=clone_to_node_obj, label_text=original_edge_obj.label_text, \
-                                                connection_mode=original_edge_obj.connection_mode, \
-                                                from_node_connection_point=original_edge_obj.from_node_connection_point, \
-                                                to_node_connection_point=original_edge_obj.to_node_connection_point, \
-                                                edge_wrap_margin=original_edge_obj.edge_wrap_margin, \
-                                                canvas=self.canvas, \
-                                                label_position=original_edge_obj.label_position)
-                        if clone_edge_obj is not None and clone_edge_obj.line_id is not None:
-                            self.edges[clone_edge_obj.line_id] = clone_edge_obj
+                        clone_edge_id = next(self._edge_id_counter)
+                        clone_edge_obj = Edge(id=clone_edge_id,
+                                                from_node_obj=clone_from_node_obj, to_node_obj=clone_to_node_obj, label_text=original_edge_obj.label_text,
+                                                edge_type=original_edge_obj.edge_type, path_type=original_edge_obj.path_type,
+                                                line_style=original_edge_obj.line_style, line_color=original_edge_obj.line_color, line_width=original_edge_obj.line_width, 
+                                                connection_mode=original_edge_obj.connection_mode,
+                                                from_node_connection_point=original_edge_obj.from_node_connection_point,
+                                                to_node_connection_point=original_edge_obj.to_node_connection_point,
+                                                edge_wrap_margin=original_edge_obj.edge_wrap_margin,
+                                                edge_wrap_ratio1=original_edge_obj.edge_wrap_ratio1, edge_wrap_ratio2=original_edge_obj.edge_wrap_ratio2,
+                                                label_position=original_edge_obj.label_position,
+                                                text_width=original_edge_obj.text_width, text_color=original_edge_obj.text_color,
+                                                font_family=original_edge_obj.font_family, font_size=original_edge_obj.font_size, font_weight=original_edge_obj.font_weight,
+                                                canvas=self.canvas,
+                                            )
+                        if clone_edge_obj is not None and clone_edge_obj.id is not None:
+                            self.edges[clone_edge_obj.id] = clone_edge_obj
 
     def get_edge_between_nodes(self, from_node_id, to_node_id):
         original_edge_obj = None
@@ -1714,7 +1722,7 @@ class FlowchartTool(tk.Tk):
         """
         x, y は中心座標
         """
-        node_id = next(self._id_counter)
+        node_id = next(self._node_id_counter)
         self._create_node_with_id(node_id, node_type, x, y, shape_type=shape_type)
         self.select_node(node_id)
         self.push_history()
@@ -1766,7 +1774,7 @@ class FlowchartTool(tk.Tk):
 
     def duplicate_node(self, original_node):
         # print(f"Duplicating node id: {original_node.id}")
-        new_node_id = next(self._id_counter)
+        new_node_id = next(self._node_id_counter)
         self._duplicate_node_with_id(new_node_id, original_node)
         #self.select_node(new_node_id)
         # self.push_history()
@@ -1778,12 +1786,23 @@ class FlowchartTool(tk.Tk):
         adjusted_x, adjusted_y = self.adjusted_xy(new_node_id, original_node.x, original_node.y, original_node.type)
 
         duplicated_node_obj = Node(
-                                id=new_node_id, type=original_node.type,
-                                x=adjusted_x, y=adjusted_y, w=original_node.w, h=original_node.h,
+                                id=new_node_id,
+                                type=original_node.type,
+                                x=adjusted_x, y=adjusted_y,
+                                w=original_node.w, h=original_node.h,
                                 shape_type=original_node.shape_type,
-                                fill_color=original_node.fill_color, outline_color=original_node.outline_color,
-                                text=original_node.text, status=original_node.status,
-                                details=original_node.details, canvas=self.canvas)
+                                fill_color=original_node.fill_color,
+                                outline_color=original_node.outline_color,
+                                text=original_node.text,
+                                status=original_node.status,
+                                details=original_node.details,
+                                outline_width=original_node.outline_width,
+                                text_width=original_node.text_width,
+                                text_color=original_node.text_color,
+                                font_family=original_node.font_family,
+                                font_size=original_node.font_size,
+                                font_weight=original_node.font_weight,
+                                canvas=self.canvas)
         if original_node.base_image_data is not None:
             duplicated_node_obj.base_image_data = original_node.base_image_data
             duplicated_node_obj.redraw_picture(self.canvas)
@@ -1869,8 +1888,7 @@ class FlowchartTool(tk.Tk):
                     self._reset_node_to_original_color(self.nodes[selected_node_id])
         # 既存選択のハイライト解除（エッジ）
         if self.selected_edge_id:
-            # print(f"Reset edge color for edge id:{self.selected_edge_id}")    # for DEBUG
-            self._reset_edge_to_original_color(self.edges[self.selected_edge_id])
+            self._reset_edge_to_original_color(self.edges.get(self.selected_edge_id))
         # 既存選択のハイライト解除（スイムレーン）
         #if self.selected_swimlanes is not None and len(self.selected_swimlanes) > 0:
         #    for swimlane_obj in self.selected_swimlanes:
@@ -1889,11 +1907,18 @@ class FlowchartTool(tk.Tk):
 
     def push_selected_data_to_property_editor(self):
         if self.property_on.get():
-            selected_nodes = []
-            for node_id in self.selected_node_ids:
-                if node_id in self.nodes:
-                    selected_nodes.append(self.nodes[node_id])
-            self.property_editor.set_target_objects(selected_nodes)
+            if self.selected_node_ids is not None and len(self.selected_node_ids) > 0:
+                selected_nodes = []
+                for node_id in self.selected_node_ids:
+                    if node_id in self.nodes:
+                        selected_nodes.append(self.nodes[node_id])
+                self.property_editor.set_target_objects(selected_nodes)
+            elif self.selected_edge_id is not None:
+                if self.selected_edge_id in self.edges.keys():
+                    new_edge_objs = [self.edges.get(self.selected_edge_id)]
+                    self.property_editor.set_target_objects(new_edge_objs)
+            else:
+                self.property_editor.reset_target_objects()
 
     # ノードの枠の色をオリジナルの定義に戻す
     def _reset_node_to_original_color(self, node_obj):
@@ -1928,8 +1953,8 @@ class FlowchartTool(tk.Tk):
     def _reset_edge_to_original_color(self, edge_obj):
         if edge_obj is None or edge_obj.line_id is None:
             return
-        self.canvas.itemconfig(edge_obj.line_id, fill=edge_obj.color)
-        self.canvas.itemconfig(edge_obj.label_id, fill=edge_obj.color)
+        self.canvas.itemconfig(edge_obj.line_id, fill=edge_obj.line_color)
+        self.canvas.itemconfig(edge_obj.label_id, fill=edge_obj.line_color)
 
     # 選択されているノードのステータスを変更する
     def change_selected_nodes_status(self, status):
@@ -1955,10 +1980,9 @@ class FlowchartTool(tk.Tk):
         self.push_history()
 
     def select_edge(self, edge_obj):
-        # print(f"Selecting edge id: {edge_obj.line_id}")
         if edge_obj is None:
             return
-        edge_id = edge_obj.line_id
+        edge_id = edge_obj.id
 
         # 既存選択のハイライト解除（ノード）
         if self.selected_node_ids is not None and len(self.selected_node_ids) > 0:
@@ -1967,7 +1991,7 @@ class FlowchartTool(tk.Tk):
                     self._reset_node_to_original_color(self.nodes[selected_node_id])
         # 既存選択のハイライト解除（エッジ）    
         if self.selected_edge_id:
-            self._reset_edge_to_original_color(self.edges[self.selected_edge_id])
+            self._reset_edge_to_original_color(self.edges.get(self.selected_edge_id))
         # 既存選択のハイライト解除（スイムレーン）
         # if self.selected_swimlanes is not None and len(self.selected_swimlanes) > 0:
         #    for swimlane_obj in self.selected_swimlanes:
@@ -1976,8 +2000,11 @@ class FlowchartTool(tk.Tk):
         self.selected_node_ids = []
         self.selected_edge_id = edge_id
 
-        if edge_id:
-            self.canvas.itemconfig(edge_id, fill=ct.EDGE_PARAMS["selected_color"])
+        self.push_selected_data_to_property_editor()
+
+        new_edge_obj = self.edges.get(edge_id)
+        if new_edge_obj is not None and new_edge_obj.line_id is not None:
+            self.canvas.itemconfig(new_edge_obj.line_id, fill=ct.EDGE_PARAMS["selected_color"])
 
     def select_swimlane(self, swimlane_obj):
 
@@ -2156,15 +2183,15 @@ class FlowchartTool(tk.Tk):
             return  # 編集中は削除しない
         nids = self.selected_node_ids.copy()
         # print(f"Deleting selected nodes: {nids}, self.nodes: {self.nodes}")  # for DEBUG
-        line_id = self.selected_edge_id
+        edge_id = self.selected_edge_id
         swimlanes = self.selected_swimlanes
         if nids and len(nids) > 0:
             for nid in nids:
                 if nid in self.nodes:
                     # print(f"Deleting node id: {nid}")  # for DEBUG
                     self.delete_selected_node(nid)
-        if line_id:
-            self.delete_selected_edge(line_id)
+        if edge_id:
+            self.delete_selected_edge(edge_id)
         if swimlanes and len(swimlanes) > 0:
             self.delete_selected_swimlanes()
 
@@ -2182,15 +2209,15 @@ class FlowchartTool(tk.Tk):
 
         # 要素削除に伴う関連エッジの削除
         edges_to_keep = {}
-        for edge_line_id, edge_obj in self.edges.items():
+        for edge_id, edge_obj in self.edges.items():
             from_node_id = edge_obj.from_node_obj.id if edge_obj.from_node_obj else None
             to_node_id = edge_obj.to_node_obj.id if edge_obj.to_node_obj else None
-            if edge_line_id and from_node_id and to_node_id and (from_node_id == nid or to_node_id == nid):
-                self.canvas.delete(edge_line_id)
+            if edge_id and from_node_id and to_node_id and (from_node_id == nid or to_node_id == nid):
+                self.canvas.delete(edge_obj.line_id)
                 if edge_obj.label_id:
                     self.canvas.delete(edge_obj.label_id)
             else:
-                edges_to_keep[edge_line_id] = edge_obj
+                edges_to_keep[edge_id] = edge_obj
         self.edges = edges_to_keep
 
         note_obj = self.get_note_for_node(node_obj.id)
@@ -2204,10 +2231,10 @@ class FlowchartTool(tk.Tk):
             self.selected_node_ids.remove(nid)
         self.push_history()
 
-    def delete_selected_edge(self, line_id):
+    def delete_selected_edge(self, edge_id):
         edge_to_delete = None
-        for edge_line_id, edge_obj in self.edges.items():
-            if edge_line_id == line_id:
+        for edge_id_key, edge_obj in self.edges.items():
+            if edge_id_key == edge_id:
                 edge_to_delete = edge_obj
                 break
         if edge_to_delete is not None:
@@ -2255,8 +2282,8 @@ class FlowchartTool(tk.Tk):
         if not items:
             return None
         for item in reversed(items):
-            for edge_line_id, edge_obj in self.edges.items():
-                if item == edge_line_id or item == edge_obj.label_id:
+            for edge_id, edge_obj in self.edges.items():
+                if item == edge_obj.line_id or item == edge_obj.label_id:
                     return edge_obj
         return None
 
@@ -2299,18 +2326,22 @@ class FlowchartTool(tk.Tk):
             if path_type is None:
                 path_type = self.current_link_elbow_path_type
 
+        edge_id = next(self._edge_id_counter)
         from_node_obj = self.nodes[from_id]
         to_node_obj = self.nodes[to_id]
 
         line_style = ct.EDGE_PARAMS["line_style"] if edge_type == ct.EDGE_TYPE_ELBOW else ct.EDGE_LINE_STYLE_DOTTED
 
         auto_text = self.auto_edge_label(None, from_node_obj)
-        edge_obj = Edge(edge_type=edge_type, path_type=path_type, line_style=line_style,
+        edge_obj = Edge(id=edge_id,
                         from_node_obj=from_node_obj, to_node_obj=to_node_obj,
-                        label_text=auto_text, canvas=self.canvas)
+                        edge_type=edge_type, path_type=path_type,
+                        line_style=line_style,
+                        label_text=auto_text,
+                        canvas=self.canvas)
 
-        if edge_obj is not None and edge_obj.line_id is not None:
-            self.edges[edge_obj.line_id] = edge_obj
+        if edge_obj is not None and edge_obj.id is not None:
+            self.edges[edge_obj.id] = edge_obj
         self.push_history()
 
     def create_temporary_node(self, event, refresh_flag):
@@ -2350,9 +2381,9 @@ class FlowchartTool(tk.Tk):
         line_style = ct.EDGE_PARAMS["line_style"] if edge_type == ct.EDGE_TYPE_ELBOW else ct.EDGE_LINE_STYLE_DOTTED
 
         # print(f"* From node obj: {from_node_obj}, To node obj: {to_node_obj}")  # for DEBUG
-        temporary_edge = Edge(edge_type=edge_type, path_type=path_type, line_style=line_style,
+        temporary_edge = Edge(id=0, edge_type=edge_type, path_type=path_type, line_style=line_style,
                                 from_node_obj=from_node_obj, to_node_obj=to_node_obj,
-                                color="#0ea5e9", label_text="", canvas=self.canvas)
+                                line_color="#0ea5e9", label_text="", canvas=self.canvas)
         # print(f"** Temporary edge created: {temporary_edge}")  # for DEBUG
         return temporary_edge
 
@@ -2363,7 +2394,7 @@ class FlowchartTool(tk.Tk):
         self.canvas.delete(edge_obj.line_id)
         if edge_obj.label_id:
             self.canvas.delete(edge_obj.label_id)
-        del self.edges[edge_obj.line_id]
+        del self.edges[edge_obj.id]
         self.push_history()
 
     def auto_edge_label(self, text, from_node_obj):
@@ -2455,7 +2486,7 @@ class FlowchartTool(tk.Tk):
         swimlanes_data = data.get("swimlanes", [])
 
         # ノード復元
-        max_id = 0
+        max_node_id = 0
         for nd in nodes_data:
             nid = nd.get("id")
             if nid is None:
@@ -2502,39 +2533,68 @@ class FlowchartTool(tk.Tk):
                     node_obj.base_image_data = ImageTk.PhotoImage(base_image_data)
                     node_obj.redraw_picture(self.canvas)
 
-            if nid > max_id:
-                max_id = nid
+            if nid > max_node_id:
+                max_node_id = nid
 
-        self._id_counter = itertools.count(max_id + 1 if max_id > 0 else 1)
+        self._node_id_counter = itertools.count(max_node_id + 1 if max_node_id > 0 else 1)
 
         # エッジ復元
+        max_edge_id = 0
         for ed in edges_data:
+            label_text = ed.get("label")
             fid = ed.get("from_id")
             tid = ed.get("to_id")
             edge_type = ed.get("edge_type", ct.EDGE_TYPE_ELBOW)
             path_type = ed.get("path_type", ct.EDGE_PARAMS["path_type"]) if edge_type == ct.EDGE_TYPE_ELBOW else None
             default_line_style = ct.EDGE_PARAMS["line_style"] if edge_type == ct.EDGE_TYPE_ELBOW else ct.EDGE_LINE_STYLE_DOTTED
             line_style = ed.get("line_style", default_line_style)
-            color = ed.get("color", ct.EDGE_PARAMS["color"])
+            line_color = ed.get("line_color", None)
+            if line_color is None:
+                line_color = ed.get("color", ct.EDGE_PARAMS["line_color"]) # 旧変数名での取り込み対応
+            line_width = ed.get("line_width", None)
+            if line_width is None:
+                line_width = ed.get("width", ct.EDGE_PARAMS["line_width"]) # 旧変数名での取り込み対応
             connection_mode = ed.get("connection_mode", None)
             from_connection_point = ed.get("from_connection_point", None)
             to_connection_point = ed.get("to_connection_point", None)
             edge_wrap_margin = ed.get("edge_wrap_margin", None)
-            label = ed.get("label")
+            arrow_kind = ed.get("arrow_kind", None)
             label_position = ed.get("label_position", None)
+
+            text_width = ed.get("text_width", None)
+            text_color = ed.get("text_color", None)
+            font_family = ed.get("font_family", None)
+            font_size = ed.get("font_size", None)
+            font_weight = ed.get("font_weight", None)
+
             if fid in self.nodes and tid in self.nodes:
+                edge_id = ed.get("id", next(self._edge_id_counter))
                 from_node_obj = self.nodes[fid]
                 to_node_obj = self.nodes[tid]
-                edge_obj = Edge(edge_type=edge_type, path_type=path_type, line_style=line_style, color=color,
-                                        from_node_obj=from_node_obj, to_node_obj=to_node_obj, label_text=label, \
-                                        connection_mode=connection_mode, \
-                                        from_node_connection_point=from_connection_point, \
-                                        to_node_connection_point=to_connection_point, \
-                                        edge_wrap_margin=edge_wrap_margin, \
-                                        canvas=self.canvas, \
-                                        label_position=label_position)
-                if edge_obj is not None and edge_obj.line_id is not None:
-                    self.edges[edge_obj.line_id] = edge_obj
+                edge_obj = Edge(id=edge_id,
+                                from_node_obj=from_node_obj, to_node_obj=to_node_obj, label_text=label_text,
+                                edge_type=edge_type, path_type=path_type,
+                                line_style=line_style, line_color=line_color, line_width=line_width,
+                                connection_mode=connection_mode,
+                                from_node_connection_point=from_connection_point,
+                                to_node_connection_point=to_connection_point,
+                                edge_wrap_margin=edge_wrap_margin,
+                                arrow_kind=arrow_kind,
+                                label_position=label_position,
+                                text_width=text_width,
+                                text_color=text_color,
+                                font_family=font_family,
+                                font_size=font_size,
+                                font_weight=font_weight,
+                                canvas=self.canvas,
+                                )
+                if edge_obj is not None and edge_obj.id is not None:
+                    self.edges[edge_obj.id] = edge_obj
+
+            if edge_obj.id > max_edge_id:
+                max_edge_id = edge_obj.id
+
+        self._edge_id_counter = itertools.count(max_edge_id + 1 if max_edge_id > 0 else 1)
 
         # スイムレーン復元
         for sd in swimlanes_data:
@@ -2584,26 +2644,28 @@ class FlowchartTool(tk.Tk):
         self.import_model(state, push_to_history=False)
 
     def push_history_and_canvas_refresh(self):
-        print(f"call push_history_and_canvas_refresh")
-
         selected_node_ids = []
         for node_id in self.selected_node_ids:
             selected_node_ids.append(node_id)
-        print(f"selected_node_ids: {selected_node_ids}")
+
+        selected_edge = None
+        if self.selected_edge_id is not None:
+            selected_edge = self.edges.get(self.selected_edge_id)
 
         self.push_history()
         self.canvas_refresh()
-        self.select_nodes(selected_node_ids)
+        if selected_node_ids is not None and len(selected_node_ids) > 0:
+            self.select_nodes(selected_node_ids)
+        if selected_edge is not None:
+            self.select_edge(selected_edge)
         if self.property_on.get():
             self.push_selected_data_to_property_editor()
 
     #todo Nodeだけでなく、EdgeやSwimlaneも対応する予定
     def isdataexists(self, id) -> bool:
-        if self.nodes.get(id) is None:
-            print(f"id: {id}, return False")
+        if self.nodes.get(id) is None and self.edges.get(id) is None:
             return False
         else:
-            print(f"id: {id}, return True")
             return True
 
     def canvas_refresh(self):
@@ -2988,7 +3050,7 @@ class FlowchartTool(tk.Tk):
 
     def _update_edges_for_node(self, nid):
         """ノード移動時に関連エッジとラベルを再レイアウト"""
-        for edge_line_id, edge_obj in self.edges.items():
+        for edge_id, edge_obj in self.edges.items():
             if (edge_obj.from_node_obj and edge_obj.from_node_obj.id == nid) or (edge_obj.to_node_obj and edge_obj.to_node_obj.id == nid):
                 self._update_edge(edge_obj)
                 edge_obj.edge_wrap_ratio1, edge_obj.edge_wrap_ratio2 = edge_obj.get_edge_wrap_ratios()
@@ -3084,7 +3146,8 @@ class FlowchartTool(tk.Tk):
         self.selected_edge_id = None
         self.link_start_node_id = None
         self.selected_swimlanes = []
-        self._id_counter = itertools.count(1)
+        self._node_id_counter = itertools.count(1)
+        self._edge_id_counter = itertools.count(1)
 
         # グリッド
         self._draw_grid()
@@ -3111,7 +3174,7 @@ class FlowchartTool(tk.Tk):
         id_map = {}
         for node_strid_key in mmd_nodes:
             nd = mmd_nodes[node_strid_key]
-            node_id = next(self._id_counter)
+            node_id = next(self._node_id_counter)
             node_strid = nd.node_id if hasattr(nd, "node_id") else None
             if node_strid is None:
                 continue
@@ -3142,13 +3205,26 @@ class FlowchartTool(tk.Tk):
             tid = id_map.get(dst_id)
             edge_type = ed.edge_type if hasattr(ed, "edge_type") else ct.EDGE_TYPE_ELBOW
             line_style = ct.EDGE_PARAMS["line_style"] if edge_type == ct.EDGE_TYPE_ELBOW else ct.EDGE_LINE_STYLE_DOTTED
+            line_width = ct.EDGE_PARAMS["line_width"] if edge_type == ct.EDGE_TYPE_ELBOW else ct.EDGE_PARAMS["line_width"]
+            line_color = ct.EDGE_PARAMS["line_color"] if edge_type == ct.EDGE_TYPE_ELBOW else ct.EDGE_PARAMS["line_color"]
+            text_width = ct.EDGE_PARAMS["text_width"] if edge_type == ct.EDGE_TYPE_ELBOW else ct.EDGE_PARAMS["text_width"]
+            text_color = ct.EDGE_PARAMS["text_color"] if edge_type == ct.EDGE_TYPE_ELBOW else ct.EDGE_PARAMS["text_color"]
+            font_family = ct.EDGE_PARAMS["font_family"] if edge_type == ct.EDGE_TYPE_ELBOW else ct.EDGE_PARAMS["font_family"]
+            font_size = ct.EDGE_PARAMS["font_size"] if edge_type == ct.EDGE_TYPE_ELBOW else ct.EDGE_PARAMS["font_size"]
+            font_weight = ct.EDGE_PARAMS["font_weight"] if edge_type == ct.EDGE_TYPE_ELBOW else ct.EDGE_PARAMS["font_weight"]
             if fid in self.nodes and tid in self.nodes:
+                edge_id = next(self._edge_id_counter)
                 from_node_obj = self.nodes.get(fid)
                 to_node_obj = self.nodes.get(tid)
-                edge_obj = Edge(edge_type=edge_type, line_style=line_style, from_node_obj=from_node_obj, to_node_obj=to_node_obj, label_text=label, \
-                                        canvas=self.canvas)
-                if edge_obj is not None and edge_obj.line_id is not None:
-                    self.edges[edge_obj.line_id] = edge_obj
+                edge_obj = Edge(id=edge_id,
+                                from_node_obj=from_node_obj, to_node_obj=to_node_obj,
+                                edge_type=edge_type, line_style=line_style,
+                                label_text=label, line_width=line_width, line_color=line_color,
+                                text_width=text_width, text_color=text_color,
+                                font_family=font_family, font_size=font_size, font_weight=font_weight,
+                                canvas=self.canvas)
+                if edge_obj is not None and edge_obj.id is not None:
+                    self.edges[edge_obj.id] = edge_obj
 
         # ノード最前面
         self.canvas.tag_raise("node")
@@ -3267,8 +3343,10 @@ class FlowchartTool(tk.Tk):
 
         if self.selected_edge_id in self.edges:
             selected_edge = self.edges[self.selected_edge_id]
-            selected_edge.color = ct.EDGE_LINE_COLORS[color_no]
-            self.canvas.itemconfig(selected_edge.line_id, fill=selected_edge.color)
+            selected_edge.line_color = ct.EDGE_LINE_COLORS[color_no]
+            selected_edge.text_color = ct.EDGE_LINE_COLORS[color_no]
+            self.canvas.itemconfig(selected_edge.line_id, fill=selected_edge.line_color)
+            self.canvas.itemconfig(selected_edge.label_id, fill=selected_edge.text_color)
 
         self.push_history()
 
@@ -3278,8 +3356,8 @@ class FlowchartTool(tk.Tk):
         for selected_node_id in self.selected_node_ids:
             if selected_node_id in self.nodes:
                 node_obj = self.nodes[selected_node_id]
-                node_obj.get_fill_color()
-                node_obj.get_outline_color()
+                node_obj.fill_color = node_obj.reset_fill_color()
+                node_obj.outline_color = node_obj.reset_outline_color()
                 self.canvas.itemconfig(node_obj.shape_id, fill=node_obj.fill_color, outline=node_obj.outline_color)
 
         for selected_swimlane in self.selected_swimlanes:
@@ -3289,9 +3367,10 @@ class FlowchartTool(tk.Tk):
 
         if self.selected_edge_id in self.edges:
             selected_edge = self.edges[self.selected_edge_id]
-            selected_edge.color = ct.EDGE_PARAMS["color"]
-            self.canvas.itemconfig(selected_edge.line_id, fill=selected_edge.color)
-            self.canvas.itemconfig(selected_edge.label_id, fill=selected_edge.color)
+            selected_edge.line_color = selected_edge.reset_line_color()
+            selected_edge.text_color = selected_edge.reset_text_color()
+            self.canvas.itemconfig(selected_edge.line_id, fill=selected_edge.line_color)
+            self.canvas.itemconfig(selected_edge.label_id, fill=selected_edge.text_color)
 
         self.push_history()
 

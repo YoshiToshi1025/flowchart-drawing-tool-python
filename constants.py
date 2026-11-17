@@ -320,10 +320,9 @@ EDGE_LINE_COLORS = [
 
 EDGE_PARAMS = {
     "line_style": EDGE_LINE_STYLE_SOLID,
-    "color": "#0f172a",
-    "width": 2,
+    "line_color": "#0f172a",
+    "line_width": 2,
     "selected_color": "#0ea5e9",
-    "outline_width": 2,
     "arrow_kind": "last",       # option: "last"(default), "first", "both", "none", None
     "arrow_shape": (8, 10, 3),  # default: (8, 10, 3)
     "text_width": 200,
@@ -351,7 +350,7 @@ OPERATION_INFO_TEXT = get_i18n_ui_text("OPERATION_INFO_TEXT", lang=i18n_lang)
 EDGE_LABEL_OFFSET = {
     "center": (0, -8),
     "ne": (-8, 4),
-    "nw": (8, 0),
+    "nw": (8, 4),
     "se": (-8, 0),
     "sw": (8, 0),
     "nw_from_decision": (8, 0),

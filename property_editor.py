@@ -1,6 +1,6 @@
 import tkinter as tk
 import tkinter.font as tkfont
-from tkinter import ttk, messagebox, font
+from tkinter import ttk, messagebox, font, colorchooser
 from dataclasses import dataclass, fields
 from typing import Optional, Literal, get_type_hints, Callable
 from type_info import get_type_info
@@ -32,7 +32,7 @@ class ResizableText(tk.Frame):
             wrap=tk.WORD,
             height=height_lines,
             undo=True,
-            relief=tk.SOLID,
+            # relief=tk.SOLID,
             borderwidth=1,
             padx=5,
             pady=4,
@@ -132,38 +132,39 @@ class PropertyEditor(ttk.Frame):
             "id",
             "from_node_obj",
             "to_node_obj",
+            "points",
             "line_id",
-            "points"
+            "shape_id",
+            "label_x",
+            "label_y",
+            "label_anchor",
+            "label_justify",
         }
 
         # 複数行テキストを表示するプロパティ名のセット
         self.multiline_properties = {
             "text",
             "details",
+            "label_text",
         }
 
         # プロパティ編集対象外のプロパティ名のセット
         self.excluded_properties = {
-            "shape_id",
             "text_id",
             "image_id",
             "base_image_data",
             "display_image_data",
             "canvas",
             "label_id",
-        }
 
-        # 選択肢から選択するプロパティ名のセット
-        self.choice_properties = {
-            "type",
-            "shape_type",
-            "status",
         }
 
         self.rgbcolor_properties = {
             "fill_color",
             "outline_color",
             "text_color",
+            "line_color",
+            "color",
         }
 
         self.objects = []  # NodeやEdgeのオブジェクトを格納するリスト
@@ -196,6 +197,7 @@ class PropertyEditor(ttk.Frame):
             self.clear_properties()
 
     def set_target_objects(self, objects):
+        # print(f"  Setting target objects: {[obj.id for obj in objects]}")    # for DEBUG
         self.objects = objects
 
         id_list = []
@@ -204,7 +206,7 @@ class PropertyEditor(ttk.Frame):
                 id_text = f"{obj.id}: {str(obj.text)}"
                 id_list.append(id_text)
             elif isinstance(obj, Edge):
-                from_to_id = obj.from_node_obj.id + "-" + obj.to_node_obj.id
+                from_to_id = str(obj.from_node_obj.id) + "-" + str(obj.to_node_obj.id)
                 id_list.append(from_to_id)
 
         if id_list == []:
@@ -216,7 +218,6 @@ class PropertyEditor(ttk.Frame):
             self.object_combo.current(0)
             self.on_object_selected()
         else:
-            self.object_combo.current(0)
             self.current_object = None
             self.clear_properties()
 
@@ -225,6 +226,7 @@ class PropertyEditor(ttk.Frame):
         self.object_combo["values"] = [""]
         self.current_object = None
         self.clear_properties()
+        self.object_combo.current(0)
 
     def create_widgets(self):
         self.create_object_selector()
@@ -236,7 +238,7 @@ class PropertyEditor(ttk.Frame):
         select_frame = ttk.Frame(self.master)
         select_frame.pack(fill=tk.X, padx=4, pady=10,)
 
-        ttk.Label(select_frame, text="Selected Objects :",).pack(side=tk.LEFT)
+        ttk.Label(select_frame, text="Selected Object :",).pack(side=tk.LEFT)
 
         id_list = []
         for obj in self.objects:
@@ -272,7 +274,7 @@ class PropertyEditor(ttk.Frame):
         self.header_frame.columnconfigure(1, minsize=self.divider_width,)
         self.header_frame.columnconfigure(2, weight=1,)
 
-        self.attribute_header = ttk.Label(self.header_frame, text="Attribute", anchor=tk.CENTER, relief=tk.SOLID,)
+        self.attribute_header = ttk.Label(self.header_frame, text="Attribute", anchor=tk.CENTER, relief=tk.SOLID, )
         self.attribute_header.grid(row=0, column=0, sticky="nsew", ipady=4,)
 
         # 属性列幅変更用のハンドル
@@ -283,7 +285,7 @@ class PropertyEditor(ttk.Frame):
         self.column_resize_handle.bind("<ButtonPress-1>", self.start_column_resize,)
         self.column_resize_handle.bind("<B1-Motion>", self.resize_attribute_column,)
 
-        self.value_header = ttk.Label(self.header_frame, text="Value", anchor=tk.CENTER, relief=tk.SOLID,)
+        self.value_header = ttk.Label(self.header_frame, text="Value", anchor=tk.CENTER, relief=tk.SOLID, )
         self.value_header.grid(row=0, column=2, sticky="nsew", ipady=4,)
 
     def create_property_area(self):
@@ -318,7 +320,7 @@ class PropertyEditor(ttk.Frame):
         button_frame.pack(fill=tk.X, padx=10, pady=(0, 10),)
         ttk.Button(button_frame, text="Apply Changes", command=self.apply_changes,).pack(side=tk.LEFT, padx=6,)
         ttk.Button(button_frame, text="Reload", command=self.reload_callback,).pack(side=tk.LEFT, padx=6,)
-        ttk.Button(button_frame, text="Print Content", command=self.print_current_object,).pack(side=tk.LEFT)
+        # ttk.Button(button_frame, text="Print Content", command=self.print_current_object,).pack(side=tk.LEFT)
 
     # --------------------------------
     # 属性列幅の変更処理
@@ -407,7 +409,7 @@ class PropertyEditor(ttk.Frame):
                 id_text = f"{obj.id}: {str(obj.text)}"
                 id_list.append((id_text, obj))
             elif isinstance(obj, Edge):
-                from_to_id = obj.from_node_obj.id + "-" + obj.to_node_obj.id
+                from_to_id = str(obj.from_node_obj.id) + "-" + str(obj.to_node_obj.id)
                 id_list.append((from_to_id, obj))
 
         for obj_id, obj in id_list:
@@ -448,12 +450,23 @@ class PropertyEditor(ttk.Frame):
             editor = self.create_editor(property_name, value, field_info.type)
             editor.grid(row=row_index, column=2, sticky="nsew",)
 
+            if property_name in self.rgbcolor_properties:
+                editor.bind("<Double-Button-1>", self.open_color_picker)
+
             self.editors[property_name] = editor
 
         # 再読み込み時にも現在の列幅を適用
         self.set_attribute_column_width(self.attribute_column_width)
 
         self.after_idle(self.update_scroll_region)
+
+    def open_color_picker(self, event):
+        editor = event.widget
+        initial_color = editor.get()
+        color_code = colorchooser.askcolor(initialcolor=initial_color)[1]
+        if color_code:
+            editor.delete(0, tk.END)
+            editor.insert(0, color_code)
 
     def create_editor(self, property_name, value, value_type):
         type_info_name, type_info_choices = get_type_info(value_type)
@@ -469,38 +482,62 @@ class PropertyEditor(ttk.Frame):
             return editor
 
         if type_info_name == "Literal" and type_info_choices is not None:
-            if property_name == "shape_type":
-                type_value = getattr(self.current_object, "type")
-                if type_value == "terminator":
-                    type_info_choices = ["normal", "small"]
-                elif type_value == "process":
-                    type_info_choices = ["rectangle", "corner_rounded_rectangle", "ellipse"]
-                elif type_value == "decision":
-                    type_info_choices = ["decision"]
-                elif type_value == "io":
-                    type_info_choices = ["io"]
-                elif type_value == "storage":
-                    type_info_choices = ["storage"]
-                elif type_value == "document":
-                    type_info_choices = ["document"]
-                elif type_value == "special_node":
-                    type_info_choices = ["special_node"]
-                
-            editor = ttk.Combobox(self.property_frame, state="readonly", values=type_info_choices,)
-            editor.set(str(value))
-            return editor
+            if property_name in self.readonly_properties:
+                editor = ttk.Entry(self.property_frame, )
+                editor.insert(0, str(value))
+                editor.configure(state="readonly")
+                return editor
+            else:
+                if property_name == "shape_type":
+                    type_value = getattr(self.current_object, "type")
+                    if type_value == "terminator":
+                        type_info_choices = ["normal", "small"]
+                    elif type_value == "process":
+                        type_info_choices = ["rectangle", "corner_rounded_rectangle", "ellipse"]
+                    elif type_value == "decision":
+                        type_info_choices = ["decision"]
+                    elif type_value == "io":
+                        type_info_choices = ["io"]
+                    elif type_value == "storage":
+                        type_info_choices = ["storage"]
+                    elif type_value == "document":
+                        type_info_choices = ["document"]
+                    elif type_value == "special_node":
+                        type_info_choices = ["special_node"]
+                elif property_name == "path_type":
+                    edge_type = getattr(self.current_object, "edge_type")
+                    if edge_type == "line":
+                        type_info_choices = [""]
+                    
+                editor = ttk.Combobox(self.property_frame, state="readonly", values=type_info_choices,)
+                editor.set(str(value))
+                return editor
 
         if type_info_name == "Optional[Literal]" and type_info_choices is not None:
-            type_info_choices_with_none = [None] + type_info_choices
-            editor = ttk.Combobox(self.property_frame, state="readonly", values=type_info_choices_with_none,)
-            editor.set(str(value))
-            return editor
+            if property_name in self.readonly_properties:
+                editor = ttk.Entry(self.property_frame, )
+                editor.insert(0, str(value))
+                editor.configure(state="readonly")
+                return editor
+            else:
+                type_info_choices_with_none = [None] + type_info_choices
+                editor = ttk.Combobox(self.property_frame, state="readonly", values=type_info_choices_with_none,)
+                editor.set(str(value))
+                return editor
 
         if (type_info_name in ("str", "Optional[str]") and property_name in self.multiline_properties):
             # print(f"Creating ResizableText for property: {property_name}, value: {value}, type: {value_type}")
-            height_key = (self.current_object.id, property_name,)
+            if isinstance(self.current_object, Node):
+                height_key = (self.current_object.id, property_name,)
+            elif isinstance(self.current_object, Edge):
+                height_key = (self.current_object.id, property_name,)
+            else:
+                raise ValueError("Unsupported object type for multiline property.")
 
-            initial_height = (self.editor_heights.get(height_key, 4,))
+            if property_name == "details":
+                initial_height = (self.editor_heights.get(height_key, 10,))
+            else:
+                initial_height = (self.editor_heights.get(height_key, 3,))
 
             def save_height(new_height, key=height_key,):
                 self.editor_heights[key] = (new_height)
@@ -517,7 +554,7 @@ class PropertyEditor(ttk.Frame):
                 on_height_changed=save_height,
             )
 
-        # プロパティ名に"color"が含まれる場合は、カラーコードの入力欄として扱う
+        # カラーコードプロパティリストに含まれている属性値は、カラーコードの入力欄として扱う
         if property_name in self.rgbcolor_properties:
             color_var = tk.StringVar(value=value)
             editor = tk.Entry(self.property_frame, textvariable=color_var,)
@@ -538,6 +575,7 @@ class PropertyEditor(ttk.Frame):
                     editor.config(fg="black" if brightness > 128 else "white")
                 else:
                     editor.config(bg="white", fg="black")
+
             color_var.trace_add("write", update_bgcolor)
             update_bgcolor()  # 初期値を反映
         elif type_info_name == "Node":
@@ -562,9 +600,14 @@ class PropertyEditor(ttk.Frame):
             return
 
         # self.masterのnodes[]から当該オブジェクトが除外されていないかをチェック
-        if self.isdataexists_callback(self.current_object.id) != True:
-            messagebox.showinfo("Error", "The data does not exist. It may have been deleted.",)
-            return 
+        if isinstance(self.current_object, Node):
+            if self.isdataexists_callback(self.current_object.id) != True:
+                messagebox.showinfo("Error", "The data does not exist. It may have been deleted.",)
+                return
+        elif isinstance(self.current_object, Edge):
+            if self.isdataexists_callback(self.current_object.id) != True:
+                messagebox.showinfo("Error", "The data does not exist. It may have been deleted.",)
+                return
 
         converted_values = {}
 
@@ -596,16 +639,28 @@ class PropertyEditor(ttk.Frame):
                 return
 
         # type変更時のshape_typeの自動補正
-        new_type_value = converted_values["type"]
-        new_shape_type = converted_values["shape_type"]
-        if new_type_value in ["decision", "io", "storage", "document", "special_node"]:
-            converted_values["shape_type"] = new_type_value
-        elif new_type_value == "terminator":
-            if new_shape_type not in ["normal", "small"]:
-                converted_values["shape_type"] = "normal"
-        elif new_type_value == "process":
-            if new_shape_type not in ["rectangle", "corner_rounded_rectangle", "ellipse"]:
-                converted_values["shape_type"] = "corner_rounded_rectangle"
+        if isinstance(self.current_object, Node):
+            new_type_value = converted_values["type"]
+            new_shape_type = converted_values["shape_type"]
+            if new_type_value in ["decision", "io", "storage", "document", "special_node"]:
+                converted_values["shape_type"] = new_type_value
+            elif new_type_value == "terminator":
+                if new_shape_type not in ["normal", "small"]:
+                    converted_values["shape_type"] = "normal"
+            elif new_type_value == "process":
+                if new_shape_type not in ["rectangle", "corner_rounded_rectangle", "ellipse"]:
+                    converted_values["shape_type"] = "corner_rounded_rectangle"
+        elif isinstance(self.current_object, Edge):
+            new_edge_type = converted_values["edge_type"]
+            new_path_type = converted_values["path_type"]
+            new_label_position = converted_values["label_position"] if "label_position" in converted_values else None
+            if new_edge_type == "elbow":
+                if new_path_type is None:
+                    converted_values["path_type"] = "vertical"
+            # elif new_edge_type == "line":
+            #     converted_values["label_position"] = "auto"
+            if new_label_position is None:
+                converted_values["label_position"] = "auto"
 
         for property_name, value in (converted_values.items()):
             # print(f"self.current_object.id: {self.current_object.id},  Applying change: {property_name} => {value}")
@@ -615,14 +670,13 @@ class PropertyEditor(ttk.Frame):
 
         messagebox.showinfo("Finish.", "Settings have been applied. / 設定値を反映しました。",)
 
-    @staticmethod
-    def convert_value(property_name, raw_value, value_type,):
+    def convert_value(self, property_name, raw_value, value_type,):
         type_info_name, type_info_choices = get_type_info(value_type)
         # print(f"Converting value: property_name:{property_name}, raw_value:{raw_value}, value_type:{value_type}, type_info:{type_info_name}, choices:{type_info_choices}")
 
         # xxxx_colorという属性の値が#RRGGBB形式かをチェック
-        if property_name.endswith("_color"):
-            print("color code check.")
+        if property_name in self.rgbcolor_properties:
+            # print("color code check.")
             if not isinstance(raw_value, str) or not re.fullmatch(r"#[0-9A-Fa-f]{6}", raw_value):
                 raise ValueError(f"The value of {property_name} is not a valid hexadecimal RGB color code. Please use the #RRGGBB format. / {property_name}の値が、16進のRGBコードではありません。 #RRGGBB 形式で指定してください。")
 
@@ -630,7 +684,7 @@ class PropertyEditor(ttk.Frame):
             return None
 
         if raw_value == "":
-            return ""
+            return None
 
         if type_info_name in ("str", "Optional[str]"):
             return str(raw_value)
@@ -741,6 +795,7 @@ if __name__ == "__main__":
     ]
     edge_objects = [
         Edge(
+            id = 1,
             line_id = 100,
             from_node_obj = Node1,
             to_node_obj = Node2,
@@ -764,7 +819,17 @@ if __name__ == "__main__":
         ),
     ]
 
-    app = PropertyEditor(root)
-    app.set_target_objects(node_objects)
-    # app.set_target_objects(edge_objects)
+    def refresh_callback():
+        print("Refresh called")
+
+    def isdataexists_callback(data_id: str) -> bool:
+        print(f"Check if data exists: {data_id}")
+        return True
+
+    def reload_callback():
+        print("Reload called")
+
+    app = PropertyEditor(root, refresh_callback, isdataexists_callback, reload_callback)
+    # app.set_target_objects(node_objects)
+    app.set_target_objects(edge_objects)
     app.mainloop()

@@ -12,10 +12,7 @@
       "fill_color": "#F59EAD",
       "outline_color": "#D94C67",
       "details": "",
-      "outline_width": 2,
-      "text_width": 110,
       "text_color": "#D94C67",
-      "font_family": "Arial",
       "font_size": 14,
       "font_weight": "bold"
     },
@@ -31,10 +28,7 @@
       "fill_color": "#FFC994",
       "outline_color": "#D98232",
       "details": "",
-      "outline_width": 2,
-      "text_width": 110,
       "text_color": "#D98232",
-      "font_family": "Arial",
       "font_size": 14,
       "font_weight": "bold"
     },
@@ -50,10 +44,7 @@
       "fill_color": "#FFF694",
       "outline_color": "#B5A500",
       "details": "",
-      "outline_width": 2,
-      "text_width": 110,
       "text_color": "#B5A500",
-      "font_family": "Arial",
       "font_size": 14,
       "font_weight": "bold"
     },
@@ -69,10 +60,7 @@
       "fill_color": "#BBE7AC",
       "outline_color": "#62A64B",
       "details": "",
-      "outline_width": 2,
-      "text_width": 110,
       "text_color": "#62A64B",
-      "font_family": "Arial",
       "font_size": 14,
       "font_weight": "bold"
     },
@@ -88,10 +76,7 @@
       "fill_color": "#94EBFF",
       "outline_color": "#229EBF",
       "details": "",
-      "outline_width": 2,
-      "text_width": 110,
       "text_color": "#229EBF",
-      "font_family": "Arial",
       "font_size": 14,
       "font_weight": "bold"
     },
@@ -107,12 +92,6 @@
       "fill_color": "#FFFDE6",
       "outline_color": "#B5A500",
       "details": "別班の司令官",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal",
       "note": {
         "dx": 30,
         "dy": -60,
@@ -133,12 +112,6 @@
       "fill_color": "#FFFDE6",
       "outline_color": "#B5A500",
       "details": "コーカサス地方担当の別班員",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal",
       "note": {
         "dx": 143,
         "dy": 45,
@@ -159,12 +132,6 @@
       "fill_color": "#FFFDE6",
       "outline_color": "#B5A500",
       "details": "別班員\n表向きは経済産業省資源エネルギー庁に勤務する官僚",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal",
       "note": {
         "dx": 120,
         "dy": 30,
@@ -185,12 +152,6 @@
       "fill_color": "#FFFDE6",
       "outline_color": "#B5A500",
       "details": "別班員\n医療系システム機器販売の株式会社レイシルのSE",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal",
       "note": {
         "dx": 98,
         "dy": 30,
@@ -211,12 +172,6 @@
       "fill_color": "#FFFDE6",
       "outline_color": "#B5A500",
       "details": "別班員\n万俵製作所のエンジニア",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal",
       "note": {
         "dx": 105,
         "dy": 37,
@@ -238,12 +193,7 @@
       "outline_color": "#B5A500",
       "status": "inactive",
       "details": "別班員\nアイチ自動車ロシア支部勤務",
-      "outline_width": 2,
-      "text_width": 110,
       "text_color": "#a9a9a9",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal",
       "note": {
         "dx": 203,
         "dy": 97,
@@ -264,12 +214,6 @@
       "fill_color": "#FFFDE6",
       "outline_color": "#B5A500",
       "details": "別班のスーパーコンピュータ\n乃木の別人格Fの精神構造をベースに構築",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal",
       "note": {
         "dx": -90,
         "dy": 22,
@@ -290,12 +234,6 @@
       "fill_color": "#FFFDE6",
       "outline_color": "#B5A500",
       "details": "別班員、乃木の後輩\nJKT資源開発のエンジニア",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal",
       "note": {
         "dx": -105,
         "dy": 22,
@@ -316,12 +254,6 @@
       "fill_color": "#FFFDE6",
       "outline_color": "#B5A500",
       "details": "エネルギー開発事業部2課長\n別班員\n別人格F\n",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal",
       "note": {
         "dx": 68,
         "dy": -285,
@@ -342,12 +274,6 @@
       "fill_color": "#FFFDE6",
       "outline_color": "#B5A500",
       "details": "専務\n東南アジア統括の別班員",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal",
       "note": {
         "dx": 150,
         "dy": -165,
@@ -368,12 +294,6 @@
       "fill_color": "#FFF1E3",
       "outline_color": "#D98232",
       "details": "元財務部\n天才ハッカー「ブルーウォーカー」",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal",
       "note": {
         "dx": 53,
         "dy": -83,
@@ -394,12 +314,6 @@
       "fill_color": "#FFF1E3",
       "outline_color": "#D98232",
       "details": "エネルギー事業部長\n",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal",
       "note": {
         "dx": 60,
         "dy": -60,
@@ -421,12 +335,7 @@
       "outline_color": "#D98232",
       "status": "inactive",
       "details": "エネルギー事業部1課長\n元情報システム部\nテントの最下位モニター",
-      "outline_width": 2,
-      "text_width": 110,
       "text_color": "#a9a9a9",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal",
       "note": {
         "dx": -112,
         "dy": -90,
@@ -447,12 +356,6 @@
       "fill_color": "#FFF1E3",
       "outline_color": "#D98232",
       "details": "社長",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal",
       "note": {
         "dx": 53,
         "dy": -60,
@@ -473,12 +376,6 @@
       "fill_color": "#FFF1E3",
       "outline_color": "#D98232",
       "details": "乃木の部下",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal",
       "note": {
         "dx": 30,
         "dy": -75,
@@ -499,12 +396,6 @@
       "fill_color": "#FFF1E3",
       "outline_color": "#D98232",
       "details": "乃木の部下",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal",
       "note": {
         "dx": -30,
         "dy": -105,
@@ -525,12 +416,6 @@
       "fill_color": "#FFF1E3",
       "outline_color": "#D98232",
       "details": "経理部長",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal",
       "note": {
         "dx": 8,
         "dy": 60,
@@ -551,12 +436,6 @@
       "fill_color": "#FFF1E3",
       "outline_color": "#D98232",
       "details": "業務監査部",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal",
       "note": {
         "dx": 38,
         "dy": 60,
@@ -577,12 +456,6 @@
       "fill_color": "#FFF1E3",
       "outline_color": "#D98232",
       "details": "金属資源部長\n次期役員候補",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal",
       "note": {
         "dx": 45,
         "dy": 60,
@@ -603,12 +476,6 @@
       "fill_color": "#F7F5F2",
       "outline_color": "#92816B",
       "details": "長野のエージェント\n上腕から胸部に入墨\n大小の手裏剣使い",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal",
       "note": {
         "dx": 90,
         "dy": -128,
@@ -627,13 +494,7 @@
       "text": "フィルザ",
       "shape_type": "ellipse",
       "fill_color": "#F7F5F2",
-      "outline_color": "#92816B",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal"
+      "outline_color": "#92816B"
     },
     {
       "id": 56,
@@ -645,13 +506,7 @@
       "text": "ロマル",
       "shape_type": "ellipse",
       "fill_color": "#F7F5F2",
-      "outline_color": "#92816B",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal"
+      "outline_color": "#92816B"
     },
     {
       "id": 58,
@@ -663,13 +518,7 @@
       "text": "ナティック",
       "shape_type": "ellipse",
       "fill_color": "#F7F5F2",
-      "outline_color": "#92816B",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal"
+      "outline_color": "#92816B"
     },
     {
       "id": 60,
@@ -683,12 +532,6 @@
       "fill_color": "#FDECEF",
       "outline_color": "#D94C67",
       "details": "本名：乃木卓\n乃木憂介の父\nテントの創始者",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal",
       "note": {
         "dx": -45,
         "dy": -83,
@@ -709,12 +552,6 @@
       "fill_color": "#FDECEF",
       "outline_color": "#D94C67",
       "details": "テントの幹部\n乃木憂介の義弟",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal",
       "note": {
         "dx": -52,
         "dy": -150,
@@ -733,13 +570,7 @@
       "text": "アリ",
       "shape_type": "ellipse",
       "fill_color": "#FDECEF",
-      "outline_color": "#D94C67",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal"
+      "outline_color": "#D94C67"
     },
     {
       "id": 66,
@@ -751,13 +582,7 @@
       "text": "ピヨ",
       "shape_type": "ellipse",
       "fill_color": "#FDECEF",
-      "outline_color": "#D94C67",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal"
+      "outline_color": "#D94C67"
     },
     {
       "id": 68,
@@ -769,13 +594,7 @@
       "text": "バトラカ",
       "shape_type": "ellipse",
       "fill_color": "#FDECEF",
-      "outline_color": "#D94C67",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal"
+      "outline_color": "#D94C67"
     },
     {
       "id": 70,
@@ -787,13 +606,7 @@
       "text": "シチ",
       "shape_type": "ellipse",
       "fill_color": "#FDECEF",
-      "outline_color": "#D94C67",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal"
+      "outline_color": "#D94C67"
     },
     {
       "id": 72,
@@ -806,13 +619,7 @@
       "shape_type": "ellipse",
       "fill_color": "#FDECEF",
       "outline_color": "#D94C67",
-      "details": "",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal"
+      "details": ""
     },
     {
       "id": 74,
@@ -825,13 +632,7 @@
       "shape_type": "ellipse",
       "fill_color": "#FDECEF",
       "outline_color": "#D94C67",
-      "status": "inactive",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal"
+      "status": "inactive"
     },
     {
       "id": 76,
@@ -843,13 +644,7 @@
       "text": "Y2K",
       "shape_type": "ellipse",
       "fill_color": "#FDECEF",
-      "outline_color": "#D94C67",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal"
+      "outline_color": "#D94C67"
     },
     {
       "id": 80,
@@ -863,12 +658,6 @@
       "fill_color": "#F7F5F2",
       "outline_color": "#92816B",
       "details": "奇跡の少女\n善人と悪人を識別できる能力を持つ",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal",
       "note": {
         "dx": -15,
         "dy": 75,
@@ -887,13 +676,7 @@
       "text": "新庄浩太郎",
       "shape_type": "ellipse",
       "fill_color": "#F1FAEE",
-      "outline_color": "#62A64B",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal"
+      "outline_color": "#62A64B"
     },
     {
       "id": 84,
@@ -907,12 +690,6 @@
       "fill_color": "#FDECEF",
       "outline_color": "#D94C67",
       "details": "CTP社の社長\nタイの有名実業家\nテント元上位モニター",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal",
       "note": {
         "dx": 120,
         "dy": 7,
@@ -934,12 +711,6 @@
       "outline_color": "#92816B",
       "status": "inactive",
       "details": "核融合技術を発明するも秘密にしている",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal",
       "note": {
         "dx": -90,
         "dy": -23,
@@ -960,12 +731,6 @@
       "fill_color": "#F1FAEE",
       "outline_color": "#62A64B",
       "details": "警視庁公安部外事第4課・理事官",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal",
       "note": {
         "dx": 53,
         "dy": -60,
@@ -986,12 +751,6 @@
       "fill_color": "#F1FAEE",
       "outline_color": "#62A64B",
       "details": "警視庁公安部部長",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal",
       "note": {
         "dx": 83,
         "dy": -15,
@@ -1012,12 +771,6 @@
       "fill_color": "#F1FAEE",
       "outline_color": "#62A64B",
       "details": "サイバー犯罪対策課\nホワイトハッカー",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal",
       "note": {
         "dx": 105,
         "dy": -30,
@@ -1036,13 +789,7 @@
       "text": "森田喜一",
       "shape_type": "ellipse",
       "fill_color": "#F1FAEE",
-      "outline_color": "#62A64B",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal"
+      "outline_color": "#62A64B"
     },
     {
       "id": 96,
@@ -1054,13 +801,7 @@
       "text": "和久井俊作",
       "shape_type": "ellipse",
       "fill_color": "#F1FAEE",
-      "outline_color": "#62A64B",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal"
+      "outline_color": "#62A64B"
     },
     {
       "id": 98,
@@ -1072,13 +813,7 @@
       "text": "鈴木祥",
       "shape_type": "ellipse",
       "fill_color": "#F1FAEE",
-      "outline_color": "#62A64B",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal"
+      "outline_color": "#62A64B"
     },
     {
       "id": 100,
@@ -1092,12 +827,6 @@
       "fill_color": "#F7F5F2",
       "outline_color": "#92816B",
       "details": "野崎の助手",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal",
       "note": {
         "dx": 75,
         "dy": 15,
@@ -1116,13 +845,7 @@
       "text": "劉銘軒",
       "shape_type": "ellipse",
       "fill_color": "#EAFBFF",
-      "outline_color": "#229EBF",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal"
+      "outline_color": "#229EBF"
     },
     {
       "id": 104,
@@ -1137,12 +860,6 @@
       "outline_color": "#229EBF",
       "status": "inactive",
       "details": "中国の裏の組織「シンシー」の責任者",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal",
       "note": {
         "dx": 75,
         "dy": -60,
@@ -1163,12 +880,7 @@
       "fill_color": "#EAFBFF",
       "outline_color": "#229EBF",
       "status": "inactive",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#a9a9a9",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal"
+      "text_color": "#a9a9a9"
     },
     {
       "id": 108,
@@ -1180,13 +892,7 @@
       "text": "周浩然",
       "shape_type": "ellipse",
       "fill_color": "#EAFBFF",
-      "outline_color": "#229EBF",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal"
+      "outline_color": "#229EBF"
     },
     {
       "id": 110,
@@ -1198,13 +904,7 @@
       "text": "沈俊宇",
       "shape_type": "ellipse",
       "fill_color": "#EAFBFF",
-      "outline_color": "#229EBF",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal"
+      "outline_color": "#229EBF"
     },
     {
       "id": 112,
@@ -1218,12 +918,7 @@
       "fill_color": "#EAFBFF",
       "outline_color": "#229EBF",
       "status": "inactive",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#a9a9a9",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal"
+      "text_color": "#a9a9a9"
     },
     {
       "id": 114,
@@ -1236,13 +931,7 @@
       "shape_type": "ellipse",
       "fill_color": "#EAFBFF",
       "outline_color": "#229EBF",
-      "status": "inactive",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal"
+      "status": "inactive"
     },
     {
       "id": 116,
@@ -1256,12 +945,6 @@
       "fill_color": "#F7F5F2",
       "outline_color": "#92816B",
       "details": "世界医療機構(WHI)の医師",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal",
       "note": {
         "dx": 60,
         "dy": -75,
@@ -1282,12 +965,6 @@
       "fill_color": "#F7F5F2",
       "outline_color": "#92816B",
       "details": "バルカ警察の警察官\n",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal",
       "note": {
         "dx": 87.0,
         "dy": -69.0,
@@ -1308,12 +985,6 @@
       "fill_color": "#F7F5F2",
       "outline_color": "#92816B",
       "details": "乃木家当主\n乃木卓の兄",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal",
       "note": {
         "dx": 63.0,
         "dy": -49.0,
@@ -1334,12 +1005,6 @@
       "fill_color": "#F7F5F2",
       "outline_color": "#92816B",
       "details": "エリシャ・ママドフを囲う情報系ブローカー",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal",
       "note": {
         "dx": 96.0,
         "dy": -42.0,
@@ -1361,12 +1026,6 @@
       "outline_color": "#92816B",
       "status": "inactive",
       "details": "情報屋",
-      "outline_width": 2,
-      "text_width": 110,
-      "text_color": "#0f172a",
-      "font_family": "Arial",
-      "font_size": 9,
-      "font_weight": "normal",
       "note": {
         "dx": -60,
         "dy": -45,
@@ -1378,6 +1037,7 @@
   ],
   "edges": [
     {
+      "id": 208,
       "from_id": 6,
       "to_id": 25,
       "edge_type": "line",
@@ -1386,6 +1046,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 209,
       "from_id": 6,
       "to_id": 29,
       "edge_type": "line",
@@ -1394,6 +1055,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 210,
       "from_id": 6,
       "to_id": 27,
       "edge_type": "line",
@@ -1402,6 +1064,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 211,
       "from_id": 6,
       "to_id": 31,
       "edge_type": "line",
@@ -1410,6 +1073,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 212,
       "from_id": 6,
       "to_id": 13,
       "edge_type": "line",
@@ -1418,6 +1082,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 213,
       "from_id": 6,
       "to_id": 15,
       "edge_type": "line",
@@ -1426,6 +1091,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 214,
       "from_id": 6,
       "to_id": 17,
       "edge_type": "line",
@@ -1434,6 +1100,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 215,
       "from_id": 6,
       "to_id": 19,
       "edge_type": "line",
@@ -1442,6 +1109,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 216,
       "from_id": 6,
       "to_id": 21,
       "edge_type": "line",
@@ -1450,6 +1118,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 217,
       "from_id": 6,
       "to_id": 23,
       "edge_type": "line",
@@ -1458,6 +1127,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 218,
       "from_id": 4,
       "to_id": 31,
       "edge_type": "line",
@@ -1466,6 +1136,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 219,
       "from_id": 4,
       "to_id": 29,
       "edge_type": "line",
@@ -1474,6 +1145,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 220,
       "from_id": 4,
       "to_id": 49,
       "edge_type": "line",
@@ -1482,6 +1154,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 221,
       "from_id": 4,
       "to_id": 47,
       "edge_type": "line",
@@ -1490,6 +1163,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 222,
       "from_id": 4,
       "to_id": 45,
       "edge_type": "line",
@@ -1498,6 +1172,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 223,
       "from_id": 4,
       "to_id": 43,
       "edge_type": "line",
@@ -1506,6 +1181,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 224,
       "from_id": 4,
       "to_id": 41,
       "edge_type": "line",
@@ -1514,6 +1190,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 225,
       "from_id": 4,
       "to_id": 37,
       "edge_type": "line",
@@ -1522,6 +1199,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 226,
       "from_id": 4,
       "to_id": 39,
       "edge_type": "line",
@@ -1530,6 +1208,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 227,
       "from_id": 4,
       "to_id": 35,
       "edge_type": "line",
@@ -1538,6 +1217,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 228,
       "from_id": 4,
       "to_id": 33,
       "edge_type": "line",
@@ -1546,6 +1226,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 229,
       "from_id": 6,
       "to_id": 33,
       "edge_type": "line",
@@ -1554,6 +1235,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 230,
       "from_id": 15,
       "to_id": 54,
       "edge_type": "line",
@@ -1562,6 +1244,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 231,
       "from_id": 15,
       "to_id": 56,
       "edge_type": "line",
@@ -1570,6 +1253,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 232,
       "from_id": 15,
       "to_id": 58,
       "edge_type": "line",
@@ -1578,6 +1262,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 233,
       "from_id": 1,
       "to_id": 37,
       "edge_type": "line",
@@ -1586,6 +1271,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 234,
       "from_id": 1,
       "to_id": 62,
       "edge_type": "line",
@@ -1594,6 +1280,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 235,
       "from_id": 1,
       "to_id": 60,
       "edge_type": "line",
@@ -1602,6 +1289,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 236,
       "from_id": 1,
       "to_id": 66,
       "edge_type": "line",
@@ -1610,6 +1298,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 237,
       "from_id": 1,
       "to_id": 68,
       "edge_type": "line",
@@ -1618,6 +1307,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 238,
       "from_id": 1,
       "to_id": 70,
       "edge_type": "line",
@@ -1626,6 +1316,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 239,
       "from_id": 1,
       "to_id": 72,
       "edge_type": "line",
@@ -1634,6 +1325,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 240,
       "from_id": 1,
       "to_id": 74,
       "edge_type": "line",
@@ -1642,6 +1334,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 241,
       "from_id": 1,
       "to_id": 82,
       "edge_type": "line",
@@ -1650,6 +1343,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 242,
       "from_id": 1,
       "to_id": 64,
       "edge_type": "line",
@@ -1658,6 +1352,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 243,
       "from_id": 74,
       "to_id": 80,
       "edge_type": "line",
@@ -1666,6 +1361,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 244,
       "from_id": 86,
       "to_id": 80,
       "edge_type": "line",
@@ -1674,6 +1370,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 245,
       "from_id": 82,
       "to_id": 84,
       "edge_type": "line",
@@ -1682,6 +1379,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 246,
       "from_id": 9,
       "to_id": 82,
       "edge_type": "line",
@@ -1690,6 +1388,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 247,
       "from_id": 31,
       "to_id": 52,
       "edge_type": "line",
@@ -1698,6 +1397,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 248,
       "from_id": 9,
       "to_id": 88,
       "edge_type": "line",
@@ -1706,6 +1406,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 249,
       "from_id": 9,
       "to_id": 90,
       "edge_type": "line",
@@ -1714,6 +1415,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 250,
       "from_id": 9,
       "to_id": 92,
       "edge_type": "line",
@@ -1722,6 +1424,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 251,
       "from_id": 9,
       "to_id": 94,
       "edge_type": "line",
@@ -1730,6 +1433,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 252,
       "from_id": 9,
       "to_id": 96,
       "edge_type": "line",
@@ -1738,6 +1442,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 253,
       "from_id": 9,
       "to_id": 98,
       "edge_type": "line",
@@ -1746,6 +1451,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 254,
       "from_id": 11,
       "to_id": 98,
       "edge_type": "line",
@@ -1754,6 +1460,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 255,
       "from_id": 1,
       "to_id": 76,
       "edge_type": "line",
@@ -1762,6 +1469,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 256,
       "from_id": 1,
       "to_id": 29,
       "edge_type": "line",
@@ -1770,6 +1478,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 257,
       "from_id": 11,
       "to_id": 114,
       "edge_type": "line",
@@ -1778,6 +1487,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 258,
       "from_id": 11,
       "to_id": 112,
       "edge_type": "line",
@@ -1786,6 +1496,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 259,
       "from_id": 11,
       "to_id": 110,
       "edge_type": "line",
@@ -1794,6 +1505,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 260,
       "from_id": 11,
       "to_id": 108,
       "edge_type": "line",
@@ -1802,6 +1514,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 261,
       "from_id": 11,
       "to_id": 106,
       "edge_type": "line",
@@ -1810,6 +1523,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 262,
       "from_id": 11,
       "to_id": 104,
       "edge_type": "line",
@@ -1818,6 +1532,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 263,
       "from_id": 11,
       "to_id": 102,
       "edge_type": "line",
@@ -1826,6 +1541,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 264,
       "from_id": 11,
       "to_id": 88,
       "edge_type": "line",
@@ -1834,6 +1550,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 265,
       "from_id": 88,
       "to_id": 100,
       "edge_type": "line",
@@ -1842,6 +1559,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 266,
       "from_id": 88,
       "to_id": 102,
       "edge_type": "line",
@@ -1850,6 +1568,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 267,
       "from_id": 88,
       "to_id": 114,
       "edge_type": "line",
@@ -1858,6 +1577,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 268,
       "from_id": 1,
       "to_id": 84,
       "edge_type": "line",
@@ -1866,6 +1586,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 269,
       "from_id": 114,
       "to_id": 124,
       "edge_type": "line",
@@ -1874,6 +1595,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 270,
       "from_id": 88,
       "to_id": 124,
       "edge_type": "line",
@@ -1882,6 +1604,7 @@
       "connection_mode": "auto"
     },
     {
+      "id": 271,
       "from_id": 6,
       "to_id": 82,
       "edge_type": "line",

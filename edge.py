@@ -11,25 +11,38 @@ LABEL_POSITION_LIST = ["auto", "p0se", "p0sw", "p0nw", "p0ne", "p1se", "p1sw", "
 
 @dataclass
 class Edge:
+    id: Optional[int] = None
+    label_text: Optional[str] = None
     from_node_obj: Node = None
     to_node_obj: Node = None
     edge_type: Literal["elbow", "line"] = "elbow"  # "elbow", "line"のいずれか
     path_type: Literal["vertical", "horizontal", "tree"] = "vertical"  # "vertical", "horizontal", "tree"のいずれか
     line_style: Literal["solid", "dashed", "dotted"] = "solid"  # "solid", "dashed", "dotted"のいずれか
-    color: str = ct.EDGE_PARAMS["color"]
+    line_color: str = ct.EDGE_PARAMS["line_color"]
+    line_width: Optional[int] = None
+    arrow_kind: Literal["last", "first", "both", "none"] = "last"       # option: "last"(default), "first", "both", "none"
+    # arrow_shape: tuple[int, int, int] = (8, 10, 3)  # default: (8, 10, 3)
+
     points: Optional[list[tuple[int, int]]] = None  # List of (x, y) tuples
-    label_x: Optional[int] = None
-    label_y: Optional[int] = None
-    label_text: Optional[str] = None
-    label_anchor: Literal["center", "n", "ne", "e", "se", "s", "sw", "w", "nw"] = "center"
-    label_justify: Literal["left", "center", "right"] = "left"
-    label_position: Literal["auto", "p0se", "p0sw", "p0nw", "p0ne", "p1se", "p1sw", "p1nw", "p1ne", "p2se", "p2sw", "p2nw", "p2ne", "p3se", "p3sw", "p3nw", "p3ne", "p4se", "p4sw", "p4nw", "p4ne", "p5se", "p5sw", "p5nw", "p5ne"] = "auto"
+
     connection_mode: Literal["auto", "manual"] = "auto"
     from_node_connection_point: Literal["top", "bottom", "left", "right", "auto"] = "auto"
     to_node_connection_point: Literal["top", "bottom", "left", "right", "auto"] = "auto"
-    edge_wrap_margin: Optional[int] = None
+    edge_wrap_margin: Optional[float] = None
     edge_wrap_ratio1: Optional[float] = None
     edge_wrap_ratio2: Optional[float] = None
+
+    label_position: Literal["auto", "p0se", "p0sw", "p0nw", "p0ne", "p1se", "p1sw", "p1nw", "p1ne", "p2se", "p2sw", "p2nw", "p2ne", "p3se", "p3sw", "p3nw", "p3ne", "p4se", "p4sw", "p4nw", "p4ne", "p5se", "p5sw", "p5nw", "p5ne"] = "auto"
+    label_x: Optional[float] = None
+    label_y: Optional[float] = None
+    label_anchor: Literal["center", "n", "ne", "e", "se", "s", "sw", "w", "nw"] = "center"
+    label_justify: Literal["left", "center", "right"] = "left"
+
+    text_width: Optional[int] = None
+    text_color: Optional[str] = None
+    font_family: Literal["Arial", "Courier", "Helvetica", "Times"] = "Arial"
+    font_size: Literal[6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 20, 24] = 9
+    font_weight: Literal["normal", "bold"] = "normal"
 
     line_id: Optional[int] = None
     label_id: Optional[int] = None
@@ -46,8 +59,10 @@ class Edge:
         if self.edge_type == ct.EDGE_TYPE_ELBOW and self.path_type is None:
             self.path_type = ct.EDGE_PARAMS.get("path_type", "vertical")
 
-        if self.color is None:
-            self.color = ct.EDGE_PARAMS["color"]
+        if self.line_color is None:
+            self.line_color = ct.EDGE_PARAMS["line_color"]
+        if self.line_width is None:
+            self.line_width = ct.EDGE_PARAMS["line_width"]
 
         if self.edge_type == ct.EDGE_TYPE_ELBOW:
             self.label_anchor = "center"
@@ -55,6 +70,7 @@ class Edge:
         else:
             self.label_anchor = "center"
             self.label_justify = "center"
+            # self.label_position = "auto"
 
         if self.connection_mode not in ["auto", "manual"]:
             self.connection_mode = None
@@ -79,6 +95,17 @@ class Edge:
 
         self.edge_wrap_ratio1, self.edge_wrap_ratio2 = self.get_edge_wrap_ratios()
 
+        if self.text_width is None:
+            self.text_width = ct.EDGE_PARAMS.get("text_width", None)
+        if self.text_color is None:
+            self.text_color = ct.EDGE_PARAMS.get("text_color", None)
+        if self.font_family is None:
+            self.font_family = ct.EDGE_PARAMS.get("font_family", None)
+        if self.font_size is None:
+            self.font_size = ct.EDGE_PARAMS.get("font_size", None)
+        if self.font_weight is None:
+            self.font_weight = ct.EDGE_PARAMS.get("font_weight", None)
+
         if self.canvas is not None:
             self.draw(self.canvas, self.from_node_obj, self.to_node_obj)
 
@@ -93,25 +120,26 @@ class Edge:
     def draw_edge(self, canvas:tk.Canvas, from_node_obj: Node, to_node_obj: Node):
         # print(f"**  Drawing edge from {from_node_obj.id if from_node_obj else None} to {to_node_obj.id if to_node_obj else None} with points: {self.points}")  # for DEBUG
         """エッジの描画"""
-        arrow_kind = ct.EDGE_PARAMS.get("arrow_kind", tk.LAST)
+        arrow_kind = self.arrow_kind
         arrow_shape = ct.EDGE_PARAMS.get("arrow_shape", (8, 10, 3))
 
         dash_pattern = self.get_dash_pattern()
 
-        if arrow_kind is None:
+        if arrow_kind is None or arrow_kind == "none":
             self.line_id = canvas.create_line(
                 *self.points,
-                width=ct.EDGE_PARAMS["width"], fill=self.color, dash=dash_pattern,
+                width=self.line_width, fill=self.line_color, dash=dash_pattern,
                 tags=("edge")
             )
             # print(f"**1    Created line with ID: {self.line_id}")  # for DEBUG
         else:
             self.line_id = canvas.create_line(
-                *self.points,
-                arrow=arrow_kind, arrowshape=arrow_shape,
-                width=ct.EDGE_PARAMS["width"], fill=self.color, dash=dash_pattern,
-                tags=("edge")
-            )
+                                *self.points,
+                                arrow=arrow_kind, arrowshape=arrow_shape,
+                                width=self.line_width,
+                                fill=self.line_color, dash=dash_pattern,
+                                tags=("edge")
+                            )
             # print(f"**2    Created line with ID: {self.line_id}")  # for DEBUG
         # エッジはノードの下に
         canvas.tag_lower(self.line_id, "node")
@@ -125,6 +153,42 @@ class Edge:
         else:
             return ()
 
+    def reset_line_color(self):
+        self.line_color = None
+        return self.get_line_color()
+
+    def get_line_color(self):
+        line_color = ct.EDGE_PARAMS["line_color"] if self.line_color is None else self.line_color
+        return line_color
+    
+    def get_line_width(self):
+        line_width = ct.EDGE_PARAMS["line_width"] if self.line_width is None else self.line_width
+        return line_width
+
+    def get_text_width(self):
+        text_width = ct.EDGE_PARAMS["text_width"] if self.text_width is None else self.text_width
+        return text_width
+
+    def reset_text_color(self):
+        self.text_color = None
+        return self.get_text_color()
+
+    def get_text_color(self):
+        text_color = ct.EDGE_PARAMS["text_color"] if self.text_color is None else self.text_color
+        return text_color
+
+    def get_text_font_family(self):
+        text_font_family = ct.EDGE_PARAMS["font_family"] if self.text_font_family is None else self.text_font_family
+        return text_font_family
+
+    def get_text_font_size(self):
+        text_font_size = ct.EDGE_PARAMS["font_size"] if self.text_font_size is None else self.text_font_size
+        return text_font_size
+
+    def get_text_font_weight(self):
+        text_font_weight = ct.EDGE_PARAMS["font_weight"] if self.text_font_weight is None else self.text_font_weight
+        return text_font_weight
+
     def draw_label(self, canvas:tk.Canvas, from_node_obj: Node):
         """エッジラベルの描画"""
 
@@ -132,9 +196,9 @@ class Edge:
             self.label_x, self.label_y, self.label_anchor, self.label_justify = self.get_label_position()
             self.label_id = canvas.create_text(
                 self.label_x, self.label_y,
-                text=self.label_text,
-                font=(ct.EDGE_PARAMS["font_family"], ct.EDGE_PARAMS["font_size"], ct.EDGE_PARAMS["font_weight"]), width=ct.EDGE_PARAMS["text_width"],
-                fill=self.color, anchor = self.label_anchor, justify = self.label_justify,
+                text=self.label_text, width=self.text_width, fill=self.text_color,
+                font=(self.font_family, self.font_size, self.font_weight),
+                anchor = self.label_anchor, justify = self.label_justify,
                 tags=("edge-label",)
             )
             # ラベルもノードの下でOK（少し上に描かれるので視認性は保てる）
@@ -1289,7 +1353,7 @@ class Edge:
         to_top_x, to_top_y = to_center_x, to_center_y - to_height / 2
         # to_bottom_x, to_bottom_y = to_center_x, to_center_y + to_height / 2
         # to_left_x, to_left_y = to_center_x - to_width / 2, to_center_y
-        #to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
+        # to_right_x, to_right_y = to_center_x + to_width / 2, to_center_y
 
         if from_bottom_y <= to_top_y:
             if from_bottom_x == to_top_x:
@@ -2753,6 +2817,7 @@ class Edge:
     def to_dict(self):
         """エッジオブジェクトを辞書化"""
         edge_data = {
+            "id": self.id,
             "from_id": self.from_node_obj.id if self.from_node_obj else None,
             "to_id": self.to_node_obj.id if self.to_node_obj else None,
         }
@@ -2762,9 +2827,10 @@ class Edge:
             edge_data["path_type"] = self.path_type
         if self.line_style is not None:
             edge_data["line_style"] = self.line_style
-
-        if self.color is not None:
-            edge_data["color"] = self.color
+        if self.line_color is not None and self.line_color != Edge.get_default_line_color(self.edge_type):
+            edge_data["line_color"] = self.line_color
+        if self.line_width is not None and self.line_width != Edge.get_default_line_width(self.edge_type):
+            edge_data["line_width"] = self.line_width
 
         if self.connection_mode is not None:
             edge_data["connection_mode"] = self.connection_mode
@@ -2772,6 +2838,9 @@ class Edge:
             edge_data["from_connection_point"] = self.from_node_connection_point
         if self.to_node_connection_point is not None:
             edge_data["to_connection_point"] = self.to_node_connection_point
+
+        if self.arrow_kind is not None:
+            edge_data["arrow_kind"] = self.arrow_kind
 
         if self.edge_wrap_margin is not None:
             edge_data["edge_wrap_margin"] = self.edge_wrap_margin
@@ -2793,5 +2862,50 @@ class Edge:
                 edge_data["label_anchor"] = self.label_anchor
             if self.label_justify is not None:
                 edge_data["label_justify"] = self.label_justify
+            if self.text_width is not None and self.text_width != Edge.get_default_text_width(self.edge_type):
+                edge_data["text_width"] = self.text_width
+            if self.text_color is not None and self.text_color != Edge.get_default_text_color(self.edge_type):
+                edge_data["text_color"] = self.text_color
+            if self.font_family is not None and self.font_family != Edge.get_default_font_family(self.edge_type):
+                edge_data["font_family"] = self.font_family
+            if self.font_size is not None and self.font_size != Edge.get_default_font_size(self.edge_type):
+                edge_data["font_size"] = self.font_size
+            if self.font_weight is not None and self.font_weight != Edge.get_default_font_weight(self.edge_type):
+                edge_data["font_weight"] = self.font_weight
 
         return edge_data
+
+    @classmethod
+    def get_default_line_color(cls, node_type) -> int:
+        outline_color = ct.EDGE_PARAMS["line_color"]
+        return outline_color
+
+    @classmethod
+    def get_default_line_width(cls, node_type) -> int:
+        outline_width = ct.EDGE_PARAMS["line_width"]
+        return outline_width
+
+    @classmethod
+    def get_default_text_width(cls, node_type) -> int:
+        text_width = ct.EDGE_PARAMS["text_width"]
+        return text_width
+
+    @classmethod
+    def get_default_text_color(cls, node_type) -> str:
+        text_color = ct.EDGE_PARAMS["text_color"]
+        return text_color
+
+    @classmethod
+    def get_default_font_family(cls, node_type) -> str:
+        font_family = ct.EDGE_PARAMS["font_family"]
+        return font_family
+
+    @classmethod
+    def get_default_font_size(cls, node_type) -> int:
+        font_size = ct.EDGE_PARAMS["font_size"]
+        return font_size
+
+    @classmethod
+    def get_default_font_weight(cls, node_type) -> str:
+        font_weight = ct.EDGE_PARAMS["font_weight"]
+        return font_weight

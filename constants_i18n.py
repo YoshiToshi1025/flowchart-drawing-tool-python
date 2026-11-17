@@ -392,7 +392,7 @@ I18N_HELP_TEXT_DICT = {
 ・Click the Redo icon
 → Redoes the previously undone operation.
 
-# Editing Nodes
+# Editing Nodes in the Canvas
 ・Double-click a node
 → Edit the node text.
 ・Select a node and press Ctrl+w/W/h/H
@@ -401,6 +401,12 @@ I18N_HELP_TEXT_DICT = {
 → Change the node type.
 ・Select a node and press Ctrl+0~9
 → Change the node fill color.
+
+# Editing Node / Link Attributes
+(1) Click the "Show Property Panel" icon at the top of the screen to display the panel.
+(2) Select a node or link on the canvas.
+(3) Edit the attribute values.
+(4) Click the "Apply Changes" button to update the attribute values.
 
 # Saving / Loading a Flowchart
 ・Click the Save JSON icon
@@ -411,26 +417,26 @@ I18N_HELP_TEXT_DICT = {
     "BASIC_HELP_TEXT.ja" :"""フローチャート作図の基本操作
 
 ■ ノードの配置
- (1)配置したいノードをツールバーで選択
- (2)キャンバス内で、配置したい位置をクリック
+ (1) 配置したいノードをツールバーで選択
+ (2) キャンバス内で、配置したい位置をクリック
         → 指定位置にノードが作図される
- (3)ノードのドラッグ操作で位置を微調整
- (4)ノードをダブルクリックしてテキストを入力
+ (3) ノードのドラッグ操作で位置を微調整
+ (4) ノードをダブルクリックしてテキストを入力
 
 ■ リンクの接続
- (1)ツールバーでリンクを選択
- (2)接続元のノードをクリックしたまま、接続先のノードで離す
+ (1) ツールバーでリンクを選択
+ (2) 接続元のノードをクリックしたまま、接続先のノードで離す
         → 2つのノード間のリンクが作図される
- (3)リンクの接続位置（回り込み）の変更は、Ctrl+Wheelで調整できる
- (4)リンクにラベルを付けるには、リンクをダブルクリックして文字入力
+ (3) リンクの接続位置（回り込み）の変更は、Ctrl+Wheelで調整できる
+ (4) リンクにラベルを付けるには、リンクをダブルクリックして文字入力
 
 ■ ノードの移動
- (1)ツールバーで Select アイコンを選択
- (2)移動したいノードをマウス操作で選択
+ (1) ツールバーで Select アイコンを選択
+ (2) 移動したいノードをマウス操作で選択
     ・クリック：ノード選択
     ・Shift+クリック：追加選択
     ・キャンバスをドラッグ操作で範囲選択：指定範囲内のノードを選択
- (3)選択したノードの１つをクリックして、ドラッグ操作で移動先を指定
+ (3) 選択したノードの１つをクリックして、ドラッグ操作で移動先を指定
         → 選択中のノードすべてが指定位置に移動される
 
 ■ ノードの削除/UNDO/REDO
@@ -438,11 +444,17 @@ I18N_HELP_TEXT_DICT = {
  ・Undo アイコンをクリック → 編集操作が１回戻る
  ・Redo アイコンをクリック → 取消操作が１回戻る
 
-■ ノードの編集
+■ ノードのキャンバス上での編集
  ・ノードをダブルクリック → テキストの編集ができる
  ・ノードを選択して Ctrl+w/W/h/H → ノードの幅/高さを増減できる
  ・ノードを選択して Ctrl+Wheel → ノードの種類を変更できる
  ・ノードを選択して Ctrl-0～9 → ノードの塗りつぶし色を変更できる
+
+■ ノードとリンクの属性編集
+ (1) 画面上部から「Show Property Panel」アイコンを選択してパネルを表示
+ (2) キャンバス上でノードまたはリンクを選択
+ (3) 属性値を編集
+ (4) 「Apply Changes」ボタン押下で属性値を更新 
 
 ■ 作図したフローチャートの保存/読込
  ・Save JSON アイコンを選択クリック
@@ -457,13 +469,16 @@ I18N_RELEASE_NOTE_DICT = {
   "RELEASE_NOTE_TITLE.ja" : "リリースノート",
 
   "RELEASE_NOTE_TEXT.ja" : """
+[ 2026/11/17 ]
+・PropertyEditor（正式版）を公開、ノードとリンクの属性値を編集可能に
+ 操作方法：
+ 1. 画面上部から「Show Property Panel」アイコンを選択してパネルを表示
+ 2. キャンバス上でノードまたはリンクを選択
+ 3. 属性値を編集
+ 4. 「Apply Changes」ボタン押下で属性値を更新
+
 [ 2026/11/14 ]
 ・フローチャート内のノードの属性値を編集できるPropertyEditor（β版）を公開
-　操作方法：
-　　画面上部から「Show Property Panel」アイコンを選択して、パネル表示
-　→ 特定のノードを選択（複数選択に対応）
-　→ 属性値を変更
-　→ 「Apply Changes」ボタン押下で、ノードの属性値を更新
 
 [ 2026/10/23 ]
 ・ノート欄の幅を広げた際にテキスト表示幅が広がらない不具合への対応
@@ -530,13 +545,16 @@ I18N_RELEASE_NOTE_DICT = {
 
 """,
   "RELEASE_NOTE_TEXT.en" : """
-[ 2026/11/14 ]
-- Released the beta version of PropertyEditor, which allows users to edit node properties in flowcharts.
+[ 2026/11/17 ]
+- Released the official version of PropertyEditor, allowing users to edit node and link properties.
   How to use:
   1. Click the "Show Property Panel" icon at the top of the screen to display the panel.
-  2. Select one or more nodes (multiple selection is supported).
-  3. Modify the property values.
-  4. Click the "Apply Changes" button to update the selected nodes' properties.
+  2. Select nodes or links on the canvas.
+  3. Edit the property values.
+  4. Click the "Apply Changes" button to update the property values.
+
+[ 2026/11/14 ]
+- Released the beta version of PropertyEditor, which allows users to edit node properties in flowcharts.
 
 [ 2026/10/23 ]
 - Fixed an issue where the text display width did not expand when the note field width was widened.
