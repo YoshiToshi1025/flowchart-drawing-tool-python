@@ -32,20 +32,20 @@ class ResizableText(tk.Frame):
             wrap=tk.WORD,
             height=height_lines,
             undo=True,
-            # relief=tk.SOLID,
+            relief=tk.SOLID,
             borderwidth=1,
             padx=5,
             pady=4,
         )
         self.text.grid(row=0, column=0, sticky="nsew",)
 
-        scrollbar = ttk.Scrollbar(self, orient=tk.VERTICAL, command=self.text.yview,)
+        scrollbar = ttk.Scrollbar(self, orient=tk.VERTICAL, command=self.text.yview)
         scrollbar.grid(row=0, column=1, sticky="ns",)
 
         self.text.configure(yscrollcommand=scrollbar.set,)
 
         # 高さ変更用ハンドル
-        self.resize_handle = tk.Canvas(self, height=2, highlightthickness=0, cursor="sb_v_double_arrow",)
+        self.resize_handle = tk.Canvas(self, height=2, highlightthickness=0, bg="#eeeeee", cursor="sb_v_double_arrow",)
         self.resize_handle.grid(row=1, column=0, columnspan=2, sticky="ew",)
 
         self.resize_handle.bind("<Configure>", self.draw_resize_handle,)
@@ -238,7 +238,7 @@ class PropertyEditor(ttk.Frame):
         select_frame = ttk.Frame(self.master)
         select_frame.pack(fill=tk.X, padx=4, pady=10,)
 
-        ttk.Label(select_frame, text="Selected Object :",).pack(side=tk.LEFT)
+        ttk.Label(select_frame, text="Selected Object :").pack(side=tk.LEFT)
 
         id_list = []
         for obj in self.objects:
@@ -274,25 +274,25 @@ class PropertyEditor(ttk.Frame):
         self.header_frame.columnconfigure(1, minsize=self.divider_width,)
         self.header_frame.columnconfigure(2, weight=1,)
 
-        self.attribute_header = ttk.Label(self.header_frame, text="Attribute", anchor=tk.CENTER, relief=tk.SOLID, )
+        self.attribute_header = ttk.Label(self.header_frame, text="Attribute", anchor=tk.CENTER, relief=tk.SOLID)
         self.attribute_header.grid(row=0, column=0, sticky="nsew", ipady=4,)
 
         # 属性列幅変更用のハンドル
-        self.column_resize_handle = tk.Canvas(self.header_frame, width=self.divider_width, height=1, highlightthickness=0, borderwidth=0, cursor="sb_h_double_arrow",)
+        self.column_resize_handle = tk.Canvas(self.header_frame, width=self.divider_width, height=1, highlightthickness=0, bg="#eeeeee", borderwidth=0, cursor="sb_h_double_arrow",)
         self.column_resize_handle.grid(row=0, column=1, sticky="nsew",)
 
         self.column_resize_handle.bind("<Configure>", self.draw_column_resize_handle,)
         self.column_resize_handle.bind("<ButtonPress-1>", self.start_column_resize,)
         self.column_resize_handle.bind("<B1-Motion>", self.resize_attribute_column,)
 
-        self.value_header = ttk.Label(self.header_frame, text="Value", anchor=tk.CENTER, relief=tk.SOLID, )
+        self.value_header = ttk.Label(self.header_frame, text="Value", anchor=tk.CENTER, relief=tk.SOLID)
         self.value_header.grid(row=0, column=2, sticky="nsew", ipady=4,)
 
     def create_property_area(self):
         container = ttk.Frame(self.master)
         container.pack(fill=tk.BOTH, expand=True, padx=4, pady=(0, 10),)
 
-        self.canvas = tk.Canvas(container, highlightthickness=0,)
+        self.canvas = tk.Canvas(container, highlightthickness=0, bg="#eeeeee")
         self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True,)
 
         # scrollbar = ttk.Scrollbar(container, orient=tk.VERTICAL, command=self.canvas.yview,)
@@ -318,8 +318,8 @@ class PropertyEditor(ttk.Frame):
     def create_buttons(self):
         button_frame = ttk.Frame(self.master)
         button_frame.pack(fill=tk.X, padx=10, pady=(0, 10),)
-        ttk.Button(button_frame, text="Apply Changes", command=self.apply_changes,).pack(side=tk.LEFT, padx=6,)
-        ttk.Button(button_frame, text="Reload", command=self.reload_callback,).pack(side=tk.LEFT, padx=6,)
+        ttk.Button(button_frame, text="Apply Changes", command=self.apply_changes).pack(side=tk.LEFT, padx=6)
+        ttk.Button(button_frame, text="Reload", command=self.reload_callback).pack(side=tk.LEFT, padx=6)
         # ttk.Button(button_frame, text="Print Content", command=self.print_current_object,).pack(side=tk.LEFT)
 
     # --------------------------------
@@ -439,7 +439,7 @@ class PropertyEditor(ttk.Frame):
             property_name = field_info.name
             value = getattr(self.current_object, property_name,)
 
-            property_label = ttk.Label(self.property_frame, text=property_name, anchor=tk.NW, relief=tk.SOLID, padding=(8, 3),)
+            property_label = ttk.Label(self.property_frame, text=property_name, anchor=tk.NW, relief=tk.SOLID, padding=(8, 3))
             property_label.grid(row=row_index, column=0, sticky="nsew",)
 
             # ヘッダーのリサイズハンドルと
@@ -477,13 +477,13 @@ class PropertyEditor(ttk.Frame):
         # print(f"Creating editor for property: {property_name}, value: {value}, type: {value_type}, type_info: {type_info_name}, choices: {type_info_choices}")
 
         if value_type is bool:
-            editor = ttk.Combobox(self.property_frame, state="readonly", values=("True", "False"),)
+            editor = ttk.Combobox(self.property_frame, state="readonly", values=("True", "False"))
             editor.set(str(value))
             return editor
 
         if type_info_name == "Literal" and type_info_choices is not None:
             if property_name in self.readonly_properties:
-                editor = ttk.Entry(self.property_frame, )
+                editor = ttk.Entry(self.property_frame)
                 editor.insert(0, str(value))
                 editor.configure(state="readonly")
                 return editor
@@ -509,19 +509,19 @@ class PropertyEditor(ttk.Frame):
                     if edge_type == "line":
                         type_info_choices = [""]
                     
-                editor = ttk.Combobox(self.property_frame, state="readonly", values=type_info_choices,)
+                editor = ttk.Combobox(self.property_frame, state="readonly", values=type_info_choices)
                 editor.set(str(value))
                 return editor
 
         if type_info_name == "Optional[Literal]" and type_info_choices is not None:
             if property_name in self.readonly_properties:
-                editor = ttk.Entry(self.property_frame, )
+                editor = ttk.Entry(self.property_frame)
                 editor.insert(0, str(value))
                 editor.configure(state="readonly")
                 return editor
             else:
                 type_info_choices_with_none = [None] + type_info_choices
-                editor = ttk.Combobox(self.property_frame, state="readonly", values=type_info_choices_with_none,)
+                editor = ttk.Combobox(self.property_frame, state="readonly", values=type_info_choices_with_none)
                 editor.set(str(value))
                 return editor
 
@@ -580,10 +580,10 @@ class PropertyEditor(ttk.Frame):
             update_bgcolor()  # 初期値を反映
         elif type_info_name == "Node":
             # Nodeオブジェクトの参照を表示するためのエントリを作成
-            editor = ttk.Entry(self.property_frame,)
+            editor = ttk.Entry(self.property_frame)
             editor.insert(0, str("Node(" + str(value.id) + ":" + str(value.type) + ":" + str(value.text) + ")"))
         else:
-            editor = ttk.Entry(self.property_frame, )
+            editor = ttk.Entry(self.property_frame)
             editor.insert(0, str(value))
 
         if (property_name in self.readonly_properties):
@@ -747,6 +747,17 @@ if __name__ == "__main__":
     root.geometry("400x700")
     root.minsize(350, 500)
     root.maxsize(600, 900)
+    root.configure(bg="#eeeeee")
+    style = ttk.Style()
+    style.theme_use("clam")
+    style.configure("TFrame", background="#eeeeee")
+    style.configure("TLabel", background="#eeeeee", bordercolor="#cccccc")
+    style.configure("TButton", background="#eeeeee")
+    style.configure("TCheckbutton", background="#eeeeee", bordercolor="#eeeeee")
+    style.configure("TEntry", fieldbackground="#ffffff")
+    style.configure("TCombobox", fieldbackground="#ffffff")
+    style.map("TCombobox", fieldbackground=[("readonly", "#ffffff")],)
+    style.map("TEntry", fieldbackground=[("readonly", "#dddddd")],)
 
     Node1 = Node(
             id = "1",
@@ -802,14 +813,15 @@ if __name__ == "__main__":
             edge_type = "elbow",
             path_type = "vertical",
             line_style = "solid",
-            color = "#000000",
+            line_color = "#000000",
+            line_width = 2,
             points = [(100, 100), (150, 150), (200, 100)],
             label_x = 150,
             label_y = 125,
             label_text = "Edge Label",
+            label_position = "auto",
             label_anchor = "center",
             label_justify = "left",
-            label_position = "auto",
             connection_mode = "auto",
             from_node_connection_point = "bottom",
             to_node_connection_point = "top",

@@ -469,6 +469,9 @@ I18N_RELEASE_NOTE_DICT = {
   "RELEASE_NOTE_TITLE.ja" : "リリースノート",
 
   "RELEASE_NOTE_TEXT.ja" : """
+[ 2026/11/18 ]
+・macOSでのPropertyEditorの表示を調整
+
 [ 2026/11/17 ]
 ・PropertyEditor（正式版）を公開、ノードとリンクの属性値を編集可能に
  操作方法：
@@ -545,6 +548,9 @@ I18N_RELEASE_NOTE_DICT = {
 
 """,
   "RELEASE_NOTE_TEXT.en" : """
+[ 2026/11/18 ]
+- Adjusted the display of PropertyEditor on macOS.
+
 [ 2026/11/17 ]
 - Released the official version of PropertyEditor, allowing users to edit node and link properties.
   How to use:

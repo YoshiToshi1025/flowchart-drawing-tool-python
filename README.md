@@ -209,6 +209,7 @@ This project provides a **“Simple Flowchart Drawing Tool 颯(HAYATE)”** that
 * 2026/10/23 : Fixed an issue where the text display width did not expand when the note field was widened.
 * 2026/11/14 : Released the beta version of PropertyEditor.
 * 2026/11/17 : Released the official version of PropertyEditor, which allows editing the property values of nodes and links.
+* 2026/11/18 : Adjusted the display of PropertyEditor on macOS.
 
 ## Notes (Additional)
 

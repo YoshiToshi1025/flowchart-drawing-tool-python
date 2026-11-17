@@ -130,6 +130,19 @@ class FlowchartTool(tk.Tk):
         self.container = tk.Frame(self)
         self.container.pack(fill=tk.BOTH, expand=True)
 
+        self.container.configure(bg="#eeeeee")
+        style = ttk.Style()
+        style.theme_use("clam")
+        style.configure("TFrame", background="#eeeeee")
+        style.configure("TLabel", background="#eeeeee", bordercolor="#cccccc")
+        style.configure("TButton", background="#eeeeee")
+        style.configure("TCheckbutton", background="#eeeeee", bordercolor="#eeeeee")
+        style.configure("TCheckbutton", background="#eeeeee", bordercolor="#eeeeee")
+        style.configure("TEntry", fieldbackground="#ffffff")
+        style.configure("TCombobox", fieldbackground="#ffffff")
+        style.map("TCombobox", fieldbackground=[("readonly", "#ffffff")],)
+        style.map("TEntry", fieldbackground=[("readonly", "#dddddd")],)
+
         toolbar = ttk.Frame(self.container)
         toolbar.pack(side=tk.TOP, fill=tk.X, padx=0, pady=0)
 
@@ -401,7 +414,7 @@ class FlowchartTool(tk.Tk):
         ai_info_frame.pack(side=tk.TOP, fill=tk.X, padx=(4,4))
 
         # AIモデル表示
-        tk.Label(ai_info_frame, text=f"AI Model:", font=("Arial", 9), width=8, anchor=tk.E).pack(side=tk.LEFT)
+        tk.Label(ai_info_frame, text=f"AI Model:", bg="#eeeeee", font=("Arial", 9), width=8, anchor=tk.E).pack(side=tk.LEFT)
         tk.Entry(ai_info_frame, font=("Arial", 9), state="readonly", readonlybackground="#eeeeee", fg="black", textvariable=tk.StringVar(value=f" {self.ai_interface.ai_type}, {self.ai_interface.ai_model}")).pack(side=tk.LEFT, fill=tk.X, expand=True)
 
         # チャット内容表示欄

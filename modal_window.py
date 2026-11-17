@@ -12,6 +12,7 @@ class ModalWindow(tk.Toplevel):
         self.title(title)
         self.geometry(f"{width}x{height}+{window_x}+{window_y}")
         self.transient(parent)  # 親ウィンドウの上に表示
+        self.configure(bg="#eeeeee")  # ウィンドウの背景色を設定
         self.grab_set()  # モーダル状態にする
 
         # ウィンドウの内容をここに追加
