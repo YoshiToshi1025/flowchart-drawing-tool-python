@@ -210,6 +210,8 @@ This project provides a **“Simple Flowchart Drawing Tool 颯(HAYATE)”** that
 * 2026/11/14 : Released the beta version of PropertyEditor.
 * 2026/11/17 : Released the official version of PropertyEditor, which allows editing the property values of nodes and links.
 * 2026/11/18 : Adjusted the display of PropertyEditor on macOS.
+* 2026/11/20 : Added the note auto-layout feature (can be invoked from the context menu)
+
 
 ## Notes (Additional)
 

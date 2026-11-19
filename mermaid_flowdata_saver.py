@@ -12,7 +12,7 @@ MermaidStrIdList: list[str] = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
 
 nodeIdDict: Dict[int, str] = {}
 
-def save_data_to_mermaid_file(nodes: Dict[int, Node], edges: Dict[int, Edge]) -> None:
+def save_data_to_mermaid_file(nodes: Dict[int, Node], edges: Dict[int, Edge], pre_fileio_dir: str = None, pre_fileio_filename: str = None) -> str:
 
     # 処理前に、念のため、nodeIdDictを初期化する
     _init_nodeIdDict()
@@ -35,10 +35,12 @@ def save_data_to_mermaid_file(nodes: Dict[int, Node], edges: Dict[int, Edge]) ->
     mermaid_data = mermaid_header_data + mermaid_node_data + mermaid_edge_data + mermaid_footer_data
 
     # マーメイド記法のデータをファイルに保存する
-    _save_to_mermaid_file(mermaid_data)
+    saved_file_path = _save_to_mermaid_file(mermaid_data, pre_fileio_dir=pre_fileio_dir, pre_fileio_filename=pre_fileio_filename)
 
     # ファイル保存後に、nodeIdDictを初期化する
     _init_nodeIdDict()
+
+    return saved_file_path
 
 def _get_mermaid_header_data() -> str:
     return "```mermaid\nflowchart TD\n"
@@ -110,10 +112,12 @@ def _get_mermaid_edge_data(edges: Dict[int, Edge]) -> str:
 def _get_mermaid_footer_data() -> str:
     return "```\n"
 
-def _save_to_mermaid_file(mermaid_data: str) -> None:    
+def _save_to_mermaid_file(mermaid_data: str, pre_fileio_dir: str = None, pre_fileio_filename: str = None) -> str:    
     # ファイルダイアログを表示して、保存先のファイルパスを取得する
     file_path = filedialog.asksaveasfilename(
-        defaultextension=".mmd",
+        initialdir=pre_fileio_dir if pre_fileio_dir else None,
+        initialfile=pre_fileio_filename + ".md" if pre_fileio_filename else None,
+        defaultextension=".md",
         filetypes=[("Markdown files", "*.md"), ("All files", "*.*")])
 
     if file_path:
@@ -123,6 +127,9 @@ def _save_to_mermaid_file(mermaid_data: str) -> None:
             messagebox.showinfo("Success", "Mermaid data saved successfully.")
         except Exception as e:
             messagebox.showerror("Error", f"Failed to save Mermaid data: {e}")
+            return None
+
+    return file_path
 
 def _get_mermaid_str_id(node_id: int) -> str:
     # node_idをMermaidStrIdListの文字列に変換するための辞書を作成する

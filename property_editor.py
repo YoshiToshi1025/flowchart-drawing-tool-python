@@ -668,7 +668,7 @@ class PropertyEditor(ttk.Frame):
 
         self.refresh_callback()
 
-        messagebox.showinfo("Finish.", "Settings have been applied. / 設定値を反映しました。",)
+        # messagebox.showinfo("Finish.", "Settings have been applied. / 設定値を反映しました。",)
 
     def convert_value(self, property_name, raw_value, value_type,):
         type_info_name, type_info_choices = get_type_info(value_type)

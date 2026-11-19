@@ -469,6 +469,12 @@ I18N_RELEASE_NOTE_DICT = {
   "RELEASE_NOTE_TITLE.ja" : "リリースノート",
 
   "RELEASE_NOTE_TEXT.ja" : """
+[ 2026/11/20 ]
+・ノート欄の整列機能の追加（コンテキストメニューから呼び出し可能）
+・ノート欄の自動整列
+  ・AI連携機能で作成したフローチャートに対して自動実行
+  ・マーメイド形式データ(.md)読み込み時に自動実行
+
 [ 2026/11/18 ]
 ・macOSでのPropertyEditorの表示を調整
 
@@ -548,6 +554,11 @@ I18N_RELEASE_NOTE_DICT = {
 
 """,
   "RELEASE_NOTE_TEXT.en" : """
+[ 2026/11/20 ]
+- Added the note auto-layout feature (can be invoked from the context menu).
+  ・Automatically executed for flowcharts created with the AI integration feature.
+  ・Automatically executed when loading Mermaid format data (.md).
+
 [ 2026/11/18 ]
 - Adjusted the display of PropertyEditor on macOS.
 

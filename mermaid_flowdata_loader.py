@@ -261,7 +261,7 @@ def convert_pos_to_xy(pos_tb: int|None, pos_lr: int|None, start_x: int, start_y:
     if pos_tb is None or pos_lr is None:
         x, y = None, None
     else:
-        block_width = int(ct.NODE_DEFAULT_PARAMS["width"] + ct.CANVAS_PARAMS["grid_spacing"] * 4)
+        block_width = int(ct.NODE_DEFAULT_PARAMS["width"] + ct.CANVAS_PARAMS["grid_spacing"] * 3)
         block_height = int(ct.NODE_DEFAULT_PARAMS["height"] + ct.CANVAS_PARAMS["grid_spacing"])
         x = start_x + pos_lr * block_width
         y = start_y + pos_tb * block_height
@@ -325,10 +325,10 @@ def parse_mermaid_flowdata(text: str, canvas_width: int|None = None) -> Tuple[Di
                 pos_tb, pos_lr = _node_position_tblr(nm)
                 if pos_tb is not None and pos_lr is not None:
                     if canvas_width is None:
-                        start_x = int(ct.CANVAS_PARAMS["grid_spacing"] * 20 + ct.NODE_DEFAULT_PARAMS["width"] / 2)
+                        start_x = int(ct.CANVAS_PARAMS["grid_spacing"] * 30 + ct.NODE_DEFAULT_PARAMS["width"] / 2)
                     else:
                         start_x = int(canvas_width / 2)
-                    start_y = int(ct.CANVAS_PARAMS["grid_spacing"] * 2 + ct.NODE_DEFAULT_PARAMS["height"] / 2)
+                    start_y = int(ct.CANVAS_PARAMS["grid_spacing"] * 4 + ct.NODE_DEFAULT_PARAMS["height"] / 2)
                     pos_x, pos_y = convert_pos_to_xy(pos_tb, pos_lr, start_x=start_x, start_y=start_y)
             else:
                 pos_tb, pos_lr = None, None

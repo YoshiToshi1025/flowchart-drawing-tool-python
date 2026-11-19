@@ -113,6 +113,9 @@ class FlowchartTool(tk.Tk):
         self.swimlane_label_edit = None  # {"entry":..., "swimlane_obj":..., "window_id":...}
         self.note_text_edit = None  # {"entry":..., "note_obj":..., "window_id":...}
 
+        self.fileio_dir = None
+        self.fileio_filename = None
+
         self._build_ui()    # UI構築
 
         self.push_history()  # 初期状態を履歴に追加
@@ -339,6 +342,7 @@ class FlowchartTool(tk.Tk):
         self.popup_menu.add_command(label="Save Mermaid", image=self.icons["Save_Mermaid"], compound="left", command=self.save_mermaid_flowdata)
         self.popup_menu.add_separator()
         self.popup_menu.add_command(label="Resize Canvas", image=self.icons["Resize_Canvas"], compound="left", command=self.confirm_canvas_resize)
+        self.popup_menu.add_command(label="Auto-Layout Notes", image=self.icons["Auto_Layout_Notes"], compound="left", command=self.auto_layout_notes)
 
         self._draw_grid()   # 初期グリッド描画
 
@@ -480,7 +484,7 @@ class FlowchartTool(tk.Tk):
         canvas_display_area = self.get_canvas_display_area()
         # print(f"Canvas display area: {canvas_display_area}")
         margin = ct.CANVAS_PARAMS["grid_spacing"]  # 表示エリアの外側にマージンを追加
-        data_area = self.get_data_area(margin)
+        data_area = self.get_data_area(margin, object_only_flag=False)
         # print(f"Data area: {data_area}")
         if data_area is None:
             return canvas_display_area
@@ -499,7 +503,7 @@ class FlowchartTool(tk.Tk):
         y1 = self.canvas.canvasy(self.canvas.winfo_height())-2
         return (x0, y0, x1, y1)
 
-    def get_data_area(self, margin: float) -> Tuple[float, float, float, float] | None:
+    def get_data_area(self, margin: float, object_only_flag:bool = False) -> Tuple[float, float, float, float] | None:
         # 登録されているノードとリンクとスイムレーンの位置情報から、データが存在するエリアの範囲を取得する
         node_min_x, node_max_x = None, None
         node_min_y, node_max_y = None, None
@@ -574,24 +578,25 @@ class FlowchartTool(tk.Tk):
 
         note_min_x, note_max_x = None, None
         note_min_y, note_max_y = None, None
-        for note_obj in self.notes.values():
-            # print(f"Note x: {note_obj.x}, y: {note_obj.y}, w: {note_obj.w}, h: {note_obj.h}")
-            if note_min_x is None:
-                note_min_x = note_obj.x - note_obj.w / 2
-            else:
-                note_min_x = min(note_min_x, note_obj.x - note_obj.w / 2)
-            if note_max_x is None:
-                note_max_x = note_obj.x + note_obj.w / 2
-            else:
-                note_max_x = max(note_max_x, note_obj.x + note_obj.w / 2)
-            if note_min_y is None:
-                note_min_y = note_obj.y - note_obj.h / 2
-            else:
-                note_min_y = min(note_min_y, note_obj.y - note_obj.h / 2)
-            if note_max_y is None:
-                note_max_y = note_obj.y + note_obj.h / 2
-            else:
-                note_max_y = max(note_max_y, note_obj.y + note_obj.h / 2)
+        if object_only_flag == False:
+            for note_obj in self.notes.values():
+                # print(f"Note x: {note_obj.x}, y: {note_obj.y}, w: {note_obj.w}, h: {note_obj.h}")
+                if note_min_x is None:
+                    note_min_x = note_obj.x - note_obj.w / 2
+                else:
+                    note_min_x = min(note_min_x, note_obj.x - note_obj.w / 2)
+                if note_max_x is None:
+                    note_max_x = note_obj.x + note_obj.w / 2
+                else:
+                    note_max_x = max(note_max_x, note_obj.x + note_obj.w / 2)
+                if note_min_y is None:
+                    note_min_y = note_obj.y - note_obj.h / 2
+                else:
+                    note_min_y = min(note_min_y, note_obj.y - note_obj.h / 2)
+                if note_max_y is None:
+                    note_max_y = note_obj.y + note_obj.h / 2
+                else:
+                    note_max_y = max(note_max_y, note_obj.y + note_obj.h / 2)
         # print(f"Note area: ({note_min_x}, {note_min_y}) - ({note_max_x}, {note_max_y})")
 
         min_x = self.get_min(node_min_x, edge_min_x, swimlane_min_x, note_min_x)
@@ -2707,6 +2712,8 @@ class FlowchartTool(tk.Tk):
         self.cancel_selection_node_and_edge_and_swimlane()
 
         filename = filedialog.asksaveasfilename(
+            initialdir=self.fileio_dir if self.fileio_dir else None,
+            initialfile=self.fileio_filename + ".json" if self.fileio_filename else None,
             defaultextension=".json",
             filetypes=[("JSON Files", "*.json"), ("All Files", "*.*")]
         )
@@ -2718,9 +2725,17 @@ class FlowchartTool(tk.Tk):
                 json.dump(data, f, ensure_ascii=False, indent=2)
         except Exception as e:
             messagebox.showerror("Error", f"{ct.SAVE_FAILED_MESSAGE}: {e}")
+            return
+
+        if filename:
+            self.fileio_dir = os.path.dirname(filename)
+            self.fileio_filename = Path(filename).stem
 
     def load_json(self):
         filename = filedialog.askopenfilename(
+            # initialdir=self.fileio_dir if self.fileio_dir else None,
+            # initialfile=self.fileio_filename + ".json" if self.fileio_filename else None,
+            defaultextension=".json",
             filetypes=[("JSON Files", "*.json"), ("All Files", "*.*")]
         )
         if not filename:
@@ -2731,6 +2746,9 @@ class FlowchartTool(tk.Tk):
         except Exception as e:
             messagebox.showerror("Error", f"{ct.LOAD_FAILED_MESSAGE}: {e}")
             return
+
+        self.fileio_dir = os.path.dirname(filename)
+        self.fileio_filename = Path(filename).stem
 
         self.note_on.set(True)  # ノート表示を有効化
 
@@ -3112,6 +3130,8 @@ class FlowchartTool(tk.Tk):
         self.cancel_selection_node_and_edge_and_swimlane()
 
         path = filedialog.asksaveasfilename(
+            initialdir=self.fileio_dir if self.fileio_dir else None,
+            initialfile=self.fileio_filename if self.fileio_filename else None,
             defaultextension=".png",
             filetypes=[("PNG", "*.png"), ("JPEG", "*.jpg;*.jpeg")],
         )
@@ -3122,10 +3142,18 @@ class FlowchartTool(tk.Tk):
             messagebox.showinfo("Saved", f"Saved to:\n{path}")
         except Exception as e:
             messagebox.showerror("Error", str(e))
+            return
+
+        if path:
+            self.fileio_dir = os.path.dirname(path)
+            self.fileio_filename = Path(path).stem
 
     def load_mermaid_flowdata(self, mmd_filepath=None):
         if mmd_filepath is None:
             path = filedialog.askopenfilename(
+                # initialdir=self.fileio_dir if self.fileio_dir else None,
+                # initialfile=self.fileio_filename + ".md" if self.fileio_filename else None,
+                defaultextension=".md",
                 filetypes=[("Mermaid Flowchart", "*.md"), ("All files", "*.*")]
             )
         else:
@@ -3140,11 +3168,17 @@ class FlowchartTool(tk.Tk):
             canvas_width = self.canvas.winfo_width()
             mmd_nodes, mmd_links = mfloader.parse_mermaid_flowdata(text, canvas_width=canvas_width)
             self.create_mermaid_flowdata(mmd_nodes, mmd_links)
+
             messagebox.showinfo("Loaded", f"Loaded Mermaid flowchart from:\n{path}")
         except Exception as e:
             messagebox.showerror("Error", str(e))
+            return
 
         self.note_on.set(True)  # ノート表示ON
+
+        if path:
+            self.fileio_dir = os.path.dirname(path)
+            self.fileio_filename = Path(path).stem
 
         self.display_operation_info()  # 操作情報表示制御
 
@@ -3172,15 +3206,15 @@ class FlowchartTool(tk.Tk):
         if nd.pos_x is None or nd.pos_y is None:
             # 自動配置    ※一部のnodeに位置情報がない場合、スタート位置に重ねて配置する
             auto_position_flag = True
-            start_x = int(ct.CANVAS_PARAMS["grid_spacing"] * 10 + ct.NODE_DEFAULT_PARAMS["width"] / 2)
-            start_y = int(ct.CANVAS_PARAMS["grid_spacing"] * 2 + ct.NODE_DEFAULT_PARAMS["height"] / 2)
+            start_x = int(ct.CANVAS_PARAMS["grid_spacing"] * 30 + ct.NODE_DEFAULT_PARAMS["width"] / 2)
+            start_y = int(ct.CANVAS_PARAMS["grid_spacing"] * 4 + ct.NODE_DEFAULT_PARAMS["height"] / 2)
         else:
             # mmdの位置情報を使う
             auto_position_flag = False
             start_x = int(self.canvas.winfo_width() / 2)
-            start_y = int(ct.CANVAS_PARAMS["grid_spacing"] * 2 + ct.NODE_DEFAULT_PARAMS["height"] / 2)
+            start_y = int(ct.CANVAS_PARAMS["grid_spacing"] * 4 + ct.NODE_DEFAULT_PARAMS["height"] / 2)
 
-        interval_x = ct.NODE_DEFAULT_PARAMS["width"] + ct.CANVAS_PARAMS["grid_spacing"] * 4
+        interval_x = ct.NODE_DEFAULT_PARAMS["width"] + ct.CANVAS_PARAMS["grid_spacing"] * 3
         interval_y = ct.NODE_DEFAULT_PARAMS["height"] + ct.CANVAS_PARAMS["grid_spacing"]
         vertical_count = 10
 
@@ -3239,6 +3273,9 @@ class FlowchartTool(tk.Tk):
                 if edge_obj is not None and edge_obj.id is not None:
                     self.edges[edge_obj.id] = edge_obj
 
+        # マーメイドデータ読み込み後に、ノートを自動配置する
+        self.auto_layout_notes()
+
         # ノード最前面
         self.canvas.tag_raise("node")
 
@@ -3246,9 +3283,76 @@ class FlowchartTool(tk.Tk):
 
         self.push_history()
 
+    # フローチャートエリアの左右にノートを自動配置する
+    # 個々のノードがフローチャートの中心ｘ座標より左にあれば、フローチャートの左側にノートを配置し、右にあれば右側にノートを配置する
+    # ノートは各ノードと同じy座標に配置し、1列に並べるが、数が多い場合は2列に並べる。多少のノートの重なりは許容する
+    # ノートの幅と高さは、ct.NOTE_PARAMS.get("width")及びct.NOTE_PARAMS.get("height")で取得し、配置に反映する
+    def auto_layout_notes(self):
+        if self.nodes is None or len(self.nodes) == 0 or self.notes is None or len(self.notes) == 0:
+            return
+
+        # フローチャートの中心x座標を計算
+        (area_left_x, area_top_y, area_right_x, area_bottom_y) = self.get_data_area(margin=30, object_only_flag=True)
+
+        area_center_x = (area_left_x + area_right_x) / 2
+        area_height = (area_bottom_y - area_top_y)
+
+        # 左側に配置するノートのリストと右側に配置するノートのリストを作成
+        left_notes = []
+        right_notes = []
+        for i, note in enumerate(self.notes.values()):
+            base_node = note.base_node
+            if base_node is not None and len(base_node.details) > 0:
+                if base_node.x < area_center_x:
+                    left_notes.append(note)
+                else:
+                    right_notes.append(note)
+
+        left_notes.sort(key=lambda note: note.base_node.y if note.base_node else 0)
+        right_notes.sort(key=lambda note: note.base_node.y if note.base_node else 0)
+
+        # 左側のノートを配置、フローチャートの高さから、ノートを1列に並べるか2列に並べるかを判断して配置する
+        left_x_position = area_left_x - ct.NOTE_PARAMS.get("width") / 2 - ct.CANVAS_PARAMS["grid_spacing"] * 1
+        right_x_position = area_right_x + ct.NOTE_PARAMS.get("width") / 2 + ct.CANVAS_PARAMS["grid_spacing"] * 1
+        self.layout_notes(left_notes, left_x_position, area_top_y, area_height, "left")
+        self.layout_notes(right_notes, right_x_position, area_top_y, area_height, "right")
+
+    # ノートを1列または2列に並べて配置する
+    # フローチャート全体の高さをノートの高さで割って、1列に収まらない場合は2列に表示する
+    # 2列に並べる場合、ノード位置が上から順に交互にx座標のみを外側にノート幅分ずらす
+    def layout_notes(self, notes, x_position, y_position, area_height, side):
+        if not notes:
+            return
+
+        if side == "left":
+            direction = -1
+        else:
+            direction = 1
+
+        if area_height > (ct.NOTE_PARAMS.get("height") + ct.CANVAS_PARAMS["grid_spacing"]) * (len(notes) - 1):
+            # 1列に並べる
+            for i, note in enumerate(notes):
+                x = x_position
+                y = y_position + ct.NOTE_PARAMS.get("height") // 2 + i * (ct.NOTE_PARAMS.get("height") + ct.CANVAS_PARAMS["grid_spacing"])
+                note.move_to(x, y)
+        else:
+            # 2列に並べる
+            for i, note in enumerate(notes):
+                if i % 2 == 0:
+                    x = x_position
+                    y = y_position + ct.NOTE_PARAMS.get("height") // 2 + (i // 2) * (ct.NOTE_PARAMS.get("height") + ct.CANVAS_PARAMS["grid_spacing"])
+                else:
+                    x = x_position + direction * (ct.NOTE_PARAMS.get("width") + ct.CANVAS_PARAMS["grid_spacing"])
+                    y = y_position + ct.NOTE_PARAMS.get("height") + (i // 2) * (ct.NOTE_PARAMS.get("height") + ct.CANVAS_PARAMS["grid_spacing"])
+                note.move_to(x, y)
+
     def save_mermaid_flowdata(self):
         # print(f"save_mermaid_flowdata()")
-        mfsaver.save_data_to_mermaid_file(self.nodes, self.edges)
+        saved_file_path = mfsaver.save_data_to_mermaid_file(self.nodes, self.edges, pre_fileio_dir=self.fileio_dir, pre_fileio_filename=self.fileio_filename)
+
+        if saved_file_path:
+            self.fileio_dir = os.path.dirname(saved_file_path)
+            self.fileio_filename = Path(saved_file_path).stem
 
     # -----------------------------
     # UI: チャット表示切替
@@ -3273,6 +3377,9 @@ class FlowchartTool(tk.Tk):
                 self.append_chat("User", ai_spec_prompt)
                 self.append_chat("AI", return_text)
                 self.load_mermaid_flowdata(mmd_filepath)
+
+                self.fileio_dir = os.path.dirname(mmd_filepath) if mmd_filepath else self.fileio_dir
+                self.fileio_filename = Path(mmd_filepath).stem if mmd_filepath else self.fileio_filename
             else:
                 messagebox.showerror("Error", return_text)
         self.set_sending(False)
@@ -3465,6 +3572,7 @@ class FlowchartTool(tk.Tk):
         self.icons["Status_normal"] = self.make_icon("Status_normal")
         self.icons["Status_active"] = self.make_icon("Status_active")
         self.icons["Status_inactive"] = self.make_icon("Status_inactive")
+        self.icons["Auto_Layout_Notes"] = self.make_icon("Auto_Layout_Notes")
 
     def make_icon(self, name: str, size: int = 128, fg: str = "#111827") -> ImageTk.PhotoImage:
         img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
@@ -3695,6 +3803,10 @@ class FlowchartTool(tk.Tk):
         elif name == "Status_inactive":
             d.rounded_rectangle((x0+size//8, y0+size//4, x1-size//8, y1-size//4),
                                  radius=size//8, outline=ct.NODE_DEFAULT_PARAMS["inactive_outline_color"], fill=ct.NODE_DEFAULT_PARAMS["inactive_fill_color"], width=8)
+        elif name == "Auto_Layout_Notes":
+            d.line((x0+size//8, y0, x0+size//8, y1), fill=fg, width=1)
+            d.polygon([(x0+size//5, y0+size//5), (x0+size//5, y1-size//5), (x1-size//3, y1-size//5), (x1-size//5, y1-size//3), (x1-size//5, y0+size//5)], outline="#D6B94D", fill="#FFF9CC", width=4)
+            d.polygon([(x1-size//3, y1-size//5), (x1-size//3, y1-size//3), (x1-size//5, y1-size//3)], outline="#D6B94D", fill="#A8A481", width=4)
         else:
             d.rectangle((x0, y0, x1, y1), outline=fg, width=2)
 
