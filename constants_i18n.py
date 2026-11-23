@@ -469,6 +469,13 @@ I18N_RELEASE_NOTE_DICT = {
   "RELEASE_NOTE_TITLE.ja" : "リリースノート",
 
   "RELEASE_NOTE_TEXT.ja" : """
+[ 2026/11/24 ]
+・ノード/リンク内での、選択ノード/リンクの上下位置の調整を可能に（コンテキストメニューから実行）
+・不具合対応
+  ・ノードの幅/高さの調整をしやすくする対応
+  ・スイムレーン、リンク、ノード、ノートの上下位置が崩れないようにする対応
+  ・PropertyEditorでの選択値欄が空欄になる現象への対応
+
 [ 2026/11/20 ]
 ・ノート欄の整列機能の追加（コンテキストメニューから呼び出し可能）
 ・ノート欄の自動整列
@@ -485,9 +492,6 @@ I18N_RELEASE_NOTE_DICT = {
  2. キャンバス上でノードまたはリンクを選択
  3. 属性値を編集
  4. 「Apply Changes」ボタン押下で属性値を更新
-
-[ 2026/11/14 ]
-・フローチャート内のノードの属性値を編集できるPropertyEditor（β版）を公開
 
 [ 2026/10/23 ]
 ・ノート欄の幅を広げた際にテキスト表示幅が広がらない不具合への対応
@@ -554,10 +558,17 @@ I18N_RELEASE_NOTE_DICT = {
 
 """,
   "RELEASE_NOTE_TEXT.en" : """
+[ 2026/11/24 ]
+- Added support for adjusting the stacking order of selected nodes and links within their respective layers (via the context menu).
+- Bug fixes:
+  - Improved the usability of node width and height adjustments.
+  - Fixed an issue where the stacking order of swimlanes, links, nodes, and notes could become inconsistent.
+  - Fixed an issue where the selected value field in the PropertyEditor could become blank.
+
 [ 2026/11/20 ]
 - Added the note auto-layout feature (can be invoked from the context menu).
-  ・Automatically executed for flowcharts created with the AI integration feature.
-  ・Automatically executed when loading Mermaid format data (.md).
+  - Automatically executed for flowcharts created with the AI integration feature.
+  - Automatically executed when loading Mermaid format data (.md).
 
 [ 2026/11/18 ]
 - Adjusted the display of PropertyEditor on macOS.
@@ -569,9 +580,6 @@ I18N_RELEASE_NOTE_DICT = {
   2. Select nodes or links on the canvas.
   3. Edit the property values.
   4. Click the "Apply Changes" button to update the property values.
-
-[ 2026/11/14 ]
-- Released the beta version of PropertyEditor, which allows users to edit node properties in flowcharts.
 
 [ 2026/10/23 ]
 - Fixed an issue where the text display width did not expand when the note field width was widened.

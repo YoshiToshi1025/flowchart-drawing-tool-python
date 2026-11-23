@@ -107,17 +107,22 @@ class Edge:
             self.font_weight = ct.EDGE_PARAMS.get("font_weight", None)
 
         if self.canvas is not None:
-            self.draw(self.canvas, self.from_node_obj, self.to_node_obj)
+            self.draw(self.from_node_obj, self.to_node_obj)
 
-    def draw(self, canvas:tk.Canvas, from_node_obj: Node, to_node_obj: Node):
+    def draw(self, from_node_obj: Node, to_node_obj: Node):
         """エッジとラベルの描画"""
         # エッジの描画
-        self.draw_edge(canvas, from_node_obj, to_node_obj)
+        self.draw_edge(from_node_obj, to_node_obj)
         # ラベルの描画
         if self.line_id is not None:
-            self.draw_label(canvas, from_node_obj)
+            self.draw_label(from_node_obj)
 
-    def draw_edge(self, canvas:tk.Canvas, from_node_obj: Node, to_node_obj: Node):
+        # エッジはノードの下に
+        # self.canvas.tag_raise("edges")
+        self.canvas.tag_raise("nodes")
+        self.canvas.tag_raise("notes")
+
+    def draw_edge(self, from_node_obj: Node, to_node_obj: Node):
         # print(f"**  Drawing edge from {from_node_obj.id if from_node_obj else None} to {to_node_obj.id if to_node_obj else None} with points: {self.points}")  # for DEBUG
         """エッジの描画"""
         arrow_kind = self.arrow_kind
@@ -126,24 +131,20 @@ class Edge:
         dash_pattern = self.get_dash_pattern()
 
         if arrow_kind is None or arrow_kind == "none":
-            self.line_id = canvas.create_line(
+            self.line_id = self.canvas.create_line(
                 *self.points,
                 width=self.line_width, fill=self.line_color, dash=dash_pattern,
-                tags=("edge")
+                tags=("edges", f"edge-{self.id}", "edge-line")
             )
             # print(f"**1    Created line with ID: {self.line_id}")  # for DEBUG
         else:
-            self.line_id = canvas.create_line(
+            self.line_id = self.canvas.create_line(
                                 *self.points,
                                 arrow=arrow_kind, arrowshape=arrow_shape,
                                 width=self.line_width,
                                 fill=self.line_color, dash=dash_pattern,
-                                tags=("edge")
+                                tags=("edges", f"edge-{self.id}", "edge-line")
                             )
-            # print(f"**2    Created line with ID: {self.line_id}")  # for DEBUG
-        # エッジはノードの下に
-        canvas.tag_lower(self.line_id, "node")
-        # canvas.tag_raise(self.line_id, "node")
     
     def get_dash_pattern(self):
         if self.line_style == ct.EDGE_LINE_STYLE_DASHED:
@@ -189,20 +190,18 @@ class Edge:
         text_font_weight = ct.EDGE_PARAMS["font_weight"] if self.text_font_weight is None else self.text_font_weight
         return text_font_weight
 
-    def draw_label(self, canvas:tk.Canvas, from_node_obj: Node):
+    def draw_label(self, from_node_obj: Node):
         """エッジラベルの描画"""
 
         if self.label_x is not None and self.label_y is not None and self.label_text is not None:
             self.label_x, self.label_y, self.label_anchor, self.label_justify = self.get_label_position()
-            self.label_id = canvas.create_text(
+            self.label_id = self.canvas.create_text(
                 self.label_x, self.label_y,
                 text=self.label_text, width=self.text_width, fill=self.text_color,
                 font=(self.font_family, self.font_size, self.font_weight),
                 anchor = self.label_anchor, justify = self.label_justify,
-                tags=("edge-label",)
+                tags=("edges", f"edge-{self.id}", "edge-label")
             )
-            # ラベルもノードの下でOK（少し上に描かれるので視認性は保てる）
-            canvas.tag_raise(self.label_id, "node")
 
     def _compute_edge_geometry(self, from_node_obj: Node, to_node_obj: Node):
         """直線またはかぎ線の頂点の座標とラベル位置を計算"""

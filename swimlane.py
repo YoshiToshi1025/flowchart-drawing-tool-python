@@ -48,7 +48,7 @@ class Swimlane:
                 fill= "",
                 outline=ct.SWIMLANE_PARAMS["outline_color"],
                 width= ct.SWIMLANE_PARAMS["outline_width"],
-                tags=("swimlane", ct.SWIMLANE_KIND_VERTICAL),
+                tags=("swimlanes", "swimlane-shape", "swimlane-frame", "swimlane-vertical"),
             )
             self.top_id = self.canvas.create_rectangle(
                 self.top_left_x, self.top_left_y,
@@ -56,7 +56,7 @@ class Swimlane:
                 fill= self.fill_color,
                 outline= ct.SWIMLANE_PARAMS["outline_color"],
                 width= ct.SWIMLANE_PARAMS["outline_width"],
-                tags=("swimlane", ct.SWIMLANE_KIND_VERTICAL),
+                tags=("swimlanes", "swimlane-shape", "swimlane-top", "swimlane-vertical"),
             )
             self.bottom_id = self.canvas.create_rectangle(
                 self.top_left_x, self.top_left_y + self.height - header_height,
@@ -64,7 +64,7 @@ class Swimlane:
                 fill= self.fill_color,
                 outline= ct.SWIMLANE_PARAMS["outline_color"],
                 width= ct.SWIMLANE_PARAMS["outline_width"],
-                tags=("swimlane", ct.SWIMLANE_KIND_VERTICAL),
+                tags=("swimlanes", "swimlane-bottom", "swimlane-vertical"),
             )
             self.top_text_id = self.canvas.create_text(
                 self.top_left_x + self.width / 2 , self.top_left_y + header_height / 2,
@@ -72,7 +72,7 @@ class Swimlane:
                 anchor="center",
                 fill= ct.SWIMLANE_PARAMS["text_color"],
                 font=(ct.SWIMLANE_PARAMS["font_family"], ct.SWIMLANE_PARAMS["font_size"], ct.SWIMLANE_PARAMS["font_weight"]),
-                tags=("swimlane", ct.SWIMLANE_KIND_VERTICAL),
+                tags=("swimlanes", "swimlane-text", "swimlane-top", "swimlane-vertical"),
             )
             self.bottom_text_id = self.canvas.create_text(
                 self.top_left_x + self.width / 2 , self.top_left_y + self.height - header_height / 2,
@@ -80,7 +80,7 @@ class Swimlane:
                 anchor="center",
                 fill= ct.SWIMLANE_PARAMS["text_color"],
                 font=(ct.SWIMLANE_PARAMS["font_family"], ct.SWIMLANE_PARAMS["font_size"], ct.SWIMLANE_PARAMS["font_weight"]),
-                tags=("swimlane", ct.SWIMLANE_KIND_VERTICAL),
+                tags=("swimlanes", "swimlane-text", "swimlane-bottom", "swimlane-vertical"),
             )
         elif self.kind == ct.SWIMLANE_KIND_HORIZONTAL:
             header_width = ct.SWIMLANE_PARAMS["horizontal_header_width"]
@@ -90,7 +90,7 @@ class Swimlane:
                 fill= "",
                 outline=ct.SWIMLANE_PARAMS["outline_color"],
                 width= ct.SWIMLANE_PARAMS["outline_width"],
-                tags=("swimlane", ct.SWIMLANE_KIND_HORIZONTAL),
+                tags=("swimlanes", "swimlane-shape", "swimlane-frame", "swimlane-horizontal"),
             )
             self.top_id = self.canvas.create_rectangle(
                 self.top_left_x, self.top_left_y,
@@ -98,7 +98,7 @@ class Swimlane:
                 fill= self.fill_color,
                 outline= ct.SWIMLANE_PARAMS["outline_color"],
                 width= ct.SWIMLANE_PARAMS["outline_width"],
-                tags=("swimlane", ct.SWIMLANE_KIND_HORIZONTAL),
+                tags=("swimlanes", "swimlane-shape", "swimlane-top", "swimlane-horizontal"),
             )
             self.bottom_id = self.canvas.create_rectangle(
                 self.top_left_x + self.width - header_width, self.top_left_y,
@@ -106,7 +106,7 @@ class Swimlane:
                 fill= self.fill_color,
                 outline= ct.SWIMLANE_PARAMS["outline_color"],
                 width= ct.SWIMLANE_PARAMS["outline_width"],
-                tags=("swimlane", ct.SWIMLANE_KIND_HORIZONTAL),
+                tags=("swimlanes", "swimlane-shape", "swimlane-horizontal"),
             )
             self.top_text_id = self.canvas.create_text(
                 self.top_left_x + header_width / 2, self.top_left_y + self.height / 2,
@@ -114,7 +114,7 @@ class Swimlane:
                 anchor="center",
                 fill= ct.SWIMLANE_PARAMS["text_color"],
                 font=(ct.SWIMLANE_PARAMS["font_family"], ct.SWIMLANE_PARAMS["font_size"], ct.SWIMLANE_PARAMS["font_weight"]),
-                tags=("swimlane", ct.SWIMLANE_KIND_HORIZONTAL),
+                tags=("swimlanes", "swimlane-text", "swimlane-top", "swimlane-horizontal"),
             )
             self.bottom_text_id = self.canvas.create_text(
                 self.top_left_x + self.width - header_width / 2, self.top_left_y + self.height / 2,
@@ -122,8 +122,13 @@ class Swimlane:
                 anchor="center",
                 fill= ct.SWIMLANE_PARAMS["text_color"],
                 font=(ct.SWIMLANE_PARAMS["font_family"], ct.SWIMLANE_PARAMS["font_size"], ct.SWIMLANE_PARAMS["font_weight"]),
-                tags=("swimlane", ct.SWIMLANE_KIND_HORIZONTAL),
+                tags=("swimlanes", "swimlane-text", "swimlane-bottom", "swimlane-horizontal"),
             )
+
+        # self.canvas.tag_raise("swimlanes")
+        self.canvas.tag_raise("edges")
+        self.canvas.tag_raise("nodes")
+        self.canvas.tag_raise("notes")
 
     def resize(self):
         if self.frame_id is None or self.top_id is None or self.bottom_id is None or self.top_text_id is None or self.bottom_text_id is None:

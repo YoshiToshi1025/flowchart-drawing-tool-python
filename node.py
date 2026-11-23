@@ -126,6 +126,9 @@ class Node:
         
         self.draw_text(canvas)
 
+        # self.canvas.tag_raise("nodes")
+        self.canvas.tag_raise("notes")
+
     def draw_process(self, canvas: tk.Canvas):
         if self.x is not None and self.y is not None and self.w is not None and self.h is not None:
             if self.shape_type == "ellipse":
@@ -135,7 +138,7 @@ class Node:
                     fill=self.get_fill_color(),
                     outline=self.get_outline_color(),
                     width=self.get_outline_width(),
-                    tags=("node", f"node-{self.id}", "node-shape")
+                    tags=("nodes", f"node-{self.id}", "node-shape")
                 )
             else:
                 points = self.get_process_points()
@@ -144,7 +147,7 @@ class Node:
                     fill=self.get_fill_color(),
                     outline=self.get_outline_color(),
                     width=self.get_outline_width(),
-                    tags=("node", f"node-{self.id}", "node-shape")
+                    tags=("nodes", f"node-{self.id}", "node-shape")
                 )
 
     def draw_decision(self, canvas: tk.Canvas):
@@ -155,7 +158,7 @@ class Node:
                 fill=self.get_fill_color(),
                 outline=self.get_outline_color(),
                 width=self.get_outline_width(),
-                tags=("node", f"node-{self.id}", "node-shape")
+                tags=("nodes", f"node-{self.id}", "node-shape")
             )
 
     def draw_terminator(self, canvas: tk.Canvas):
@@ -166,7 +169,7 @@ class Node:
                 fill=self.get_fill_color(),
                 outline=self.get_outline_color(),
                 width=self.get_outline_width(),
-                tags=("node", f"node-{self.id}", "node-shape")
+                tags=("nodes", f"node-{self.id}", "node-shape")
             )
 
     def draw_io(self, canvas: tk.Canvas):
@@ -177,7 +180,7 @@ class Node:
                 fill=self.get_fill_color(),
                 outline=self.get_outline_color(),
                 width=self.get_outline_width(),
-                tags=("node", f"node-{self.id}", "node-shape")
+                tags=("nodes", f"node-{self.id}", "node-shape")
             )
 
     def draw_storage(self, canvas: tk.Canvas):
@@ -188,7 +191,7 @@ class Node:
                 fill=self.get_fill_color(),
                 outline=self.get_outline_color(),
                 width=self.get_outline_width(),
-                tags=("node", f"node-{self.id}", "node-shape")
+                tags=("nodes", f"node-{self.id}", "node-shape")
             )
 
     def draw_document(self, canvas: tk.Canvas):
@@ -199,7 +202,7 @@ class Node:
                 fill=self.get_fill_color(),
                 outline=self.get_outline_color(),
                 width=self.get_outline_width(),
-                tags=("node", f"node-{self.id}", "node-shape")
+                tags=("nodes", f"node-{self.id}", "node-shape")
             )
 
     def draw_special_node(self, canvas: tk.Canvas):
@@ -210,7 +213,7 @@ class Node:
                 fill=self.get_fill_color(),
                 outline=self.get_outline_color(),
                 width=self.get_outline_width(),
-                tags=("node", f"node-{self.id}", "node-shape")
+                tags=("nodes", f"node-{self.id}", "node-shape")
             )
 
     def draw_undefined(self, canvas: tk.Canvas):
@@ -221,7 +224,7 @@ class Node:
                 fill=self.get_fill_color(),
                 outline=self.get_outline_color(),
                 width=self.get_outline_width(),
-                tags=("node", f"node-{self.id}", "node-shape")
+                tags=("nodes", f"node-{self.id}", "node-shape")
             )
 
     def reset_fill_color(self):
@@ -633,19 +636,19 @@ class Node:
                 self.text_id = canvas.create_text(
                     self.x, self.y + self.h / 10, text=self.text, font=(self.font_family, self.font_size, self.get_text_font_weight()), width=self.text_width,
                     fill=self.get_text_color(),
-                    tags=("node", f"node-{self.id}", "node-text")
+                    tags=("nodes", f"node-{self.id}", "node-text")
                 )
             elif self.type == ct.NODE_DOCUMENT_PARAMS["type"]:      # ドキュメント
                 self.text_id = canvas.create_text(
                     self.x, self.y - self.h / 10, text=self.text, font=(self.font_family, self.font_size, self.get_text_font_weight()), width=self.text_width,
                     fill=self.get_text_color(),
-                    tags=("node", f"node-{self.id}", "node-text")
+                    tags=("nodes", f"node-{self.id}", "node-text")
                 )
             else:
                 self.text_id = canvas.create_text(
                     self.x, self.y, text=self.text, font=(self.font_family, self.font_size, self.get_text_font_weight()), width=self.text_width,
                     fill=self.get_text_color(),
-                    tags=("node", f"node-{self.id}", "node-text")
+                    tags=("nodes", f"node-{self.id}", "node-text")
                 )
         self.change_textarea_width(canvas)
 
@@ -954,21 +957,27 @@ class Node:
     def change_width(self, canvas: tk.Canvas, increase=True):
         width_step = ct.CANVAS_PARAMS["grid_spacing"]
         if increase:
+            self.x += width_step / 2
             self.w += width_step
         else:
+            pre_w = self.w
             self.w -= width_step
             if self.w < width_step * 2:
                 self.w = width_step * 2
+            self.x -= (pre_w - self.w) / 2
         self.change_textarea_width(canvas)
 
     def change_height(self, canvas: tk.Canvas, increase=True):
         height_step = ct.CANVAS_PARAMS["grid_spacing"]
         if increase:
+            self.y += height_step / 2
             self.h += height_step
         else:
+            pre_h = self.h
             self.h -= height_step
             if self.h < height_step * 2:
                 self.h = height_step * 2
+            self.y -= (pre_h - self.h) / 2
 
     def change_textarea_width(self, canvas: tk.Canvas):
         if self.text_id:

@@ -60,13 +60,15 @@ class Note:
         self.shape_id = self.canvas.create_rectangle(
                             self.x - self.w / 2, self.y - self.h / 2, self.x + self.w / 2, self.y + self.h / 2,
                             fill=ct.NOTE_PARAMS["fill_color"], outline=ct.NOTE_PARAMS["outline_color"], width=ct.NOTE_PARAMS["outline_width"],
-                            tags=("note", "note-shape"))
+                            tags=("notes", "note-shape"))
 
         coords = self.line_anchor(self.base_node, self)
         self.line_id = self.canvas.create_line(
                             coords[0], coords[1], coords[2], coords[3],
                             fill=ct.NOTE_PARAMS["line_color"], width=ct.NOTE_PARAMS["line_width"],
-                            tags=("note", "note-line"))
+                            tags=("notes", "note-line"))
+
+        self.canvas.tag_raise("notes")
 
         # ノートのテキストを描画（noteタグを付与）
         textarea_mergin_x = 2
@@ -83,8 +85,9 @@ class Note:
             width=textarea_width,
             anchor="nw", justify="left",
             fill=ct.NOTE_PARAMS["text_color"],
-            tags=("note", "note-text")
+            tags=("notes", "note-text")
         )
+        self.canvas.tag_raise(self.text_id, self.shape_id)
 
     def start_text_edit(self, event=None):
         if self.canvas is None:

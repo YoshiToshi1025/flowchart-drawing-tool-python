@@ -207,11 +207,10 @@ This project provides a **“Simple Flowchart Drawing Tool 颯(HAYATE)”** that
 * 2026/09/29 : Added a node that supports image attachments (sample JSON file included). Added support for prioritizing the AI model specified in the .env file.
 * 2026/10/19 : Improved the smoothness of ellipse node rendering. Added support for changing node border colors and adjusting fill color intensity. Added support for resizing the notes area.
 * 2026/10/23 : Fixed an issue where the text display width did not expand when the note field was widened.
-* 2026/11/14 : Released the beta version of PropertyEditor.
 * 2026/11/17 : Released the official version of PropertyEditor, which allows editing the property values of nodes and links.
 * 2026/11/18 : Adjusted the display of PropertyEditor on macOS.
 * 2026/11/20 : Added the note auto-layout feature (can be invoked from the context menu)
-
+* 2026/11/24 : Added support for adjusting the stacking order of nodes and links within their respective layers, and fixed issues with node width/height adjustments, data display order, and selected value display in the PropertyEditor.
 
 ## Notes (Additional)
 

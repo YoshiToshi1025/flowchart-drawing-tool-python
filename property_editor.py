@@ -756,7 +756,7 @@ if __name__ == "__main__":
     style.configure("TCheckbutton", background="#eeeeee", bordercolor="#eeeeee")
     style.configure("TEntry", fieldbackground="#ffffff")
     style.configure("TCombobox", fieldbackground="#ffffff")
-    style.map("TCombobox", fieldbackground=[("readonly", "#ffffff")],)
+    style.map("TCombobox", fieldbackground=[("readonly", "#ffffff")], foreground=[("readonly", "black")])
     style.map("TEntry", fieldbackground=[("readonly", "#dddddd")],)
 
     Node1 = Node(

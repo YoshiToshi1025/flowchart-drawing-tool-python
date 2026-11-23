@@ -143,7 +143,7 @@ class FlowchartTool(tk.Tk):
         style.configure("TCheckbutton", background="#eeeeee", bordercolor="#eeeeee")
         style.configure("TEntry", fieldbackground="#ffffff")
         style.configure("TCombobox", fieldbackground="#ffffff")
-        style.map("TCombobox", fieldbackground=[("readonly", "#ffffff")],)
+        style.map("TCombobox", fieldbackground=[("readonly", "#ffffff")], foreground=[("readonly", "black")])
         style.map("TEntry", fieldbackground=[("readonly", "#dddddd")],)
 
         toolbar = ttk.Frame(self.container)
@@ -343,6 +343,8 @@ class FlowchartTool(tk.Tk):
         self.popup_menu.add_separator()
         self.popup_menu.add_command(label="Resize Canvas", image=self.icons["Resize_Canvas"], compound="left", command=self.confirm_canvas_resize)
         self.popup_menu.add_command(label="Auto-Layout Notes", image=self.icons["Auto_Layout_Notes"], compound="left", command=self.auto_layout_notes)
+        self.popup_menu.add_command(label="Bring to Front Within Layer", image=self.icons["Bring_to_Front_Within_Layer"], compound="left", command=self.bring_to_front_within_layer)
+        self.popup_menu.add_command(label="Send to Back Within Layer", image=self.icons["Send_to_Back_Within_Layer"], compound="left", command=self.send_to_back_within_layer)
 
         self._draw_grid()   # 初期グリッド描画
 
@@ -777,6 +779,7 @@ class FlowchartTool(tk.Tk):
                     self.create_swimlane(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
                 else:
                     self.create_node(node_type, self.canvas.canvasx(event.x), self.canvas.canvasy(event.y), shape_type=self.current_process_kind)
+                # self.align_layers_by_tags()
                 return
 
         # オブジェクトを選択している場合は、指定オブジェクトの選択処理を行う
@@ -1787,8 +1790,8 @@ class FlowchartTool(tk.Tk):
                 self.notes[note_obj.shape_id] = note_obj
 
         # ノードは常に最前面に
-        self.canvas.tag_raise("node")
-        self.canvas.tag_raise("note")
+        self.canvas.tag_raise("nodes")
+        self.canvas.tag_raise("notes")
 
     def duplicate_node(self, original_node):
         # print(f"Duplicating node id: {original_node.id}")
@@ -1844,8 +1847,8 @@ class FlowchartTool(tk.Tk):
                     self.notes[duplicated_note_obj.shape_id] = duplicated_note_obj
 
         # ノードは常に最前面に
-        self.canvas.tag_raise("node")
-        self.canvas.tag_raise("note")
+        self.canvas.tag_raise("nodes")
+        self.canvas.tag_raise("notes")
 
     def auto_node_text(self, node_type, text):
         # Terminator ノードには自動で "Start"/"End" テキストを設定
@@ -2577,6 +2580,8 @@ class FlowchartTool(tk.Tk):
             to_connection_point = ed.get("to_connection_point", None)
             edge_wrap_margin = ed.get("edge_wrap_margin", None)
             arrow_kind = ed.get("arrow_kind", None)
+            if arrow_kind is None:
+                arrow_kind = ct.EDGE_PARAMS["arrow_kind"] # 旧変数名での取り込み対応
             label_position = ed.get("label_position", None)
 
             text_width = ed.get("text_width", None)
@@ -2623,7 +2628,9 @@ class FlowchartTool(tk.Tk):
             width = sd.get("width", 0)
             height = sd.get("height", 0)
             fill_color = sd.get("fill_color", ct.SWIMLANE_PARAMS["fill_color"])
-            swimlane_obj = Swimlane(canvas=self.canvas, kind=kind, title=title, header_center_x=header_center_x, header_center_y=header_center_y, width=width, height=height, fill_color=fill_color)
+            swimlane_obj = Swimlane(canvas=self.canvas, kind=kind,
+                                    title=title, header_center_x=header_center_x, header_center_y=header_center_y,
+                                    width=width, height=height, fill_color=fill_color)
             self.swimlanes.append(swimlane_obj)
 
         # グリッド状態の復元とグリッド描画
@@ -2635,9 +2642,9 @@ class FlowchartTool(tk.Tk):
         self.display_note_toggle()
 
         # ノード・エッジ・スイムレーン階層調整
-        self.canvas.tag_raise("edge")
-        self.canvas.tag_raise("node")
-        self.canvas.tag_raise("note")
+        self.canvas.tag_raise("edges")
+        self.canvas.tag_raise("nodes")
+        self.canvas.tag_raise("notes")
 
         # キャンバスエリアの調整
         self.canvas_resize_to_fit_data()
@@ -3068,8 +3075,8 @@ class FlowchartTool(tk.Tk):
             self.canvas.coords(node_obj.text_id, x, y)
 
         self._update_notes_for_node(node_obj.id)
-        self.canvas.tag_raise("node")
-        self.canvas.tag_raise("note")
+        self.canvas.tag_raise("nodes")
+        self.canvas.tag_raise("notes")
 
 
     def _update_notes_for_node(self, nid):
@@ -3086,7 +3093,9 @@ class FlowchartTool(tk.Tk):
                 self._update_edge(edge_obj)
                 edge_obj.edge_wrap_ratio1, edge_obj.edge_wrap_ratio2 = edge_obj.get_edge_wrap_ratios()
 
-        self.canvas.tag_lower("edge", "node")
+        self.canvas.tag_raise("edges")
+        self.canvas.tag_raise("nodes")
+        self.canvas.tag_raise("notes")
     
     def _update_edge(self, edge_obj):
         """エッジとラベルを再レイアウト"""
@@ -3277,7 +3286,8 @@ class FlowchartTool(tk.Tk):
         self.auto_layout_notes()
 
         # ノード最前面
-        self.canvas.tag_raise("node")
+        self.canvas.tag_raise("nodes")
+        self.canvas.tag_raise("notes")
 
         self.canvas_resize_to_fit_data()
 
@@ -3316,6 +3326,57 @@ class FlowchartTool(tk.Tk):
         right_x_position = area_right_x + ct.NOTE_PARAMS.get("width") / 2 + ct.CANVAS_PARAMS["grid_spacing"] * 1
         self.layout_notes(left_notes, left_x_position, area_top_y, area_height, "left")
         self.layout_notes(right_notes, right_x_position, area_top_y, area_height, "right")
+
+        self.canvas_resize_to_fit_data()
+
+        self.push_history()
+
+    # 選択中のオブジェクトを同じレイヤー内で最前面に配置する
+    def bring_to_front_within_layer(self):
+        if self.selected_node_ids is not None and len(self.selected_node_ids) > 0:
+            for node_id in self.selected_node_ids:
+                node = self.nodes.get(node_id)
+                if node:
+                    self.canvas.tag_raise(f"node-{node.id}")
+                    node_obj = self.nodes.pop(node_id)
+                    self.nodes[node_id] = node_obj
+        if self.selected_edge_id is not None:
+            edge_id, edge = self.selected_edge_id, self.edges.get(self.selected_edge_id, None)
+            if edge_id is not None and edge is not None:
+                self.canvas.tag_raise(f"edge-{edge_id}")
+                edge_obj = self.edges.pop(edge_id)
+                self.edges[edge_id] = edge_obj
+
+        self.align_layers_by_tags()
+
+        self.push_history()
+
+    # 
+    def send_to_back_within_layer(self):
+        if self.selected_node_ids is not None and len(self.selected_node_ids) > 0:
+            selected_nodes = {}
+            for node_id in self.selected_node_ids:
+                node = self.nodes.get(node_id)
+                if node:
+                    self.canvas.tag_lower(f"node-{node.id}")
+                    node_obj = self.nodes.pop(node_id)
+                    selected_nodes[node_id] = node_obj
+            new_nodes = selected_nodes | self.nodes
+            self.nodes = new_nodes
+
+        if self.selected_edge_id is not None:
+            selected_edges = {}
+            edge_id, edge = self.selected_edge_id, self.edges.get(self.selected_edge_id, None)
+            if edge_id is not None and edge is not None:
+                self.canvas.tag_lower(f"edge-{edge_id}")
+                edge_obj = self.edges.pop(edge_id)
+                selected_edges[edge_id] = edge_obj
+            new_edges = selected_edges | self.edges
+            self.edges = new_edges
+
+        self.align_layers_by_tags()
+
+        self.push_history()
 
     # ノートを1列または2列に並べて配置する
     # フローチャート全体の高さをノートの高さで割って、1列に収まらない場合は2列に表示する
@@ -3573,6 +3634,8 @@ class FlowchartTool(tk.Tk):
         self.icons["Status_active"] = self.make_icon("Status_active")
         self.icons["Status_inactive"] = self.make_icon("Status_inactive")
         self.icons["Auto_Layout_Notes"] = self.make_icon("Auto_Layout_Notes")
+        self.icons["Bring_to_Front_Within_Layer"] = self.make_icon("Bring_to_Front_Within_Layer")
+        self.icons["Send_to_Back_Within_Layer"] = self.make_icon("Send_to_Back_Within_Layer")
 
     def make_icon(self, name: str, size: int = 128, fg: str = "#111827") -> ImageTk.PhotoImage:
         img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
@@ -3807,12 +3870,42 @@ class FlowchartTool(tk.Tk):
             d.line((x0+size//8, y0, x0+size//8, y1), fill=fg, width=1)
             d.polygon([(x0+size//5, y0+size//5), (x0+size//5, y1-size//5), (x1-size//3, y1-size//5), (x1-size//5, y1-size//3), (x1-size//5, y0+size//5)], outline="#D6B94D", fill="#FFF9CC", width=4)
             d.polygon([(x1-size//3, y1-size//5), (x1-size//3, y1-size//3), (x1-size//5, y1-size//3)], outline="#D6B94D", fill="#A8A481", width=4)
+        # 選択オブジェクトを同レイヤー内で最前面に配置する
+        elif name == "Bring_to_Front_Within_Layer":
+            d.line((x0+size//8, y0, x0+size//8, y1), fill=fg, width=4)
+            d.line((x0, y0+size//8, x0+size//8, y0), fill=fg, width=4)
+            d.line((x0+size//4, y0+size//8, x0+size//8, y0), fill=fg, width=4)
+            d.polygon([(x0+size//3, y0+size*4.5//8), (x0+size//5, y0+size*7//8), (x1-size//3, y0+size*7//8), (x1-size//5, y0+size*4.5//8)], outline=fg, fill="#E8E8E8", width=2)
+            d.polygon([(x0+size//3, y0+size*2.5//8), (x0+size//5, y0+size*5//8), (x1-size//3, y0+size*5//8), (x1-size//5, y0+size*2.5//8)], outline=fg, fill="#E8E8E8", width=2)
+            d.polygon([(x0+size//3, y0+size*0.5//8), (x0+size//5, y0+size*3//8), (x1-size//3, y0+size*3//8), (x1-size//5, y0+size*0.5//8)], outline=fg, fill="#FFFFFF", width=6)
+        # 選択オブジェクトを同レイヤー内で最背面に配置する
+        elif name == "Send_to_Back_Within_Layer":
+            d.line((x0+size//8, y0, x0+size//8, y1), fill=fg, width=4)
+            d.line((x0, y1-size//8, x0+size//8, y1), fill=fg, width=4)
+            d.line((x0+size//4, y1-size//8, x0+size//8, y1), fill=fg, width=4)
+            d.polygon([(x0+size//3, y0+size*4.5//8), (x0+size//5, y0+size*7//8), (x1-size//3, y0+size*7//8), (x1-size//5, y0+size*4.5//8)], outline=fg, fill="#FFFFFF", width=6)
+            d.polygon([(x0+size//3, y0+size*2.5//8), (x0+size//5, y0+size*5//8), (x1-size//3, y0+size*5//8), (x1-size//5, y0+size*2.5//8)], outline=fg, fill="#E8E8E8", width=2)
+            d.polygon([(x0+size//3, y0+size*0.5//8), (x0+size//5, y0+size*3//8), (x1-size//3, y0+size*3//8), (x1-size//5, y0+size*0.5//8)], outline=fg, fill="#E8E8E8", width=2)
         else:
             d.rectangle((x0, y0, x1, y1), outline=fg, width=2)
 
         img = img.resize((24,24), resample=Image.Resampling.LANCZOS)
 
         return ImageTk.PhotoImage(img)
+
+    # タグ定義によるレイヤー整列
+    # レイヤー構成（上から）：付箋、ノード、リンク、スイムレーン、グリッド
+    #   付箋: notes, note-shape, note-line, note-text
+    #   ノード: nodes, node-{id}, node-shape, node-text, node-image
+    #   リンク: edges, edge-{id}, edge-line, edge-label
+    #   スイムレーン: swimlanes, swimlane-shape, swimlane-text
+    #   グリッド: grid
+    def align_layers_by_tags(self):
+        self.canvas.tag_lower("grid")
+        self.canvas.tag_raise("swimlane")
+        self.canvas.tag_raise("edges")
+        self.canvas.tag_raise("nodes")
+        self.canvas.tag_raise("notes")
 
 class ToolTip(tk.Toplevel):
     def __init__(self, widget, text: str):
