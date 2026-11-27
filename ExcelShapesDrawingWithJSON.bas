@@ -377,6 +377,9 @@ Private Sub ParseNodeObj(nd As NodeData)
     nd.fontFamily = "Arial"
     nd.fontSize = 9
     nd.fontWeight = "normal"
+    
+    Dim terminator_fillColor As String
+    terminator_fillColor = "#e0e0e0"
 
     ExpectCh "{"
     SkipWS
@@ -413,6 +416,9 @@ Private Sub ParseNodeObj(nd As NodeData)
                 nd.cellText = JsonStr()
             Case "type"
                 nd.nodeType = JsonStr()
+                If nd.nodeType = "terminator" Then
+                    nd.fillColor = terminator_fillColor
+                End If
             Case "shape_type"
                 nd.shapeType = JsonStr()
             Case "status"
