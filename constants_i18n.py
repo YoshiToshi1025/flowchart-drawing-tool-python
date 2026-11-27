@@ -469,6 +469,18 @@ I18N_RELEASE_NOTE_DICT = {
   "RELEASE_NOTE_TITLE.ja" : "リリースノート",
 
   "RELEASE_NOTE_TEXT.ja" : """
+[ 2026/11/27 ]
+・Excel図形への変換VBAの更新
+  ・Windows版VBAとmacOS版VBAのファイル統一
+  ・macOSでの日本語ファイル名対応
+      ※ macOSにて、AppleScriptのファイル(ReadTextFile.scpt)の ~/Library/Application Scripts/com.microsoft.Excel/ への手動配置が必要
+  ・フローチャートでの各種指定要素への対応（線の色・太さ・矢印、フォント種類・サイズ、色など）
+  ・Excel図形変換後のグルーピング処理
+・ツール起動バッチの提供
+  ・Windows11用:start_for_win11.bat、macOS用: start_for_mac.command
+  ・バッチ処理内容は、python存在確認、仮想環境の確認（なければ設置）、ライブラリの確認（なければインストール）、ツールの実行
+      ※従来の利用方法(> python flowchart.py)でも実行可能
+
 [ 2026/11/24 ]
 ・ノード/リンク内での、選択ノード/リンクの上下位置の調整を可能に（コンテキストメニューから実行）
 ・不具合対応
@@ -558,6 +570,23 @@ I18N_RELEASE_NOTE_DICT = {
 
 """,
   "RELEASE_NOTE_TEXT.en" : """
+[ 2026/11/27 ]
+- Updated VBA for Excel Shape Conversion
+  - Unified the Windows and macOS versions into a single VBA file.
+  - Added support for Japanese filenames on macOS.
+      Note: On macOS, the AppleScript file (ReadTextFile.scpt) must be manually placed in ~/Library/Application Scripts/com.microsoft.Excel/
+  - Added support for various flowchart formatting settings, including line colors, line widths, arrow styles, font families, font sizes, and font colors.
+  - Added shape grouping after conversion to Excel shapes.
+
+- Added Tool Launcher Scripts
+  - Windows11: start_for_win11.bat, macOS: start_for_mac.command
+  - The launcher scripts perform the following tasks:
+    - Check whether Python is installed.
+    - Check for a virtual environment and create one if it does not exist.
+    - Check for required libraries and install any missing ones.
+    - Launch the tool.
+        Note: The tool can still be launched using the existing method (> python flowchart.py).
+
 [ 2026/11/24 ]
 - Added support for adjusting the stacking order of selected nodes and links within their respective layers (via the context menu).
 - Bug fixes:

@@ -2862,7 +2862,7 @@ class FlowchartTool(tk.Tk):
                 self.canvas.itemconfig(edge_obj.label_id, text=new_text)
             else:
                 # ラベルがなければ新規作成
-                edge_obj.draw_label(self.canvas, edge_obj.from_node_obj)
+                edge_obj.draw_label(edge_obj.from_node_obj)
             self.push_history()
 
         self.edge_label_edit = None

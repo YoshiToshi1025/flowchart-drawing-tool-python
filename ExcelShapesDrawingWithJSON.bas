@@ -1,6 +1,6 @@
 Attribute VB_Name = "ExcelShapesDrawingWithJSON"
 ''
-' Excel Shapes Drawing Program to active sheet with Flowchart JSON Data
+' Excel Shapes Drawing Program to active sheet with Flowchart JSON Data (macOS, Beta Version)
 ' Version 2026.06.18
 ' (c) Toshiki Yoshino - https://github.com/YoshiToshi1025/flowchart-drawing-tool-python
 '
@@ -23,61 +23,90 @@ Option Explicit
 ' ============================================================
 
 ' ƒm[ƒg(•tâ³)î•ñ
-private Type NoteData
-    dx    As Double ' ƒ‰ƒxƒ‹‚ÌxÀ•W(pt)iƒm[ƒh’†S‚©‚ç‚Ì‘Š‘ÎˆÊ’uj
-    dy    As Double ' ƒ‰ƒxƒ‹‚ÌyÀ•W(pt)iƒm[ƒh’†S‚©‚ç‚Ì‘Š‘ÎˆÊ’uj
-    displayState As String ' •\¦ó‘Ô: normal/hidden(ƒ}ƒNƒ‚Å‚ÍA•\¦ó‘Ô‚ÉŠÖŒW‚È‚­í‚É•\¦‚Æ‚·‚é)
+Private Type NoteData
+    dx           As Double  ' ƒ‰ƒxƒ‹‚ÌxÀ•W(pt)iƒm[ƒh’†S‚©‚ç‚Ì‘Š‘ÎˆÊ’uj
+    dy           As Double  ' ƒ‰ƒxƒ‹‚ÌyÀ•W(pt)iƒm[ƒh’†S‚©‚ç‚Ì‘Š‘ÎˆÊ’uj
+    displayState As String  ' •\¦ó‘Ô: normal/hidden(ƒ}ƒNƒ‚Å‚ÍA•\¦ó‘Ô‚ÉŠÖŒW‚È‚­í‚É•\¦)
+    w            As Double  ' * •(pt)
+    h            As Double  ' * ‚‚³(pt)
 End Type
 
 ' ƒm[ƒhi—v‘fjî•ñ
 Private Type NodeData
-    id        As Long     ' —v‘fID
-    nodeType  As String   ' ƒm[ƒhí—Ş terminal/terminator, process, decision, io, storage, document
-    x         As Double   ' ’†SxÀ•W(pt)
-    y         As Double   ' ’†SyÀ•W(pt)
-    w         As Double   ' •(pt)
-    h         As Double   ' ‚‚³(pt)
-    cellText  As String   ' ƒ‰ƒxƒ‹ƒeƒLƒXƒg
-    fillColor As String   ' “h‚è‚Â‚Ô‚µF "#rrggbb"
-    shapeType As String   ' Œ`ó connector/terminator/rectangle/corner_rounded_rectangle/rounded_rectangle
-    shapeName As String   ' ExcelƒVƒFƒCƒv–¼iƒGƒbƒWÚ‘±—pj
-    status    As String   ' ƒXƒe[ƒ^ƒX normal/active/inactive
-    details   As String   ' Ú×î•ñ
-    note      As NoteData ' ƒm[ƒgî•ñ
+    id        As Long       ' —v‘fID
+    cellText  As String     ' ƒ‰ƒxƒ‹ƒeƒLƒXƒg
+    nodeType  As String     ' ƒm[ƒhí—Ş terminator/process/decision/io/storage/document/special_node
+    shapeType As String     ' Œ`ó connector/terminator/rectangle/corner_rounded_rectangle/rounded_rectangle
+    status    As String     ' ƒXƒe[ƒ^ƒX normal/active/inactive
+    
+    x         As Double     ' ’†SxÀ•W(pt)
+    y         As Double     ' ’†SyÀ•W(pt)
+    w         As Double     ' •(pt)
+    h         As Double     ' ‚‚³(pt)
+    
+    fillColor As String     ' “h‚è‚Â‚Ô‚µF "#rrggbb"
+    outlineColor As String  ' * ‰æ‚èF "#rrggbb"
+    outlineWidth As Double  ' * ‰æ‚èü‚Ì‘¾‚³(pt)
+    textWidth As Double     ' * ƒeƒLƒXƒgƒGƒŠƒA‚Ì•
+    textColor As String     ' * ƒeƒLƒXƒgF "#rrggbb"
+    fontFamily As String    ' * ƒtƒHƒ“ƒgí—Ş
+    fontSize  As Double     ' * ƒtƒHƒ“ƒgƒTƒCƒY(pt)
+    fontWeight As String    ' * ƒtƒHƒ“ƒgƒEƒFƒCƒg normal/bold
+    details   As String     ' Ú×î•ñ
+    
+    note      As NoteData   ' ƒm[ƒgî•ñ
+
+    shapeName As String     ' ExcelƒVƒFƒCƒv–¼iƒGƒbƒWÚ‘±—pj
     noteShapeName As String ' ƒm[ƒgƒVƒFƒCƒv–¼iÅ‘O–Ê‚Ö‚ÌˆÚ“®—pj
-    noteConnName As String ' ƒm[ƒg‚Ö‚ÌƒŠƒ“ƒN–¼iÅ‘O–Ê‚Ö‚ÌˆÚ“®—pj
+    noteConnName As String  ' ƒm[ƒg‚Ö‚ÌƒŠƒ“ƒN–¼iÅ‘O–Ê‚Ö‚ÌˆÚ“®—pj
 End Type
 
 ' ƒGƒbƒWiƒŠƒ“ƒNjî•ñ
 Private Type EdgeData
+    id             As Long     ' * ƒŠƒ“ƒNID@¦–¢g—p
+    edgeLabel      As String   ' ƒ‰ƒxƒ‹ƒeƒLƒXƒg
     fromId         As Long     ' from‘¤ƒm[ƒhID
     toId           As Long     ' to‘¤ƒm[ƒhID
     edgeType       As String   ' elbow, line
+    pathType       As String   ' * ƒŠƒ“ƒNÚ‘±ƒpƒX vertical/horizontal/tree ¦–¢g—p
     lineStyle      As String   ' solid, dotted, dashed
+    lineColor      As String   ' * üF "#rrggbb"
+    lineWidth      As Double   ' * ü‚Ì‘¾‚³(pt)
+    arrowKind      As String   ' * –îˆó‚Ìí—Ş last/first/both/none
+    
     connMode       As String   ' ©“®Ú‘±? auto/manual
     fromCP         As String   ' Ú‘±“_ top/left/bottom/right/""(auto)   auto‚Í”p~—\’è
     toCP           As String   ' Ú‘±“_ top/left/bottom/right/""(auto)   auto‚Í”p~—\’è
-    edgeLabel      As String   ' ƒ‰ƒxƒ‹ƒeƒLƒXƒg
+    edgeWrapMargin As Double   ' ƒGƒbƒW‰ñ‚è‚İ‹——£(pt) ¦–¢‘Î‰
+    edgeWrapRatio1 As Double   ' Item1‚ÌƒGƒbƒW‰ñ‚è‚İŠ„‡
+    edgeWrapRatio2 As Double   ' Item2‚ÌƒGƒbƒW‰ñ‚è‚İŠ„‡
+    
     labelPos       As String   ' ƒ‰ƒxƒ‹ˆÊ’u auto/p2se/posw/p0nw/p0ne/p1se/....
     labelX         As Double   ' ƒ‰ƒxƒ‹xÀ•W(pt)
     labelY         As Double   ' ƒ‰ƒxƒ‹yÀ•W(pt)
     labelAnchor    As String   ' ƒ‰ƒxƒ‹Šî€ˆÊ’u center/n/ne/e/se/s/sw/w/nw
     labelJustify   As String   ' Šî€ˆÊ’u‚É‚¨‚¯‚éƒ‰ƒxƒ‹”z’uˆÊ’u left/center/right
-    edgeWrapMargin As Double   ' ƒGƒbƒW‰ñ‚è‚İ‹——£(pt) ¦–¢‘Î‰
-    edgeWrapRatio1 As Double   ' Item1‚ÌƒGƒbƒW‰ñ‚è‚İŠ„‡
-    edgeWrapRatio2 As Double   ' Item2‚ÌƒGƒbƒW‰ñ‚è‚İŠ„‡
+
+    textWidth      As Double   ' * ƒeƒLƒXƒgƒGƒŠƒA‚Ì•
+    textColor      As String   ' * ƒeƒLƒXƒgF "#rrggbb"
+    fontFamily     As String   ' * ƒtƒHƒ“ƒgí—Ş
+    fontSize       As Double   ' * ƒtƒHƒ“ƒgƒTƒCƒY(pt)
+    fontWeight     As String   ' * ƒtƒHƒ“ƒgƒEƒFƒCƒg normal/bold
 End Type
 
 ' ƒXƒCƒ€ƒŒ[ƒ“î•ñ
 Private Type SwimlaneData
-    kind      As String   ' vertical, horizontal
-    title     As String   ' ƒwƒbƒ_[/ƒtƒbƒ^[ƒeƒLƒXƒg
-    headerCX  As Double   ' ƒwƒbƒ_[’†Sx(pt)
-    headerCY  As Double   ' ƒwƒbƒ_[’†Sy(pt)
-    width     As Double   ' –{‘Ì•(pt)
-    height    As Double   ' –{‘Ì‚‚³(pt)
-    groupName As String   ' ƒOƒ‹[ƒvƒVƒFƒCƒv–¼iZ-order’²®—pj
-    fillColor As String   ' “h‚è‚Â‚Ô‚µF "#rrggbb"
+    kind      As String    ' vertical, horizontal
+    title     As String    ' ƒwƒbƒ_[/ƒtƒbƒ^[ƒeƒLƒXƒg
+    headerCX  As Double    ' ƒwƒbƒ_[’†Sx(pt)
+    headerCY  As Double    ' ƒwƒbƒ_[’†Sy(pt)
+    width     As Double    ' –{‘Ì•(pt)
+    height    As Double    ' –{‘Ì‚‚³(pt)
+    fillColor As String    ' “h‚è‚Â‚Ô‚µF "#rrggbb"
+    outlineColor As String ' * ‰æ‚èF "#rrggbb"
+    textColor As String    ' * ƒeƒLƒXƒgF "#rrggbb"
+    
+    groupName As String    ' ƒOƒ‹[ƒvƒVƒFƒCƒv–¼iZ-order’²®—pj
 End Type
 
 ' ============================================================
@@ -87,20 +116,43 @@ Private gJson As String   ' ‰ğÍ‘ÎÛJSON•¶š—ñ
 Private gPos  As Long     ' Œ»İ‚Ì‰ğÍˆÊ’u
 
 ' ============================================================
+' ƒpƒ‰ƒ[ƒ^
+' ============================================================
+Public PointPerPixel As Double  ' 1ƒsƒNƒZƒ‹‚ ‚½‚è‚Ìƒ|ƒCƒ“ƒg’liOS‚âŠÂ‹«‚ÅˆÙ‚È‚éj
+Public BackSlash As String      ' ƒoƒbƒNƒXƒ‰ƒbƒVƒ…•¶šiWindows‚ÆmacOS‚ÅˆÙ‚È‚éj
+
+
+' ============================================================
 ' ƒGƒ“ƒgƒŠ[ƒ|ƒCƒ“ƒg
 ' ============================================================
 Public Sub DrawFlowchart()
 
+    #If Mac Then
+        PointPerPixel = 1#    ' macOS‚Å‚Í1.0‚É
+        BackSlash = "€"
+    #Else
+        PointPerPixel = 0.75  ' Windows‚Å‚Í0.75‚É
+        BackSlash = "\"
+    #End If
+    
     ' --- JSONƒtƒ@ƒCƒ‹‘I‘ğ ---
     Dim filePath As String
-    filePath = GetJsonFilePath()
+    #If Mac Then
+        filePath = GetJsonFilePathForMacOS()
+    #Else
+        filePath = GetJsonFilePath()
+    #End If
     If filePath = "" Then Exit Sub
 
     ' --- ƒtƒ@ƒCƒ‹“Ç‚İ‚İ ---
     Dim jsonText As String
-    jsonText = ReadTextFile(filePath)
+    #If Mac Then
+        jsonText = ReadUTF8FileForMacOS(filePath)
+    #Else
+        jsonText = ReadTextFile(filePath)
+    #End If
     If jsonText = "" Then
-        MsgBox "ƒtƒ@ƒCƒ‹‚Ì“Ç‚İ‚İ‚É¸”s‚µ‚Ü‚µ‚½B" & vbCrLf & filePath, vbCritical, "ƒGƒ‰["
+        MsgBox "Failed to load the file. / ƒtƒ@ƒCƒ‹‚Ì“Ç‚İ‚İ‚É¸”s‚µ‚Ü‚µ‚½B" & vbCrLf & filePath, vbCritical, "Error"
         Exit Sub
     End If
 
@@ -118,6 +170,11 @@ Public Sub DrawFlowchart()
     On Error GoTo ErrHandler
     Application.ScreenUpdating = False
 
+    ' --- ƒCƒ“ƒ|[ƒg‘O‚Ì}Œ`‚ğŒŸ’m ---
+    Dim preShapesCounter As Integer
+    preShapesCounter = CountGroupableShapes()
+    ' MsgBox "preShapesCounter : " & preShapesCounter
+
     ' --- JSON‰ğÍ ---
     Call ParseFlowchartJson(jsonText, nodes, edges, swimlanes, nCount, eCount, sCount)
 
@@ -128,18 +185,33 @@ Public Sub DrawFlowchart()
     Call DrawEdges(ws, edges, eCount, nodes, nCount)
     Call AdjustZOrder(ws, nodes, nCount, swimlanes, sCount)
 
+    If preShapesCounter = 0 Then
+        Call GroupAllGroupableShapes
+    End If
+
     Application.ScreenUpdating = True
-    MsgBox "•`‰æŠ®—¹" & vbCrLf & _
-           "  ƒm[ƒh    : " & nCount & " ŒÂ" & vbCrLf & _
-           "  ƒGƒbƒW    : " & eCount & " ŒÂ" & vbCrLf & _
-           "  ƒXƒCƒ€ƒŒ[ƒ“: " & sCount & " ŒÂ", vbInformation, "ƒtƒ[ƒ`ƒƒ[ƒg•`‰æ"
-    Exit Sub
+    
+    If preShapesCounter = 0 Then
+        MsgBox "Excel Shapes Drawing" & vbCrLf & _
+               "  Nodes     : " & nCount & vbCrLf & _
+               "  Edges     : " & eCount & vbCrLf & _
+               "  Swimlanes : " & sCount & vbCrLf & vbCrLf & _
+               "  [Message] Shapes have been successfully grouped.", vbInformation, "Flowchart Drawing"
+        Exit Sub
+    Else
+        MsgBox "Excel Shapes Drawing" & vbCrLf & _
+               "  Nodes     : " & nCount & vbCrLf & _
+               "  Edges     : " & eCount & vbCrLf & _
+               "  Swimlanes : " & sCount & vbCrLf & vbCrLf & _
+               "  [Warning] Shape grouping was skipped because existing shapes were detected.", vbInformation, "Flowchart Drawing"
+        Exit Sub
+    End If
 
 ErrHandler:
     Application.ScreenUpdating = True
-    MsgBox "ƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½B" & vbCrLf & _
-           "à–¾: " & Err.Description & vbCrLf & _
-           "”Ô†: " & Err.Number, vbCritical, "ƒGƒ‰["
+    MsgBox "An error occurred. / ƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½B" & vbCrLf & _
+           "Description: " & Err.Description & vbCrLf & _
+           "Error No.  : " & Err.Number, vbCritical, "Error"
 End Sub
 
 ' ============================================================
@@ -149,10 +221,10 @@ End Sub
 ' ƒtƒ@ƒCƒ‹ƒ_ƒCƒAƒƒO‚ÅJSONƒtƒ@ƒCƒ‹ƒpƒX‚ğæ“¾
 Private Function GetJsonFilePath() As String
     With Application.FileDialog(msoFileDialogFilePicker)
-        .title = "JSONƒtƒ@ƒCƒ‹‚ğ‘I‘ğ‚µ‚Ä‚­‚¾‚³‚¢"
+        .title = "Please select a JSON file. / JSONƒtƒ@ƒCƒ‹‚ğ‘I‘ğ‚µ‚Ä‚­‚¾‚³‚¢"
         .Filters.Clear
-        .Filters.Add "JSONƒtƒ@ƒCƒ‹", "*.json"
-        .Filters.Add "‚·‚×‚Ä‚Ìƒtƒ@ƒCƒ‹", "*.*"
+        .Filters.Add "JSON File", "*.json"
+        .Filters.Add "All", "*.*"
         .AllowMultiSelect = False
         If .Show Then
             GetJsonFilePath = .SelectedItems(1)
@@ -296,7 +368,15 @@ Private Sub ParseNodeObj(nd As NodeData)
 
     ' ƒfƒtƒHƒ‹ƒg’l
     nd.shapeType = ""
+    nd.status = "normal"
     nd.fillColor = "#ffffff"
+    nd.outlineColor = "#334155"
+    nd.outlineWidth = 2 * PointPerPixel
+    nd.textWidth = 110 * PointPerPixel
+    nd.textColor = "#0f172a"
+    nd.fontFamily = "Arial"
+    nd.fontSize = 9
+    nd.fontWeight = "normal"
 
     ExpectCh "{"
     SkipWS
@@ -329,24 +409,38 @@ Private Sub ParseNodeObj(nd As NodeData)
         Select Case key
             Case "id"
                 nd.id = CLng(Val(JsonNum()))
-            Case "type"
-                nd.nodeType = JsonStr()
-            Case "x"
-                nd.x = CDbl(Val(JsonNum())) * 0.75
-            Case "y"
-                nd.y = CDbl(Val(JsonNum())) * 0.75
-            Case "w"
-                nd.w = CDbl(Val(JsonNum())) * 0.75
-            Case "h"
-                nd.h = CDbl(Val(JsonNum())) * 0.75
             Case "text"
                 nd.cellText = JsonStr()
-            Case "fill_color"
-                nd.fillColor = JsonStr()
+            Case "type"
+                nd.nodeType = JsonStr()
             Case "shape_type"
                 nd.shapeType = JsonStr()
             Case "status"
                 nd.status = JsonStr()
+            Case "x"
+                nd.x = CDbl(Val(JsonNum())) * PointPerPixel
+            Case "y"
+                nd.y = CDbl(Val(JsonNum())) * PointPerPixel
+            Case "w"
+                nd.w = CDbl(Val(JsonNum())) * PointPerPixel
+            Case "h"
+                nd.h = CDbl(Val(JsonNum())) * PointPerPixel
+            Case "fill_color"
+                nd.fillColor = JsonStr()
+            Case "outline_color"
+                nd.outlineColor = JsonStr()
+            Case "outline_width"
+                nd.outlineWidth = CDbl(Val(JsonNum())) * PointPerPixel
+            Case "text_width"
+                nd.textWidth = CDbl(Val(JsonNum())) * PointPerPixel
+            Case "text_color"
+                nd.textColor = JsonStr()
+            Case "font_family"
+                nd.fontFamily = JsonStr()
+            Case "font_size"
+                nd.fontSize = CDbl(Val(JsonNum()))
+            Case "font_weight"
+                nd.fontWeight = JsonStr()
             Case "details"
                 nd.details = JsonStr()
             Case "note"
@@ -380,6 +474,8 @@ Private Sub ParseNoteObj(note As NoteData)
     note.dx = 0
     note.dy = 0
     note.displayState = "normal"
+    note.w = 150 * PointPerPixel
+    note.h = 135 * PointPerPixel
 
     ExpectCh "{"
     SkipWS
@@ -411,11 +507,15 @@ Private Sub ParseNoteObj(note As NoteData)
 
         Select Case key
             Case "dx"
-                note.dx = CDbl(Val(JsonNum())) * 0.75
+                note.dx = CDbl(Val(JsonNum())) * PointPerPixel
             Case "dy"
-                note.dy = CDbl(Val(JsonNum())) * 0.75
+                note.dy = CDbl(Val(JsonNum())) * PointPerPixel
             Case "display_state"
                 note.displayState = JsonStr()
+            Case "w"
+                note.w = CDbl(Val(JsonNum())) * PointPerPixel
+            Case "h"
+                note.h = CDbl(Val(JsonNum())) * PointPerPixel
             Case Else
                 Call JsonSkip
         End Select
@@ -464,12 +564,26 @@ Private Sub ParseEdgeObj(ed As EdgeData)
     Dim c   As String
 
     ' ƒfƒtƒHƒ‹ƒg’l
+    ed.edgeLabel = ""
     ed.edgeType = "elbow"
+    ed.pathType = "vertical"
     ed.lineStyle = "solid"
+    ed.lineColor = "#0f172a"
+    ed.lineWidth = 2 * PointPerPixel
+    ed.arrowKind = "last"
+
+    ed.connMode = "auto"
     ed.fromCP = ""
     ed.toCP = ""
-    ed.edgeLabel = ""
-    ' ed.labelPos = ""
+    ed.labelPos = "auto"
+    ed.labelAnchor = "center"
+    ed.labelJustify = "left"
+    
+    ed.textWidth = 200 * PointPerPixel
+    ed.textColor = "#0f172a"
+    ed.fontFamily = "Arial"
+    ed.fontSize = 9
+    ed.fontWeight = "normal"
 
     ExpectCh "{"
     SkipWS
@@ -500,36 +614,64 @@ Private Sub ParseEdgeObj(ed As EdgeData)
         SkipWS
 
         Select Case key
+            Case "id"
+                ed.id = CLng(Val(JsonNum()))
+            Case "label"
+                ed.edgeLabel = JsonStr()
             Case "from_id"
                 ed.fromId = CLng(Val(JsonNum()))
             Case "to_id"
                 ed.toId = CLng(Val(JsonNum()))
             Case "edge_type"
                 ed.edgeType = JsonStr()
+            Case "path_type"
+                ed.pathType = JsonStr()
             Case "line_style"
                 ed.lineStyle = JsonStr()
+            Case "color"                    ' ‹Œ—v‘f–¼‚Ö‚Ì‘Î‰
+                ed.lineColor = JsonStr()
+            Case "line_color"
+                ed.lineColor = JsonStr()
+            Case "line_width"
+                ed.lineWidth = CDbl(Val(JsonNum())) * PointPerPixel
+            Case "arrow_kind"
+                ed.arrowKind = JsonStr()
+            
+            Case "connection_mode"
+                ed.connMode = JsonStr()
             Case "from_connection_point"
                 ed.fromCP = JsonStr()
             Case "to_connection_point"
                 ed.toCP = JsonStr()
-            Case "label"
-                ed.edgeLabel = JsonStr()
-            Case "label_position"
-                ed.labelPos = JsonStr()
-            Case "label_x"
-                ed.labelX = CDbl(Val(JsonNum())) * 0.75
-            Case "label_y"
-                ed.labelY = CDbl(Val(JsonNum())) * 0.75
-            Case "label_anchor"
-                ed.labelAnchor = JsonStr()
-            Case "label_justify"
-                ed.labelJustify = JsonStr()
             Case "edge_wrap_margin"
-                ed.edgeWrapMargin = CDbl(Val(JsonNum())) * 0.75
+                ed.edgeWrapMargin = CDbl(Val(JsonNum())) * PointPerPixel
             Case "edge_wrap_ratio1"
                 ed.edgeWrapRatio1 = CDbl(Val(JsonNum()))
             Case "edge_wrap_ratio2"
                 ed.edgeWrapRatio2 = CDbl(Val(JsonNum()))
+            
+            Case "label_position"
+                ed.labelPos = JsonStr()
+            Case "label_x"
+                ed.labelX = CDbl(Val(JsonNum())) * PointPerPixel
+            Case "label_y"
+                ed.labelY = CDbl(Val(JsonNum())) * PointPerPixel
+            Case "label_anchor"
+                ed.labelAnchor = JsonStr()
+            Case "label_justify"
+                ed.labelJustify = JsonStr()
+            
+            Case "text_width"
+                ed.textWidth = CDbl(Val(JsonNum())) * PointPerPixel
+            Case "text_color"
+                ed.textColor = JsonStr()
+            Case "font_family"
+                ed.fontFamily = JsonStr()
+            Case "font_size"
+                ed.fontSize = CDbl(Val(JsonNum()))
+            Case "font_weight"
+                ed.fontWeight = JsonStr()
+            
             Case Else
                 Call JsonSkip
         End Select
@@ -577,6 +719,11 @@ Private Sub ParseSwimlaneObj(sw As SwimlaneData)
     Dim key As String
     Dim c   As String
 
+    ' ƒfƒtƒHƒ‹ƒg’l
+    sw.fillColor = "#e0e0e0"
+    sw.outlineColor = "#808080"
+    sw.textColor = "#0f172a"
+    
     ExpectCh "{"
     SkipWS
 
@@ -611,13 +758,13 @@ Private Sub ParseSwimlaneObj(sw As SwimlaneData)
             Case "title"
                 sw.title = JsonStr()
             Case "header_center_x"
-                sw.headerCX = CDbl(Val(JsonNum())) * 0.75
+                sw.headerCX = CDbl(Val(JsonNum())) * PointPerPixel
             Case "header_center_y"
-                sw.headerCY = CDbl(Val(JsonNum())) * 0.75
+                sw.headerCY = CDbl(Val(JsonNum())) * PointPerPixel
             Case "width"
-                sw.width = CDbl(Val(JsonNum())) * 0.75
+                sw.width = CDbl(Val(JsonNum())) * PointPerPixel
             Case "height"
-                sw.height = CDbl(Val(JsonNum())) * 0.75
+                sw.height = CDbl(Val(JsonNum())) * PointPerPixel
             Case "fill_color"
                 sw.fillColor = JsonStr()
             Case Else
@@ -668,7 +815,7 @@ Private Function JsonStr() As String
         If c = """" Then
             gPos = gPos + 1
             Exit Do
-        ElseIf c = "\" Then
+        ElseIf c = BackSlash Then
             gPos = gPos + 1
             If gPos > Len(gJson) Then Exit Do
             c = Mid(gJson, gPos, 1)
@@ -677,7 +824,7 @@ Private Function JsonStr() As String
                 Case "r": result = result & Chr(13)    ' CR
                 Case "t": result = result & Chr(9)     ' ƒ^ƒu
                 Case """": result = result & """"
-                Case "\": result = result & "\"
+                Case BackSlash: result = result & BackSlash
                 Case "/": result = result & "/"
                 Case Else: result = result & c
             End Select
@@ -804,7 +951,8 @@ End Sub
 
 ' ƒXƒCƒ€ƒŒ[ƒ“1‚Â‚ğ•`‰æi–{‘ÌEƒwƒbƒ_[Eƒtƒbƒ^[‚ğƒOƒ‹[ƒv‰»j
 Private Sub DrawSwimlane(ws As Worksheet, sw As SwimlaneData)
-    Const HDR_SIZE As Double = 30 * 0.75   ' ƒwƒbƒ_[/ƒtƒbƒ^[‚ÌŒÅ’èƒTƒCƒY(pt)
+    Dim HDR_SIZE As Double
+    HDR_SIZE = 30 * PointPerPixel   ' ƒwƒbƒ_[/ƒtƒbƒ^[‚ÌŒÅ’èƒTƒCƒY(pt)
 
     Dim bodyL As Double, bodyT As Double
     Dim bodyW As Double, bodyH As Double
@@ -841,7 +989,7 @@ Private Sub DrawSwimlane(ws As Worksheet, sw As SwimlaneData)
         .Fill.Visible = msoFalse
         .Line.Visible = msoTrue
         .Line.ForeColor.RGB = RGB(0, 0, 0)
-        .Line.Weight = 1 * 0.75
+        .Line.Weight = 1 * PointPerPixel
         .Line.DashStyle = msoLineSolid
         .TextFrame.Characters.text = ""
     End With
@@ -850,13 +998,12 @@ Private Sub DrawSwimlane(ws As Worksheet, sw As SwimlaneData)
     Dim hdrShp As Shape
     Dim fillColor As String
     Set hdrShp = ws.Shapes.AddShape(msoShapeRectangle, hdrL, hdrT, hdrW, hdrH)
-    fillColor = sw.fillColor
-    Call ApplySwimlaneHeaderStyle(hdrShp, sw.title, isHoriz, fillColor)
+    Call ApplySwimlaneHeaderStyle(hdrShp, sw.title, isHoriz, sw)
 
     ' --- ƒtƒbƒ^[iƒwƒbƒ_[‚Æ“¯‚¶ƒXƒ^ƒCƒ‹j ---
     Dim ftrShp As Shape
     Set ftrShp = ws.Shapes.AddShape(msoShapeRectangle, ftrL, ftrT, ftrW, ftrH)
-    Call ApplySwimlaneHeaderStyle(ftrShp, sw.title, isHoriz, fillColor)
+    Call ApplySwimlaneHeaderStyle(ftrShp, sw.title, isHoriz, sw)
 
     ' --- 3‚Â‚Ì}Œ`‚ğƒOƒ‹[ƒv‰» ---
     Dim grp As Shape
@@ -865,19 +1012,19 @@ Private Sub DrawSwimlane(ws As Worksheet, sw As SwimlaneData)
 End Sub
 
 ' ƒwƒbƒ_[/ƒtƒbƒ^[‹¤’ÊƒXƒ^ƒCƒ‹“K—p
-Private Sub ApplySwimlaneHeaderStyle(shp As Shape, title As String, isHoriz As Boolean, fillColor As String)
+Private Sub ApplySwimlaneHeaderStyle(shp As Shape, title As String, isHoriz As Boolean, sw As SwimlaneData)
     With shp.Fill
         .Visible = msoTrue
-        If fillColor = "" Then
+        If sw.fillColor = "" Then
             .ForeColor.RGB = RGB(211, 211, 211)  ' ƒ‰ƒCƒgƒOƒŒ[
         Else
-            .ForeColor.RGB = HexToRgb(fillColor)
+            .ForeColor.RGB = HexToRgb(sw.fillColor)
         End If
     End With
     With shp.Line
         .Visible = msoTrue
-        .ForeColor.RGB = RGB(0, 0, 0)
-        .Weight = 1 * 0.75
+        .ForeColor.RGB = HexToRgb(sw.outlineColor)
+        .Weight = 1 * PointPerPixel
         .DashStyle = msoLineSolid
     End With
     With shp.TextFrame
@@ -886,15 +1033,15 @@ Private Sub ApplySwimlaneHeaderStyle(shp As Shape, title As String, isHoriz As B
         .VerticalAlignment = xlVAlignCenter
         .HorizontalOverflow = xlOartHorizontalOverflowOverflow
         .VerticalOverflow = xlOartVerticalOverflowOverflow
-        .Characters.Font.Color = RGB(0, 0, 0)
-        .Characters.Font.Size = 15 * 0.75
+        .Characters.Font.Color = HexToRgb(sw.textColor)
+        .Characters.Font.Size = 11
         If isHoriz Then
             .MarginTop = 0
             .MarginBottom = 0
-            .MarginLeft = 7.085 * 0.75
+            .MarginLeft = 7.085 * PointPerPixel
             .MarginRight = 0
         Else
-            .MarginTop = 7.0875 * 0.75
+            .MarginTop = 7.0875 * PointPerPixel
             .MarginBottom = 0
             .MarginLeft = 0
             .MarginRight = 0
@@ -904,7 +1051,7 @@ Private Sub ApplySwimlaneHeaderStyle(shp As Shape, title As String, isHoriz As B
         .WordWrap = msoFalse
         With .TextRange.Characters.ParagraphFormat
             .LineRuleWithin = msoTriStateToggle
-            .SpaceWithin = 15.5 * 0.75
+            .SpaceWithin = 15.5 * PointPerPixel
         End With
     End With
     
@@ -947,22 +1094,22 @@ Private Sub DrawNode(ws As Worksheet, nd As NodeData)
         End If
     End With
 
-    ' ˜güiÀü 1.75ptj
+    ' ˜gü
     With shp.Line
         If nd.status = "active" Then
             .Visible = msoTrue
             .ForeColor.RGB = RGB(218, 165, 32)
-            .Weight = 2.5 * 0.75
+            .Weight = nd.outlineWidth * 1.5
             .DashStyle = msoLineSolid
         ElseIf nd.status = "inactive" Then
             .Visible = msoTrue
             .ForeColor.RGB = RGB(169, 169, 169)
-            .Weight = 1.75 * 0.75
+            .Weight = nd.outlineWidth
             .DashStyle = msoLineSolid
         Else
             .Visible = msoTrue
-            .ForeColor.RGB = RGB(0, 0, 0)
-            .Weight = 1.75 * 0.75
+            .ForeColor.RGB = HexToRgb(nd.outlineColor)
+            .Weight = nd.outlineWidth
             .DashStyle = msoLineSolid
         End If
     End With
@@ -979,28 +1126,42 @@ Private Sub DrawNode(ws As Worksheet, nd As NodeData)
         ElseIf nd.status = "inactive" Then
             .Characters.Font.Color = RGB(169, 169, 169)
         Else
-            .Characters.Font.Color = RGB(0, 0, 0)
+            .Characters.Font.Color = HexToRgb(nd.textColor)
         End If
-        .Characters.Font.Size = 13 * 0.75
-        .MarginTop = 5.67 * 0.75
+        .MarginTop = 0.83 * nd.fontSize * PointPerPixel      ' 5.67 * PointPerPixel
         .MarginBottom = 0
         .MarginLeft = 0
         .MarginRight = 0
     End With
+    
     With shp.TextFrame2
         .WordWrap = msoFalse
         With .TextRange.Characters.ParagraphFormat
             .LineRuleWithin = msoTriStateToggle
-            .SpaceWithin = 14 * 0.75
+            .SpaceWithin = 14 * PointPerPixel
+        End With
+        With .TextRange.ParagraphFormat
+            .LineRuleWithin = msoFalse
+            .SpaceWithin = nd.fontSize + 1.5
+        End With
+        With .TextRange.Font
+            .Size = nd.fontSize
+            If nd.fontWeight = "bold" Then
+                .Bold = msoTrue
+            Else
+                .Bold = msoFalse
+            End If
         End With
     End With
+    
+    Call SetShapeFont(shp, nd.fontFamily)
 
     ' ƒGƒbƒWÚ‘±—p‚ÉˆêˆÓ‚Ì–¼‘O‚ğİ’è
     ' shp.Name = "FlowNode_" & CStr(nd.id)
     nd.shapeName = shp.Name
 
     ' details‚ª‚ ‚éê‡‚ÍAƒm[ƒg‚ğ•`‰æ‚µ‚ÄÚ‘±ü‚ğˆø‚­
-    if nd.details <> "" and (nd.note.dx <> 0 or nd.note.dy <> 0) Then
+    If nd.details <> "" And (nd.note.dx <> 0 Or nd.note.dy <> 0) Then
         Dim noteShpName As String
         noteShpName = DrawNote(ws, nd, nd.note)
         nd.noteShapeName = noteShpName
@@ -1056,8 +1217,8 @@ Private Function DrawNote(ws As Worksheet, baseNode As NodeData, note As NoteDat
     Dim note_with As Double, note_height As Double
     Dim note_x As Double, note_y As Double
 
-    note_with = 150 * 0.75
-    note_height = 135 * 0.75
+    note_with = note.w
+    note_height = note.h
     note_x = baseNode.x + note.dx - note_with / 2
     note_y = baseNode.y + note.dy - note_height / 2
 
@@ -1070,7 +1231,7 @@ Private Function DrawNote(ws As Worksheet, baseNode As NodeData, note As NoteDat
     With noteShp.Line
         .Visible = msoTrue
         .ForeColor.RGB = RGB(214, 185, 77)
-        .Weight = 1 * 0.75
+        .Weight = 1 * PointPerPixel
         .DashStyle = msoLineSolid
     End With
     With noteShp.TextFrame
@@ -1080,17 +1241,17 @@ Private Function DrawNote(ws As Worksheet, baseNode As NodeData, note As NoteDat
         .HorizontalOverflow = xlOartHorizontalOverflowClip
         .VerticalOverflow = xlOartVerticalOverflowEllipsis
         .Characters.Font.Color = RGB(15, 23, 42)
-        .Characters.Font.Size = 11 * 0.75
-        .MarginTop = 3.78 * 0.75
-        .MarginBottom = 3.78 * 0.75
-        .MarginLeft = 3.78 * 0.75
-        .MarginRight = 3.78 * 0.75
+        .Characters.Font.Size = 11 * PointPerPixel
+        .MarginTop = 3.78 * PointPerPixel
+        .MarginBottom = 0
+        .MarginLeft = 3.78 * PointPerPixel
+        .MarginRight = 3.78 * PointPerPixel
     End With
     With noteShp.TextFrame2
         .WordWrap = msoTrue
         With .TextRange.Characters.ParagraphFormat
             .LineRuleWithin = msoTriStateToggle
-            .SpaceWithin = 12 * 0.75
+            .SpaceWithin = 12 * PointPerPixel
         End With
     End With
 
@@ -1177,17 +1338,29 @@ Private Sub DrawEdge(ws As Worksheet, ed As EdgeData, _
         conn.Adjustments.Item(2) = ed.edgeWrapRatio2
     End If
 
-    ' üƒXƒ^ƒCƒ‹i‘¾‚³ 1.75ptA–îˆó‚ÍI“_‚Ì‚İj
+    ' üƒXƒ^ƒCƒ‹
     With conn.Line
-        .Weight = 1.75 * 0.75
-        .ForeColor.RGB = RGB(0, 0, 0)
+        .Weight = ed.lineWidth
+        .ForeColor.RGB = HexToRgb(ed.lineColor)
         Select Case LCase(Trim(ed.lineStyle))
             Case "dotted": .DashStyle = msoLineSysDot
             Case "dashed": .DashStyle = msoLineSysDash
             Case Else: .DashStyle = msoLineSolid
         End Select
-        .BeginArrowheadStyle = msoArrowheadNone
-        .EndArrowheadStyle = msoArrowheadTriangle
+        Select Case LCase(Trim(ed.arrowKind))
+            Case "first":
+                .BeginArrowheadStyle = msoArrowheadTriangle
+                .EndArrowheadStyle = msoArrowheadNone
+            Case "last":
+                .BeginArrowheadStyle = msoArrowheadNone
+                .EndArrowheadStyle = msoArrowheadTriangle
+            Case "both":
+                .BeginArrowheadStyle = msoArrowheadTriangle
+                .EndArrowheadStyle = msoArrowheadTriangle
+            Case Else:
+                .BeginArrowheadStyle = msoArrowheadNone
+                .EndArrowheadStyle = msoArrowheadNone
+        End Select
     End With
 
     ' ƒ‰ƒxƒ‹•`‰æiw’è‚ª‚ ‚éê‡j
@@ -1201,7 +1374,7 @@ Private Sub DrawEdge(ws As Worksheet, ed As EdgeData, _
             If ed.labelAnchor = "n" Or ed.labelAnchor = "nw" Or ed.labelAnchor = "ne" Then
                 adjustY = 2
             ElseIf ed.labelAnchor = "s" Or ed.labelAnchor = "sw" Or ed.labelAnchor = "se" Then
-                adjustY = -10
+                adjustY = -10 - 3
             Else
                 adjustY = -2
             End If
@@ -1245,8 +1418,7 @@ Private Sub DrawEdge(ws As Worksheet, ed As EdgeData, _
             .VerticalAlignment = xlVAlignTop
             .HorizontalOverflow = xlOartHorizontalOverflowOverflow
             .VerticalOverflow = xlOartVerticalOverflowOverflow
-            .Characters.Font.Color = RGB(0, 0, 0)
-            .Characters.Font.Size = 12 * 0.75
+            .Characters.Font.Color = HexToRgb(ed.textColor)
             .MarginTop = 0
             .MarginBottom = 0
             .MarginLeft = 0
@@ -1257,9 +1429,18 @@ Private Sub DrawEdge(ws As Worksheet, ed As EdgeData, _
             .WordWrap = msoFalse
             With .TextRange.Characters.ParagraphFormat
                 .LineRuleWithin = msoTriStateToggle
-                .SpaceWithin = 12.5 * 0.75
+                .SpaceWithin = 12.5 * PointPerPixel
+            End With
+            With .TextRange.Font
+                .Size = ed.fontSize
+                If ed.fontWeight = "bold" Then
+                    .Bold = msoTrue
+                Else
+                    .Bold = msoFalse
+                End If
             End With
         End With
+        Call SetShapeFont(connLabel, ed.fontFamily)
     End If
 End Sub
 
@@ -1268,6 +1449,7 @@ End Sub
 '   auto‚Í‘Šèƒm[ƒh‚Æ‚Ì‘Š‘ÎˆÊ’u‚©‚çÅ“K•ûŒü‚ğ©“®‘I‘ğ
 Private Function GetConnSite(cpStr As String, nIdx As Long, otherIdx As Long, _
     nodes() As NodeData) As Long
+    Dim delta As Double
 
     Select Case LCase(Trim(cpStr))
         Case "top"
@@ -1287,7 +1469,7 @@ Private Function GetConnSite(cpStr As String, nIdx As Long, otherIdx As Long, _
                         GetConnSite = 1
                     Else
                         GetConnSite = 1
-                    End If                   
+                    End If
                 Case Else
                     GetConnSite = 1
                 End Select
@@ -1308,7 +1490,7 @@ Private Function GetConnSite(cpStr As String, nIdx As Long, otherIdx As Long, _
                         GetConnSite = 7
                     Else
                         GetConnSite = 4
-                    End If                   
+                    End If
                 Case Else
                     GetConnSite = 4
                 End Select
@@ -1388,10 +1570,55 @@ Private Function GetConnSite(cpStr As String, nIdx As Long, otherIdx As Long, _
                     End If
                 Case "process"
                     If LCase(Trim(nodes(nIdx).shapeType)) = "ellipse" Then
-                        If Abs(dx) >= Abs(dy) Then
-                            GetConnSite = IIf(dx >= 0, 7, 3)  ' ‰E or ¶ 1->1, 2->3, 3->5, 4->7
+                        If dx = 0 Or dy = 0 Then
+                            If dx = 0 Then
+                                If dy > 0 Then
+                                    GetConnSite = 5
+                                Else
+                                    GetConnSite = 1
+                                End If
+                            Else
+                                If dx > 0 Then
+                                    GetConnSite = 7
+                                Else
+                                    GetConnSite = 3
+                                End If
+                            End If
                         Else
-                            GetConnSite = IIf(dy >= 0, 5, 1)  ' ‰º or ã
+                            delta = dy / dx
+                            If dx > 0 And dy < 0 Then
+                                If delta > -0.414 Then
+                                    GetConnSite = 7
+                                ElseIf delta > -2.414 Then
+                                    GetConnSite = 8
+                                Else
+                                    GetConnSite = 1
+                                End If
+                            ElseIf dx < 0 And dy < 0 Then
+                                If delta > 2.414 Then
+                                    GetConnSite = 1
+                                ElseIf delta > 0.414 Then
+                                    GetConnSite = 2
+                                Else
+                                    GetConnSite = 3
+                                End If
+                            ElseIf dx < 0 And dy > 0 Then
+                                If delta > -0.414 Then
+                                    GetConnSite = 3
+                                ElseIf delta > -2.414 Then
+                                    GetConnSite = 4
+                                Else
+                                    GetConnSite = 5
+                                End If
+                            Else
+                                If delta > 2.414 Then
+                                    GetConnSite = 5
+                                ElseIf delta > 0.414 Then
+                                    GetConnSite = 6
+                                Else
+                                    GetConnSite = 7
+                                End If
+                            End If
                         End If
                     Else
                         If Abs(dx) >= Abs(dy) Then
@@ -1454,7 +1681,7 @@ Private Function DrawLinkToNote(ws As Worksheet, baseNode As NodeData)
     
     ' üƒXƒ^ƒCƒ‹i‘¾‚³ 1ptA–îˆó‚È‚µj
     With conn.Line
-        .Weight = 1 * 0.75
+        .Weight = 1 * PointPerPixel
         .ForeColor.RGB = RGB(214, 185, 77)
         .DashStyle = msoLineSolid
         .BeginArrowheadStyle = msoArrowheadNone
@@ -1472,6 +1699,7 @@ Private Function GetConnSiteOfNodeToNote(baseNode As NodeData) As Long
     Dim dx As Double, dy As Double
     dx = note.dx
     dy = note.dy
+    Dim delta As Double
 
     Dim nodeType As String, nodeShapeType As String, noteType As String, noteShapeType As String
     nodeType = baseNode.nodeType
@@ -1482,49 +1710,94 @@ Private Function GetConnSiteOfNodeToNote(baseNode As NodeData) As Long
     Select Case LCase(nodeType)
         Case "io"
             If Abs(dx) >= Abs(dy) Then
-                GetConnSiteOfNodetoNote = IIf(dx >= 0, 6, 3) ' ‰E or ¶  1->2, 2->3, 3->5, 4->6
+                GetConnSiteOfNodeToNote = IIf(dx >= 0, 6, 3) ' ‰E or ¶  1->2, 2->3, 3->5, 4->6
             Else
-                GetConnSiteOfNodetoNote = IIf(dy >= 0, 5, 2) ' ‰º or ã
+                GetConnSiteOfNodeToNote = IIf(dy >= 0, 5, 2) ' ‰º or ã
             End If
         Case "storage"
             If Abs(dx) >= Abs(dy) Then
-                GetConnSiteOfNodetoNote = IIf(dx >= 0, 5, 3)  ' ‰E or ¶ 1->2, 2->3, 3->4, 4->5
+                GetConnSiteOfNodeToNote = IIf(dx >= 0, 5, 3)  ' ‰E or ¶ 1->2, 2->3, 3->4, 4->5
             Else
-                GetConnSiteOfNodetoNote = IIf(dy >= 0, 4, 2)  ' ‰º or ã
+                GetConnSiteOfNodeToNote = IIf(dy >= 0, 4, 2)  ' ‰º or ã
             End If
         Case "terminator"
             If LCase(nodeShapeType) = "connector" Then
                 If Abs(dx) >= Abs(dy) Then
-                    GetConnSiteOfNodetoNote = IIf(dx >= 0, 7, 3)  ' ‰E or ¶ 1->1, 2->3, 3->5, 4->7
+                    GetConnSiteOfNodeToNote = IIf(dx >= 0, 7, 3)  ' ‰E or ¶ 1->1, 2->3, 3->5, 4->7
                 Else
-                    GetConnSiteOfNodetoNote = IIf(dy >= 0, 5, 1)  ' ‰º or ã
+                    GetConnSiteOfNodeToNote = IIf(dy >= 0, 5, 1)  ' ‰º or ã
                 End If
             Else
                 If Abs(dx) >= Abs(dy) Then
-                    GetConnSiteOfNodetoNote = IIf(dx >= 0, 4, 2)  ' ‰E or ¶
+                    GetConnSiteOfNodeToNote = IIf(dx >= 0, 4, 2)  ' ‰E or ¶
                 Else
-                    GetConnSiteOfNodetoNote = IIf(dy >= 0, 3, 1)  ' ‰º or ã
+                    GetConnSiteOfNodeToNote = IIf(dy >= 0, 3, 1)  ' ‰º or ã
                 End If
             End If
         Case "process"
             If LCase(nodeShapeType) = "ellipse" Then
-                If Abs(dx) >= Abs(dy) Then
-                    GetConnSiteOfNodetoNote = IIf(dx >= 0, 7, 3)  ' ‰E or ¶ 1->1, 2->3, 3->5, 4->7
+                If dx = 0 Or dy = 0 Then
+                    If dx = 0 Then
+                        If dy > 0 Then
+                            GetConnSiteOfNodeToNote = 5
+                        Else
+                            GetConnSiteOfNodeToNote = 1
+                        End If
+                    Else
+                        If dx > 0 Then
+                            GetConnSiteOfNodeToNote = 7
+                        Else
+                            GetConnSiteOfNodeToNote = 3
+                        End If
+                    End If
                 Else
-                    GetConnSiteOfNodetoNote = IIf(dy >= 0, 5, 1)  ' ‰º or ã
+                    delta = dy / dx
+                    If dx > 0 And dy < 0 Then
+                        If delta > -0.414 Then
+                            GetConnSiteOfNodeToNote = 7
+                        ElseIf delta > -2.414 Then
+                            GetConnSiteOfNodeToNote = 8
+                        Else
+                            GetConnSiteOfNodeToNote = 1
+                        End If
+                    ElseIf dx < 0 And dy < 0 Then
+                        If delta > 2.414 Then
+                            GetConnSiteOfNodeToNote = 1
+                        ElseIf delta > 0.414 Then
+                            GetConnSiteOfNodeToNote = 2
+                        Else
+                            GetConnSiteOfNodeToNote = 3
+                        End If
+                    ElseIf dx < 0 And dy > 0 Then
+                        If delta > -0.414 Then
+                            GetConnSiteOfNodeToNote = 3
+                        ElseIf delta > -2.414 Then
+                            GetConnSiteOfNodeToNote = 4
+                        Else
+                            GetConnSiteOfNodeToNote = 5
+                        End If
+                    Else
+                        If delta > 2.414 Then
+                            GetConnSiteOfNodeToNote = 5
+                        ElseIf delta > 0.414 Then
+                            GetConnSiteOfNodeToNote = 6
+                        Else
+                            GetConnSiteOfNodeToNote = 7
+                        End If
+                    End If
                 End If
             Else
                 If Abs(dx) >= Abs(dy) Then
-                    GetConnSiteOfNodetoNote = IIf(dx >= 0, 4, 2)  ' ‰E or ¶
+                    GetConnSiteOfNodeToNote = IIf(dx >= 0, 4, 2)  ' ‰E or ¶
                 Else
-                    GetConnSiteOfNodetoNote = IIf(dy >= 0, 3, 1)  ' ‰º or ã
+                    GetConnSiteOfNodeToNote = IIf(dy >= 0, 3, 1)  ' ‰º or ã
                 End If
             End If
         Case Else
             If Abs(dx) >= Abs(dy) Then
-                GetConnSiteOfNodetoNote = IIf(dx >= 0, 4, 2)  ' ‰E or ¶
+                GetConnSiteOfNodeToNote = IIf(dx >= 0, 4, 2)  ' ‰E or ¶
             Else
-                GetConnSiteOfNodetoNote = IIf(dy >= 0, 3, 1)  ' ‰º or ã
+                GetConnSiteOfNodeToNote = IIf(dy >= 0, 3, 1)  ' ‰º or ã
             End If
     End Select
 End Function
@@ -1615,3 +1888,331 @@ Private Function HexToRgb(hexColor As String) As Long
 End Function
 
 
+' ================================
+' ƒtƒ@ƒCƒ‹ƒ_ƒCƒAƒƒO‚ÅJSONƒtƒ@ƒCƒ‹ƒpƒX‚ğæ“¾(macOS—p)
+' –ß‚è’l‚Í‘I‘ğ‚µ‚½ƒtƒ@ƒCƒ‹–¼‚ğŠÜ‚Şƒtƒ@ƒCƒ‹ƒpƒX(String)
+' ================================
+Private Function GetJsonFilePathForMacOS() As String
+    GetJsonFilePathForMacOS = Application.GetOpenFilename(title:="Select a JSON File")
+End Function
+
+
+' ================================
+' macOS—pUTF-8ƒtƒ@ƒCƒ‹“ÇiAppleScriptg—pAÀs•s‰Â‚È‚ç’Êí“Ç‚İ‚İ‚ğ‚İ‚é)
+' –ß‚è’l‚ÍVBA‚ÌUnicode•¶š—ñ(String)
+' ================================
+Function ReadUTF8FileForMacOS(ByVal filePath As String) As String
+
+    ' macOS—pƒtƒ@ƒCƒ‹“Ç‚İ‚İˆ—
+    On Error GoTo Fallback
+
+    ReadUTF8FileForMacOS = AppleScriptTask( _
+        "ReadTextFile.scpt", _
+        "readTextFile", _
+        filePath)
+
+    Debug.Print ReadUTF8FileForMacOS
+
+    Exit Function
+
+Fallback:
+
+    ' AppleScriptTask‚ªÀs‚Å‚«‚È‚¢ê‡‚Ì‘ã‘Öˆ—
+    Err.Clear
+    On Error GoTo 0
+
+    ReadUTF8FileForMacOS = ReadUtf8TextFile(filePath)
+
+End Function
+
+' ================================
+' UTF-8ƒeƒLƒXƒgƒtƒ@ƒCƒ‹“Ç
+' –ß‚è’l‚ÍVBA‚ÌUnicode•¶š—ñ(String)
+' ================================
+Function ReadUtf8TextFile(ByVal filePath As String) As String
+    Dim fileNo As Integer
+    Dim fileSize As Long
+    Dim bytes() As Byte
+    Dim text As String
+    
+    fileNo = FreeFile
+    
+    ' ƒoƒCƒiƒŠ‚ÅŠJ‚­
+    Open filePath For Binary Access Read As #fileNo
+    
+    fileSize = LOF(fileNo)
+    If fileSize <= 0 Then
+        Close #fileNo
+        ReadUtf8TextFile = ""
+        Exit Function
+    End If
+    
+    ReDim bytes(0 To fileSize - 1) As Byte
+    Get #fileNo, , bytes
+    Close #fileNo
+    
+    ' UTF-8 BOM ‚ª‚ ‚ê‚Îœ‹
+    If fileSize >= 3 Then
+        If bytes(0) = &HEF And bytes(1) = &HBB And bytes(2) = &HBF Then
+            text = Utf8BytesToString(bytes, 3)
+        Else
+            text = Utf8BytesToString(bytes, 0)
+        End If
+    Else
+        text = Utf8BytesToString(bytes, 0)
+    End If
+    
+    ReadUtf8TextFile = text
+End Function
+
+
+' ================================
+' UTF-8ƒoƒCƒg”z—ñ ¨ VBA•¶š—ñ(Unicode)
+' startPos ‚Åæ“ªƒIƒtƒZƒbƒgw’è‰Â”\
+' ================================
+Function Utf8BytesToString(ByRef bytes() As Byte, Optional ByVal startPos As Long = 0) As String
+    Dim i As Long
+    Dim b1 As Long, b2 As Long, b3 As Long, b4 As Long
+    Dim codePoint As Long
+    Dim result As String
+    
+    result = ""
+    i = startPos
+    
+    Do While i <= UBound(bytes)
+        b1 = bytes(i)
+        
+        Select Case True
+            ' 1ƒoƒCƒgASCII
+            Case b1 < &H80
+                result = result & ChrW(b1)
+                i = i + 1
+            
+            ' 2ƒoƒCƒgUTF-8
+            Case (b1 And &HE0) = &HC0
+                If i + 1 > UBound(bytes) Then Exit Do
+                b2 = bytes(i + 1)
+                codePoint = ((b1 And &H1F) * &H40) Or (b2 And &H3F)
+                result = result & ChrW(codePoint)
+                i = i + 2
+            
+            ' 3ƒoƒCƒgUTF-8
+            Case (b1 And &HF0) = &HE0
+                If i + 2 > UBound(bytes) Then Exit Do
+                b2 = bytes(i + 1)
+                b3 = bytes(i + 2)
+                codePoint = ((b1 And &HF) * &H1000) Or _
+                            ((b2 And &H3F) * &H40) Or _
+                            (b3 And &H3F)
+                result = result & ChrW(codePoint)
+                i = i + 3
+            
+            ' 4ƒoƒCƒgUTF-8
+            Case (b1 And &HF8) = &HF0
+                If i + 3 > UBound(bytes) Then Exit Do
+                b2 = bytes(i + 1)
+                b3 = bytes(i + 2)
+                b4 = bytes(i + 3)
+                
+                codePoint = ((b1 And &H7) * &H40000) Or _
+                            ((b2 And &H3F) * &H1000) Or _
+                            ((b3 And &H3F) * &H40) Or _
+                            (b4 And &H3F)
+                
+                ' UTF-16ƒTƒƒQ[ƒgƒyƒA‚É•ÏŠ·
+                codePoint = codePoint - &H10000
+                result = result & ChrW((&HD800 Or ((codePoint \ &H400) And &H3FF)))
+                result = result & ChrW((&HDC00 Or (codePoint And &H3FF)))
+                i = i + 4
+            
+            Case Else
+                ' •s³ƒoƒCƒg—ñ‚Í’uŠ·•¶š‘Š“–‚É‚·‚é
+                result = result & "?"
+                i = i + 1
+        End Select
+    Loop
+    
+    Utf8BytesToString = result
+End Function
+
+Public Sub SetShapeFont( _
+    ByVal shp As Shape, _
+    ByVal fontName As String)
+
+    Dim latinFont As String
+    Dim japaneseFont As String
+
+    Select Case LCase(Trim(fontName))
+
+        Case "arial"
+
+            latinFont = "Arial"
+
+#If Mac Then
+            japaneseFont = "Hiragino Sans"
+#Else
+            japaneseFont = "Meiryo"
+#End If
+
+        Case "courier", "courier new"
+
+            latinFont = "Courier New"
+
+#If Mac Then
+            japaneseFont = "Osaka-Mono"
+#Else
+            japaneseFont = "MS Gothic"
+#End If
+
+        Case "helvetica"
+
+#If Mac Then
+            latinFont = "Helvetica"
+            japaneseFont = "Hiragino Sans"
+#Else
+            latinFont = "Arial"
+            japaneseFont = "Yu Gothic"
+#End If
+
+        Case "times", "times new roman"
+
+            latinFont = "Times New Roman"
+
+#If Mac Then
+            japaneseFont = "Hiragino Mincho ProN"
+#Else
+            japaneseFont = "Yu Mincho"
+#End If
+
+        Case Else
+
+            latinFont = fontName
+            japaneseFont = fontName
+
+    End Select
+
+    ' }Œ`‚ÌƒtƒHƒ“ƒgİ’è
+    With shp.TextFrame2.TextRange.Font
+
+        .Name = latinFont
+        .NameFarEast = japaneseFont
+
+    End With
+
+End Sub
+
+Public Function IsGroupableShape(ByVal shp As Shape) As Boolean
+
+    Select Case shp.Type
+
+        Case msoAutoShape, _
+             msoCallout, _
+             msoFreeform, _
+             msoGroup, _
+             msoLine, _
+             msoLinkedPicture, _
+             msoPicture, _
+             msoTextEffect, _
+             msoTextBox
+
+            IsGroupableShape = True
+
+        Case Else
+
+            IsGroupableShape = False
+
+    End Select
+
+End Function
+
+Private Sub GroupAllGroupableShapes()
+
+    Dim ws As Worksheet
+    Dim shp As Shape
+    Dim grp As Shape
+    Dim shapeNames() As Variant
+    Dim cnt As Long
+
+    Set ws = ActiveSheet
+
+    cnt = 0
+
+    ' ƒOƒ‹[ƒv‰»‘ÎÛ‚Ì}Œ`–¼‚ğæ“¾
+    For Each shp In ws.Shapes
+
+        If IsGroupableShape(shp) Then
+
+            ReDim Preserve shapeNames(0 To cnt)
+            shapeNames(cnt) = shp.Name
+            cnt = cnt + 1
+
+        Else
+
+            Debug.Print "‘ÎÛŠO: " & shp.Name
+
+        End If
+
+    Next shp
+
+    ' ‘ÎÛ}Œ`‚ª‘¶İ‚µ‚È‚¢ê‡
+    If cnt = 0 Then Exit Sub
+
+    On Error GoTo ErrorHandler
+
+    ' ƒOƒ‹[ƒv‰»
+    If cnt = 1 Then
+        Set grp = ws.Shapes(shapeNames(0))
+    Else
+        Set grp = ws.Shapes.Range(shapeNames).Group
+    End If
+
+    ' ƒOƒ‹[ƒv‚ÌƒvƒƒpƒeƒB‚ğİ’è
+    With grp
+
+        .Name = "FlowchartGroup"
+
+        ' ƒZƒ‹‚É‡‚í‚¹‚ÄˆÚ“®‚·‚é‚ªƒTƒCƒY•ÏX‚Í‚µ‚È‚¢
+        .Placement = xlMove
+
+    End With
+
+    Exit Sub
+
+ErrorHandler:
+
+    MsgBox "An error occurred. / ƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½B: " & Err.Description, vbExclamation
+
+End Sub
+
+Private Function CountGroupableShapes()
+
+    Dim ws As Worksheet
+    Dim shp As Shape
+    Dim grp As Shape
+    Dim shapeNames() As Variant
+    Dim cnt As Long
+
+    Set ws = ActiveSheet
+
+    cnt = 0
+
+    ' ƒOƒ‹[ƒv‰»‘ÎÛ‚Ì}Œ`–¼‚ğæ“¾
+    For Each shp In ws.Shapes
+
+        If IsGroupableShape(shp) Then
+
+            ReDim Preserve shapeNames(0 To cnt)
+            shapeNames(cnt) = shp.Name
+            cnt = cnt + 1
+
+        Else
+
+            Debug.Print "‘ÎÛŠO: " & shp.Name
+
+        End If
+
+    Next shp
+
+    CountGroupableShapes = cnt
+
+End Function

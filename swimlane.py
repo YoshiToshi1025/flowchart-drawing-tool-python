@@ -14,12 +14,13 @@ class Swimlane:
     header_center_y: int
     width: int = 0
     height: int = 0
+    fill_color: str = ct.SWIMLANE_PARAMS["fill_color"]
+
     frame_id: int|None = None
     top_id: int|None = None
     bottom_id: int|None = None
     top_text_id: int|None = None
     bottom_text_id: int|None = None
-    fill_color: str = ct.SWIMLANE_PARAMS["fill_color"]
 
     def __post_init__(self):
         self.kind = self.kind.replace("Swimlane_", "")  # "Swimlane_horizontal" -> "horizontal", "Swimlane_vertical" -> "vertical"

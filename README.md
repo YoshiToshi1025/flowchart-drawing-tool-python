@@ -211,6 +211,7 @@ This project provides a **“Simple Flowchart Drawing Tool 颯(HAYATE)”** that
 * 2026/11/18 : Adjusted the display of PropertyEditor on macOS.
 * 2026/11/20 : Added the note auto-layout feature (can be invoked from the context menu)
 * 2026/11/24 : Added support for adjusting the stacking order of nodes and links within their respective layers, and fixed issues with node width/height adjustments, data display order, and selected value display in the PropertyEditor.
+* 2026/11/27 : Updated the Excel shape conversion VBA (unified Windows/macOS support, support for various specified elements, and support for Japanese filenames on macOS), and provided tool startup scripts.
 
 ## Notes (Additional)
 

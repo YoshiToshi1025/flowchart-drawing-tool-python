@@ -139,6 +139,8 @@ class PropertyEditor(ttk.Frame):
             "label_y",
             "label_anchor",
             "label_justify",
+            "edge_wrap_ratio1",
+            "edge_wrap_ratio2",
         }
 
         # 複数行テキストを表示するプロパティ名のセット

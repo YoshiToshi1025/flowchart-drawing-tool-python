@@ -17,6 +17,7 @@ class Note:
     shape_id: Optional[int] = None
     line_id: Optional[int] = None
     text_id: Optional[int] = None
+
     text: Optional[str] = None
     dx: Optional[int] = None
     dy: Optional[int] = None
